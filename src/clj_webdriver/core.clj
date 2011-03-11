@@ -240,10 +240,10 @@
          (= :name attr)   (by-name value)
          (= :tag attr)    (by-tag-name value)
          (= :text attr)   (by-link-text value)
-         :else   (by-xpath (str "//"                 ; anywhere in DOM
-                              (name tag)           ; tag from kw
-                              "[@" (name attr)     ; attr from kw
-                              "='" value "']")))))  ; ="value"
+         :else   (by-xpath (str "//"                  ; anywhere in DOM
+                                (name tag)            ; tag from kw
+                                "[@" (name attr)      ; attr from kw
+                                "='" value "']")))))  ; ="value"
 
 (defn by-attr-contains
   "Match if `value` is contained in the value of `attr`. You can optionally specify the tag.
