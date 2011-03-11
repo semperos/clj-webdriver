@@ -251,6 +251,19 @@
                     (name attr)          ; attr from kw
                     ",'" value "')]")))) ; ,'value')]
 
+(defn by-attr-starts
+  "Match if `value` is at the beginning of the value of `attr`. You can optionally specify the tag."
+  ([attr value] (by-attr-starts :* attr value))
+  ([tag attr value]
+     (by-xpath (str "//"                 ; anywhere in DOM
+                    (name tag)           ; tag from kw
+                    "[starts-with(@"     ; xpath "starts-with" function
+                    (name attr)          ; attr from kw
+                    ",'" value "')]")))) ; ,'value')]
+
+;; Can't add more like by-attr-ends or by-attr-matches (regex) due to lack of
+;; uniform support in WebDriver at this point
+
 (defn find-element
   "Retrieve the element object of an element described by `by`"
   [driver by]
