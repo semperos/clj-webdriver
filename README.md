@@ -38,35 +38,6 @@ At the moment, the best API documentation is the source code itself. While there
     (-> b
         (<find-it :input {:value "Log"}) ; see special <find-it and <find-it> helpers
         click)                         ; also used optional tag arg, :input
-    
-
-    ;;; The Harder, Lower-Level Way ;;;
-    
-    ;; The following is the thinnest possible Clojure layer over WebDriver's API
-    
-    ;; Click "Login" link
-    (->> "//ul[@class='nav logged_out']/li/a[text()='Login']"
-         by-xpath
-         (find-element b)
-         click)
-    
-    ;; Input username/email into the "Login or Email" field
-    (input-text (->> "login_field"
-                      by-id
-                      (find-element b))
-                "username")
-    
-    ;; Input password into the "Password" field
-    (input-text (->>  "password"
-                      (by-attr= :name)
-                      (find-element b))
-                "password")
-    
-    ;; Click the "Log in" button
-    (->> "body.logged_out div#login.login_form label.submit_btn input"
-         by-css-selector
-         (find-element b)
-         click)
 
 The "easy" way is marked by the functions `find-it`, `<find-it>` and `<find-it`. These functions take the browser instance, an optional tag argument, an attribute and a value, and find a matching HTML element whose attribute equals, contains or starts with that value respectively. For example, the `(<find-it :input :value "Log")` from above means "find the first `<input>` element whose `value` attribute begins with the string 'Log'".
 
@@ -76,7 +47,7 @@ The "easy" way is marked by the functions `find-it`, `<find-it>` and `<find-it`.
 
 The `find-it` function also understands `:xpath` and `:css` attributes, in which case it finds the element on the page described by the XPath or CSS query provided. An `IllegalArgumentException` will be thrown if you attempt to use `:xpath` or `:css` in conjunction with other attributes.
 
-The second set of examples above demonstrates how you can leverage WebDriver's API directly from Clojure. The `find-element` function expects an instance of the `By` class; the functions that begin with `by-*` make it easy to produce instances of these `By` classes and pass them to find-element. 
+The second set of examples above demonstrates how you can leverage WebDriver's API directly from Clojure. The `find-element` function expects an instance of the `By` class; the functions that begin with `by-*` make it easy to produce instances of these `By` classes and pass them to find-element.
 
 ## Running Tests
 
