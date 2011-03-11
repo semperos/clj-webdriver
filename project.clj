@@ -3,7 +3,7 @@
   :dependencies [[org.clojure/clojure "1.2.0"]
                  [org.clojure/clojure-contrib "1.2.0"]
 ;;		 [org.seleniumhq.selenium/selenium "2.0b1"]
-		 [org.seleniumhq.selenium/selenium-server "2.0b1"]]
+		 [org.seleniumhq.selenium/selenium-server "2.0b2"]]
   :dev-dependencies [[swank-clojure "1.3.0-SNAPSHOT"]
 		     [marginalia "0.5.0"]
 		     [lein-clojars "0.6.0"]
