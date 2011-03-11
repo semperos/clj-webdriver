@@ -10,32 +10,52 @@ Use/require the library in your code:
 
 Start up a browser:
 
-    (def my-browser (start :firefox "https://github.com"))
+    (def b (start :firefox "https://github.com"))
 
-Then read the source to see what functions are available. While there are more than a few functions in the core namespace, they're mostly short and straightforward wrappers around WebDriver API's. Here's an example of logging into Github:
+At the moment, the best API documentation is the source code itself. While there are more than a few functions in the core namespace, they're mostly short and straightforward wrappers around WebDriver API's. Here's an example of logging into Github:
 
     (def b (start :firefox "https://github.com"))
-    (->> "/html/body/div/div/div/ul/li[5]/a"
+    (->> "/html/body/div/div/div/ul/li[5]/a" ; copied from Firebug
          by-xpath
          (find-element b)
          click)
     (input-text (->> "login_field"
-                      by-id
+                      by-id                  ; id attribute
                       (find-element b))
                 "username")
     (input-text (->>  "password"
-                      by-name
+                      by-name                ; name attribute
                       (find-element b))
                 "password")
     (->> "Log in"
-         by-value
+         by-value                            ; value attribute
          (find-element b)
          click)
 
 It's very likely that some macros will be coming along to make this more consistent.
+
+## Running Tests
+
+The namespace `clj-webdriver.test.example-app.core` contains a [Ring][ring-github] app (routing by [Moustache][moustache-github]) that acts as my "control application" for this project's test suite. Instead of running my tests against a remote server on the Internet (prone to change, not always available), I've packaged this small web application to be run locally for the purposes of testing.
+
+Due to some Java server/socket issues, you cannot start both this Ring app and the WebDriver browser instance in the test itself (in this situation, the Ring app starts and WebDriver opens the browser, but then a host of errors follow).
+
+Here's how I run these tests:
+
+* Open a terminal and run `lein repl` or `lein swank` at the root of this project
+* Evaluate `(use 'clj-webdriver.test.example-app.core)`
+* Evaluate `(use 'ring.adapter.jetty)`
+* Evaluate `(defonce my-server (run-jetty #'routes {:port 8080, :join? false}))`
+* Open a new terminal tab/window and run `lein test` at the root of this project
+
+The last test in the suite closes the WebDriver browser instance; you can stop the Jetty server by evaluating `(.stop my-server)` or just killing the REPL with `Ctrl+C` or `C-c C-c`.
+
+If anyone can figure out how to solve this issue (i.e. be able to run just `lein test` and start both the Ring app and WebDriver browser instance in one go), I'd be most appreciative. Until then, testing multiple server-based apps in separate "sandboxes" is acceptable to me.
 
 ## License
 
 Distributed under the Eclipse Public License, the same as Clojure.
 
 [webdriver-orig]: https://github.com/mikitebeka/webdriver-clj
+[ring-github]: https://github.com/mmcgrana/ring
+[moustache-github]: https://github.com/cgrand/moustache
