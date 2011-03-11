@@ -15,8 +15,8 @@ Start up a browser:
 At the moment, the best API documentation is the source code itself. While there are more than a few functions in the core namespace, they're mostly short and straightforward wrappers around WebDriver API's. Here's an example of logging into Github:
 
     (def b (start :firefox "https://github.com"))
-    (->> "/html/body/div/div/div/ul/li[5]/a" ; copied from Firebug
-         by-xpath
+    (->> "//ul[@class='nav logged_out']/li/a[text()='Login']"
+         by-xpath                            ; xpath query
          (find-element b)
          click)
     (input-text (->> "login_field"
@@ -27,12 +27,12 @@ At the moment, the best API documentation is the source code itself. While there
                       by-name                ; name attribute
                       (find-element b))
                 "password")
-    (->> "Log in"
-         by-value                            ; value attribute
+    (->> "body.logged_out div#login.login_form label.submit_btn input"
+         by-css-selector                     ; css selectors
          (find-element b)
          click)
 
-It's very likely that some macros will be coming along to make this more consistent.
+It's very likely that some functions/macros will be coming along to make this more consistent.
 
 ## Running Tests
 
