@@ -1,0 +1,6 @@
+pom.xml
+*jar
+lib
+classes
+outline*.html
+docs
