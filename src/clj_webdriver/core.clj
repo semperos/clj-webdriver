@@ -427,7 +427,9 @@
           (> (count attr-val) 1)
           (or (contains? attr-val :xpath)
               (contains? attr-val :css)))
-       (throw (IllegalArgumentException. "If you want to find an element via XPath or CSS, you may pass in one and only one attribute (:xpath or :css)"))
+       (throw (IllegalArgumentException.
+               (str "If you want to find an element via XPath or CSS, "
+                    "you may pass in one and only one attribute (:xpath or :css)")))
       (if (= 1 (count attr-val)) ; we can do simply dispatch
         (let [attr (key (first attr-val))
               value (val (first attr-val))]
