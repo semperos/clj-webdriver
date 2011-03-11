@@ -38,38 +38,38 @@
   [q w]
   (let [caps (.getCapabilities q)]
     (print-simple
-     (str "#<" "Title: " (.getTitle q) ", "
-          "URL: " (first-60 (.getCurrentUrl q)) ", "
-          "Browser: " (.getBrowserName caps) ", "
-          "Version: " (.getVersion caps) ", "
-          "JS Enabled: " (.isJavascriptEnabled caps) ", "
+     (str "#<" "Title: "            (.getTitle q) ", "
+          "URL: "                   (first-60 (.getCurrentUrl q)) ", "
+          "Browser: "               (.getBrowserName caps) ", "
+          "Version: "               (.getVersion caps) ", "
+          "JS Enabled: "            (.isJavascriptEnabled caps) ", "
           "Native Events Enabled: " (boolean (re-find #"nativeEvents=true" (.toString caps))) ", "
-          "Object: " q ">") w)))
+          "Object: "                q ">") w)))
 
 (defmethod print-method WebElement
   [q w]
-  (let [tag-name (.getTagName q)
-        text (.getText q)
-        id (.getAttribute q "id")
+  (let [tag-name   (.getTagName q)
+        text       (.getText q)
+        id         (.getAttribute q "id")
         class-name (.getAttribute q "class")
-        value (.getAttribute q "value")
-        href (.getAttribute q "href")
-        src (.getAttribute q "src")
-        obj q]
+        value      (.getAttribute q "value")
+        href       (.getAttribute q "href")
+        src        (.getAttribute q "src")
+        obj        q]
    (print-simple
     (str "#<"
      (when-attr tag-name
-                 (str "Tag: "  "<" tag-name ">" ", "))
+                 (str "Tag: "    "<" tag-name ">" ", "))
      (when-attr text
-                 (str "Text: " (-> text elim-breaks first-60) ", "))
+                 (str "Text: "   (-> text elim-breaks first-60) ", "))
      (when-attr id
-                 (str "Id: " id ", "))
+                 (str "Id: "     id ", "))
      (when-attr class-name
-                 (str "Class: " class-name ", "))
+                 (str "Class: "  class-name ", "))
      (when-attr value
-                 (str "Value: " value ", "))
+                 (str "Value: "  value ", "))
      (when-attr href
-                 (str "Href: " href ", "))
+                 (str "Href: "   href ", "))
      (when-attr src
                  (str "Source: " src ", "))
-     "Object: " q ">") w)))
+     "Object: "                  q ">") w)))

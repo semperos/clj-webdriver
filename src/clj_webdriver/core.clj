@@ -86,7 +86,7 @@
   [driver]
   (.getWindowHandle driver))
 
-; Navigation interface
+;; ## Navigation Interface
 (defn back
   "Go back to the previous page in \"browsing history\""
   [driver]
@@ -107,7 +107,7 @@
   [driver]
   (.refresh (.navigate driver)))
 
-; TargetLocator interface
+;; ## TargetLocator Interface
 (defn switch-to-frame
   "Switch focus to a particular HTML frame"
   [driver frame]
@@ -128,7 +128,6 @@
   [driver]
   (.activeElement (.switchTo driver)))
 
-; FIXME: Full Cookie interface
 (defn new-cookie
   "Create a new cookie instance"
   ([name value] (new-cookie name value "/" nil))
@@ -145,13 +144,12 @@
   [cookie]
   (.getValue cookie))
 
-; Option interface
+;; ## Option Interface
 (defn add-cookie
   "Add a new cookie to the browser session"
   [driver cookie]
   (.addCookie (.manage driver) cookie))
 
-; FIXME: Multi method for delete-cookie-named and delete-cookie
 (defn delete-cookie-named
   "Delete a cookie given its name"
   [driver name]
@@ -267,8 +265,8 @@
                     (name attr)          ; attr from kw
                     ",'" value "')]")))) ; ,'value')]
 
-;; Can't add more like by-attr-ends or by-attr-matches (regex) due to lack of
-;; uniform support in WebDriver at this point
+;; I can't add more functions like `by-attr-ends` or `by-attr-matches` (regex) due
+;; to lack of uniform XPath support in WebDriver
 
 (defn find-element
   "Retrieve the element object of an element described by `by`"
@@ -282,7 +280,7 @@
   (try (into [] (.findElements driver by))
   (catch NoSuchElementException e [])))
 
-; WebElement
+;; ##  WebElement
 (defn click
   "Click a particular HTML element"
   [element]
@@ -345,7 +343,7 @@
 
 (def input-text send-keys)
 
-;; org.openqa.selenium.support.ui.Select class
+;; ## org.openqa.selenium.support.ui.Select class
 
 (defn deselect-all
   "Clear all selected entries for select list described by `by`"
@@ -415,14 +413,13 @@
   (let [select-list (Select. element)]
     (.selectByVisibleText select-list text)))
 
-;; Syntactic Utilities
+;; ## Syntactic Utilities
 
-;; Target syntax: (find-it browser-obj :tag :attr value)
-;; This should be the most you have to write to do basic element retrieval
 (defn find-it
-  ([browser-obj attr-val]
-     (find-it browser-obj :* attr-val))
-  ([browser-obj tag attr-val]
+  "Given a WebDriver `driver`, optional HTML tag `tag`, and an HTML attribute-value pair `attr-val`, return the first WebElement that matches. The values of `attr-val` items must match the target exactly."
+  ([driver attr-val]
+     (find-it driver :* attr-val))
+  ([driver tag attr-val]
      (if (and
           (> (count attr-val) 1)
           (or (contains? attr-val :xpath)
@@ -434,20 +431,22 @@
         (let [attr (key (first attr-val))
               value (val (first attr-val))]
           (cond
-           (= :xpath attr) (find-element browser-obj (by-xpath value))
-           (= :css attr)   (find-element browser-obj (by-css-selector value))
-           :else           (find-element browser-obj (by-attr= tag attr value))))
-        (find-element browser-obj (by-xpath (build-xpath tag attr-val)))))))
+           (= :xpath attr) (find-element driver (by-xpath value))
+           (= :css attr)   (find-element driver (by-css-selector value))
+           :else           (find-element driver (by-attr= tag attr value))))
+        (find-element driver (by-xpath (build-xpath tag attr-val)))))))
 
 (defn <find-it>
-  ([browser-obj attr value]
-     (<find-it> browser-obj :* attr value))
-  ([browser-obj tag attr value]
-     (find-element browser-obj (by-attr-contains tag attr value))))
+  "Given a WebDriver `driver`, optional HTML tag `tag`, and an HTML attribute-value pair `attr-val`, return the first WebElement that matches. The values of `attr-val` items must be contained within the target value, e.g. `'log'` would match `'not_logged_in'`."
+  ([driver attr value]
+     (<find-it> driver :* attr value))
+  ([driver tag attr value]
+     (find-element driver (by-attr-contains tag attr value))))
 
 (defn <find-it
-  ([browser-obj attr value]
-     (<find-it browser-obj :* attr value))
-  ([browser-obj tag attr value]
-     (find-element browser-obj (by-attr-starts tag attr value))))
+  "Given a WebDriver `driver`, optional HTML tag `tag`, and an HTML attribute-value pair `attr-val`, return the first WebElement that matches. The values of `attr-val` items must represent the start of the target value, e.g. `'log'` would match `'login'` but not `'not_logged_in'`"
+  ([driver attr value]
+     (<find-it driver :* attr value))
+  ([driver tag attr value]
+     (find-element driver (by-attr-starts tag attr value))))
 
