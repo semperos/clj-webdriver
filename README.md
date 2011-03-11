@@ -12,35 +12,71 @@ Start up a browser:
 
     (def b (start :firefox "https://github.com"))
 
-At the moment, the best API documentation is the source code itself. While there are more than a few functions in the core namespace, they're mostly short and straightforward wrappers around WebDriver API's. Here's an example of logging into Github:
+At the moment, the best API documentation is the source code itself. While there are more than a few functions in the core namespace, they're mostly short and straightforward wrappers around WebDriver API's. Here's are two examples of logging into Github, one leveraging easy-to-use utility functions and one using lower-level, advanced features:
 
+    ;; Start the browser and bind it to `b`
     (def b (start :firefox "https://github.com"))
+    
+    ;;; Easy Way ;;;
+    
+    ;; Click "Login" link
+    (-> b
+        (find-it {:text "Login"})
+        click)
+    
+    ;; Input username/email into the "Login or Email" field
+    (-> b
+        (find-it {:class "text", :name "login"}) ; use multiple attributes
+        (input-text "username"))
+    
+    ;; Input password into the "Password" field
+    (-> b
+        (find-it {:xpath "//input[@id='password']"}) ; even in "easy" mode, you still
+        (input-text "password"))                     ; have :xpath and :css options
+    
+    ;; Click the "Log in" button"
+    (-> b
+        (<find-it :input {:value "Log"}) ; see special <find-it and <find-it> helpers
+        click)                         ; also used optional tag arg, :input
+    
+
+    ;;; The Harder, Lower-Level Way ;;;
+    
+    ;; The following is the thinnest possible Clojure layer over WebDriver's API
     
     ;; Click "Login" link
     (->> "//ul[@class='nav logged_out']/li/a[text()='Login']"
-         by-xpath                            ; xpath query
+         by-xpath
          (find-element b)
          click)
     
     ;; Input username/email into the "Login or Email" field
     (input-text (->> "login_field"
-                      by-id                  ; id attribute
+                      by-id
                       (find-element b))
                 "username")
     
     ;; Input password into the "Password" field
     (input-text (->>  "password"
-                      (by-attr= :name)       ; name attribute
+                      (by-attr= :name)
                       (find-element b))
                 "password")
     
     ;; Click the "Log in" button
     (->> "body.logged_out div#login.login_form label.submit_btn input"
-         by-css-selector                     ; css selectors
+         by-css-selector
          (find-element b)
          click)
 
-It's very likely that some functions/macros will be coming along to make this more consistent.
+The "easy" way is marked by the functions `find-it`, `<find-it>` and `<find-it`. These functions take the browser instance, an optional tag argument, an attribute and a value, and find a matching HTML element whose attribute equals, contains or starts with that value respectively. For example, the `(<find-it :input :value "Log")` from above means "find the first `<input>` element whose `value` attribute begins with the string 'Log'".
+
+* `find-it` => equals
+* `<find-it>` => contains
+* `<find-it` => starts with
+
+The `find-it` function also understands `:xpath` and `:css` attributes, in which case it finds the element on the page described by the XPath or CSS query provided. An `IllegalArgumentException` will be thrown if you attempt to use `:xpath` or `:css` in conjunction with other attributes.
+
+The second set of examples above demonstrates how you can leverage WebDriver's API directly from Clojure. The `find-element` function expects an instance of the `By` class; the functions that begin with `by-*` make it easy to produce instances of these `By` classes and pass them to find-element. 
 
 ## Running Tests
 
