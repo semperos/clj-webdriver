@@ -1,4 +1,4 @@
-# Selenium WebDriver Support for Clojure
+# Selenium-WebDriver Support for Clojure
 
 This is a Clojure wrapper around the Selenium-WebDriver library. Almost all code (at this point) taken directly from [mikitebeka/webdriver-clj][webdriver-orig]. I've not forked the repository because mikitebeka added jar files to his repo in past commits, which makes the repo itself rather large given the actual size of the source code.
 
@@ -24,7 +24,7 @@ At the moment, the best API documentation is the source code itself. While there
                       (find-element b))
                 "username")
     (input-text (->>  "password"
-                      by-name                ; name attribute
+                      (by-attr= :name)       ; name attribute
                       (find-element b))
                 "password")
     (->> "body.logged_out div#login.login_form label.submit_btn input"

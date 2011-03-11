@@ -232,7 +232,7 @@
   "Use `value` of arbitrary attribute `attr` to find an element. You can optionally specify the tag.
    For example: (by-attr= :id \"element-id\")
                 (by-attr= :div :class \"content\""
-  ([attr value] (by-attr= :* attr value))
+  ([attr value] (by-attr= :* attr value)) ; default to * any tag
   ([tag attr value]
      (by-xpath (str "//"                 ; anywhere in DOM
                     (name tag)           ; tag from kw
@@ -243,7 +243,7 @@
   "Match if `value` is contained in the value of `attr`. You can optionally specify the tag.
    For example: (by-attr-contains :class \"navigation\")
                 (by-attr-contains :ul :class \"tags\")"
-  ([attr value] (by-attr-contains :* attr value))
+  ([attr value] (by-attr-contains :* attr value)) ; default to * any tag
   ([tag attr value]
      (by-xpath (str "//"                 ; anywhere in DOM
                     (name tag)           ; tag from kw
