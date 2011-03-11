@@ -15,18 +15,26 @@ Start up a browser:
 At the moment, the best API documentation is the source code itself. While there are more than a few functions in the core namespace, they're mostly short and straightforward wrappers around WebDriver API's. Here's an example of logging into Github:
 
     (def b (start :firefox "https://github.com"))
+    
+    ;; Click "Login" link
     (->> "//ul[@class='nav logged_out']/li/a[text()='Login']"
          by-xpath                            ; xpath query
          (find-element b)
          click)
+    
+    ;; Input username/email into the "Login or Email" field
     (input-text (->> "login_field"
                       by-id                  ; id attribute
                       (find-element b))
                 "username")
+    
+    ;; Input password into the "Password" field
     (input-text (->>  "password"
                       (by-attr= :name)       ; name attribute
                       (find-element b))
                 "password")
+    
+    ;; Click the "Log in" button
     (->> "body.logged_out div#login.login_form label.submit_btn input"
          by-css-selector                     ; css selectors
          (find-element b)
