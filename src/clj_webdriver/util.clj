@@ -2,6 +2,19 @@
   (:require [clojure.string :as str])
   (:import [org.openqa.selenium WebDriver WebElement]))
 
+(defn build-xpath
+  "Given a tag and a map of attribute-value pairs, generate XPath"
+  [tag attr-val]
+  (str "//"
+       (name tag)
+       (apply str (for [[attr value] attr-val]
+                    (if (= :text attr) ; inspired by Watir-WebDriver
+                      (str "[text()='" value "']")
+                      (str "[@"
+                          (name attr)
+                          "="
+                          "'" value "']"))))))
+
 (defn first-60
   "Get first twenty characters of `s`, then add ellipsis"
   [s]

@@ -234,10 +234,16 @@
                 (by-attr= :div :class \"content\""
   ([attr value] (by-attr= :* attr value)) ; default to * any tag
   ([tag attr value]
-     (by-xpath (str "//"                 ; anywhere in DOM
-                    (name tag)           ; tag from kw
-                    "[@" (name attr)     ; attr from kw
-                    "='" value "']"))))  ; ="value"
+     (cond
+         (= :class attr)  (by-class-name value)
+         (= :id attr)     (by-id value)
+         (= :name attr)   (by-name value)
+         (= :tag attr)    (by-tag-name value)
+         (= :text attr)   (by-link-text value)
+         :else   (by-xpath (str "//"                 ; anywhere in DOM
+                              (name tag)           ; tag from kw
+                              "[@" (name attr)     ; attr from kw
+                              "='" value "']")))))  ; ="value"
 
 (defn by-attr-contains
   "Match if `value` is contained in the value of `attr`. You can optionally specify the tag.
@@ -408,3 +414,38 @@
   [element text]
   (let [select-list (Select. element)]
     (.selectByVisibleText select-list text)))
+
+;; Syntactic Utilities
+
+;; Target syntax: (find-it browser-obj :tag :attr value)
+;; This should be the most you have to write to do basic element retrieval
+(defn find-it
+  ([browser-obj attr-val]
+     (find-it browser-obj :* attr-val))
+  ([browser-obj tag attr-val]
+     (if (and
+          (> (count attr-val) 1)
+          (or (contains? attr-val :xpath)
+              (contains? attr-val :css)))
+       (throw (IllegalArgumentException. "If you want to find an element via XPath or CSS, you may pass in one and only one attribute (:xpath or :css)"))
+      (if (= 1 (count attr-val)) ; we can do simply dispatch
+        (let [attr (key (first attr-val))
+              value (val (first attr-val))]
+          (cond
+           (= :xpath attr) (find-element browser-obj (by-xpath value))
+           (= :css attr)   (find-element browser-obj (by-css-selector value))
+           :else           (find-element browser-obj (by-attr= tag attr value))))
+        (find-element browser-obj (by-xpath (build-xpath tag attr-val)))))))
+
+(defn <find-it>
+  ([browser-obj attr value]
+     (<find-it> browser-obj :* attr value))
+  ([browser-obj tag attr value]
+     (find-element browser-obj (by-attr-contains tag attr value))))
+
+(defn <find-it
+  ([browser-obj attr value]
+     (<find-it browser-obj :* attr value))
+  ([browser-obj tag attr value]
+     (find-element browser-obj (by-attr-starts tag attr value))))
+
