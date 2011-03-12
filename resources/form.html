@@ -1,51 +1,92 @@
 <h1>Example Form</h1>
 <form action="/foobar" method="post">
-  <label>First Name: </label>
-  <input type="text" name="first_name" id="first_name" size="30" />
+  <div class="element-wrapper">
+    <label>First Name: </label>
+    <input type="text" name="first_name" id="first_name" size="30" />
+  </div>
 
-  <label>Last Name: </label>
-  <input type="text" name="last_name" id="last_name" size="30" value="Smith" />
+  <div class="element-wrapper">
+    <label>Last Name: </label>
+    <input type="text" name="last_name" id="last_name" size="30" value="Smith" />
+  </div>
 
-  <label>Biography: </label>
-  <textarea name="bio" id="bio" cols="60" rows="6">Please write a short biography.</textarea>
+  <div class="element-wrapper">
+    <div><label>Biography: </label></div>
+    <textarea name="bio" id="bio" cols="60" rows="6">Please write a short biography.</textarea>
+  </div>
 
-  <label>Gender: </label>
-  <input type="radio" value="male" id="male" /><label class="in" for="male">Male</label>
-  <input type="radio" value="female" id="female" /><label class="in" for="female">Female</label>  
+  <div class="element-wrapper">
+    <label>Gender: </label>
+    <label class="choice">
+      <input type="radio" value="male" id="male" />
+      Male
+    </label>
+    <label class="choice">
+      <input type="radio" value="female" id="female" />
+      Female
+    </label>
+  </div>
   
-  <label>Programming Languages You Know: </label>
-  <input type="checkbox" name="clojure" />Clojure<br/>
-  <input type="checkbox" name="common_lisp" />Common Lisp<br/>
-  <input type="checkbox" name="java" />Java<br/>
-  <input type="checkbox" name="ruby" />Ruby<br/>
-  <input type="checkbox" name="python" />Python<br/>
+  <div class="element-wrapper">
+    <div>
+      <label>Programming Languages You Know: </label>
+    </div>
+    <label class="choice">
+      <input type="checkbox" name="clojure" />
+      Clojure
+    </label><br/>
+    <label class="choice">
+      <input type="checkbox" name="common_lisp" />
+      Common Lisp
+    </label><br/>
+    <label class="choice">
+      <input type="checkbox" name="java" />
+      Java
+    </label><br/>
+    <label class="choice">
+      <input type="checkbox" name="ruby" />
+      Ruby
+    </label><br/>
+    <label class="choice">
+      <input type="checkbox" name="python" />
+      Python
+    </label>
+  </div>
 
-  <label>Countries: </label>
-  <select name="countries" id="countries">
-    <option value="france">France</option>
-    <option value="deutschland">Germany</option>
-    <option value="ayiti">Haiti</option>
-    <option value="bharat" selected="selected">India</option>
-  </select>
+  <div class="element-wrapper">
+    <label>Countries: </label>
+    <select name="countries" id="countries">
+      <option value="france">France</option>
+      <option value="deutschland">Germany</option>
+      <option value="ayiti">Haiti</option>
+      <option value="bharat" selected="selected">India</option>
+    </select>
+  </div>
 
-  <label>Dinner: </label>
-  <select name="dinner" id="dinner">
-    <optgroup id="opt_food" label="food">
-      <option value="cow">Steak</option>
-      <option value="hen">Chicken</option>
-    </optgroup>
-    <optgroup id="opt_drink" label="drinks">
-      <option value="syrupy">Soda</option>
-      <option value="fruity">Juice</option>
-      <option value="wet">Water</option>
-    </optgroup>
-  </select>
+  <div class="element-wrapper">
+    <label>Dinner: </label>
+    <select name="dinner" id="dinner">
+      <optgroup id="opt_food" label="food">
+        <option value="cow">Steak</option>
+        <option value="hen">Chicken</option>
+      </optgroup>
+      <optgroup id="opt_drink" label="drinks">
+        <option value="syrupy">Soda</option>
+        <option value="fruity">Juice</option>
+        <option value="wet">Water</option>
+      </optgroup>
+    </select>
+  </div>
 
-  <label>Types of Websites: </label>
-  <select name="site_types" id="site_types" multiple="multiple">
-    <option value="blog">Blog</option>
-    <option value="social_media">Social Media</option>
-    <option value="search_engine">Search Engine</option>
-    <option value="code">Code Hosting</option>
-  </select>
+  <div class="element-wrapper">
+    <div>
+      <label>Types of Websites: </label>
+    </div>
+    <select name="site_types" id="site_types" multiple="multiple">
+      <option value="blog">Blog</option>
+      <option value="social_media">Social Media</option>
+      <option value="search_engine">Search Engine</option>
+      <option value="code">Code Hosting</option>
+    </select>
+  </div>
 </form>
