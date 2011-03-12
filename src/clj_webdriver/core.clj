@@ -368,7 +368,17 @@
         y   (.y loc)]
     {:x x, :y y}))
 
-;; TODO: dragAndDropOn, dragAndDropBy, toggle
+(defn drag-and-drop-by
+  "Drag an element by `x` pixels to the right and `y` pixels down. Use negative numbers for opposite directions."
+  [element ^Integer x ^Integer y]
+  (.dragAndDropBy element x y))
+
+(defn drag-and-drop-on
+  "Drag `element-a` onto `element-b`. The (0,0) coordinates (top-left corners) of each element are aligned."
+  [element-a element-b]
+  (.dragAndDropOn element-a element-b))
+
+;; TODO: toggle
 
 ;; ## org.openqa.selenium.support.ui.Select class
 
