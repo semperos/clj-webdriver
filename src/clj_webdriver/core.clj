@@ -378,8 +378,6 @@
   [element-a element-b]
   (.dragAndDropOn element-a element-b))
 
-;; TODO: toggle
-
 ;; ## org.openqa.selenium.support.ui.Select class
 
 (defn deselect-all
