@@ -352,7 +352,23 @@
 
 (def input-text send-keys)
 
-;; TOOD: dragAndDropOn, dragAndDropBy, getLocation, getLocationOnScreenOnceScrolledIntoView
+(defn location
+  "Given an element object, return its location as a map of its x/y coordinates"
+  [element]
+  (let [loc (.getLocation element)
+        x   (.x loc)
+        y   (.y loc)]
+    {:x x, :y y}))
+
+(defn location-once-visible
+  "Given an element object, return its location on the screen once it is scrolled into view as a map of its x/y coordinates. The window will scroll as much as possible until the element hits the top of the page; thus even visible elements will be scrolled until they reach that point."
+  [element]
+  (let [loc (.getLocationOnScreenOnceScrolledIntoView element)
+        x   (.x loc)
+        y   (.y loc)]
+    {:x x, :y y}))
+
+;; TODO: dragAndDropOn, dragAndDropBy, toggle
 
 ;; ## org.openqa.selenium.support.ui.Select class
 
