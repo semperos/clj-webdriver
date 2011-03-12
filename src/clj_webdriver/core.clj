@@ -8,11 +8,10 @@
 ;; include things like navigating to and from URL's, finding and interacting
 ;; with elements within HTML pages, and handling browser cookies.
 ;;
-;; The vast majority of this code has been taken from mikitebeka's
-;; `webdriver-clj` project hosted on Github. I plan to add support for
-;; the Select class, which provides easier mechanisms for interacting with
-;; select list form elements.
-;; 
+;; Credits to mikitebeka's `webdriver-clj` project on Github for a starting-
+;; point for this project and many of the low-level wrappers around the
+;; WebDriver API.
+;;
 (ns clj-webdriver.core
   (:use clj-webdriver.util)
   (:import [org.openqa.selenium By WebDriver WebElement Speed Cookie
@@ -347,8 +346,8 @@
 
 (defn send-keys
   "Type the string of keys into the element object"
-  [element char-keys]
-  (.sendKeys element (into-array CharSequence (list char-keys))))
+  [element s]
+  (.sendKeys element (into-array CharSequence (list s))))
 
 (def input-text send-keys)
 

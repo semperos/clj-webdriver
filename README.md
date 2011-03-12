@@ -1,6 +1,6 @@
 # Selenium-WebDriver Support for Clojure
 
-This is a Clojure wrapper around the Selenium-WebDriver library. Almost all code (at this point) taken directly from [mikitebeka/webdriver-clj][webdriver-orig]. I've not forked the repository because mikitebeka added jar files to his repo in past commits, which makes the repo itself rather large given the actual size of the source code.
+This is a Clojure wrapper around the Selenium-WebDriver library. Credits to [mikitebeka/webdriver-clj][webdriver-orig] for the initial code for this project and many of the low-level wrappers around the WebDriver API.
 
 ## Usage
 
@@ -12,12 +12,12 @@ Start up a browser:
 
     (def b (start :firefox "https://github.com"))
 
-At the moment, the best API documentation is the source code itself. While there are more than a few functions in the core namespace, they're mostly short and straightforward wrappers around WebDriver API's. Here's are two examples of logging into Github, one leveraging easy-to-use utility functions and one using lower-level, advanced features:
+At the moment, the best documentation is the source code itself. While there are many functions in the core namespace, they're mostly short and straightforward wrappers around WebDriver API's. For the task of finding elements on the page, I've added some utility functions at the end of the core namespace.
+
+Here's an example of logging into Github:
 
     ;; Start the browser and bind it to `b`
     (def b (start :firefox "https://github.com"))
-    
-    ;;; Easy Way ;;;
     
     ;; Click "Login" link
     (-> b
@@ -39,15 +39,19 @@ At the moment, the best API documentation is the source code itself. While there
         (<find-it :input {:value "Log"}) ; see special <find-it and <find-it> helpers
         click)                         ; also used optional tag arg, :input
 
-The "easy" way is marked by the functions `find-it`, `<find-it>` and `<find-it`. These functions take the browser instance, an optional tag argument, an attribute and a value, and find a matching HTML element whose attribute equals, contains or starts with that value respectively. For example, the `(<find-it :input :value "Log")` from above means "find the first `<input>` element whose `value` attribute begins with the string 'Log'".
+The key functions for finding an element on the page are `find-it`, `<find-it>` and `<find-it`. These functions take the browser instance, an optional tag argument, an attribute and a value, and find a matching HTML element whose attribute equals, contains or starts with that value respectively. For example, the `(<find-it :input :value "Log")` from above means "find the first `<input>` element whose `value` attribute begins with the string 'Log'".
 
-* `find-it` => equals
+* `find-it`   => equals
 * `<find-it>` => contains
-* `<find-it` => starts with
+* `<find-it`  => starts with
 
 The `find-it` function also understands `:xpath` and `:css` attributes, in which case it finds the element on the page described by the XPath or CSS query provided. An `IllegalArgumentException` will be thrown if you attempt to use `:xpath` or `:css` in conjunction with other attributes.
 
-The second set of examples above demonstrates how you can leverage WebDriver's API directly from Clojure. The `find-element` function expects an instance of the `By` class; the functions that begin with `by-*` make it easy to produce instances of these `By` classes and pass them to find-element.
+So, to describe the general pattern of interacting with the page:
+
+    (-> browser-instance
+        (find-it :optional-tag-name {:attribute "value", :attribute "value"})
+        (do-something-with-the-element))
 
 ## Running Tests
 
@@ -58,8 +62,7 @@ Due to some Java server/socket issues, you cannot start both this Ring app and t
 Here's how I run these tests:
 
 * Open a terminal and run `lein repl` or `lein swank` at the root of this project
-* Evaluate `(use 'clj-webdriver.test.example-app.core)`
-* Evaluate `(use 'ring.adapter.jetty)`
+* Evaluate `(use 'clj-webdriver.test.example-app.core 'ring.adapter.jetty)`
 * Evaluate `(defonce my-server (run-jetty #'routes {:port 8080, :join? false}))`
 * Open a new terminal tab/window and run `lein test` at the root of this project
 
