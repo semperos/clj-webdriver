@@ -331,6 +331,15 @@
   [element]
   (.isEnabled element))
 
+;; I like Watir-WebDriver's "visible?"; "displayed?" also used to align
+;; with WebDriver's word choice
+(defn visible?
+  "Returns true if the given element object is visible/displayed"
+  [element]
+  (.isDisplayed element))
+
+(def displayed? ^{:doc "Returns true if the given element object is visible/displayed"} visible?)
+
 (defn text
   "Retrieve the content, or inner HTML, of a given element object"
   [element]
@@ -342,6 +351,8 @@
   (.sendKeys element (into-array CharSequence (list char-keys))))
 
 (def input-text send-keys)
+
+;; TOOD: dragAndDropOn, dragAndDropBy, getLocation, getLocationOnScreenOnceScrolledIntoView
 
 ;; ## org.openqa.selenium.support.ui.Select class
 
@@ -449,4 +460,3 @@
      (<find-it driver :* attr value))
   ([driver tag attr value]
      (find-element driver (by-attr-starts tag attr value))))
-
