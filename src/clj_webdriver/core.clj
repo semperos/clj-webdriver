@@ -429,6 +429,10 @@
 (defn find-it
   "Given a WebDriver `driver`, optional HTML tag `tag`, and an HTML attribute-value pair `attr-val`, return the first WebElement that matches. The values of `attr-val` items must match the target exactly."
   ([driver attr-val]
+     (when (not= clojure.lang.PersistentArrayMap (class attr-val))
+       (throw (IllegalArgumentException.
+               (str "If you only supply two arguments to this function, "
+                    "the second must be a map of attribute-value pairs"))))
      (find-it driver :* attr-val))
   ([driver tag attr-val]
      (if (and
