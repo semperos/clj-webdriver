@@ -307,8 +307,8 @@
 
 (defn attribute
   "Retrieve the value of the attribute of the given element object"
-  [element attr-name]
-  (.getAttribute element attr-name))
+  [element attr]
+  (.getAttribute element (name attr)))
 
 (defn toggle
   "If the given element object is a checkbox, this will toggle its selected/unselected state"
