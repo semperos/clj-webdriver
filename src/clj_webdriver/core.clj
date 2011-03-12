@@ -447,7 +447,7 @@
   (let [select-list (Select. element)]
     (.selectByVisibleText select-list text)))
 
-;; ## Syntactic Utilities
+;; ## Element-finding Utilities
 
 (defn find-it
   "Given a WebDriver `driver`, optional HTML tag `tag`, and an HTML attribute-value pair `attr-val`, return the first WebElement that matches. The values of `attr-val` items must match the target exactly."
@@ -464,8 +464,9 @@
                (str "If you want to find an element via XPath or CSS, "
                     "you may pass in one and only one attribute (:xpath or :css)")))
       (if (= 1 (count attr-val)) ; we can do simply dispatch
-        (let [attr (key (first attr-val))
-              value (val (first attr-val))]
+        (let [entry (first attr-val)
+              attr (key entry)
+              value (val entry)]
           (cond
            (= :xpath attr) (find-element driver (by-xpath value))
            (= :css attr)   (find-element driver (by-css-selector value))
@@ -474,14 +475,30 @@
 
 (defn <find-it>
   "Given a WebDriver `driver`, optional HTML tag `tag`, and an HTML attribute-value pair `attr-val`, return the first WebElement that matches. The values of `attr-val` items must be contained within the target value, e.g. `'log'` would match `'not_logged_in'`."
-  ([driver attr value]
-     (<find-it> driver :* attr value))
-  ([driver tag attr value]
-     (find-element driver (by-attr-contains tag attr value))))
+  ([driver attr-val]
+     (<find-it> driver :* attr-val))
+  ([driver tag attr-val]
+     (if (> (count attr-val) 1)
+       (throw (IllegalArgumentException.
+               (str "Your attr-val map may only include one attribute-value pair. "
+                    "Due to inconsistent XPath behavior, locating an element "
+                    "by multiple calls to contains() is not supported.")))
+       (let [entry (first attr-val)
+             attr (key entry)
+             value (val entry)]
+         (find-element driver (by-attr-contains tag attr value))))))
 
 (defn <find-it
   "Given a WebDriver `driver`, optional HTML tag `tag`, and an HTML attribute-value pair `attr-val`, return the first WebElement that matches. The values of `attr-val` items must represent the start of the target value, e.g. `'log'` would match `'login'` but not `'not_logged_in'`"
-  ([driver attr value]
-     (<find-it driver :* attr value))
-  ([driver tag attr value]
-     (find-element driver (by-attr-starts tag attr value))))
+  ([driver attr-val]
+     (<find-it driver :* attr-val))
+  ([driver tag attr-val]
+     (if (> (count attr-val) 1)
+       (throw (IllegalArgumentException.
+               (str "Your attr-val map may only include one attribute-value pair. "
+                    "Due to inconsistent XPath behavior, locating an element "
+                    "by multiple calls to starts-with() is not supported.")))
+       (let [entry (first attr-val)
+             attr (key entry)
+             value (val entry)]
+         (find-element driver (by-attr-starts tag attr value))))))

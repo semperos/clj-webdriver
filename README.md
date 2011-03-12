@@ -39,13 +39,51 @@ Here's an example of logging into Github:
         (<find-it :input {:value "Log"}) ; see special <find-it and <find-it> helpers
         click)                         ; also used optional tag arg, :input
 
-The key functions for finding an element on the page are `find-it`, `<find-it>` and `<find-it`. These functions take the browser instance, an optional tag argument, an attribute and a value, and find a matching HTML element whose attribute equals, contains or starts with that value respectively. For example, the `(<find-it :input :value "Log")` from above means "find the first `<input>` element whose `value` attribute begins with the string 'Log'".
+The key functions for finding an element on the page are `find-it`, `<find-it>` and `<find-it`. These functions take the browser instance, an optional tag argument, optional attribute and value pairs, and find a matching HTML element whose attribute equals, contains or starts with that value respectively. For example, the `(<find-it :input :value "Log")` from above means "find the first `<input>` element whose `value` attribute begins with the string 'Log'".
 
 * `find-it`   => equals
 * `<find-it>` => contains
 * `<find-it`  => starts with
 
-The `find-it` function also understands `:xpath` and `:css` attributes, in which case it finds the element on the page described by the XPath or CSS query provided. An `IllegalArgumentException` will be thrown if you attempt to use `:xpath` or `:css` in conjunction with other attributes.
+To demonstrate how to use arguments in different ways, consider the following example. If I wanted to find `<a href="/contact" id="contact-link" class="menu-item" name="contact">Contact Us</a>` in a page and click on it I could perform any of the following:
+
+    (-> b
+        (find-it :a)    ; assuming its the first <a> on the page
+        click)
+    
+    (-> b
+        (find-it {:id "contact-link"})    ; :id is unique, so only one is needed
+        click)
+    
+    (-> b
+        (find-it {:class "menu-item", :name "contact"})    ; use multiple attributes
+        click)
+    
+    (-> b
+        (find-it :a {:class "menu-item", :name "contact"})    ; specify tag
+        click)
+    
+    (-> b
+        (find-it :a {:text "Contact Us"})    ; special :text attribute, uses XPath's
+        click)                               ; text() function to find the element
+    
+    (-> b
+        (find-it {:xpath "//a[@id='contact-link']"})    ; XPath query
+        click)
+    
+    (-> b
+        (find-it {:css "a#contact-link"})    ; CSS selector
+        click)
+    
+    (-> b
+        (<find-it> {:class "-item"})    ; the :class attribute contains
+        click)                          ; the string "-item"
+    
+    (-> b
+        (<find-it {:class "menu-"})    ; the :class attribute starts with
+        click)                         ; the string "menu-"
+
+As seen above, the `find-it` function also understands `:xpath` and `:css` attributes, in which case it finds the element on the page described by the XPath or CSS query provided. An `IllegalArgumentException` will be thrown if you attempt to use `:xpath` or `:css` in conjunction with other attributes.
 
 So, to describe the general pattern of interacting with the page:
 
