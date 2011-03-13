@@ -4,44 +4,44 @@
   (:use ring.adapter.jetty)
   (:use [clojure.test]))
 
-(def b (start :firefox "http://localhost:8080"))
+(defn- start-test-browser
+  []
+  (start :firefox "http://localhost:8080"))
 
-(deftest test-new-driver
-  (is (= org.openqa.selenium.firefox.FirefoxDriver (class b))))
+(deftest test-browser-basics
+  (let [b (start-test-browser)]
+    (is (= org.openqa.selenium.firefox.FirefoxDriver (class b)))
+    (is (= "http://localhost:8080/" (current-url b)))
+    (is (= "Ministache" (title b)))
+    (is (boolean (re-find #"(?i)<!DOCTYPE html>" (page-source b))))
+    (close b)))
 
-(deftest test-get-url
-  (do
-    (get-url b "http://localhost:8080/example-form")
-    (is (= "http://localhost:8080/example-form" (.getCurrentUrl b)))))
-
-(deftest test-current-url
-  (do (back b)
-      (is (= "http://localhost:8080/" (current-url b)))))
-
-(deftest test-title
-  (is (= "Ministache" (title b))))
-
-(deftest test-page-source
-  (is (boolean (re-find #"(?i)<!DOCTYPE html>" (page-source b)))))
-
-(deftest test-back
-  (do
-    (forward b)
-    (back b)
-    (is (= "http://localhost:8080/" (current-url b)))))
-
-(deftest test-forward
-  (do
-    (forward b)
-    (is (= "http://localhost:8080/example-form"))))
+(deftest test-back-forward
+  (let [b (start-test-browser)]
+    (do
+      (-> b (find-it :a {:text "example form"}) click)
+      (is (= "http://localhost:8080/example-form" (current-url b)))
+      (back b)
+      (is (= "http://localhost:8080/" (current-url b)))
+      (forward b)
+      (is (= "http://localhost:8080/example-form" (current-url b)))
+      (close b))))
 
 (deftest test-to
-  (do
-    (to b "http://localhost:8080")
-    (is (= "http://localhost:8080/" (current-url b)))
-    (is (= "Ministache" (title b)))))
+  (let [b (start-test-browser)]
+    (do
+      (to b "http://localhost:8080/example-form")
+      (is (= "http://localhost:8080/example-form" (current-url b)))
+      (is (= "Ministache" (title b)))
+      (close b))))
 
-(deftest finish
-  (do
-    (close b)
-    true))
+(deftest test-bys
+  (let [b (start-test-browser)]
+    (do
+      (-> b (find-it :a {:text "example form"}) click)
+      (is (= "first_name"   (attribute (find-element b (by-id "first_name")) :id)))
+      (is (= "home"         (text (find-element b (by-link-text "home")))))
+      (is (= "example form" (text (find-element b (by-partial-link-text "example")))))
+      (is (= "first_name"   (attribute (find-element b (by-name "first_name")) :id)))
+      (is (= "home"         (text (find-element b (by-tag-name "a")))))
+      (close b))))
