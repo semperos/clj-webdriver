@@ -450,7 +450,7 @@
 ;; ## Element-finding Utilities
 
 (defn find-element-by-regex-alone
-  "Given an `attr-val` pair with a regex value, find the element"
+  "Given an `attr-val` pair with a regex value, find the element that matches"
   [driver tag attr-val]
   (let [entry (first attr-val)
         attr (key entry)
@@ -475,7 +475,7 @@
       (into [] (filter #(re-find value (text %)) all-elements))
       (into [] (filter #(re-find value (attribute % (name attr))) all-elements)))))
 
-;; TODO: Facilitate Regexes and multi-depth searches
+;; TODO: Increase regex support for both regular and ancestry-based queries
 (defn find-it
   "Given a WebDriver `driver`, optional HTML tag `tag`, and an HTML attribute-value pair `attr-val`, return the first WebElement that matches. The values of `attr-val` items must match the target exactly, unless a regex is used for a value."
   ([driver attr-val]
