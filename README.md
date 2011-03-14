@@ -85,6 +85,10 @@ To demonstrate how to use arguments in different ways, consider the following ex
                                                                   ; //div[@id='content']//a[@id='contact-link']
     
     (-> b
+        (find-it [:div {:id "content"}, :a {}]) ; hierarchical query, tag with
+        click)                                  ; no attributes (empty map required)
+    
+    (-> b
         (find-it {:xpath "//a[@id='contact-link']"})    ; XPath query
         click)
     
