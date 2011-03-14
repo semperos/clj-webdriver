@@ -7,13 +7,15 @@
   [tag attr-val]
   (str "//"
        (name tag)
-       (apply str (for [[attr value] attr-val]
-                    (if (= :text attr) ; inspired by Watir-WebDriver
-                      (str "[text()='" value "']")
-                      (str "[@"
-                          (name attr)
-                          "="
-                          "'" value "']"))))))
+       (if (empty? attr-val)
+         nil
+         (apply str (for [[attr value] attr-val]
+                     (if (= :text attr) ; inspired by Watir-WebDriver
+                       (str "[text()='" value "']")
+                       (str "[@"
+                            (name attr)
+                            "="
+                            "'" value "']")))))))
 
 (defn build-xpath-with-ancestry
   "Given a vector of queries in hierarchical order, create XPath.
