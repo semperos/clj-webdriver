@@ -4,6 +4,7 @@
   (:use ring.adapter.jetty)
   (:use [clojure.test]))
 
+;; Setup
 (def ^{:dynamic true} *b* (start :firefox "http://localhost:8080"))
 
 (defn reset-browser-fixture
@@ -17,9 +18,9 @@
   (close *b*))
 
 (use-fixtures :each reset-browser-fixture)
-
 (use-fixtures :once close-browser-fixture)
 
+;; Tests
 (deftest test-browser-basics
   (is (= org.openqa.selenium.firefox.FirefoxDriver (class *b*)))
   (is (= "http://localhost:8080/" (current-url *b*)))
