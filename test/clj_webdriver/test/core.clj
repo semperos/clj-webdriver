@@ -48,3 +48,8 @@
       (is (= "home"         (text      (find-element b (by-class-name "menu-item")))))
       (is (= "home"         (text      (find-element b (by-css-selector "#footer a.menu-item")))))
       (close b))))
+
+(deftest test-find-it
+  (let [b (start-test-browser)]
+    (is (= "Moustache" (text (find-it b :a {:class #"exter"}))))
+    (close b)))

@@ -449,6 +449,17 @@
 
 ;; ## Element-finding Utilities
 
+(defn find-element-by-regex-alone
+  "Given an `attr-val` pair with a regex value, find the element"
+  [driver tag attr-val]
+  (let [entry (first attr-val)
+        attr (key entry)
+        value (val entry)
+        all-elements (find-elements driver (by-xpath (str "//" (name tag))))] ; get all elements
+    (first
+     (filter #(re-find value (attribute % (name attr)))
+             all-elements))))
+
 ;; TODO: Facilitate Regexes and multi-depth searches
 (defn find-it
   "Given a WebDriver `driver`, optional HTML tag `tag`, and an HTML attribute-value pair `attr-val`, return the first WebElement that matches. The values of `attr-val` items must match the target exactly."
@@ -464,15 +475,16 @@
        (throw (IllegalArgumentException.
                (str "If you want to find an element via XPath or CSS, "
                     "you may pass in one and only one attribute (:xpath or :css)")))
-      (if (= 1 (count attr-val)) ; we can do simply dispatch
-        (let [entry (first attr-val)
-              attr (key entry)
-              value (val entry)]
-          (cond
-           (= :xpath attr) (find-element driver (by-xpath value))
-           (= :css attr)   (find-element driver (by-css-selector value))
-           :else           (find-element driver (by-attr= tag attr value))))
-        (find-element driver (by-xpath (build-xpath tag attr-val)))))))
+       (if (= 1 (count attr-val)) ; we can do simple dispatch
+         (let [entry (first attr-val)
+               attr (key entry)
+               value (val entry)]
+           (cond
+            (= java.util.regex.Pattern (class value)) (find-element-by-regex-alone driver tag attr-val)
+            (= :xpath attr) (find-element driver (by-xpath value))
+            (= :css attr)   (find-element driver (by-css-selector value))
+            :else           (find-element driver (by-attr= tag attr value))))
+         (find-element driver (by-xpath (build-xpath tag attr-val)))))))
 
 (defn <find-it>
   "Given a WebDriver `driver`, optional HTML tag `tag`, and an HTML attribute-value pair `attr-val`, return the first WebElement that matches. The values of `attr-val` items must be contained within the target value, e.g. `'log'` would match `'not_logged_in'`."
