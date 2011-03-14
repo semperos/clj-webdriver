@@ -39,7 +39,7 @@ Here's an example of logging into Github:
         (find-it :input {:value #"(?i)log"}) ; use of regular expressions
         click)                         
 
-The key functions for finding an element on the page are `find-it` and `find-them`. The `find-it` function returns the first result that matches the criteria, while `find-them` returns a vector of all matches for the given criteria. Both support the same syntax and set of attributes.
+The key functions for finding an element on the page are `find-it` and `find-them`. The `find-it` function returns the first result that matches the criteria, while `find-them` returns a seq of all matches for the given criteria. Both support the same syntax and set of attributes.
 
 Here is an overview of the arguments you can pass these functions:
 
@@ -51,7 +51,7 @@ Here is an overview of the arguments you can pass these functions:
 * *XPath and CSS Selectors:* You can use the `:xpath` and `:css` attributes to use such queries in place of simple HTML attributes. If you use one of these attributes, you can't use any others, or an exception will be thrown (e.g. {:xpath "//a", :class "external"} is an illegal expression). `(find-it {:xpath "//a[@class='external']"})` will return the first `<a>` tag with a class of "external"
 * *Ancestry-based queries:* Much like XPath or CSS Selectors, clj-webdriver provides a pure-Clojure mechanism for finding an element based on parent elements. `(find-it [:div {:id "content"}, :a {:class "external"}])` will find the first `<a>` tag with a class of "external" that is located within the `<div>` with id "content". This is equivalent to the XPath `//div[@id='content']//a[@class='external']`
 
-As mentioned above, the `find-it` and `find-them` functions share the same features and syntax; `find-it` returns a single element, `find-them` returns a vector of all matched elements.
+As mentioned above, the `find-it` and `find-them` functions share the same features and syntax; `find-it` returns a single element, `find-them` returns a seq of all matched elements.
 
 To demonstrate how to use arguments in different ways, consider the following example. If I wanted to find `<a href="/contact" id="contact-link" class="menu-item" name="contact">Contact Us</a>` in a page and click on it I could perform any of the following:
 
