@@ -73,3 +73,37 @@
      (when-attr src
                  (str "Source: " src ", "))
      "Object: "                  q ">") w)))
+
+(comment
+
+(defn <find-it>
+  "Given a WebDriver `driver`, optional HTML tag `tag`, and an HTML attribute-value pair `attr-val`, return the first WebElement that matches. The values of `attr-val` items must be contained within the target value, e.g. `'log'` would match `'not_logged_in'`."
+  ([driver attr-val]
+     (<find-it> driver :* attr-val))
+  ([driver tag attr-val]
+     (if (> (count attr-val) 1)
+       (throw (IllegalArgumentException.
+               (str "Your attr-val map may only include one attribute-value pair. "
+                    "Due to inconsistent XPath behavior, locating an element "
+                    "by multiple calls to contains() is not supported.")))
+       (let [entry (first attr-val)
+             attr (key entry)
+             value (val entry)]
+         (find-element driver (by-attr-contains tag attr value))))))
+
+(defn <find-it
+  "Given a WebDriver `driver`, optional HTML tag `tag`, and an HTML attribute-value pair `attr-val`, return the first WebElement that matches. The values of `attr-val` items must represent the start of the target value, e.g. `'log'` would match `'login'` but not `'not_logged_in'`"
+  ([driver attr-val]
+     (<find-it driver :* attr-val))
+  ([driver tag attr-val]
+     (if (> (count attr-val) 1)
+       (throw (IllegalArgumentException.
+               (str "Your attr-val map may only include one attribute-value pair. "
+                    "Due to inconsistent XPath behavior, locating an element "
+                    "by multiple calls to starts-with() is not supported.")))
+       (let [entry (first attr-val)
+             attr (key entry)
+             value (val entry)]
+         (find-element driver (by-attr-starts tag attr value))))))  
+
+  )
