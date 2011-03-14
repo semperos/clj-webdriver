@@ -101,7 +101,7 @@ As seen above, the `find-it` function also understands `:xpath` and `:css` attri
 So, to describe the general pattern of interacting with the page:
 
     (-> browser-instance
-        (find-it :optional-tag-name {:attribute "value", :attribute "value"})
+        (find-it options)
         (do-something-with-the-element))
 
 ## Running Tests
