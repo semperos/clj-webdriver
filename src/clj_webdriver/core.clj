@@ -464,16 +464,27 @@
        (filter #(re-find value (attribute % (name attr)))
                all-elements)))))
 
+(defn find-elements-by-regex-alone
+  "Given an `attr-val` pair with a regex value, find the elements that match"
+  [driver tag attr-val]
+  (let [entry (first attr-val)
+        attr (key entry)
+        value (val entry)
+        all-elements (find-elements driver (by-xpath (str "//" (name tag))))] ; get all elements
+    (if (= :text attr)
+      (into [] (filter #(re-find value (text %)) all-elements))
+      (into [] (filter #(re-find value (attribute % (name attr))) all-elements)))))
+
 ;; TODO: Facilitate Regexes and multi-depth searches
 (defn find-it
   "Given a WebDriver `driver`, optional HTML tag `tag`, and an HTML attribute-value pair `attr-val`, return the first WebElement that matches. The values of `attr-val` items must match the target exactly, unless a regex is used for a value."
   ([driver attr-val]
-     (if (not= clojure.lang.PersistentArrayMap (class attr-val)) ;; find first by tag
+     (if (not= clojure.lang.PersistentArrayMap (class attr-val)) ;; attr-val is :tag
        (find-element driver (by-tag-name (name attr-val)))
-     (find-it driver :* attr-val)))
+       (find-it driver :* attr-val)))
   ([driver tag attr-val]
      (if (and
-          (> (count attr-val) 1)
+          (>  (count attr-val) 1)
           (or (contains? attr-val :xpath)
               (contains? attr-val :css)))
        (throw (IllegalArgumentException.
@@ -481,7 +492,7 @@
                     "you may pass in one and only one attribute (:xpath or :css)")))
        (if (= 1 (count attr-val)) ; we can do simple dispatch
          (let [entry (first attr-val)
-               attr (key entry)
+               attr  (key entry)
                value (val entry)]
            (cond
             (= java.util.regex.Pattern (class value)) (find-element-by-regex-alone driver tag attr-val)
@@ -490,32 +501,27 @@
             :else           (find-element driver (by-attr= tag attr value))))
          (find-element driver (by-xpath (build-xpath tag attr-val)))))))
 
-(defn <find-it>
-  "Given a WebDriver `driver`, optional HTML tag `tag`, and an HTML attribute-value pair `attr-val`, return the first WebElement that matches. The values of `attr-val` items must be contained within the target value, e.g. `'log'` would match `'not_logged_in'`."
+(defn find-them
+  "Plural version of `find-it` function; returns a vector of multiple matches."
   ([driver attr-val]
-     (<find-it> driver :* attr-val))
+     (if (not= clojure.lang.PersistentArrayMap (class attr-val)) ;; attr-val is :tag
+       (find-elements driver (by-tag-name (name attr-val)))
+       (find-them driver :* attr-val)))
   ([driver tag attr-val]
-     (if (> (count attr-val) 1)
+     (if (and
+          (>  (count attr-val) 1)
+          (or (contains? attr-val :xpath)
+              (contains? attr-val :css)))
        (throw (IllegalArgumentException.
-               (str "Your attr-val map may only include one attribute-value pair. "
-                    "Due to inconsistent XPath behavior, locating an element "
-                    "by multiple calls to contains() is not supported.")))
-       (let [entry (first attr-val)
-             attr (key entry)
-             value (val entry)]
-         (find-element driver (by-attr-contains tag attr value))))))
-
-(defn <find-it
-  "Given a WebDriver `driver`, optional HTML tag `tag`, and an HTML attribute-value pair `attr-val`, return the first WebElement that matches. The values of `attr-val` items must represent the start of the target value, e.g. `'log'` would match `'login'` but not `'not_logged_in'`"
-  ([driver attr-val]
-     (<find-it driver :* attr-val))
-  ([driver tag attr-val]
-     (if (> (count attr-val) 1)
-       (throw (IllegalArgumentException.
-               (str "Your attr-val map may only include one attribute-value pair. "
-                    "Due to inconsistent XPath behavior, locating an element "
-                    "by multiple calls to starts-with() is not supported.")))
-       (let [entry (first attr-val)
-             attr (key entry)
-             value (val entry)]
-         (find-element driver (by-attr-starts tag attr value))))))
+               (str "If you want to find an element via XPath or CSS, "
+                    "you may pass in one and only one attribute (:xpath or :css)")))
+       (if (= 1 (count attr-val)) ; we can do simple dispatch
+         (let [entry (first attr-val)
+               attr  (key entry)
+               value (val entry)]
+           (cond
+            (= java.util.regex.Pattern (class value)) (find-elements-by-regex-alone driver tag attr-val)
+            (= :xpath attr) (find-elements driver (by-xpath value))
+            (= :css attr)   (find-elements driver (by-css-selector value))
+            :else           (find-elements driver (by-attr= tag attr value))))
+         (find-elements driver (by-xpath (build-xpath tag attr-val)))))))
