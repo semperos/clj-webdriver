@@ -49,7 +49,8 @@
       (is (= "home"         (text      (find-element b (by-css-selector "#footer a.menu-item")))))
       (close b))))
 
-(deftest test-find-it
+(deftest test-find-it-by-regex
   (let [b (start-test-browser)]
     (is (= "Moustache" (text (find-it b :a {:class #"exter"}))))
+    (is (= "Moustache" (text (find-it b :a {:text #"Mous"}))))
     (close b)))

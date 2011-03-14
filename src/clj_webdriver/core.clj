@@ -456,9 +456,13 @@
         attr (key entry)
         value (val entry)
         all-elements (find-elements driver (by-xpath (str "//" (name tag))))] ; get all elements
-    (first
-     (filter #(re-find value (attribute % (name attr)))
-             all-elements))))
+    (if (= :text attr)
+      (first
+       (filter #(re-find value (text %))
+               all-elements))
+      (first
+       (filter #(re-find value (attribute % (name attr)))
+               all-elements)))))
 
 ;; TODO: Facilitate Regexes and multi-depth searches
 (defn find-it
