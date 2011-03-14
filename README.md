@@ -36,8 +36,8 @@ Here's an example of logging into Github:
     
     ;; Click the "Log in" button"
     (-> b
-        (<find-it :input {:value "Log"}) ; see special <find-it and <find-it> helpers
-        click)                         ; also used optional tag arg, :input
+        (find-it :input {:value #"(?i)log"}) ; use of regular expressions
+        click)                         
 
 The key functions for finding an element on the page are `find-it` and `find-them`. The `find-it` function returns the first result that matches the criteria, while `find-them` returns a vector of all matches for the given criteria. Both support the same syntax and set of attributes.
 
