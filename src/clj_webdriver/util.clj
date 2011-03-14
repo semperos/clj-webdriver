@@ -15,6 +15,27 @@
                           "="
                           "'" value "']"))))))
 
+(defn build-xpath-with-ancestry
+  "Given a vector of queries in hierarchical order, create XPath.
+   For example: `[:div {:id \"content\"}, :a {:class \"external\"}]` would
+   produce the XPath \"//div[@id='content']//a[@class='external']"
+  [attr-val]
+  (apply str (let [tag-to-attrs (partition 2 attr-val)]
+               (for [xpath-parts tag-to-attrs]
+                 (build-xpath (first xpath-parts) (second xpath-parts))))))
+
+;; [:div {:id "content"}, :a {:class "external"}]
+
+(defn query-with-ancestry-has-regex?
+  "Check if any values in maps as part of ancestry-based query have a regex"
+  [v]
+  (let [maps (flatten (for [chunk (partition 2 v)]
+                        (second chunk)))]
+    (some true? (for [m maps]
+                  (some (fn [map-entry]
+                          (let [[k v] map-entry]
+                            (= java.util.regex.Pattern (class v)))) m)))))
+
 (defn first-60
   "Get first twenty characters of `s`, then add ellipsis"
   [s]
