@@ -41,6 +41,18 @@ Here's an example of logging into Github:
 
 The key functions for finding an element on the page are `find-it` and `find-them`. The `find-it` function returns the first result that matches the criteria, while `find-them` returns a vector of all matches for the given criteria. Both support the same syntax and set of attributes.
 
+Here is an overview of the arguments you can pass these functions:
+
+* HTML Tag as Keyword: Pass in the name of an HTML tag as a keyword (`:div`, `:a`, `:span`, `:img`, etc.) `(find-it :a)` will find the first `<a>` tag on the page
+* HTML Tag plus attributes: Pass in the name of an HTML tag as a keyword plus some attributes to describe it. `(find-it :a {:class "external"})` will return the first `<a>` tag with a class of "external"
+* HTML attributes alone: You don't have to pass in a tag. `(find-it {:class "external"})` will find the first element of any tag with class "external"
+* Multiple HTML attributes: You can pass in as many attribute-value pairs as you like. `(find-it {:class "external", :text "Moustache"})` will find the first HTML element on the page with both a class of "external" and visible text of "Moustache"
+* Regular Expressions: Instead of looking for an exact match, you can use Java-style regular expressions to find elements. `(find-it :a {:class #"exter"})` will find the first `<a>` tag with a class which matches the regular expression `#"exter"`. Currently, you can use a regex if you pass only one attribute-value pair to `find-it` as in this bullet's example (this is actively being worked on and will be fixed soon).
+* XPath and CSS Selectors: You can use the `:xpath` and `:css` attributes to use such queries in place of simple HTML attributes. If you use one of these attributes, you can't use any others, or an exception will be thrown (e.g. {:xpath "//a", :class "external"} is an illegal expression). `(find-it {:xpath "//a[@class='external']"})` will return the first `<a>` tag with a class of "external"
+* Ancestry-based queries: Much like XPath or CSS Selectors, clj-webdriver provides a pure-Clojure mechanism for finding an element based on parent elements. `(find-it [:div {:id "content"}, :a {:class "external"}])` will find the first `<a>` tag with a class of "external" that is located within the `<div>` with id "content". This is equivalent to the XPath `//div[@id='content']//a[@class='external']`
+
+As mentioned above, the `find-it` and `find-them` functions share the same features and syntax; `find-it` returns a single element, `find-them` returns a vector of all matched elements.
+
 To demonstrate how to use arguments in different ways, consider the following example. If I wanted to find `<a href="/contact" id="contact-link" class="menu-item" name="contact">Contact Us</a>` in a page and click on it I could perform any of the following:
 
     (-> b
@@ -64,8 +76,13 @@ To demonstrate how to use arguments in different ways, consider the following ex
         click)                               ; text() function to find the element
     
     (-> b
-        (find-it :a {:text #"(?i)contact"})  ; use Java-style regular
+        (find-it :a {:class #"(?i)menu-"})  ; use Java-style regular
         click)                               ; expressions
+    
+    (-> b
+        (find-it [:div {:id "content"}, :a {:id "contact-link"}]) ; hierarchical query
+        click)                                                    ; equivalent to
+                                                                  ; //div[@id='content']//a[@id='contact-link']
     
     (-> b
         (find-it {:xpath "//a[@id='contact-link']"})    ; XPath query
@@ -74,14 +91,6 @@ To demonstrate how to use arguments in different ways, consider the following ex
     (-> b
         (find-it {:css "a#contact-link"})    ; CSS selector
         click)
-    
-    (-> b
-        (<find-it> {:class "-item"})    ; the :class attribute contains
-        click)                          ; the string "-item"
-    
-    (-> b
-        (<find-it {:class "menu-"})    ; the :class attribute starts with
-        click)                         ; the string "menu-"
 
 As seen above, the `find-it` function also understands `:xpath` and `:css` attributes, in which case it finds the element on the page described by the XPath or CSS query provided. An `IllegalArgumentException` will be thrown if you attempt to use `:xpath` or `:css` in conjunction with other attributes.
 
