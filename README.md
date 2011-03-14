@@ -39,11 +39,7 @@ Here's an example of logging into Github:
         (<find-it :input {:value "Log"}) ; see special <find-it and <find-it> helpers
         click)                         ; also used optional tag arg, :input
 
-The key functions for finding an element on the page are `find-it`, `<find-it>` and `<find-it`. These functions take the browser instance, an optional tag argument, optional attribute and value pairs, and find a matching HTML element whose attribute equals, contains or starts with that value respectively. For example, the `(<find-it :input :value "Log")` from above means "find the first `<input>` element whose `value` attribute begins with the string 'Log'".
-
-* `find-it`   => equals
-* `<find-it>` => contains
-* `<find-it`  => starts with
+The key functions for finding an element on the page are `find-it` and `find-them`. The `find-it` function returns the first result that matches the criteria, while `find-them` returns a vector of all matches for the given criteria. Both support the same syntax and set of attributes.
 
 To demonstrate how to use arguments in different ways, consider the following example. If I wanted to find `<a href="/contact" id="contact-link" class="menu-item" name="contact">Contact Us</a>` in a page and click on it I could perform any of the following:
 
@@ -66,6 +62,10 @@ To demonstrate how to use arguments in different ways, consider the following ex
     (-> b
         (find-it :a {:text "Contact Us"})    ; special :text attribute, uses XPath's
         click)                               ; text() function to find the element
+    
+    (-> b
+        (find-it :a {:text #"(?i)contact"})  ; use Java-style regular
+        click)                               ; expressions
     
     (-> b
         (find-it {:xpath "//a[@id='contact-link']"})    ; XPath query
