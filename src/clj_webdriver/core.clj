@@ -274,9 +274,9 @@
   (catch NoSuchElementException e nil)))
 
 (defn find-elements
-  "Retrieve a vector of element objects described by `by`"
+  "Retrieve a seq of element objects described by `by`"
   [driver by]
-  (try (into [] (.findElements driver by))
+  (try (seq (.findElements driver by))
   (catch NoSuchElementException e [])))
 
 ;; ##  WebElement
@@ -405,10 +405,10 @@
     (.deselectByVisibleText select-list text)))
 
 (defn all-selected-options
-  "Retrieve all selected options from the select list described by `by`"
+  "Retrieve a seq of all selected options from the select list described by `by`"
   [element]
   (let [select-list (Select. element)]
-    (into [] (.getAllSelectedOptions select-list))))
+    (seq (.getAllSelectedOptions select-list))))
 
 (defn first-selected-option
   "Retrieve the first selected option (or the only one for single-select lists) from the select list described by `by`"
@@ -420,7 +420,7 @@
   "Retrieve all options in the select list described by `by`"
   [element]
   (let [select-list (Select. element)]
-    (into [] (.getOptions select-list))))
+    (seq (.getOptions select-list))))
 
 (defn multiple?
   "Return true if the select list described by `by` allows for multiple selections"
@@ -448,21 +448,8 @@
     (.selectByVisibleText select-list text)))
 
 ;; ## Element-finding Utilities
-
-(defn find-element-by-regex-alone
-  "Given an `attr-val` pair with a regex value, find the element that matches"
-  [driver tag attr-val]
-  (let [entry (first attr-val)
-        attr (key entry)
-        value (val entry)
-        all-elements (find-elements driver (by-xpath (str "//" (name tag))))] ; get all elements
-    (if (= :text attr)
-      (first
-       (filter #(re-find value (text %))
-               all-elements))
-      (first
-       (filter #(re-find value (attribute % (name attr)))
-               all-elements)))))
+(declare find-it)
+(declare find-them)
 
 (defn find-elements-by-regex-alone
   "Given an `attr-val` pair with a regex value, find the elements that match"
@@ -472,10 +459,46 @@
         value (val entry)
         all-elements (find-elements driver (by-xpath (str "//" (name tag))))] ; get all elements
     (if (= :text attr)
-      (into [] (filter #(re-find value (text %)) all-elements))
-      (into [] (filter #(re-find value (attribute % (name attr))) all-elements)))))
+      (filter #(re-find value (text %)) all-elements)
+      (filter (fn [el]
+                ((fnil (partial re-find value) "") ; `(attribute)` will return nil if the HTML element in question
+                 (attribute el (name attr))))      ; doesn't support the attribute being passed in (e.g. :href on a <p>)
+              all-elements))))                     ; so "" is fnil'ed to avoid a NullPointerException for `re-find`
 
-;; TODO: Increase regex support for both regular and ancestry-based queries
+(defn filter-elements-by-regex
+  "Given a collection of WebElements, filter the collection by the regular expression values for the respective attributes in the `attr-val` map"
+  [elements attr-val]
+  (let [attr-vals-with-regex (into {}
+                                   (filter
+                                    #(let [[k v] %] (= java.util.regex.Pattern (class v)))
+                                    attr-val))]
+    (loop [elements elements attr-vals-with-regex attr-vals-with-regex]
+      (if (empty? attr-vals-with-regex)
+        elements
+        (let [entry (first attr-vals-with-regex)
+              attr (key entry)
+              value (val entry)
+              matching-elements (if (= :text attr)
+                                  (filter #(re-find value (text %)) elements)
+                                  (filter (fn [el]
+                                            ((fnil (partial re-find value) "")
+                                             (attribute el (name attr))))
+                                          elements))]
+          (recur matching-elements (dissoc attr-vals-with-regex attr)))))))
+
+(defn find-elements-by-regex
+  [driver tag attr-val]
+  (if (all-regex? attr-val)
+    (let [elements (find-elements driver (by-xpath "//*"))]
+      (filter-elements-by-regex elements attr-val))
+    (let [attr-vals-without-regex (into {}
+                                        (remove
+                                         #(let [[k v] %] (= java.util.regex.Pattern (class v)))
+                                         attr-val))
+          elements (find-them driver tag attr-vals-without-regex)]
+      (filter-elements-by-regex elements attr-val))))
+
+;; TODO: Increase regex support for ancestry-based queries
 (defn find-it
   "Given a WebDriver `driver`, optional HTML tag `tag`, and an HTML attribute-value pair `attr-val`, return the first WebElement that matches. The values of `attr-val` items must match the target exactly, unless a regex is used for a value."
   ([driver attr-val]
@@ -490,6 +513,9 @@
       (map? attr-val)
       (find-it driver :* attr-val))) ; no :tag specified, use global *
   ([driver tag attr-val]
+     (when (keyword? driver) ; I keep forgetting to pass in the WebDriver instance while testing
+       (throw (IllegalArgumentException.
+               (str "The first parameter to find-it must be an instance of WebDriver."))))
      (if (and
           (>  (count attr-val) 1)
           (or (contains? attr-val :xpath)
@@ -502,14 +528,16 @@
                attr  (key entry)
                value (val entry)]
            (cond
-            (= java.util.regex.Pattern (class value)) (find-element-by-regex-alone driver tag attr-val)
+            (= java.util.regex.Pattern (class value)) (first (find-elements-by-regex-alone driver tag attr-val))
             (= :xpath attr) (find-element driver (by-xpath value))
             (= :css attr)   (find-element driver (by-css-selector value))
             :else           (find-element driver (by-attr= tag attr value))))
-         (find-element driver (by-xpath (build-xpath tag attr-val)))))))
+         (if (contains-regex? attr-val)
+           (first (find-elements-by-regex driver tag attr-val))
+           (find-element driver (by-xpath (build-xpath tag attr-val))))))))
 
 (defn find-them
-  "Plural version of `find-it` function; returns a vector of multiple matches."
+  "Plural version of `find-it` function; returns a seq of multiple matches."
   ([driver attr-val]
      (cond
       (keyword? attr-val)
@@ -522,6 +550,9 @@
       (map? attr-val)
       (find-them driver :* attr-val))) ; no :tag specified, use global *
   ([driver tag attr-val]
+     (when (keyword? driver) ; I keep forgetting to pass in the WebDriver instance while testing
+       (throw (IllegalArgumentException.
+               (str "The first parameter to find-it must be an instance of WebDriver."))))     
      (if (and
           (>  (count attr-val) 1)
           (or (contains? attr-val :xpath)
@@ -538,4 +569,6 @@
             (= :xpath attr) (find-elements driver (by-xpath value))
             (= :css attr)   (find-elements driver (by-css-selector value))
             :else           (find-elements driver (by-attr= tag attr value))))
-         (find-elements driver (by-xpath (build-xpath tag attr-val)))))))
+         (if (contains-regex? attr-val)
+           (find-elements-by-regex driver tag attr-val)
+           (find-elements driver (by-xpath (build-xpath tag attr-val))))))))
