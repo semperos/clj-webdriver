@@ -511,9 +511,16 @@
 (defn find-them
   "Plural version of `find-it` function; returns a vector of multiple matches."
   ([driver attr-val]
-     (if (not= clojure.lang.PersistentArrayMap (class attr-val)) ;; attr-val is :tag
-       (find-elements driver (by-tag-name (name attr-val)))
-       (find-them driver :* attr-val)))
+     (cond
+      (= clojure.lang.Keyword (class attr-val))
+      (find-elements driver (by-tag-name (name attr-val))) ; supplied just :tag
+      (= clojure.lang.PersistentVector (class attr-val))
+      (if (query-with-ancestry-has-regex? attr-val)
+        (throw (IllegalArgumentException.
+                (str "Finding an element via ancestry does not currently support the use of regular expressions.")))
+        (find-elements driver (by-xpath (build-xpath-with-ancestry attr-val)))) ; supplied vector of queries in hierarchy
+      (= clojure.lang.PersistentArrayMap (class attr-val))
+      (find-them driver :* attr-val))) ; no :tag specified, use global *
   ([driver tag attr-val]
      (if (and
           (>  (count attr-val) 1)
