@@ -480,14 +480,14 @@
   "Given a WebDriver `driver`, optional HTML tag `tag`, and an HTML attribute-value pair `attr-val`, return the first WebElement that matches. The values of `attr-val` items must match the target exactly, unless a regex is used for a value."
   ([driver attr-val]
      (cond
-      (= clojure.lang.Keyword (class attr-val))
+      (keyword? attr-val)
       (find-element driver (by-tag-name (name attr-val))) ; supplied just :tag
-      (= clojure.lang.PersistentVector (class attr-val))
+      (vector? attr-val)
       (if (query-with-ancestry-has-regex? attr-val)
         (throw (IllegalArgumentException.
                 (str "Finding an element via ancestry does not currently support the use of regular expressions.")))
         (find-element driver (by-xpath (build-xpath-with-ancestry attr-val)))) ; supplied vector of queries in hierarchy
-      (= clojure.lang.PersistentArrayMap (class attr-val))
+      (map? attr-val)
       (find-it driver :* attr-val))) ; no :tag specified, use global *
   ([driver tag attr-val]
      (if (and
@@ -512,14 +512,14 @@
   "Plural version of `find-it` function; returns a vector of multiple matches."
   ([driver attr-val]
      (cond
-      (= clojure.lang.Keyword (class attr-val))
+      (keyword? attr-val)
       (find-elements driver (by-tag-name (name attr-val))) ; supplied just :tag
-      (= clojure.lang.PersistentVector (class attr-val))
+      (vector? attr-val)
       (if (query-with-ancestry-has-regex? attr-val)
         (throw (IllegalArgumentException.
                 (str "Finding an element via ancestry does not currently support the use of regular expressions.")))
         (find-elements driver (by-xpath (build-xpath-with-ancestry attr-val)))) ; supplied vector of queries in hierarchy
-      (= clojure.lang.PersistentArrayMap (class attr-val))
+      (map? attr-val)
       (find-them driver :* attr-val))) ; no :tag specified, use global *
   ([driver tag attr-val]
      (if (and
