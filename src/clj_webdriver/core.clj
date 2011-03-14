@@ -466,7 +466,7 @@
 
 ;; TODO: Facilitate Regexes and multi-depth searches
 (defn find-it
-  "Given a WebDriver `driver`, optional HTML tag `tag`, and an HTML attribute-value pair `attr-val`, return the first WebElement that matches. The values of `attr-val` items must match the target exactly."
+  "Given a WebDriver `driver`, optional HTML tag `tag`, and an HTML attribute-value pair `attr-val`, return the first WebElement that matches. The values of `attr-val` items must match the target exactly, unless a regex is used for a value."
   ([driver attr-val]
      (if (not= clojure.lang.PersistentArrayMap (class attr-val)) ;; find first by tag
        (find-element driver (by-tag-name (name attr-val)))
