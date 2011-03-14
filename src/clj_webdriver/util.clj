@@ -28,15 +28,27 @@
 
 ;; [:div {:id "content"}, :a {:class "external"}]
 
+(defn contains-regex?
+  "Checks if the values of a map contain a regex"
+  [m]
+  (boolean (some (fn [entry]
+                   (let [[k v] entry]
+                     (= java.util.regex.Pattern (class v)))) m)))
+
+(defn all-regex?
+  "Checks if all values of a map are regexes"
+  [m]
+  (not (some (fn [entry]
+               (let [[k v] entry]
+                 (not= java.util.regex.Pattern (class v)))) m)))
+
 (defn query-with-ancestry-has-regex?
   "Check if any values in maps as part of ancestry-based query have a regex"
   [v]
   (let [maps (flatten (for [chunk (partition 2 v)]
                         (second chunk)))]
-    (some true? (for [m maps]
-                  (some (fn [map-entry]
-                          (let [[k v] map-entry]
-                            (= java.util.regex.Pattern (class v)))) m)))))
+    (boolean (some true? (for [m maps]
+                           (contains-regex? m))))))
 
 (defn first-60
   "Get first twenty characters of `s`, then add ellipsis"
