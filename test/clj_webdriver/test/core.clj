@@ -57,5 +57,7 @@
 (deftest test-find*
   (is (= "Moustache" (text (find-it *b* :a {:class #"exter"}))))
   (is (= "Moustache" (text (find-it *b* :a {:text #"Mous"}))))
+  (is (= "Moustache" (text (find-it *b* :a {:class #"exter", :href #"github"}))))
   (is (= 2           (count (find-them *b* :a {:class #"-item"}))))
-  (is (= 1           (count (find-them *b* :a {:text #"hom"})))))
+  (is (= 1           (count (find-them *b* :a {:text #"hom"}))))
+  (is (= 2           (count (find-them *b* :a {:class #"exter", :href #"github"})))))
