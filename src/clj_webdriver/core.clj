@@ -30,7 +30,9 @@
    :ie InternetExplorerDriver
    :chrome ChromeDriver
    :htmlunit HtmlUnitDriver })
-               
+
+;; TODO: Provide convenient way to pass in a profile, e.g. to Firefox driver,
+;; to enable add-ons when needed
 (defn new-driver
   "Create new driver instance given a browser type"
   [browser]
