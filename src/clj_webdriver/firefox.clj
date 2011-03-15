@@ -15,10 +15,11 @@
   (let [ext-file (io/as-file extension-location)]
     (.addExtension profile ext-file)))
 
-(defn set-preference
-  "Given a `FirefoxProfile` object, set a preference with key `pref-k` to value `pref-v`"
-  [profile pref-k pref-v]
-  (.setPreference profile pref-k pref-v))
+(defn set-preferences
+  "Given a `FirefoxProfile` object and a map of preferences, set the preferences for the profile"
+  [profile pref-m]
+  (doseq [entry pref-m]
+    (.setPreference profile (name (key entry)) (val entry))))
 
 (defn accept-untrusted-certs
   [profile ^Boolean bool]
