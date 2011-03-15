@@ -11,6 +11,11 @@
   </div>
 
   <div class="element-wrapper">
+    <label>Purpose Here: </label>
+    <input type="text" name="purpose_here" id="purpose_here" size="30" value="Testing!" readonly="readonly" />
+  </div>
+
+  <div class="element-wrapper">
     <div><label>Biography: </label></div>
     <textarea name="bio" id="bio" cols="60" rows="6">Please write a short biography.</textarea>
   </div>
@@ -18,11 +23,11 @@
   <div class="element-wrapper">
     <label>Gender: </label>
     <label class="choice">
-      <input type="radio" value="male" id="male" checked="checked" />
+      <input type="radio" name="gender" value="male" id="male" checked="checked" />
       Male
     </label>
     <label class="choice">
-      <input type="radio" value="female" id="female" />
+      <input type="radio" name="gender" value="female" id="female" />
       Female
     </label>
   </div>
