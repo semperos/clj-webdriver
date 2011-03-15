@@ -104,6 +104,25 @@ So, to describe the general pattern of interacting with the page:
         (find-it options)
         (do-something-with-the-element))
 
+### Firefox Functionality
+
+Support for Firefox currently exceeds that for all other browsers, most notably via support for customizable Firefox profiles. I've included support for several of these advanced featues in the `clj-webdriver.firefox` namespace. Here are a few examples (borrowed from [here][wd-ruby-bindings]:
+
+    (use 'clj-webdriver.core)
+    (require '[clj-webdriver.firefox :as ff])
+    
+    (def b (new-driver :firefox
+                       (doto (ff/new-profile)
+                             ;; Enable Firebug
+                             (enable-extension "/path/to/extensions/firebug.xpi")))
+                             
+                             ;; Auto-download certain file types to a specific folder
+                             (set-preferences {:browser.download.dir "C:/Users/semperos/Desktop",
+                                               :browser.download.folderList 2
+                                               :browser.helperApps.neverAsk.saveToDisk "application/pdf"})))
+    
+                                  
+
 ## Running Tests
 
 The namespace `clj-webdriver.test.example-app.core` contains a [Ring][ring-github] app (routing by [Moustache][moustache-github]) that acts as my "control application" for this project's test suite. Instead of running my tests against a remote server on the Internet (prone to change, not always available), I've packaged this small web application to be run locally for the purposes of testing.
@@ -128,3 +147,4 @@ Distributed under the Eclipse Public License, the same as Clojure.
 [webdriver-orig]: https://github.com/mikitebeka/webdriver-clj
 [ring-github]: https://github.com/mmcgrana/ring
 [moustache-github]: https://github.com/cgrand/moustache
+[wd-ruby-bindings]: http://code.google.com/p/selenium/wiki/RubyBindings
