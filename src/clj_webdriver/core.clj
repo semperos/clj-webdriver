@@ -498,7 +498,6 @@
           elements (find-them driver tag attr-vals-without-regex)]
       (filter-elements-by-regex elements attr-val))))
 
-;; TODO: Increase regex support for ancestry-based queries
 (defn find-it
   "Given a WebDriver `driver`, optional HTML tag `tag`, and an HTML attribute-value pair `attr-val`, return the first WebElement that matches. The values of `attr-val` items must match the target exactly, unless a regex is used for a value."
   ([driver attr-val]
