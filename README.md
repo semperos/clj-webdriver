@@ -114,12 +114,12 @@ Support for Firefox currently exceeds that for all other browsers, most notably 
     (def b (new-driver :firefox
                        (doto (ff/new-profile)
                              ;; Enable Firebug
-                             (enable-extension "/path/to/extensions/firebug.xpi")))
+                             (ff/enable-extension "/path/to/extensions/firebug.xpi")))
                              
                              ;; Auto-download certain file types to a specific folder
-                             (set-preferences {:browser.download.dir "C:/Users/semperos/Desktop",
-                                               :browser.download.folderList 2
-                                               :browser.helperApps.neverAsk.saveToDisk "application/pdf"})))
+                             (ff/set-preferences {:browser.download.dir "C:/Users/semperos/Desktop",
+                                                  :browser.download.folderList 2
+                                                  :browser.helperApps.neverAsk.saveToDisk "application/pdf"})))
     
                                   
 
