@@ -14,7 +14,6 @@
 ;;
 (ns clj-webdriver.core
   (:use clj-webdriver.util)
-  (:require [clojure.java.io :as io])
   (:import [org.openqa.selenium By WebDriver WebElement Speed Cookie
                                 NoSuchElementException]
            [org.openqa.selenium.firefox FirefoxDriver]

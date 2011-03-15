@@ -1,4 +1,5 @@
 (ns clj-webdriver.firefox
+  (:require [clojure.java.io :as io])
   (:import org.openqa.selenium.firefox.FirefoxProfile))
 
 ;; TODO: Provide convenient way to pass in a profile, e.g. to Firefox driver,
