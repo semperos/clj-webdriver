@@ -507,8 +507,14 @@
       (find-element driver (by-tag-name (name attr-val))) ; supplied just :tag
       (vector? attr-val)
       (if (query-with-ancestry-has-regex? attr-val)
-        (throw (IllegalArgumentException.
-                (str "Finding an element via ancestry does not currently support the use of regular expressions.")))
+        (if (query-with-ancestry-has-regex? (drop-last 2 attr-val))
+          (throw (IllegalArgumentException.
+                  (str "You may not pass in a regex until "
+                       "the last attribute-value pair")))
+          (first
+           (filter-elements-by-regex
+            (find-elements driver (by-xpath (str (build-xpath-with-ancestry attr-val) "//*")))
+            (last attr-val))))
         (find-element driver (by-xpath (build-xpath-with-ancestry attr-val)))) ; supplied vector of queries in hierarchy
       (map? attr-val)
       (find-it driver :* attr-val))) ; no :tag specified, use global *
@@ -544,8 +550,13 @@
       (find-elements driver (by-tag-name (name attr-val))) ; supplied just :tag
       (vector? attr-val)
       (if (query-with-ancestry-has-regex? attr-val)
-        (throw (IllegalArgumentException.
-                (str "Finding an element via ancestry does not currently support the use of regular expressions.")))
+        (if (query-with-ancestry-has-regex? (drop-last 2 attr-val))
+          (throw (IllegalArgumentException.
+                  (str "You may not pass in a regex until "
+                       "the last attribute-value pair")))
+          (filter-elements-by-regex
+           (find-elements driver (by-xpath (str (build-xpath-with-ancestry attr-val) "//*")))
+           (last attr-val)))
         (find-elements driver (by-xpath (build-xpath-with-ancestry attr-val)))) ; supplied vector of queries in hierarchy
       (map? attr-val)
       (find-them driver :* attr-val))) ; no :tag specified, use global *
