@@ -2,6 +2,7 @@
   (:require [clojure.string :as str])
   (:import [org.openqa.selenium WebDriver WebElement]))
 
+(declare contains-regex?)
 (defn build-xpath
   "Given a tag and a map of attribute-value pairs, generate XPath"
   [tag attr-val]
