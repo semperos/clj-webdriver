@@ -43,13 +43,13 @@ The key functions for finding an element on the page are `find-it` and `find-the
 
 Here is an overview of the arguments you can pass these functions:
 
-* _HTML Tag as keyword:_ Pass in the name of an HTML tag as a keyword (`:div`, `:a`, `:span`, `:img`, etc.) `(find-it :a)` will find the first `<a>` tag on the page
-* _HTML Tag plus attributes:_ Pass in the name of an HTML tag as a keyword plus some attributes to describe it. `(find-it :a {:class "external"})` will return the first `<a>` tag with a class of "external"
-* _HTML attributes alone:_ You don't have to pass in a tag. `(find-it {:class "external"})` will find the first element of any tag with class "external"
-* _Multiple HTML attributes:_ You can pass in as many attribute-value pairs as you like. `(find-it {:class "external", :text "Moustache"})` will find the first HTML element on the page with both a class of "external" and visible text of "Moustache"
-* _Regular Expressions:_ Instead of looking for an exact match, you can use Java-style regular expressions to find elements. `(find-it :a {:class #"exter"})` will find the first `<a>` tag with a class which matches the regular expression `#"exter"`. You can also use regexes in the final position of an ancestry-based query (see below).
-* _XPath and CSS Selectors:_ You can use the `:xpath` and `:css` attributes to use such queries in place of simple HTML attributes. If you use one of these attributes, you can't use any others, or an exception will be thrown (e.g. {:xpath "//a", :class "external"} is an illegal expression). `(find-it {:xpath "//a[@class='external']"})` will return the first `<a>` tag with a class of "external"
-* _Ancestry-based queries:_ clj-webdriver provides a pure-Clojure mechanism for finding an element based on parent elements. `(find-it [:div {:id "content"}, :a {:class "external"}])` will find the first `<a>` tag with a class of "external" that is located within the `<div>` with id "content". This is equivalent to the XPath `//div[@id='content']//a[@class='external']`. You can also include regular expressions in the final attribute-value map which you supply (due to issues of ambiguity and in order not to reinvent the wheel any further, applying regexes higher up the query is not supported and will cause an exception).
+* **HTML Tag as keyword:** Pass in the name of an HTML tag as a keyword (`:div`, `:a`, `:span`, `:img`, etc.) `(find-it :a)` will find the first `<a>` tag on the page
+* **HTML Tag plus attributes:** Pass in the name of an HTML tag as a keyword plus some attributes to describe it. `(find-it :a {:class "external"})` will return the first `<a>` tag with a class of "external"
+* **HTML attributes alone:** You don't have to pass in a tag. `(find-it {:class "external"})` will find the first element of any tag with class "external"
+* **Multiple HTML attributes:** You can pass in as many attribute-value pairs as you like. `(find-it {:class "external", :text "Moustache"})` will find the first HTML element on the page with both a class of "external" and visible text of "Moustache"
+* **Regular Expressions:** Instead of looking for an exact match, you can use Java-style regular expressions to find elements. `(find-it :a {:class #"exter"})` will find the first `<a>` tag with a class which matches the regular expression `#"exter"`. You can also use regexes in the final position of an ancestry-based query (see below).
+* **XPath and CSS Selectors:** You can use the `:xpath` and `:css` attributes to use such queries in place of simple HTML attributes. If you use one of these attributes, you can't use any others, or an exception will be thrown (e.g. {:xpath "//a", :class "external"} is an illegal expression). `(find-it {:xpath "//a[@class='external']"})` will return the first `<a>` tag with a class of "external"
+* **Ancestry-based queries:** clj-webdriver provides a pure-Clojure mechanism for finding an element based on parent elements. `(find-it [:div {:id "content"}, :a {:class "external"}])` will find the first `<a>` tag with a class of "external" that is located within the `<div>` with id "content". This is equivalent to the XPath `//div[@id='content']//a[@class='external']`. You can also include regular expressions in the final attribute-value map which you supply. (*Note: Due to issues of ambiguity and in order not to reinvent the wheel any further, applying regexes higher up the query is not supported and will cause an exception. If you need more advanced querying, use XPath or CSS selectors directly.*).
 
 As mentioned above, the `find-it` and `find-them` functions share the same features and syntax; `find-it` returns a single element, `find-them` returns a seq of all matched elements.
 
@@ -80,12 +80,12 @@ To demonstrate how to use arguments in different ways, consider the following ex
         click)                               ; expressions
     
     (-> b
-        (find-it [:div {:id "content"}, :a {:id "contact-link"}]) ; hierarchical query
+        (find-it [:div {:id "content"}, :a {:id "contact-link"}]) ; hierarchical/ancestry-based query
         click)                                                    ; equivalent to
                                                                   ; //div[@id='content']//a[@id='contact-link']
     
     (-> b
-        (find-it [:div {:id "content"}, :a {}]) ; hierarchical query, tag with
+        (find-it [:div {:id "content"}, :a {}]) ; ancestry-based query, tag with
         click)                                  ; no attributes (empty map required)
     
     (-> b
@@ -96,7 +96,7 @@ To demonstrate how to use arguments in different ways, consider the following ex
         (find-it {:css "a#contact-link"})    ; CSS selector
         click)
 
-As seen above, the `find-it` function also understands `:xpath` and `:css` attributes, in which case it finds the element on the page described by the XPath or CSS query provided. An `IllegalArgumentException` will be thrown if you attempt to use `:xpath` or `:css` in conjunction with other attributes.
+As seen above, the `find-it` function also understands `:xpath` and `:css` attributes, in which case it finds the element on the page described by the XPath or CSS query provided. An exception will be thrown if you attempt to use `:xpath` or `:css` in conjunction with other attributes.
 
 So, to describe the general pattern of interacting with the page:
 
