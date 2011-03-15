@@ -14,6 +14,7 @@
 ;;
 (ns clj-webdriver.core
   (:use clj-webdriver.util)
+  (:require [clojure.java.io :as io])
   (:import [org.openqa.selenium By WebDriver WebElement Speed Cookie
                                 NoSuchElementException]
            [org.openqa.selenium.firefox FirefoxDriver]
@@ -31,12 +32,14 @@
    :chrome ChromeDriver
    :htmlunit HtmlUnitDriver })
 
-;; TODO: Provide convenient way to pass in a profile, e.g. to Firefox driver,
-;; to enable add-ons when needed
 (defn new-driver
-  "Create new driver instance given a browser type"
-  [browser]
-  (.newInstance (*drivers* browser)))
+  "Create new driver instance given a browser type. If an additional profile object or string is passed in, Firefox will be started with the given profile instead of the default."
+  ([browser]
+     (.newInstance (*drivers* browser)))
+  ([browser profile]
+     (when (not= :firefox browser)
+       (throw (IllegalArgumentException. "Only Firefox supports profiles")))
+     (FirefoxDriver. profile)))
 
 (defn get-url
   "Navigate the driver to a given URL"
