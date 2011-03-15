@@ -5,17 +5,19 @@
 (defn build-xpath
   "Given a tag and a map of attribute-value pairs, generate XPath"
   [tag attr-val]
-  (str "//"
-       (name tag)
-       (if (empty? attr-val)
-         nil
-         (apply str (for [[attr value] attr-val]
-                     (if (= :text attr) ; inspired by Watir-WebDriver
-                       (str "[text()='" value "']")
-                       (str "[@"
-                            (name attr)
-                            "="
-                            "'" value "']")))))))
+  (if (contains-regex? attr-val)
+    nil
+    (str "//"
+         (name tag)
+         (if (empty? attr-val)
+           nil
+           (apply str (for [[attr value] attr-val]
+                        (if (= :text attr) ; inspired by Watir-WebDriver
+                          (str "[text()='" value "']")
+                          (str "[@"
+                               (name attr)
+                               "="
+                               "'" value "']"))))))))
 
 (defn build-xpath-with-ancestry
   "Given a vector of queries in hierarchical order, create XPath.
@@ -25,8 +27,6 @@
   (apply str (let [tag-to-attrs (partition 2 attr-val)]
                (for [xpath-parts tag-to-attrs]
                  (build-xpath (first xpath-parts) (second xpath-parts))))))
-
-;; [:div {:id "content"}, :a {:class "external"}]
 
 (defn contains-regex?
   "Checks if the values of a map contain a regex"
@@ -38,9 +38,10 @@
 (defn all-regex?
   "Checks if all values of a map are regexes"
   [m]
-  (not (some (fn [entry]
-               (let [[k v] entry]
-                 (not= java.util.regex.Pattern (class v)))) m)))
+  (and (not (empty? m))
+       (not (some (fn [entry]
+                    (let [[k v] entry]
+                      (not= java.util.regex.Pattern (class v)))) m))))
 
 (defn query-with-ancestry-has-regex?
   "Check if any values in maps as part of ancestry-based query have a regex"
