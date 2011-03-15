@@ -70,6 +70,7 @@
   (is (= 2           (count (find-them b {:class #"-item"}))))
   (is (= 2           (count (find-them b :a {:class #"-item"}))))
   (is (= 1           (count (find-them b :a {:text #"hom"}))))
+  (is (= 1           (count (find-them b :a {:text #"(?i)HOM"}))))
   (is (= 2           (count (find-them b :a {:class #"exter", :href #"github"}))))
   (is (= 2           (count (find-them b [:* {:id "footer"}, :a {}]))))
   (is (= 2           (count (find-them b [:div {:id "content"}, :a {:class #"exter"}])))))
