@@ -13,8 +13,10 @@
 ;; WebDriver API.
 ;;
 (ns clj-webdriver.core
-  (:use clj-webdriver.util)
-  (:import [org.openqa.selenium By WebDriver WebElement Speed Cookie
+  (:use [clj-webdriver util record]
+        ordered-set)
+  (:import [clj-webdriver.record WindowHandle]
+           [org.openqa.selenium By WebDriver WebElement Speed Cookie
                                 NoSuchElementException]
            [org.openqa.selenium.firefox FirefoxDriver]
            [org.openqa.selenium.ie InternetExplorerDriver]
@@ -79,15 +81,36 @@
   [driver]
   (.quit driver))
 
-(defn window-handles
-  "Retrieve a set of window handles which can be used to switchTo particular open windows"
-  [driver]
-  (into #{} (.getWindowHandles driver)))
-
+;; We've defined our own record type WindowHandler because
+;; the String id which WebDriver returns by default to identify
+;; a window is not particularly helpful
+(declare switch-to-window)
 (defn window-handle
-  "Get the only (or first) window handle"
+  "Get the only (or first) window handle, return as a WindowHandler record"
   [driver]
-  (.getWindowHandle driver))
+  (WindowHandle. (.getWindowHandle driver)
+                  (title driver)
+                  (current-url driver)))
+
+(defn window-handles
+  "Retrieve an ordered-set of `WindowHandle` records which can be used to switchTo particular open windows"
+  [driver]
+  (let [current-handle (.getWindowHandle driver)
+        all-handles (into (ordered-set) (.getWindowHandles driver))
+        handle-records (for [handle all-handles]
+                          (let [b (switch-to-window driver handle)]
+                            (WindowHandle. handle
+                                           (title b)
+                                           (current-url b))))]
+    (switch-to-window driver current-handle)
+    (into (ordered-set) handle-records)))
+
+(defn other-window-handles
+  "Retrieve window handles for all windows except the current one"
+  [driver]
+  (into (ordered-set)
+        (remove #(= (:handle %) (:handle (window-handle driver)))
+                (window-handles driver))))
 
 ;; ## Navigation Interface
 (defn back
@@ -119,14 +142,16 @@
 (defn switch-to-window
   "Switch focus to a particular open window"
   [driver window]
-  (.window (.switchTo driver) window))
+  (condp = (class window)
+    java.lang.String                   (.window (.switchTo driver) window)
+    clj-webdriver.record.WindowHandle  (.window (.switchTo driver) (:handle window))))
 
 (defn switch-to-default
   "Switch focus to the first first frame of the page, or the main document if the page contains iframes"
   [driver]
   (.defaultContent (.switchTo driver)))
 
-(defn swith-to-active
+(defn switch-to-active
   "Switch to element that currently has focus, or to the body if this cannot be detected"
   [driver]
   (.activeElement (.switchTo driver)))
