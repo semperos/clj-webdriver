@@ -1,4 +1,4 @@
-(defproject clj-webdriver "0.1.1"
+(defproject clj-webdriver "0.1.2"
   :description "Clojure wrapper around Selenium-WebDriver library"
   :dependencies [[org.clojure/clojure "1.2.0"]
                  [ordered-set "0.1.0"]
