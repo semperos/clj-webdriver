@@ -104,34 +104,31 @@
   "Retrieve a vector of `WindowHandle` records which can be used to switchTo particular open windows"
   [driver]
   (let [current-handle (.getWindowHandle driver)
-        all-handles (into [] (.getWindowHandles driver))
+        all-handles (seq (.getWindowHandles driver))
         handle-records (for [handle all-handles]
                          (let [b (switch-to-window driver handle)]
                            (WindowHandle. handle
                                           (title b)
-                                          (current-url b))))
-        handle-records-in-order (into [] handle-records)]
+                                          (current-url b))))]
     (switch-to-window driver current-handle)
-    handle-records-in-order))
+    handle-records))
 
 (defn window-handles*
   "For WebDriver API compatibility: this simply wraps `.getWindowHandles`"
   [driver]
-  (into [] (.getWindowHandles driver)))
+  (seq (.getWindowHandles driver)))
 
 (defn other-window-handles
   "Retrieve window handles for all windows except the current one"
   [driver]
-  (into []
-        (remove #(= (:handle %) (:handle (window-handle driver)))
-                (window-handles driver))))
+  (remove #(= (:handle %) (:handle (window-handle driver)))
+          (doall (window-handles driver))))
 
 (defn other-window-handles*
   "For consistency with other window handling functions, this starred version just returns the string-based ID's that WebDriver produces"
   [driver]
-  (into []
-        (remove #(= % (window-handle* driver))
-                (window-handles* driver))))
+  (remove #(= % (window-handle* driver))
+          (doall (window-handles* driver))))
 
 ;; ## Navigation Interface
 (defn back
@@ -162,17 +159,19 @@
 
 (defn switch-to-window
   "Switch focus to a particular open window"
-  [driver window-handle]
-  (condp = (class window-handle)
-    java.lang.String                   (.window (.switchTo driver) window-handle)
-    clj-webdriver.record.WindowHandle  (.window (.switchTo driver) (:handle window-handle))))
+  [driver handle]
+  (cond
+    (string? handle) (.window (.switchTo driver) handle)
+    (= (class handle) clj-webdriver.record.WindowHandle) (.window (.switchTo driver) (:handle handle))
+    (nil? handle) (throw (RuntimeException. "No window can be found"))
+    :else (.window (.switchTo driver) handle)))
 
 ;; forgot for previous release: add condp statement to switch-to-window for Integer and let that represent the human-friendly index of the window handle in the vector of window-handles (that's the whole reason we changed from ordere-set's to vectors, so we could use nth on them)
 
 (defn switch-to-other-window
   "Given that two and only two browser windows are open, switch to the one not currently active"
   [driver]
-  (if (> (count (window-handles driver)) 2)
+  (if (not= (count (window-handles driver)) 2)
     (throw (RuntimeException.
             (str "You may only use this function when two and only two "
                  "browser windows are open.")))
@@ -563,6 +562,15 @@
           elements (find-them driver tag attr-vals-without-regex)]
       (filter-elements-by-regex elements attr-val))))
 
+(defn find-window-handle
+  "Given a browser `driver` and a map of attributes, return the WindowHandle that matches"
+  [driver attr-val]
+  (let [handles (window-handles driver)]
+    (first
+     (filter #(every? (fn [[k v]] (= (k %) v)) attr-val) handles))))
+
+;; TODO: Add support for a :window "tag" that will allow selecting
+;; and interacting with multiple windows
 (defn find-it
   "Given a WebDriver `driver`, optional HTML tag `tag`, and an HTML attribute-value pair `attr-val`, return the first WebElement that matches. The values of `attr-val` items must match the target exactly, unless a regex is used for a value."
   ([driver attr-val]
@@ -586,25 +594,23 @@
      (when (keyword? driver) ; I keep forgetting to pass in the WebDriver instance while testing
        (throw (IllegalArgumentException.
                (str "The first parameter to find-it must be an instance of WebDriver."))))
-     (if (and
-          (>  (count attr-val) 1)
-          (or (contains? attr-val :xpath)
-              (contains? attr-val :css)))
-       (throw (IllegalArgumentException.
-               (str "If you want to find an element via XPath or CSS, "
-                    "you may pass in one and only one attribute (:xpath or :css)")))
-       (if (= 1 (count attr-val)) ; we can do simple dispatch
-         (let [entry (first attr-val)
-               attr  (key entry)
-               value (val entry)]
-           (cond
-            (= java.util.regex.Pattern (class value)) (first (find-elements-by-regex-alone driver tag attr-val))
-            (= :xpath attr) (find-element driver (by-xpath value))
-            (= :css attr)   (find-element driver (by-css-selector value))
-            :else           (find-element driver (by-attr= tag attr value))))
-         (if (contains-regex? attr-val)
-           (first (find-elements-by-regex driver tag attr-val))
-           (find-element driver (by-xpath (build-xpath tag attr-val))))))))
+     (cond
+      (and
+       (>  (count attr-val) 1)
+       (or (contains? attr-val :xpath) (contains? attr-val :css)))      (throw (IllegalArgumentException.
+                                                                                (str "If you want to find an element via XPath or CSS, "
+                                                                                     "you may pass in one and only one attribute (:xpath or :css)")))
+      (= tag :window) (find-window-handle driver attr-val)
+      (= 1 (count attr-val)) (let [entry (first attr-val)
+                                   attr  (key entry)
+                                   value (val entry)]
+                               (cond
+                                (= java.util.regex.Pattern (class value)) (first (find-elements-by-regex-alone driver tag attr-val))
+                                (= :xpath attr) (find-element driver (by-xpath value))
+                                (= :css attr)   (find-element driver (by-css-selector value))
+                                :else           (find-element driver (by-attr= tag attr value))))
+      (contains-regex? attr-val) (first (find-elements-by-regex driver tag attr-val))
+      :else (find-element driver (by-xpath (build-xpath tag attr-val))))))
 
 (defn find-them
   "Plural version of `find-it` function; returns a seq of multiple matches."
