@@ -183,6 +183,9 @@
   (switch-to-window b (second (window-handles b)))
   (is (= "http://localhost:8080/clojure"
          (:url (window-handle b))))
+  (switch-to-other-window b)
+  (is (= "http://localhost:8080/"
+         (:url (window-handle b))))
   )
 ;; TODO:
 ;;   * Form element tests (comprehensive)

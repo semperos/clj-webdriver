@@ -147,6 +147,15 @@
     java.lang.String                   (.window (.switchTo driver) window-handle)
     clj-webdriver.record.WindowHandle  (.window (.switchTo driver) (:handle window-handle))))
 
+(defn switch-to-other-window
+  "Given that two and only two browser windows are open, switch to the one not currently active"
+  [driver]
+  (if (> (count (window-handles driver)) 2)
+    (throw (RuntimeException.
+            (str "You may only use this function when two and only two "
+                 "browser windows are open.")))
+    (switch-to-window driver (first (other-window-handles driver)))))
+
 (defn switch-to-default
   "Switch focus to the first first frame of the page, or the main document if the page contains iframes"
   [driver]
@@ -156,6 +165,8 @@
   "Switch to element that currently has focus, or to the body if this cannot be detected"
   [driver]
   (.activeElement (.switchTo driver)))
+
+;; ## Option Interface
 
 (defn new-cookie
   "Create a new cookie instance"
@@ -173,7 +184,6 @@
   [cookie]
   (.getValue cookie))
 
-;; ## Option Interface
 (defn add-cookie
   "Add a new cookie to the browser session"
   [driver cookie]
