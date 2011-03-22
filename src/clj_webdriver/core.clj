@@ -562,12 +562,11 @@
           elements (find-them driver tag attr-vals-without-regex)]
       (filter-elements-by-regex elements attr-val))))
 
-(defn find-window-handle
+(defn find-window-handles
   "Given a browser `driver` and a map of attributes, return the WindowHandle that matches"
   [driver attr-val]
   (let [handles (window-handles driver)]
-    (first
-     (filter #(every? (fn [[k v]] (= (k %) v)) attr-val) handles))))
+    (filter #(every? (fn [[k v]] (= (k %) v)) attr-val) handles)))
 
 ;; TODO: Add support for a :window "tag" that will allow selecting
 ;; and interacting with multiple windows
@@ -600,7 +599,7 @@
        (or (contains? attr-val :xpath) (contains? attr-val :css)))      (throw (IllegalArgumentException.
                                                                                 (str "If you want to find an element via XPath or CSS, "
                                                                                      "you may pass in one and only one attribute (:xpath or :css)")))
-      (= tag :window) (find-window-handle driver attr-val)
+      (= tag :window) (first (find-window-handles driver attr-val))
       (= 1 (count attr-val)) (let [entry (first attr-val)
                                    attr  (key entry)
                                    value (val entry)]
@@ -640,6 +639,7 @@
        (or (contains? attr-val :xpath) (contains? attr-val :css))) (throw (IllegalArgumentException.
                                                                            (str "If you want to find an element via XPath or CSS, "
                                                                                 "you may pass in one and only one attribute (:xpath or :css)")))
+      (= tag :window) (find-window-handles driver attr-val)
       (= 1 (count attr-val)) (let [entry (first attr-val)
                                    attr  (key entry)
                                    value (val entry)]
