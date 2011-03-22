@@ -6,5 +6,6 @@
 
 (defsnippet welcome-page "welcome.html" [:body :> any-node] [])
 
-(defsnippet example-form "form.html" [:body :> any-node]
-  [])
+(defsnippet clojure-page "clojure.html" [:body :> any-node] [])
+
+(defsnippet example-form "form.html" [:body :> any-node] [])
