@@ -563,13 +563,12 @@
 (defn find-window-handles
   "Given a browser `driver` and a map of attributes, return the WindowHandle that matches"
   [driver attr-val]
-  (let [handles (window-handles driver)]
-    (filter #(every? (fn [[k v]] (= (k %) v)) attr-val) handles)))
+  (if (contains? attr-val :index)
+    (nth (window-handles driver) (:index attr-val))
+    (filter #(every? (fn [[k v]] (= (k %) v)) attr-val) (window-handles driver))))
 
-;; TODO: Add support for a :window "tag" that will allow selecting
-;; and interacting with multiple windows
 (defn find-it
-  "Given a WebDriver `driver`, optional HTML tag `tag`, and an HTML attribute-value pair `attr-val`, return the first WebElement that matches. The values of `attr-val` items must match the target exactly, unless a regex is used for a value."
+  "Given a WebDriver `driver`, find the browser element that matches the query"
   ([driver attr-val]
      (cond
       (keyword? attr-val)
@@ -610,7 +609,7 @@
       :else (find-element driver (by-xpath (build-xpath tag attr-val))))))
 
 (defn find-them
-  "Plural version of `find-it` function; returns a seq of multiple matches."
+  "Given a browser `driver`, find the browser elements that match the query"
   ([driver attr-val]
      (cond
       (keyword? attr-val)
