@@ -2,8 +2,6 @@
   (:require [clojure.java.io :as io])
   (:import org.openqa.selenium.firefox.FirefoxProfile))
 
-;; TODO: Provide convenient way to pass in a profile, e.g. to Firefox driver,
-;; to enable add-ons when needed
 (defn new-profile
   "Create an instance of `FirefoxProfile`"
   []
