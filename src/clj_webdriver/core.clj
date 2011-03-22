@@ -13,8 +13,7 @@
 ;; WebDriver API.
 ;;
 (ns clj-webdriver.core
-  (:use [clj-webdriver util record]
-        ordered-set)
+  (:use [clj-webdriver util record])
   (:import [clj-webdriver.record WindowHandle]
            [org.openqa.selenium By WebDriver WebElement Speed Cookie
                                 NoSuchElementException]
