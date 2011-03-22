@@ -86,11 +86,11 @@
          (text (find-it b [:div {:id "content"}, :a {:href #"github"}]))))
   (is (= "home"
          (text (find-it b [:* {:id "footer"}, :a {}]))))
-  (is (= 5
+  (is (= 6
          (count (find-them b :a))))
-  (is (= 2
+  (is (= 3
          (count (find-them b {:class #"-item"}))))
-  (is (= 2
+  (is (= 3
          (count (find-them b :a {:class #"-item"}))))
   (is (= 1
          (count (find-them b :a {:text #"hom"}))))
@@ -98,7 +98,7 @@
          (count (find-them b :a {:text #"(?i)HOM"}))))
   (is (= 2
          (count (find-them b :a {:class #"exter", :href #"github"}))))
-  (is (= 2
+  (is (= 3
          (count (find-them b [:* {:id "footer"}, :a {}]))))
   (is (= 2
          (count (find-them b [:div {:id "content"}, :a {:class #"exter"}]))))
