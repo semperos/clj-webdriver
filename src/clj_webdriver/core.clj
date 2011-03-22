@@ -98,12 +98,13 @@
   (let [current-handle (.getWindowHandle driver)
         all-handles (into (ordered-set) (.getWindowHandles driver))
         handle-records (for [handle all-handles]
-                          (let [b (switch-to-window driver handle)]
-                            (WindowHandle. handle
-                                           (title b)
-                                           (current-url b))))]
+                         (let [b (switch-to-window driver handle)]
+                           (WindowHandle. handle
+                                          (title b)
+                                          (current-url b))))
+        handle-records-in-order (into (ordered-set) handle-records)]
     (switch-to-window driver current-handle)
-    (into (ordered-set) handle-records)))
+    handle-records-in-order))
 
 (defn other-window-handles
   "Retrieve window handles for all windows except the current one"
@@ -141,10 +142,10 @@
 
 (defn switch-to-window
   "Switch focus to a particular open window"
-  [driver window]
-  (condp = (class window)
-    java.lang.String                   (.window (.switchTo driver) window)
-    clj-webdriver.record.WindowHandle  (.window (.switchTo driver) (:handle window))))
+  [driver window-handle]
+  (condp = (class window-handle)
+    java.lang.String                   (.window (.switchTo driver) window-handle)
+    clj-webdriver.record.WindowHandle  (.window (.switchTo driver) (:handle window-handle))))
 
 (defn switch-to-default
   "Switch focus to the first first frame of the page, or the main document if the page contains iframes"
