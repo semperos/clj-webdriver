@@ -104,11 +104,11 @@
   [driver]
   (let [current-handle (.getWindowHandle driver)
         all-handles (seq (.getWindowHandles driver))
-        handle-records (for [handle all-handles]
-                         (let [b (switch-to-window driver handle)]
-                           (WindowHandle. handle
-                                          (title b)
-                                          (current-url b))))]
+        handle-records (doall (for [handle all-handles]
+                                (let [b (switch-to-window driver handle)]
+                                  (WindowHandle. handle
+                                                 (title b)
+                                                 (current-url b)))))]
     (switch-to-window driver current-handle)
     handle-records))
 
