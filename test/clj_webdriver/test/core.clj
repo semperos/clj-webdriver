@@ -120,8 +120,7 @@
   (is (= "Smith"
          (attribute (find-it b :input {:type "text", :name #"last_"}) "value")))
   (is (= "Smith"
-         (attribute (find-it b [:div {:id "content"}, :input {:name #"last_"}]) "value")))
-  )
+         (attribute (find-it b [:div {:id "content"}, :input {:name #"last_"}]) "value"))))
 
 (deftest test-form-elements
   (to b "http://localhost:8080/example-form")
@@ -170,5 +169,6 @@
          (value (find-it b :input {:id "first_name"}))))
   )
 ;; TODO:
-;;   * Form element tests
+;;   * Form element tests (comprehensive)
+;;   * Multiple windows (switching, getting handles)
 ;;   * Exception throwing (esp. for find-it/find-them argument handling)
