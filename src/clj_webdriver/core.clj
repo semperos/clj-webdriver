@@ -84,6 +84,9 @@
 ;; We've defined our own record type WindowHandler because
 ;; the String id which WebDriver returns by default to identify
 ;; a window is not particularly helpful
+;;
+;; The equivalent starred functions below wrap the WebDriver methods
+;; directly, without using a cusotm record.
 (declare switch-to-window)
 (defn window-handle
   "Get the only (or first) window handle, return as a WindowHandler record"
@@ -92,26 +95,43 @@
                   (title driver)
                   (current-url driver)))
 
+(defn window-handle*
+  "For WebDriver API compatibility: this simply wraps `.getWindowHandle`"
+  [driver]
+  (.getWindowHandle driver))
+
 (defn window-handles
   "Retrieve an ordered-set of `WindowHandle` records which can be used to switchTo particular open windows"
   [driver]
   (let [current-handle (.getWindowHandle driver)
-        all-handles (into (ordered-set) (.getWindowHandles driver))
+        all-handles (into [] (.getWindowHandles driver))
         handle-records (for [handle all-handles]
                          (let [b (switch-to-window driver handle)]
                            (WindowHandle. handle
                                           (title b)
                                           (current-url b))))
-        handle-records-in-order (into (ordered-set) handle-records)]
+        handle-records-in-order (into [] handle-records)]
     (switch-to-window driver current-handle)
     handle-records-in-order))
+
+(defn window-handles*
+  "For WebDriver API compatibility: this simply wraps `.getWindowHandles`"
+  [driver]
+  (into [] (.getWindowHandles driver)))
 
 (defn other-window-handles
   "Retrieve window handles for all windows except the current one"
   [driver]
-  (into (ordered-set)
+  (into []
         (remove #(= (:handle %) (:handle (window-handle driver)))
                 (window-handles driver))))
+
+(defn other-window-handles*
+  "For consistency with other window handling functions, this starred version just returns the string-based ID's that WebDriver produces"
+  [driver]
+  (into []
+        (remove #(= % (window-handle* driver))
+                (window-handles* driver))))
 
 ;; ## Navigation Interface
 (defn back
@@ -155,6 +175,8 @@
             (str "You may only use this function when two and only two "
                  "browser windows are open.")))
     (switch-to-window driver (first (other-window-handles driver)))))
+
+
 
 (defn switch-to-default
   "Switch focus to the first first frame of the page, or the main document if the page contains iframes"
