@@ -564,7 +564,7 @@
   "Given a browser `driver` and a map of attributes, return the WindowHandle that matches"
   [driver attr-val]
   (if (contains? attr-val :index)
-    (nth (window-handles driver) (:index attr-val))
+    [(nth (window-handles driver) (:index attr-val))] ; vector for consistency below
     (filter #(every? (fn [[k v]] (= (k %) v)) attr-val) (window-handles driver))))
 
 (defn find-it
