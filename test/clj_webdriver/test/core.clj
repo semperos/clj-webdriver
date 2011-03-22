@@ -12,13 +12,13 @@
   (f)
   (to b "http://localhost:8080"))
 
-(defn close-browser-fixture
+(defn quit-browser-fixture
   [f]
   (f)
-  (close b))
+  (quit b))
 
 (use-fixtures :each reset-browser-fixture)
-(use-fixtures :once close-browser-fixture)
+(use-fixtures :once quit-browser-fixture)
 
 ;; Tests
 (deftest test-browser-basics
@@ -166,9 +166,25 @@
       (find-it :input {:id "first_name"})
       (input-text "foobar"))
   (is (= "foobar"
-         (value (find-it b :input {:id "first_name"}))))
+         (value (find-it b :input {:id "first_name"})))))
+
+(deftest test-window-handling
+  (is (= 1
+         (count (window-handles b))))
+  (is (= "Ministache"
+         (:title (window-handle b))))
+  (-> b
+      (find-it :a {:text "is amazing!"})
+      click)
+  (is (= "Ministache"
+         (:title (window-handle b))))
+  (is (= 2
+         (count (window-handles b))))
+  (switch-to-window b (second (window-handles b)))
+  (is (= "http://localhost:8080/clojure"
+         (:url (window-handle b))))
   )
 ;; TODO:
 ;;   * Form element tests (comprehensive)
 ;;   * Multiple windows (switching, getting handles)
-;;   * Exception throwing (esp. for find-it/find-them argument handling)
+;;   * Exception throwing (esp. for find-it/find-them argument handling)p
