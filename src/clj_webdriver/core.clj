@@ -246,6 +246,8 @@
   ([driver] (.getSpeed (.manage driver)))
   ([driver speed] (.setSpeed (.manage driver) speed)))
 
+;; ## By* Functions
+
 (defn by-id
   "Used when finding elements. Returns `By/id` of `expr`"
   [expr]
@@ -328,18 +330,6 @@
 
 ;; I can't add more functions like `by-attr-ends` or `by-attr-matches` (regex) due
 ;; to lack of uniform XPath support in WebDriver
-
-(defn find-element
-  "Retrieve the element object of an element described by `by`"
-  [driver by]
-  (try (.findElement driver by)
-  (catch NoSuchElementException e nil)))
-
-(defn find-elements
-  "Retrieve a seq of element objects described by `by`"
-  [driver by]
-  (try (seq (.findElements driver by))
-  (catch NoSuchElementException e [])))
 
 ;; ##  WebElement
 (defn click
@@ -510,8 +500,21 @@
     (.selectByVisibleText select-list text)))
 
 ;; ## Element-finding Utilities
+
 (declare find-it)
 (declare find-them)
+
+(defn find-element
+  "Retrieve the element object of an element described by `by`"
+  [driver by]
+  (try (.findElement driver by)
+  (catch NoSuchElementException e nil)))
+
+(defn find-elements
+  "Retrieve a seq of element objects described by `by`"
+  [driver by]
+  (try (seq (.findElements driver by))
+  (catch NoSuchElementException e [])))
 
 (defn find-elements-by-regex-alone
   "Given an `attr-val` pair with a regex value, find the elements that match"
