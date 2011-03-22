@@ -101,7 +101,7 @@
   (.getWindowHandle driver))
 
 (defn window-handles
-  "Retrieve an ordered-set of `WindowHandle` records which can be used to switchTo particular open windows"
+  "Retrieve a vector of `WindowHandle` records which can be used to switchTo particular open windows"
   [driver]
   (let [current-handle (.getWindowHandle driver)
         all-handles (into [] (.getWindowHandles driver))
@@ -167,6 +167,8 @@
     java.lang.String                   (.window (.switchTo driver) window-handle)
     clj-webdriver.record.WindowHandle  (.window (.switchTo driver) (:handle window-handle))))
 
+;; forgot for previous release: add condp statement to switch-to-window for Integer and let that represent the human-friendly index of the window handle in the vector of window-handles (that's the whole reason we changed from ordere-set's to vectors, so we could use nth on them)
+
 (defn switch-to-other-window
   "Given that two and only two browser windows are open, switch to the one not currently active"
   [driver]
@@ -175,8 +177,6 @@
             (str "You may only use this function when two and only two "
                  "browser windows are open.")))
     (switch-to-window driver (first (other-window-handles driver)))))
-
-
 
 (defn switch-to-default
   "Switch focus to the first first frame of the page, or the main document if the page contains iframes"
