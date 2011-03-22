@@ -163,10 +163,9 @@
   (cond
     (string? handle) (.window (.switchTo driver) handle)
     (= (class handle) clj-webdriver.record.WindowHandle) (.window (.switchTo driver) (:handle handle))
+    (number? handle) (switch-to-window driver (nth (window-handles driver) handle))
     (nil? handle) (throw (RuntimeException. "No window can be found"))
     :else (.window (.switchTo driver) handle)))
-
-;; forgot for previous release: add condp statement to switch-to-window for Integer and let that represent the human-friendly index of the window handle in the vector of window-handles (that's the whole reason we changed from ordere-set's to vectors, so we could use nth on them)
 
 (defn switch-to-other-window
   "Given that two and only two browser windows are open, switch to the one not currently active"
