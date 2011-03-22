@@ -634,22 +634,19 @@
      (when (keyword? driver) ; I keep forgetting to pass in the WebDriver instance while testing
        (throw (IllegalArgumentException.
                (str "The first parameter to find-it must be an instance of WebDriver."))))     
-     (if (and
-          (>  (count attr-val) 1)
-          (or (contains? attr-val :xpath)
-              (contains? attr-val :css)))
-       (throw (IllegalArgumentException.
-               (str "If you want to find an element via XPath or CSS, "
-                    "you may pass in one and only one attribute (:xpath or :css)")))
-       (if (= 1 (count attr-val)) ; we can do simple dispatch
-         (let [entry (first attr-val)
-               attr  (key entry)
-               value (val entry)]
-           (cond
-            (= java.util.regex.Pattern (class value)) (find-elements-by-regex-alone driver tag attr-val)
-            (= :xpath attr) (find-elements driver (by-xpath value))
-            (= :css attr)   (find-elements driver (by-css-selector value))
-            :else           (find-elements driver (by-attr= tag attr value))))
-         (if (contains-regex? attr-val)
-           (find-elements-by-regex driver tag attr-val)
-           (find-elements driver (by-xpath (build-xpath tag attr-val))))))))
+     (cond
+      (and
+       (>  (count attr-val) 1)
+       (or (contains? attr-val :xpath) (contains? attr-val :css))) (throw (IllegalArgumentException.
+                                                                           (str "If you want to find an element via XPath or CSS, "
+                                                                                "you may pass in one and only one attribute (:xpath or :css)")))
+      (= 1 (count attr-val)) (let [entry (first attr-val)
+                                   attr  (key entry)
+                                   value (val entry)]
+                               (cond
+                                (= java.util.regex.Pattern (class value)) (find-elements-by-regex-alone driver tag attr-val)
+                                (= :xpath attr) (find-elements driver (by-xpath value))
+                                (= :css attr)   (find-elements driver (by-css-selector value))
+                                :else           (find-elements driver (by-attr= tag attr value))))
+      (contains-regex? attr-val) (find-elements-by-regex driver tag attr-val)
+      :else (find-elements driver (by-xpath (build-xpath tag attr-val))))))
