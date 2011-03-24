@@ -2,6 +2,17 @@
   (:require [clojure.string :as str])
   (:import [org.openqa.selenium WebDriver WebElement]))
 
+(defn build-xpath-attrs
+  "Given a map of attribute-value pairs, build the bracketed portion of an XPath query that follows the tag"
+  [attr-val]
+  (apply str (for [[attr value] attr-val]
+                        (if (= :text attr) ; inspired by Watir-WebDriver
+                          (str "[text()='" value "']")
+                          (str "[@"
+                               (name attr)
+                               "="
+                               "'" value "']")))))
+
 (declare contains-regex?)
 (defn build-xpath
   "Given a tag and a map of attribute-value pairs, generate XPath"
@@ -12,13 +23,7 @@
          (name tag)
          (if (empty? attr-val)
            nil
-           (apply str (for [[attr value] attr-val]
-                        (if (= :text attr) ; inspired by Watir-WebDriver
-                          (str "[text()='" value "']")
-                          (str "[@"
-                               (name attr)
-                               "="
-                               "'" value "']"))))))))
+           (build-xpath-attrs attr-val)))))
 
 (defn build-xpath-with-ancestry
   "Given a vector of queries in hierarchical order, create XPath.
