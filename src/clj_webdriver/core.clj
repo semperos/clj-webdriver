@@ -610,13 +610,33 @@
     [(nth (window-handles driver) (:index attr-val))] ; vector for consistency below
     (filter #(every? (fn [[k v]] (= (k %) v)) attr-val) (window-handles driver))))
 
+(defn find-semantic-buttons
+  "Find HTML element that is either a `<button>` or an `<input>` of type submit, reset, image or button"
+  [driver attr-val]
+  (let [xpath-parts ["//input[@type='submit']"
+                     "//input[@type='reset']"
+                     "//input[@type='image']"
+                     "//input[@type='button']"
+                     "//button"]
+        xpath-full (if (or (nil? attr-val) (empty? attr-val))
+                     (interpose "|" xpath-parts)
+                     (conj
+                      (->> (repeat (str (build-xpath-attrs attr-val) "|"))
+                           (interleave (drop-last xpath-parts))
+                           vec)
+                      (str "//button" (build-xpath-attrs attr-val))))]
+    (->> (apply str xpath-full)
+         by-xpath
+         (find-elements driver))))
+
 (defn find-it
   "Given a WebDriver `driver`, find the browser element that matches the query"
   ([driver attr-val]
      (cond
-      (keyword? attr-val)
-      (find-element driver (by-tag-name (name attr-val))) ; supplied just :tag
-      (vector? attr-val)
+      (= attr-val :button*) (find-it driver :button* nil)
+      (keyword? attr-val) ; supplied just :tag
+      (find-element driver (by-tag-name (name attr-val)))
+      (vector? attr-val) ; ancestry-based query
       (if (query-with-ancestry-has-regex? attr-val)
         (if (query-with-ancestry-has-regex? (drop-last 2 attr-val))
           (throw (IllegalArgumentException.
@@ -627,8 +647,8 @@
             (find-elements driver (by-xpath (str (build-xpath-with-ancestry attr-val) "//*")))
             (last attr-val))))
         (find-element driver (by-xpath (build-xpath-with-ancestry attr-val)))) ; supplied vector of queries in hierarchy
-      (map? attr-val)
-      (find-it driver :* attr-val))) ; no :tag specified, use global *
+      (map? attr-val) ; no :tag specific, use global *
+      (find-it driver :* attr-val)))
   ([driver tag attr-val]
      (when (keyword? driver) ; I keep forgetting to pass in the WebDriver instance while testing
        (throw (IllegalArgumentException.
@@ -640,6 +660,7 @@
                                                                                 (str "If you want to find an element via XPath or CSS, "
                                                                                      "you may pass in one and only one attribute (:xpath or :css)")))
       (= tag :window) (first (find-window-handles driver attr-val))
+      (= tag :button*) (first (find-semantic-buttons driver attr-val))
       (= 1 (count attr-val)) (let [entry (first attr-val)
                                    attr  (key entry)
                                    value (val entry)]
@@ -655,6 +676,7 @@
   "Given a browser `driver`, find the browser elements that match the query"
   ([driver attr-val]
      (cond
+      (= attr-val :button*) (find-them driver :button* nil)
       (keyword? attr-val)
       (find-elements driver (by-tag-name (name attr-val))) ; supplied just :tag
       (vector? attr-val)
@@ -679,7 +701,8 @@
        (or (contains? attr-val :xpath) (contains? attr-val :css))) (throw (IllegalArgumentException.
                                                                            (str "If you want to find an element via XPath or CSS, "
                                                                                 "you may pass in one and only one attribute (:xpath or :css)")))
-      (= tag :window) (find-window-handles driver attr-val)
+      (= tag :window) (doall (find-window-handles driver attr-val))
+      (= tag :button*) (doall (find-semantic-buttons driver attr-val))
       (= 1 (count attr-val)) (let [entry (first attr-val)
                                    attr  (key entry)
                                    value (val entry)]
