@@ -2,4 +2,4 @@
 
 (ns clj-webdriver.record)
 
-(defrecord WindowHandle [handle title url])
+(defrecord WindowHandle [driver handle title url])

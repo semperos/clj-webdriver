@@ -71,6 +71,7 @@
 
 (declare window-handles*)
 (declare window-handle*)
+(declare switch-to-window)
 (defn close
   "Close this browser instance, switching to an active one if more than one is open"
   [driver]
@@ -79,10 +80,10 @@
       (let [this-handle (window-handle* driver)
             idx (.indexOf handles this-handle)]
         (cond
-            (zero? idx) (do ; if first window, go to next
+            (zero? idx) (do ; if first window, switch to next
                           (.close driver)
                           (switch-to-window driver (nth handles (inc idx))))
-            :else (do ; otherwise, go back one window
+            :else (do ; otherwise, switch back one window
                     (.close driver)
                     (switch-to-window driver (nth handles (dec idx))))))
       (.close driver))))
@@ -103,9 +104,10 @@
 (defn window-handle
   "Get the only (or first) window handle, return as a WindowHandler record"
   [driver]
-  (WindowHandle. (.getWindowHandle driver)
-                  (title driver)
-                  (current-url driver)))
+  (WindowHandle. driver
+                 (.getWindowHandle driver)
+                 (title driver)
+                 (current-url driver)))
 
 (defn window-handle*
   "For WebDriver API compatibility: this simply wraps `.getWindowHandle`"
@@ -119,7 +121,8 @@
         all-handles (seq (.getWindowHandles driver))
         handle-records (doall (for [handle all-handles]
                                 (let [b (switch-to-window driver handle)]
-                                  (WindowHandle. handle
+                                  (WindowHandle. driver
+                                                 handle
                                                  (title b)
                                                  (current-url b)))))]
     (switch-to-window driver current-handle)
@@ -174,13 +177,14 @@
 
 (defn switch-to-window
   "Switch focus to a particular open window"
-  [driver handle]
-  (cond
-    (string? handle) (.window (.switchTo driver) handle)
-    (= (class handle) clj-webdriver.record.WindowHandle) (.window (.switchTo driver) (:handle handle))
-    (number? handle) (switch-to-window driver (nth (window-handles driver) handle))
-    (nil? handle) (throw (RuntimeException. "No window can be found"))
-    :else (.window (.switchTo driver) handle)))
+  ([handle] (switch-to-window (:driver handle) handle))
+  ([driver handle]
+     (cond
+      (string? handle) (.window (.switchTo driver) handle)
+      (= (class handle) clj-webdriver.record.WindowHandle) (.window (.switchTo (:driver handle)) (:handle handle))
+      (number? handle) (switch-to-window driver (nth (window-handles driver) handle))
+      (nil? handle) (throw (RuntimeException. "No window can be found"))
+      :else (.window (.switchTo driver) handle))))
 
 (defn switch-to-other-window
   "Given that two and only two browser windows are open, switch to the one not currently active"
