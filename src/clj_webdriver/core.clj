@@ -69,10 +69,23 @@
   [driver]
   (.getPageSource driver))
 
+(declare window-handles*)
+(declare window-handle*)
 (defn close
-  "Close this browser instance"
+  "Close this browser instance, switching to an active one if more than one is open"
   [driver]
-  (.close driver))
+  (let [handles (window-handles* driver)]
+    (if (> (count handles) 1) ; get back to a window that is open before proceeding
+      (let [this-handle (window-handle* driver)
+            idx (.indexOf handles this-handle)]
+        (cond
+            (zero? idx) (do ; if first window, go to next
+                          (.close driver)
+                          (switch-to-window driver (nth handles (inc idx))))
+            :else (do ; otherwise, go back one window
+                    (.close driver)
+                    (switch-to-window driver (nth handles (dec idx))))))
+      (.close driver))))
 
 ; TODO catch webdriver exception
 (defn quit
@@ -143,18 +156,21 @@
 (defn to
   "Navigate to a particular URL. Arg `url` can be either String or java.net.URL. Equivalent to the `get` function, provided here for compatibility with WebDriver API."
   [driver url]
-  (.to (.navigate driver) url))
+  (.to (.navigate driver) url)
+  driver)
 
 (defn refresh
   "Refresh the current page"
   [driver]
-  (.refresh (.navigate driver)))
+  (.refresh (.navigate driver))
+  driver)
 
 ;; ## TargetLocator Interface
 (defn switch-to-frame
   "Switch focus to a particular HTML frame"
   [driver frame]
-  (.frame (.switchTo driver) frame))
+  (.frame (.switchTo driver) frame)
+  driver)
 
 (defn switch-to-window
   "Switch focus to a particular open window"
@@ -332,12 +348,14 @@
 (defn click
   "Click a particular HTML element"
   [element]
-  (.click element))
+  (.click element)
+  element)
 
 (defn submit
   "Submit the form which contains the given element object"
   [element]
-  (.submit element))
+  (.submit element)
+  element)
 
 (defn value
   "Retrieve the `value` attribute of the given element object"
@@ -347,7 +365,8 @@
 (defn clear
   "Clear the contents of the given element object"
   [element]
-  (.clear element))
+  (.clear element)
+  element)
 
 (defn tag-name
   "Retrieve the name of the HTML tag of the given element object"
@@ -362,7 +381,8 @@
 (defn toggle
   "If the given element object is a checkbox, this will toggle its selected/unselected state"
   [element]
-  (.toggle element))
+  (.toggle element)
+  element)
 
 (defn selected?
   "Returns true if the given element object is selected"
@@ -388,6 +408,11 @@
 
 (def displayed? ^{:doc "Returns true if the given element object is visible/displayed"} visible?)
 
+(defn exists?
+  "Returns true if element can be found on page"
+  [element]
+  (not (nil? element)))
+
 (defn text
   "Retrieve the content, or inner HTML, of a given element object"
   [element]
@@ -396,7 +421,8 @@
 (defn send-keys
   "Type the string of keys into the element object"
   [element s]
-  (.sendKeys element (into-array CharSequence (list s))))
+  (.sendKeys element (into-array CharSequence (list s)))
+  element)
 
 (def input-text send-keys)
 
@@ -419,12 +445,18 @@
 (defn drag-and-drop-by
   "Drag an element by `x` pixels to the right and `y` pixels down. Use negative numbers for opposite directions."
   [element ^Integer x ^Integer y]
-  (.dragAndDropBy element x y))
+  (.dragAndDropBy element x y)
+  element)
 
 (defn drag-and-drop-on
   "Drag `element-a` onto `element-b`. The (0,0) coordinates (top-left corners) of each element are aligned."
   [element-a element-b]
-  (.dragAndDropOn element-a element-b))
+  (.dragAndDropOn element-a element-b)
+  element-a)
+
+(defn execute-script
+  [driver js & js-args]
+  (.executeScript driver js (to-array js-args)))
 
 ;; ## org.openqa.selenium.support.ui.Select class
 
@@ -432,26 +464,30 @@
   "Clear all selected entries for select list described by `by`"
   [element]
   (let [select-list (Select. element)]
-    (.deselectAll select-list)))
+    (.deselectAll select-list)
+    element))
 
 (defn deselect-by-index
   "Deselect the option at index `idx` for the select list described by `by`. Indeces begin at 1"
   [element idx]
   (let [idx-human (dec idx)
         select-list (Select. element)]
-    (.deselectByIndex select-list idx-human)))
+    (.deselectByIndex select-list idx-human)
+    element))
 
 (defn deselect-by-value
   "Deselect all options with value `value` for the select list described by `by`"
   [element value]
   (let [select-list (Select. element)]
-    (.deselectByValue select-list value)))
+    (.deselectByValue select-list value)
+    element))
 
 (defn deselect-by-text
   "Deselect all options with visible text `text` for the select list described by `by`"
   [element text]
   (let [select-list (Select. element)]
-    (.deselectByVisibleText select-list text)))
+    (.deselectByVisibleText select-list text)
+    element))
 
 (defn all-selected-options
   "Retrieve a seq of all selected options from the select list described by `by`"
@@ -482,19 +518,22 @@
   [element idx]
   (let [idx-human (dec idx)
         select-list (Select. element)]
-    (.selectByIndex select-list idx-human)))
+    (.selectByIndex select-list idx-human)
+    element))
 
 (defn select-by-value
   "Select all options with value `value` in the select list described by `by`"
   [element value]
   (let [select-list (Select. element)]
-    (.selectByValue select-list value)))
+    (.selectByValue select-list value)
+    element))
 
 (defn select-by-text
   "Select all options with visible text `text` in the select list described by `by`"
   [element text]
   (let [select-list (Select. element)]
-    (.selectByVisibleText select-list text)))
+    (.selectByVisibleText select-list text)
+    element))
 
 ;; ## Element-finding Utilities
 
@@ -505,13 +544,13 @@
   "Retrieve the element object of an element described by `by`"
   [driver by]
   (try (.findElement driver by)
-  (catch NoSuchElementException e nil)))
+       (catch NoSuchElementException e nil)))
 
 (defn find-elements
   "Retrieve a seq of element objects described by `by`"
   [driver by]
   (try (seq (.findElements driver by))
-  (catch NoSuchElementException e [])))
+       (catch NoSuchElementException e [])))
 
 (defn find-elements-by-regex-alone
   "Given an `attr-val` pair with a regex value, find the elements that match"
