@@ -202,5 +202,4 @@
          (:url (window-handle b)))))
 ;; TODO:
 ;;   * Form element tests (comprehensive)
-;;   * Multiple windows (switching, getting handles)
 ;;   * Exception throwing (esp. for find-it/find-them argument handling)p
