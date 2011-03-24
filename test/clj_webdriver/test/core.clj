@@ -120,7 +120,15 @@
   (is (= "Smith"
          (attribute (find-it b :input {:type "text", :name #"last_"}) "value")))
   (is (= "Smith"
-         (attribute (find-it b [:div {:id "content"}, :input {:name #"last_"}]) "value"))))
+         (attribute (find-it b [:div {:id "content"}, :input {:name #"last_"}]) "value")))
+  (is (true?
+       (-> b
+           (find-it :a)
+           exists?)))
+  (is (false?
+       (-> b
+           (find-it :area)
+           exists?))))
 
 (deftest test-form-elements
   (to b "http://localhost:8080/example-form")
@@ -186,7 +194,12 @@
   (switch-to-other-window b)
   (is (= "http://localhost:8080/"
          (:url (window-handle b))))
-  )
+  (-> b
+      (find-it :window {:url "http://localhost:8080/clojure"})
+      switch-to-window)
+  (close b)
+  (is (= "http://localhost:8080/"
+         (:url (window-handle b)))))
 ;; TODO:
 ;;   * Form element tests (comprehensive)
 ;;   * Multiple windows (switching, getting handles)
