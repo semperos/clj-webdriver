@@ -94,24 +94,27 @@
         text       (.getText q)
         id         (.getAttribute q "id")
         class-name (.getAttribute q "class")
+        name-name  (.getAttribute q "name")
         value      (.getAttribute q "value")
         href       (.getAttribute q "href")
         src        (.getAttribute q "src")
         obj        q]
    (print-simple
     (str "#<"
-     (when-attr tag-name
-                 (str "Tag: "    "<" tag-name ">" ", "))
-     (when-attr text
-                 (str "Text: "   (-> text elim-breaks first-60) ", "))
-     (when-attr id
-                 (str "Id: "     id ", "))
-     (when-attr class-name
-                 (str "Class: "  class-name ", "))
-     (when-attr value
-                 (str "Value: "  value ", "))
-     (when-attr href
-                 (str "Href: "   href ", "))
-     (when-attr src
-                 (str "Source: " src ", "))
-     "Object: "                  q ">") w)))
+         (when-attr tag-name
+                    (str "Tag: "    "<" tag-name ">" ", "))
+         (when-attr text
+                    (str "Text: "   (-> text elim-breaks first-60) ", "))
+         (when-attr id
+                    (str "Id: "     id ", "))
+         (when-attr class-name
+                    (str "Class: "  class-name ", "))
+         (when-attr name-name
+                    (str "Name: "  name-name ", "))
+         (when-attr value
+                    (str "Value: "  value ", "))
+         (when-attr href
+                    (str "Href: "   href ", "))
+         (when-attr src
+                    (str "Source: " src ", "))
+         "Object: "                  q ">") w)))

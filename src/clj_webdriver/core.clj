@@ -14,6 +14,7 @@
 ;;
 (ns clj-webdriver.core
   (:use [clj-webdriver util record])
+  (:require [clj-webdriver.js.browserbot :as browserbot-js])
   (:import [clj-webdriver.record WindowHandle]
            [org.openqa.selenium By WebDriver WebElement Speed Cookie
                                 NoSuchElementException]
@@ -317,7 +318,10 @@
          (= :id attr)     (by-id value)
          (= :name attr)   (by-name value)
          (= :tag attr)    (by-tag-name value)
-         (= :text attr)   (by-link-text value)
+         (= :text attr)   (by-xpath (str "//"
+                                         (name tag)
+                                         "[text()"
+                                         "='" value "']"))
          :else   (by-xpath (str "//"                  ; anywhere in DOM
                                 (name tag)            ; tag from kw
                                 "[@" (name attr)      ; attr from kw
@@ -349,6 +353,16 @@
 ;; to lack of uniform XPath support in WebDriver
 
 ;; ##  WebElement
+(declare execute-script)
+(defn- browserbot
+  [driver fn-name & arguments]
+  (let [script (str browserbot-js/script
+                    "return browserbot."
+                    fn-name
+                    ".apply(browserbot, arguments)")
+        execute-js-fn (partial execute-script driver script)]
+    (apply execute-js-fn arguments)))
+
 (defn click
   "Click a particular HTML element"
   [element]
@@ -416,10 +430,35 @@
   [element]
   (not (nil? element)))
 
+(defn present?
+  "Returns true if element exists and is visible"
+  [element]
+  (and (visible? element) (exists? element)))
+
+(defn flash
+  "Flash the element in question, to verify you're looking at the correct element"
+  [element]
+  (let [original-color (if (.getValueOfCssProperty element "background-color")
+                         (.getValueOfCssProperty element "background-color")
+                         "transparent")
+        orig-colors (repeat original-color)
+        change-colors (interleave (repeat "red") (repeat "blue"))]
+    (doseq [flash-color (take 12 (interleave change-colors orig-colors))]
+      (execute-script (.getWrappedDriver element)
+                      (str "arguments[0].style.backgroundColor = '"
+                           flash-color "'")
+                      element)
+      (Thread/sleep 80))))
+
 (defn text
   "Retrieve the content, or inner HTML, of a given element object"
   [element]
   (.getText element))
+
+(defn html
+  "Retrieve the HTML of an element"
+  [element]
+  (browserbot (.getWrappedDriver element) "getOuterHTML" element))
 
 (defn send-keys
   "Type the string of keys into the element object"
@@ -609,6 +648,7 @@
     [(nth (window-handles driver) (:index attr-val))] ; vector for consistency below
     (filter #(every? (fn [[k v]] (= (k %) v)) attr-val) (window-handles driver))))
 
+;; Possible TODO: Correct XPath's lack of support for text() with <button> buttons.
 (defn find-semantic-buttons
   "Find HTML element that is either a `<button>` or an `<input>` of type submit, reset, image or button"
   [driver attr-val]
