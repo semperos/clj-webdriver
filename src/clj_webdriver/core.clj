@@ -352,14 +352,12 @@
 (defn click
   "Click a particular HTML element"
   [element]
-  (.click element)
-  element)
+  (.click element))
 
 (defn submit
   "Submit the form which contains the given element object"
   [element]
-  (.submit element)
-  element)
+  (.submit element))
 
 (defn value
   "Retrieve the `value` attribute of the given element object"
@@ -396,7 +394,8 @@
 (defn select
   "Select a given element object"
   [element]
-  (.setSelected element))
+  (.setSelected element)
+  element)
 
 (defn enabled?
   "Returns true if the given element object is enabled"
