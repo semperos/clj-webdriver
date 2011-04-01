@@ -16,7 +16,7 @@
   (:use [clj-webdriver util record])
   (:require [clj-webdriver.js.browserbot :as browserbot-js])
   (:import [clj-webdriver.record WindowHandle]
-           [org.openqa.selenium By WebDriver WebElement Speed Cookie
+           [org.openqa.selenium By WebDriver WebElement Cookie
                                 NoSuchElementException]
            [org.openqa.selenium.firefox FirefoxDriver]
            [org.openqa.selenium.ie InternetExplorerDriver]
@@ -253,16 +253,6 @@
   "Retrieve a cookie object given its name"
   [driver name]
   (.getCookieNamed (.manage driver) name))
-
-
-(def *slow-speed* Speed/SLOW)
-(def *medium-speed* Speed/MEDIUM)
-(def *fast-speed* Speed/FAST)
-
-(defn speed
-  "Set the speed at which the browser should execute commands"
-  ([driver] (.getSpeed (.manage driver)))
-  ([driver speed] (.setSpeed (.manage driver) speed)))
 
 ;; ## By* Functions
 
