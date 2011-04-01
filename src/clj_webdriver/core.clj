@@ -744,3 +744,10 @@
                                 :else           (find-elements driver (by-attr= tag attr value))))
       (contains-regex? attr-val) (find-elements-by-regex driver tag attr-val)
       :else (find-elements driver (by-xpath (build-xpath tag attr-val))))))
+
+(defn find-it
+  "Call (first (find-them args))"
+  ([driver attr-val]
+     (first (find-them driver attr-val)))
+  ([driver tag attr-val]
+     (first (find-them driver tag attr-val))))
