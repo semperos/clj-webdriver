@@ -683,13 +683,18 @@
 (defn find-checkables-by-text
   "Finding the 'text' of a radio or checkbox is complex. Handle it here."
   [driver attr-val]
-  (let [text-kw (if (contains? attr-val :text)
-                  :text
-                  :label)
-        other-attr-vals (dissoc attr-val text-kw)
-        non-text-xpath (build-xpath :input other-attr-vals)
-        text-xpath (str non-text-xpath "[contains(..,'" (text-kw attr-val) "')]")]
-    (find-elements driver (by-xpath text-xpath))))
+  (if (contains-regex? attr-val)
+    (throw (IllegalArgumentException.
+            (str "Combining regular expressions and the 'text' attribute "
+                 "for finding radio buttons and checkboxes "
+                 "is not supported at this time.")))
+    (let [text-kw (if (contains? attr-val :text)
+                   :text
+                   :label)
+         other-attr-vals (dissoc attr-val text-kw)
+         non-text-xpath (build-xpath :input other-attr-vals)
+         text-xpath (str non-text-xpath "[contains(..,'" (text-kw attr-val) "')]")]
+     (find-elements driver (by-xpath text-xpath)))))
 
 (defn find-it
   "Given a WebDriver `driver`, find the browser element that matches the query"
