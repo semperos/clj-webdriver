@@ -680,6 +680,17 @@
         elements (find-semantic-buttons driver attr-vals-without-regex)]
     (filter-elements-by-regex elements attr-val)))
 
+(defn find-checkables-by-text
+  "Finding the 'text' of a radio or checkbox is complex. Handle it here."
+  [driver attr-val]
+  (let [text-kw (if (contains? attr-val :text)
+                  :text
+                  :label)
+        other-attr-vals (dissoc attr-val text-kw)
+        non-text-xpath (build-xpath :input other-attr-vals)
+        text-xpath (str non-text-xpath "[contains(..,'" (text-kw attr-val) "')]")]
+    (find-elements driver (by-xpath text-xpath))))
+
 (defn find-it
   "Given a WebDriver `driver`, find the browser element that matches the query"
   ([driver attr-val]
@@ -714,6 +725,12 @@
       (= tag :button*) (if (contains-regex? attr-val)
                          (first (find-semantic-buttons-by-regex driver attr-val))
                          (first (find-semantic-buttons driver attr-val)))
+      (and (= tag :input)
+           (contains? attr-val :type)
+           (or (= "radio" (:type attr-val))
+               (= "checkbox" (:type attr-val)))
+           (or (contains? attr-val :text)
+               (contains? attr-val :label))) (first (find-checkables-by-text driver attr-val))      
       (= 1 (count attr-val)) (let [entry (first attr-val)
                                    attr  (key entry)
                                    value (val entry)]
@@ -758,6 +775,12 @@
       (= tag :button*) (if (contains-regex? attr-val)
                          (doall (find-semantic-buttons-by-regex driver attr-val))
                          (doall (find-semantic-buttons driver attr-val)))
+      (and (= tag :input)
+           (contains? attr-val :type)
+           (or (= "radio" (:type attr-val))
+               (= "checkbox" (:type attr-val)))
+           (or (contains? attr-val :text)
+               (contains? attr-val :label))) (doall (find-checkables-by-text driver attr-val))
       (= 1 (count attr-val)) (let [entry (first attr-val)
                                    attr  (key entry)
                                    value (val entry)]
