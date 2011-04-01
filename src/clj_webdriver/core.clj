@@ -646,7 +646,10 @@
   [driver attr-val]
   (if (contains? attr-val :index)
     [(nth (window-handles driver) (:index attr-val))] ; vector for consistency below
-    (filter #(every? (fn [[k v]] (= (k %) v)) attr-val) (window-handles driver))))
+    (filter #(every? (fn [[k v]] (if (= java.util.regex.Pattern (class v))
+                                   (re-find v (k %))
+                                   (= (k %) v)))
+                     attr-val) (window-handles driver))))
 
 ;; Possible TODO: Correct XPath's lack of support for text() with <button> buttons.
 (defn find-semantic-buttons
