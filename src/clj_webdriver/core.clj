@@ -668,6 +668,15 @@
          by-xpath
          (find-elements driver))))
 
+(defn find-semantic-buttons-by-regex
+  [driver attr-val]
+  (let [attr-vals-without-regex (into {}
+                                        (remove
+                                         #(let [[k v] %] (= java.util.regex.Pattern (class v)))
+                                         attr-val))
+        elements (find-semantic-buttons driver attr-vals-without-regex)]
+    (filter-elements-by-regex elements attr-val)))
+
 (defn find-it
   "Given a WebDriver `driver`, find the browser element that matches the query"
   ([driver attr-val]
@@ -699,7 +708,9 @@
                                                                                 (str "If you want to find an element via XPath or CSS, "
                                                                                      "you may pass in one and only one attribute (:xpath or :css)")))
       (= tag :window) (first (find-window-handles driver attr-val))
-      (= tag :button*) (first (find-semantic-buttons driver attr-val))
+      (= tag :button*) (if (contains-regex? attr-val)
+                         (first (find-semantic-buttons-by-regex driver attr-val))
+                         (first (find-semantic-buttons driver attr-val)))
       (= 1 (count attr-val)) (let [entry (first attr-val)
                                    attr  (key entry)
                                    value (val entry)]
@@ -741,7 +752,9 @@
                                                                            (str "If you want to find an element via XPath or CSS, "
                                                                                 "you may pass in one and only one attribute (:xpath or :css)")))
       (= tag :window) (doall (find-window-handles driver attr-val))
-      (= tag :button*) (doall (find-semantic-buttons driver attr-val))
+      (= tag :button*) (if (contains-regex? attr-val)
+                         (doall (find-semantic-buttons-by-regex driver attr-val))
+                         (doall (find-semantic-buttons driver attr-val)))
       (= 1 (count attr-val)) (let [entry (first attr-val)
                                    attr  (key entry)
                                    value (val entry)]
