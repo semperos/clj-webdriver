@@ -146,7 +146,10 @@
       select)
   (is (= true
          (selected? (find-it b :input {:type "radio", :value "female"}))))
-  (is (= false
+  (-> b
+      (find-it :radio {:value "male"})
+      select)
+  (is (= true
          (selected? (find-it b :input {:type "radio", :value "male"}))))
   ;; Checkboxes
   (is (= false
@@ -157,12 +160,12 @@
   (is (= true
          (selected? (find-it b :input {:type "checkbox", :name #"(?i)clojure"}))))
   (-> b
-      (find-it :input {:type "checkbox", :name #"(?i)clojure"})
+      (find-it :checkbox {:name #"(?i)clojure"})
       click)
   (is (= false
          (selected? (find-it b :input {:type "checkbox", :name #"(?i)clojure"}))))
   (-> b
-      (find-it :input {:type "checkbox", :name #"(?i)clojure"})
+      (find-it :checkbox {:type "checkbox", :name #"(?i)clojure"})
       select)
   (is (= true
          (selected? (find-it b :input {:type "checkbox", :name #"(?i)clojure"}))))
@@ -174,7 +177,13 @@
       (find-it :input {:id "first_name"})
       (input-text "foobar"))
   (is (= "foobar"
-         (value (find-it b :input {:id "first_name"})))))
+         (value (find-it b :input {:id "first_name"}))))
+  (-> b
+      (find-it :textfield {:id "first_name"})
+      clear
+      (input-text "clojurian"))
+  (is (= "clojurian"
+         (value (find-it b :textfield {:id "first_name"})))))
 
 (deftest test-window-handling
   (is (= 1
