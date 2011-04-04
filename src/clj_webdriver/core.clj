@@ -4,9 +4,9 @@
 ;; Chrome, Safari and  Internet Explorer graphical browsers, as well as the
 ;; Java-based HtmlUnit headless browser.
 ;;
-;; This library simply wraps around the core API provided by WebDriver, to
-;; include things like navigating to and from URL's, finding and interacting
-;; with elements within HTML pages, and handling browser cookies.
+;; This library provides both a thin wrapper around WebDriver and a more
+;; Clojure-friendly API for finding elements on the page and performing
+;; actions on them. See the README for more details.
 ;;
 ;; Credits to mikitebeka's `webdriver-clj` project on Github for a starting-
 ;; point for this project and many of the low-level wrappers around the
@@ -401,6 +401,13 @@
   (.setSelected element)
   element)
 
+(defn deselect
+  "Deselect a given element object"
+  [element]
+  (if (.isSelected element)
+    (toggle element)
+    element))
+
 (defn enabled?
   "Returns true if the given element object is enabled"
   [element]
@@ -423,7 +430,7 @@
 (defn present?
   "Returns true if element exists and is visible"
   [element]
-  (and (visible? element) (exists? element)))
+  (and (exists? element) (visible? element)))
 
 (defn flash
   "Flash the element in question, to verify you're looking at the correct element"
@@ -449,6 +456,12 @@
   "Retrieve the HTML of an element"
   [element]
   (browserbot (.getWrappedDriver element) "getOuterHTML" element))
+
+(defn focus
+  "Apply focus to the given element"
+  [element]
+  (execute-script
+   (.getWrappedDriver element) "return arguments[0].focus()" element))
 
 (defn send-keys
   "Type the string of keys into the element object"
@@ -708,7 +721,7 @@
   ([driver tag attr-val]
      (when (keyword? driver) ; I keep forgetting to pass in the WebDriver instance while testing
        (throw (IllegalArgumentException.
-               (str "The first parameter to find-it must be an instance of WebDriver."))))     
+               (str "The first parameter to find-it must be an instance of WebDriver."))))
      (cond
       (and
        (>  (count attr-val) 1)
