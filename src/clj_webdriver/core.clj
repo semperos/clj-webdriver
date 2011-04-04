@@ -685,6 +685,7 @@
          text-xpath (str non-text-xpath "[contains(..,'" (text-kw attr-val) "')]")]
      (find-elements driver (by-xpath text-xpath)))))
 
+;; TODO: Support :textfield, :radio, :checkbox
 (defn find-them
   "Given a browser `driver`, find the browser elements that match the query"
   ([driver attr-val]
@@ -714,16 +715,21 @@
        (or (contains? attr-val :xpath) (contains? attr-val :css))) (throw (IllegalArgumentException.
                                                                            (str "If you want to find an element via XPath or CSS, "
                                                                                 "you may pass in one and only one attribute (:xpath or :css)")))
-       (= tag :window) (find-window-handles driver attr-val)
-      (= tag :button*) (if (contains-regex? attr-val)
-                         (find-semantic-buttons-by-regex driver attr-val)
-                         (find-semantic-buttons driver attr-val))
+      (= tag :radio) (find-them driver :input (assoc attr-val :type "radio"))
+      (= tag :checkbox) (find-them driver :input (assoc attr-val :type "checkbox"))
+      (= tag :textfield) (find-them driver :input (assoc attr-val :type "text"))
+      (= tag :password) (find-them driver :input (assoc attr-val :type "password"))
+      (= tag :filefield) (find-them driver :input (assoc attr-val :type "file"))
       (and (= tag :input)
            (contains? attr-val :type)
            (or (= "radio" (:type attr-val))
                (= "checkbox" (:type attr-val)))
            (or (contains? attr-val :text)
                (contains? attr-val :label))) (find-checkables-by-text driver attr-val)
+      (= tag :window) (find-window-handles driver attr-val)
+      (= tag :button*) (if (contains-regex? attr-val)
+                         (find-semantic-buttons-by-regex driver attr-val)
+                         (find-semantic-buttons driver attr-val))
       (= 1 (count attr-val)) (let [entry (first attr-val)
                                    attr  (key entry)
                                    value (val entry)]
