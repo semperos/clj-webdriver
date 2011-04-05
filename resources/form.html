@@ -1,32 +1,32 @@
 <h1>Example Form</h1>
 <form action="/foobar" method="post" id="example_form">
   <div class="element-wrapper">
-    <label>First Name: </label>
+    <label for="first_name">First Name: </label>
     <input type="text" name="first_name" id="first_name" size="30" />
   </div>
 
   <div class="element-wrapper">
-    <label>Last Name: </label>
+    <label for="last_name">Last Name: </label>
     <input type="text" name="last_name" id="last_name" size="30" value="Smith" />
   </div>
 
   <div class="element-wrapper">
-    <label>Purpose Here: </label>
+    <label for="purpose_here">Purpose Here: </label>
     <input type="text" name="purpose_here" id="purpose_here" size="30" value="Testing!" readonly="readonly" />
   </div>
 
   <div class="element-wrapper">
-    <div><label>Biography: </label></div>
+    <div><label for="bio">Biography: </label></div>
     <textarea name="bio" id="bio" cols="60" rows="6">Please write a short biography.</textarea>
   </div>
 
   <div class="element-wrapper">
     <label>Gender: </label>
-    <label class="choice">
+    <label class="choice" for="male">
       <input type="radio" name="gender" value="male" id="male" checked="checked" />
       Male
     </label>
-    <label class="choice">
+    <label class="choice" for="female">
       <input type="radio" name="gender" value="female" id="female" />
       Female
     </label>
@@ -36,30 +36,30 @@
     <div>
       <label>Programming Languages You Know: </label>
     </div>
-    <label class="choice">
+    <label class="choice" for="clojure">
       <input type="checkbox" name="clojure" />
       Clojure
     </label><br/>
-    <label class="choice">
+    <label class="choice" for="common_lisp">
       <input type="checkbox" name="common_lisp" />
       Common Lisp
     </label><br/>
-    <label class="choice">
+    <label class="choice" for="java">
       <input type="checkbox" name="java" />
       Java
     </label><br/>
-    <label class="choice">
+    <label class="choice" for="ruby">
       <input type="checkbox" name="ruby" />
       Ruby
     </label><br/>
-    <label class="choice">
+    <label class="choice" for="python">
       <input type="checkbox" name="python" />
       Python
     </label>
   </div>
 
   <div class="element-wrapper">
-    <label>Countries: </label>
+    <label for="countries">Countries: </label>
     <select name="countries" id="countries">
       <option value="france">France</option>
       <option value="deutschland">Germany</option>
@@ -69,7 +69,7 @@
   </div>
 
   <div class="element-wrapper">
-    <label>Dinner: </label>
+    <label for="dinner">Dinner: </label>
     <select name="dinner" id="dinner">
       <optgroup id="opt_food" label="food">
         <option value="cow">Steak</option>
@@ -85,7 +85,7 @@
 
   <div class="element-wrapper">
     <div>
-      <label>Types of Websites: </label>
+      <label for="site_types">Types of Websites: </label>
     </div>
     <select name="site_types" id="site_types" multiple="multiple">
       <option value="blog">Blog</option>
@@ -99,6 +99,8 @@
     <button class="button-button">
       <strong>Button Button</strong>
     </button>
-    <input type="button" class="input-button" value="Input Button" />
+    <input type="button" class="input-button" id="input-input-button" value="Input Button Button" />
+    <input type="submit" class="input-button" id="input-submit-button" value="Input Submit Button" />
+    <input type="reset" class="input-button" id="input-reset-button" value="Input Reset Button" />
   </div>
 </form>
