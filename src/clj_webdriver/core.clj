@@ -14,7 +14,7 @@
 ;;
 (ns clj-webdriver.core
   (:use [clj-webdriver util record])
-  (:require [clj-webdriver.js.browserbot :as browserbot-js])
+  (:require [clj-webdriver.js.browserbot :as browserbot-js] :reload)
   (:import [clj-webdriver.record WindowHandle]
            [org.openqa.selenium By WebDriver WebElement Cookie
                                 NoSuchElementException]
@@ -244,6 +244,11 @@
   "Retrieve the HTML of an element"
   [element]
   (browserbot (.getWrappedDriver element) "getOuterHTML" element))
+
+(defn xpath
+  "Retrieve the XPath of an element"
+  [element]
+  (browserbot (.getWrappedDriver element) "getXPath" element []))
 
 (defn focus
   "Apply focus to the given element"
