@@ -1,6 +1,6 @@
 (ns clj-webdriver.js.browserbot)
 
-;; Borrowed from Watir-WebDriver, borrowed from injectableSelenium.js in WebDriver
+;; Borrowed from Watir-WebDriver, borrowed from injectableSelenium.js in WebDriver, additional getXpath borrowed from http://208.91.135.51/posts/show/3754
 (def script
   "
 var browserbot = {
@@ -55,8 +55,28 @@ var browserbot = {
         } else {
             throw \"can't get outerHTML in this browser\";
         }
-    }
+    },
 
+    getXPath: function(elt) {
+      var path = \"\";
+      for (; elt && elt.nodeType == 1; elt = elt.parentNode)
+      {
+        idx = browserbot.getElementIdx(elt);
+        xname = elt.tagName.toLowerCase();
+        if (idx > 1) xname += \"[\" + idx + \"]\";
+        path = \"/\" + xname + path;
+      }
+      return path;	
+    },
+
+    getElementIdx: function(elt) {
+      var count = 1;
+      for (var sib = elt.previousSibling; sib ; sib = sib.previousSibling)
+      {
+        if(sib.nodeType == 1 && sib.tagName == elt.tagName)	count++
+      }
+      return count;
+    }
 
 }
 ")
