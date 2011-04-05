@@ -330,6 +330,11 @@
        (or (contains? attr-val :xpath) (contains? attr-val :css))) (throw (IllegalArgumentException.
                                                                            (str "If you want to find an element via XPath or CSS, "
                                                                                 "you may pass in one and only one attribute (:xpath or :css)")))
+      (contains? attr-val :tag-name) (find-them driver
+                                                (-> (:tag-name attr-val)
+                                                    .toLowerCase
+                                                    keyword)
+                                                (dissoc attr-val :tag-name))
       (= tag :radio) (find-them driver :input (assoc attr-val :type "radio"))
       (= tag :checkbox) (find-them driver :input (assoc attr-val :type "checkbox"))
       (= tag :textfield) (find-them driver :input (assoc attr-val :type "text"))
