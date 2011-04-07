@@ -1,6 +1,7 @@
 (in-ns 'clj-webdriver.core)
 
 (declare find-them)
+(declare find-it)
 
 (defn find-element
   "Retrieve the element object of an element described by `by`"
@@ -114,4 +115,19 @@
          other-attr-vals (dissoc attr-val text-kw)
          non-text-xpath (build-xpath :input other-attr-vals)
          text-xpath (str non-text-xpath "[contains(..,'" (text-kw attr-val) "')]")]
-     (find-elements driver (by-xpath text-xpath)))))
+      (find-elements driver (by-xpath text-xpath)))))
+
+;; Enhancements to find-it for tables
+
+(defn find-table-cells
+  "Given a WebDriver `driver` and a vector `attr-val`, find the correct"
+  [driver attr-val]
+  (let [attr-val-map (apply hash-map attr-val)
+        table-xpath (build-xpath :table (:table attr-val-map))
+        row-xpath (str "//tr[" (inc (:row attr-val-map)) "]")
+        col-xpath (if (and (find-element driver (by-xpath (str table-xpath "//th")))
+                           (zero? (:row attr-val-map)))
+                    (str "/th[" (inc (:col attr-val-map)) "]")
+                    (str "/td[" (inc (:col attr-val-map)) "]"))
+        complete-xpath (str table-xpath row-xpath col-xpath)]
+    (find-elements driver (by-xpath complete-xpath))))
