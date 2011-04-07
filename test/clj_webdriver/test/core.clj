@@ -86,7 +86,7 @@
          (text (find-it b [:div {:id "content"}, :a {:href #"github"}]))))
   (is (= "home"
          (text (find-it b [:* {:id "footer"}, :a {}]))))
-  (is (= 6
+  (is (= 7
          (count (find-them b :a))))
   (is (= 3
          (count (find-them b {:class #"-item"}))))
