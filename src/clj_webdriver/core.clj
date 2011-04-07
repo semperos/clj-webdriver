@@ -311,20 +311,20 @@
   ([driver attr-val]
      (cond
       (= attr-val :button*) (find-them driver :button* nil)
-      (keyword? attr-val)
-      (find-elements driver (by-tag-name (name attr-val))) ; supplied just :tag
-      (vector? attr-val)
-      (if (query-with-ancestry-has-regex? attr-val)
-        (if (query-with-ancestry-has-regex? (drop-last 2 attr-val))
-          (throw (IllegalArgumentException.
-                  (str "You may not pass in a regex until "
-                       "the last attribute-value pair")))
-          (filter-elements-by-regex
-           (find-elements driver (by-xpath (str (build-xpath-with-ancestry attr-val) "//*")))
-           (last attr-val)))
-        (find-elements driver (by-xpath (build-xpath-with-ancestry attr-val)))) ; supplied vector of queries in hierarchy
-      (map? attr-val)
-      (find-them driver :* attr-val))) ; no :tag specified, use global *
+      (keyword? attr-val) (find-elements
+                           driver
+                           (by-tag-name (name attr-val))) ; supplied just :tag
+      (vector? attr-val) (cond
+                          (some #{:row :col} attr-val) (find-table-cells driver attr-val)
+                          (query-with-ancestry-has-regex? attr-val) (if (query-with-ancestry-has-regex? (drop-last 2 attr-val))
+                                                                      (throw (IllegalArgumentException.
+                                                                              (str "You may not pass in a regex until "
+                                                                                   "the last attribute-value pair")))
+                                                                      (filter-elements-by-regex
+                                                                       (find-elements driver (by-xpath (str (build-xpath-with-ancestry attr-val) "//*")))
+                                                                       (last attr-val)))
+                          :else (find-elements driver (by-xpath (build-xpath-with-ancestry attr-val)))) ; supplied vector of queries in hierarchy
+      (map? attr-val) (find-them driver :* attr-val))) ; no :tag specified, use global *
   ([driver tag attr-val]
      (when (keyword? driver) ; I keep forgetting to pass in the WebDriver instance while testing
        (throw (IllegalArgumentException.
@@ -340,6 +340,7 @@
                                                     .toLowerCase
                                                     keyword)
                                                 (dissoc attr-val :tag-name))
+      (contains? attr-val :index) (find-elements driver (by-xpath (build-xpath tag attr-val)))
       (= tag :radio) (find-them driver :input (assoc attr-val :type "radio"))
       (= tag :checkbox) (find-them driver :input (assoc attr-val :type "checkbox"))
       (= tag :textfield) (find-them driver :input (assoc attr-val :type "text"))
