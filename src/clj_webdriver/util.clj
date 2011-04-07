@@ -6,12 +6,13 @@
   "Given a map of attribute-value pairs, build the bracketed portion of an XPath query that follows the tag"
   [attr-val]
   (apply str (for [[attr value] attr-val]
-                        (if (= :text attr) ; inspired by Watir-WebDriver
-                          (str "[text()='" value "']")
-                          (str "[@"
-                               (name attr)
-                               "="
-                               "'" value "']")))))
+               (cond
+                (= :text attr) (str "[text()='" value "']")
+                (= :index attr) (str "[" (inc value) "]") ; in clj-webdriver,
+                :else (str "[@"                           ; all indeces 0-based
+                           (name attr)
+                           "="
+                           "'" value "']")))))
 
 (declare contains-regex?)
 (defn build-xpath
