@@ -96,7 +96,6 @@ To demonstrate how to use arguments in different ways, consider the following ex
         (find-it {:css "a#contact-link"})    ; CSS selector
         click)
 
-As seen above, the `find-it` function also understands `:xpath` and `:css` attributes, in which case it finds the element on the page described by the XPath or CSS query provided. An exception will be thrown if you attempt to use `:xpath` or `:css` in conjunction with other attributes.
 
 So, to describe the general pattern of interacting with the page:
 
