@@ -1,18 +1,22 @@
 (in-ns 'clj-webdriver.core)
 
+(declare deselect-by-index)
+(declare all-options)
 (defn deselect-all
-  "Clear all selected entries for select list described by `by`"
+  "Deselect all options for a given select list. Does not leverage WebDriver method because WebDriver's isMultiple method is faulty."
   [element]
-  (let [select-list (Select. element)]
-    (.deselectAll select-list)
+  (let [cnt-range (->> (all-options element)
+                       count
+                       (range 0))]
+    (doseq [idx cnt-range]
+      (deselect-by-index element idx))
     element))
 
 (defn deselect-by-index
-  "Deselect the option at index `idx` for the select list described by `by`. Indeces begin at 1"
+  "Deselect the option at index `idx` for the select list described by `by`. Indeces begin at 0"
   [element idx]
-  (let [idx-human (dec idx)
-        select-list (Select. element)]
-    (.deselectByIndex select-list idx-human)
+  (let [select-list (Select. element)]
+    (.deselectByIndex select-list idx)
     element))
 
 (defn deselect-by-value
@@ -36,29 +40,40 @@
     (lazy-seq (.getAllSelectedOptions select-list))))
 
 (defn first-selected-option
-  "Retrieve the first selected option (or the only one for single-select lists) from the select list described by `by`"
+  "Retrieve the first selected option (or the only one for single-select lists) from the given select list"
   [element]
   (let [select-list (Select. element)]
     (.getFirstSelectedOption select-list)))
 
 (defn all-options
-  "Retrieve all options in the select list described by `by`"
+  "Retrieve all options from the given select list"
   [element]
   (let [select-list (Select. element)]
     (lazy-seq (.getOptions select-list))))
 
 (defn multiple?
-  "Return true if the select list described by `by` allows for multiple selections"
+  "Return true if the given select list allows for multiple selections"
   [element]
-  (let [select-list (Select. element)]
-    (.isMultiple select-list)))
+  (let [value (attribute element "multiple")]
+    (or (= value "true")
+        (= value "multiple"))))
+
+(declare select-by-index)
+(defn select-all
+  "Select all options for a given select list"
+  [element]
+  (let [cnt-range (->> (all-options element)
+                       count
+                       (range 0))]
+    (doseq [idx cnt-range]
+      (select-by-index element idx))
+    element))
 
 (defn select-by-index
-  "Select an option by its index in the select list described by `by`. Indeces begin at 1."
+  "Select an option by its index in the given select list. Indeces begin at 0."
   [element idx]
-  (let [idx-human (dec idx)
-        select-list (Select. element)]
-    (.selectByIndex select-list idx-human)
+  (let [select-list (Select. element)]
+    (.selectByIndex select-list idx)
     element))
 
 (defn select-by-value
