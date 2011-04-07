@@ -172,6 +172,7 @@
   [element attr]
   (.getAttribute element (name attr)))
 
+;; TODO: Return the isSelected status here
 (defn toggle
   "If the given element object is a checkbox, this will toggle its selected/unselected state"
   [element]
