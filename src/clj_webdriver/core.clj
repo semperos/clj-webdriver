@@ -183,18 +183,18 @@
   (.setSelected element)
   element)
 
+(defn toggle
+  "If the given element object is a checkbox, this will toggle its selected/unselected state"
+  [element]
+  (.toggle element)
+  element)
+
 (defn deselect
   "Deselect a given element object"
   [element]
   (if (.isSelected element)
     (toggle element)
     element))
-
-(defn toggle
-  "If the given element object is a checkbox, this will toggle its selected/unselected state"
-  [element]
-  (.toggle element)
-  element)
 
 (defn enabled?
   "Returns true if the given element object is enabled"
