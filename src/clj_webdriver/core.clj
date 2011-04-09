@@ -331,11 +331,8 @@
        (throw (IllegalArgumentException.
                (str "The first parameter to find-it must be an instance of WebDriver."))))
      (cond
-      (and
-       (>  (count attr-val) 1)
-       (or (contains? attr-val :xpath) (contains? attr-val :css))) (throw (IllegalArgumentException.
-                                                                           (str "If you want to find an element via XPath or CSS, "
-                                                                                "you may pass in one and only one attribute (:xpath or :css)")))
+      (contains? attr-val :xpath) (find-them driver tag {:xpath (:xpath attr-val)})
+      (contains? attr-val :css) (find-them driver tag {:css (:css attr-val)})
       (contains? attr-val :tag-name) (find-them driver
                                                 (-> (:tag-name attr-val)
                                                     .toLowerCase
@@ -361,9 +358,9 @@
                                    attr  (key entry)
                                    value (val entry)]
                                (cond
-                                (= java.util.regex.Pattern (class value)) (find-elements-by-regex-alone driver tag attr-val)
                                 (= :xpath attr) (find-elements driver (by-xpath value))
                                 (= :css attr)   (find-elements driver (by-css-selector value))
+                                (= java.util.regex.Pattern (class value)) (find-elements-by-regex-alone driver tag attr-val)
                                 :else           (find-elements driver (by-attr= tag attr value))))
       (contains-regex? attr-val) (find-elements-by-regex driver tag attr-val)
       :else (find-elements driver (by-xpath (build-xpath tag attr-val))))))
