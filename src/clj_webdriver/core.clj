@@ -330,8 +330,10 @@
        (throw (IllegalArgumentException.
                (str "The first parameter to find-it must be an instance of WebDriver."))))
      (cond
-      (contains? attr-val :xpath) (find-them driver tag {:xpath (:xpath attr-val)})
-      (contains? attr-val :css) (find-them driver tag {:css (:css attr-val)})
+      (and (> (count attr-val) 1)
+           (contains? attr-val :xpath)) (find-them driver :* {:xpath (:xpath attr-val)})
+      (and (> (count attr-val) 1)
+           (contains? attr-val :css)) (find-them driver :* {:css (:css attr-val)})
       (contains? attr-val :tag-name) (find-them driver
                                                 (-> (:tag-name attr-val)
                                                     .toLowerCase
