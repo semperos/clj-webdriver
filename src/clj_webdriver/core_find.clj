@@ -6,14 +6,12 @@
 (defn find-element
   "Retrieve the element object of an element described by `by`"
   [driver by]
-  (try (.findElement driver by)
-       (catch NoSuchElementException e nil)))
+  (.findElement driver by))
 
 (defn find-elements
   "Retrieve a seq of element objects described by `by`"
   [driver by]
-  (try (lazy-seq (.findElements driver by))
-       (catch NoSuchElementException e [])))
+  (lazy-seq (.findElements driver by)))
 
 (defn find-elements-by-regex-alone
   "Given an `attr-val` pair with a regex value, find the elements that match"

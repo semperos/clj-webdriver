@@ -144,7 +144,8 @@
 (defn click
   "Click a particular HTML element"
   [element]
-  (.click element))
+  (try
+    (.click element)))
 
 (defn submit
   "Submit the form which contains the given element object"
@@ -306,7 +307,7 @@
 ;; because of interdependence on `find-them` function
 (load "core_find")
 
-(defn find-them
+(defn find-them*
   "Given a browser `driver`, find the browser elements that match the query"
   ([driver attr-val]
      (cond
@@ -365,6 +366,26 @@
                                 :else           (find-elements driver (by-attr= tag attr value))))
       (contains-regex? attr-val) (find-elements-by-regex driver tag attr-val)
       :else (find-elements driver (by-xpath (build-xpath tag attr-val))))))
+
+(defn find-them
+  "Call find-them*, then make sure elements are actually returned; if not, throw NoSuchElementException so other code can handle exceptions appropriately"
+  ([driver attr-val]
+     (let [elts (find-them* driver attr-val)]
+       (if-not (seq elts)
+         (throw (NoSuchElementException.
+                 (str "No element with attributes "
+                      attr-val " "
+                      "could be found on the page.")))
+         elts)))
+  ([driver tag attr-val]
+     (let [elts (find-them* driver tag attr-val)]
+       (if-not (seq elts)
+         (throw (NoSuchElementException.
+                 (str "No element with tag "
+                      tag " and attributes "
+                      attr-val " "
+                      "could be found on the page.")))
+         elts))))
 
 (defn find-it
   "Call (first (find-them args))"
