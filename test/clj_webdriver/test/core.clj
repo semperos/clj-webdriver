@@ -125,7 +125,7 @@
        (-> b
            (find-it :a)
            exists?)))
-  (is (false?
+  (is (thrown? org.openqa.selenium.NoSuchElementException
        (-> b
            (find-it :area)
            exists?))))
