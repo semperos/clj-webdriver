@@ -202,8 +202,13 @@
   [element]
   (.isEnabled element))
 
-;; I like Watir-WebDriver's "visible?"; "displayed?" also used to align
-;; with WebDriver's word choice
+(defmacro exists?
+  [find-it-form]
+  `(try ~find-it-form
+        true
+        (catch org.openqa.selenium.NoSuchElementException e#
+          false)))
+
 (defn visible?
   "Returns true if the given element object is visible/displayed"
   [element]
@@ -214,7 +219,7 @@
 (defn present?
   "Returns true if element exists and is visible"
   [element]
-  (and (exists? element) (visible? element)))
+  (and element (visible? element)))
 
 (defn flash
   "Flash the element in question, to verify you're looking at the correct element"
