@@ -125,10 +125,12 @@
        (-> b
            (find-it :a)
            exists?)))
-  (is (thrown? org.openqa.selenium.NoSuchElementException
+  (is (false?
        (-> b
            (find-it :area)
-           exists?))))
+           exists?)))
+  (is (thrown? org.openqa.selenium.NoSuchElementException
+               (find-it b :area))))
 
 (deftest test-form-elements
   (to b "http://localhost:8080/example-form")
