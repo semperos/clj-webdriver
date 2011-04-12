@@ -211,11 +211,6 @@
 
 (def displayed? ^{:doc "Returns true if the given element object is visible/displayed"} visible?)
 
-(defn exists?
-  "Returns true if element can be found on page"
-  [element]
-  (not (nil? element)))
-
 (defn present?
   "Returns true if element exists and is visible"
   [element]
@@ -375,7 +370,8 @@
          (throw (NoSuchElementException.
                  (str "No element with attributes "
                       attr-val " "
-                      "could be found on the page.")))
+                      "could be found on the page:\n"
+                      (page-source driver))))
          elts)))
   ([driver tag attr-val]
      (let [elts (find-them* driver tag attr-val)]
@@ -384,7 +380,8 @@
                  (str "No element with tag "
                       tag " and attributes "
                       attr-val " "
-                      "could be found on the page.")))
+                      "could be found on the page:\n"
+                      (page-source driver))))
          elts))))
 
 (defn find-it
