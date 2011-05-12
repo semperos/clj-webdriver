@@ -144,8 +144,7 @@
 (defn click
   "Click a particular HTML element"
   [element]
-  (try
-    (.click element)))
+  (.click element))
 
 (defn submit
   "Submit the form which contains the given element object"
