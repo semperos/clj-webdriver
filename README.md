@@ -4,7 +4,7 @@ This is a Clojure library for driving a web browser that leverages the Selenium-
 
 ## Usage
 
-Due to a breaking change between Clojure versions 1.2.0 and 1.2.1 with regards to namespaces with dashes, **Clojure version 1.2.1 is required to use this library.**
+**Clojure version 1.2.1 is required to use this library** due to a breaking change between Clojure versions 1.2.0 and 1.2.1 with regards to namespaces with dashes.
 
 Use/require the library in your code:
 
