@@ -63,7 +63,7 @@
   ([driver handle]
      (cond
       (string? handle) (.window (.switchTo driver) handle)
-      (= (class handle) clj-webdriver.record.WindowHandle) (.window (.switchTo (:driver handle)) (:handle handle))
+      (= (class handle) WindowHandle) (.window (.switchTo (:driver handle)) (:handle handle))
       (number? handle) (switch-to-window driver (nth (window-handles driver) handle))
       (nil? handle) (throw (RuntimeException. "No window can be found"))
       :else (.window (.switchTo driver) handle))))
