@@ -233,7 +233,8 @@
                       (str "arguments[0].style.backgroundColor = '"
                            flash-color "'")
                       element)
-      (Thread/sleep 80))))
+      (Thread/sleep 80)))
+  element)
 
 (defn text
   "Retrieve the content, or inner HTML, of a given element object"
