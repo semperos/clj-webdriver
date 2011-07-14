@@ -8,38 +8,44 @@ This is a Clojure library for driving a web browser using Selenium-WebDriver as 
 
 Use/require the library in your code:
 
-    (use 'clj-webdriver.core)
+```clj
+(use 'clj-webdriver.core)
+```
 
 Start up a browser:
 
-    (def b (start :firefox "https://github.com"))
+```clj
+(def b (start :firefox "https://github.com"))
+```
 
 At the moment, the best documentation is the source code itself. While there are many functions in the core namespace, they're mostly short and straightforward wrappers around WebDriver API's. For the task of finding elements on the page, I've added some utility functions at the end of the core namespace.
 
 Here's an example of logging into Github:
 
-    ;; Start the browser and bind it to `b`
-    (def b (start :firefox "https://github.com"))
-    
-    ;; Click "Login" link
-    (-> b
-        (find-it {:text "Login"})
-        click)
-    
-    ;; Input username/email into the "Login or Email" field
-    (-> b
-        (find-it {:class "text", :name "login"}) ; use multiple attributes
-        (input-text "username"))
-    
-    ;; Input password into the "Password" field
-    (-> b
-        (find-it {:xpath "//input[@id='password']"}) ; :xpath and :css options
-        (input-text "password"))
-    
-    ;; Click the "Log in" button"
-    (-> b
-        (find-it :input {:value #"(?i)log"}) ; use of regular expressions
-        click)
+```clj
+;; Start the browser and bind it to `b`
+(def b (start :firefox "https://github.com"))
+
+;; Click "Login" link
+(-> b
+    (find-it {:text "Login"})
+    click)
+
+;; Input username/email into the "Login or Email" field
+(-> b
+    (find-it {:class "text", :name "login"}) ; use multiple attributes
+    (input-text "username"))
+
+;; Input password into the "Password" field
+(-> b
+    (find-it {:xpath "//input[@id='password']"}) ; :xpath and :css options
+    (input-text "password"))
+
+;; Click the "Log in" button"
+(-> b
+    (find-it :input {:value #"(?i)log"}) ; use of regular expressions
+    click)
+```
 
 The key functions for finding an element on the page are `find-it` and `find-them`. The `find-it` function returns the first result that matches the criteria, while `find-them` returns a seq of all matches for the given criteria. Both support the same syntax and set of attributes.
 
@@ -57,71 +63,75 @@ As mentioned above, the `find-it` and `find-them` functions share the same featu
 
 To demonstrate how to use arguments in different ways, consider the following example. If I wanted to find `<a href="/contact" id="contact-link" class="menu-item" name="contact">Contact Us</a>` in a page and click on it I could perform any of the following:
 
-    (-> b
-        (find-it :a)    ; assuming its the first <a> on the page
-        click)
-    
-    (-> b
-        (find-it {:id "contact-link"})    ; :id is unique, so only one is needed
-        click)
-    
-    (-> b
-        (find-it {:class "menu-item", :name "contact"})    ; use multiple attributes
-        click)
-    
-    (-> b
-        (find-it :a {:class "menu-item", :name "contact"})    ; specify tag
-        click)
-    
-    (-> b
-        (find-it :a {:text "Contact Us"})    ; special :text attribute, uses XPath's
-        click)                               ; text() function to find the element
-    
-    (-> b
-        (find-it :a {:class #"(?i)menu-"})  ; use Java-style regular
-        click)                               ; expressions
-    
-    (-> b
-        (find-it [:div {:id "content"}, :a {:id "contact-link"}]) ; hierarchical/ancestry-based query
-        click)                                                    ; equivalent to
-                                                                  ; //div[@id='content']//a[@id='contact-link']
-    
-    (-> b
-        (find-it [:div {:id "content"}, :a {}]) ; ancestry-based query, tag with
-        click)                                  ; no attributes (empty map required)
-    
-    (-> b
-        (find-it {:xpath "//a[@id='contact-link']"})    ; XPath query
-        click)
-    
-    (-> b
-        (find-it {:css "a#contact-link"})    ; CSS selector
-        click)
+```clj
+(-> b
+    (find-it :a)    ; assuming its the first <a> on the page
+    click)
 
+(-> b
+    (find-it {:id "contact-link"})    ; :id is unique, so only one is needed
+    click)
+
+(-> b
+    (find-it {:class "menu-item", :name "contact"})    ; use multiple attributes
+    click)
+
+(-> b
+    (find-it :a {:class "menu-item", :name "contact"})    ; specify tag
+    click)
+
+(-> b
+    (find-it :a {:text "Contact Us"})    ; special :text attribute, uses XPath's
+    click)                               ; text() function to find the element
+
+(-> b
+    (find-it :a {:class #"(?i)menu-"})  ; use Java-style regular
+    click)                               ; expressions
+
+(-> b
+    (find-it [:div {:id "content"}, :a {:id "contact-link"}]) ; hierarchical/ancestry-based query
+    click)                                                    ; equivalent to
+                                                              ; //div[@id='content']//a[@id='contact-link']
+
+(-> b
+    (find-it [:div {:id "content"}, :a {}]) ; ancestry-based query, tag with
+    click)                                  ; no attributes (empty map required)
+
+(-> b
+    (find-it {:xpath "//a[@id='contact-link']"})    ; XPath query
+    click)
+
+(-> b
+    (find-it {:css "a#contact-link"})    ; CSS selector
+    click)
+```
 
 So, to describe the general pattern of interacting with the page:
 
-    (-> browser-instance
-        (find-it options)
-        (do-something-with-the-element))
+```clj
+(-> browser-instance
+    (find-it options)
+    (do-something-with-the-element))
+```
 
 ### Firefox Functionality
 
 Support for Firefox currently exceeds that for all other browsers, most notably via support for customizable Firefox profiles. I've included support for several of these advanced featues in the `clj-webdriver.firefox` namespace. Here are a few examples (borrowed from [here][wd-ruby-bindings]:
 
-    (use 'clj-webdriver.core)
-    (require '[clj-webdriver.firefox :as ff])
-    
-    (def b (new-driver :firefox
-                       (doto (ff/new-profile)
-                             ;; Enable Firebug
-                             (ff/enable-extension "/path/to/extensions/firebug.xpi")))
-                             
-                             ;; Auto-download certain file types to a specific folder
-                             (ff/set-preferences {:browser.download.dir "C:/Users/semperos/Desktop",
-                                                  :browser.download.folderList 2
-                                                  :browser.helperApps.neverAsk.saveToDisk "application/pdf"})))
-    
+```clj
+(use 'clj-webdriver.core)
+(require '[clj-webdriver.firefox :as ff])
+
+(def b (new-driver :firefox
+                   (doto (ff/new-profile)
+                         ;; Enable Firebug
+                         (ff/enable-extension "/path/to/extensions/firebug.xpi")))
+                         
+                         ;; Auto-download certain file types to a specific folder
+                         (ff/set-preferences {:browser.download.dir "C:/Users/semperos/Desktop",
+                                              :browser.download.folderList 2
+                                              :browser.helperApps.neverAsk.saveToDisk "application/pdf"})))
+```
                                   
 
 ## Running Tests
