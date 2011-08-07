@@ -154,7 +154,7 @@
 (defn value
   "Retrieve the `value` attribute of the given element object"
   [element]
-  (.getValue element))
+  (.getAttribute element "value"))
 
 (defn clear
   "Clear the contents of the given element object"
@@ -186,7 +186,8 @@
 (defn toggle
   "If the given element object is a checkbox, this will toggle its selected/unselected state"
   [element]
-  (.toggle element)
+  (println "WARNING: Current bug in 2.3.0 Selenium-WebDriver prevents using `.toggle()`. This function uses `.click()` as a temporary workaround.")
+  (.click element)
   element)
 
 (defn deselect
