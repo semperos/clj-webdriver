@@ -4,3 +4,4 @@ lib
 classes
 outline*.html
 docs
+/.lein-failures
