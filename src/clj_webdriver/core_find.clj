@@ -91,6 +91,7 @@
          (find-elements driver))))
 
 (defn find-semantic-buttons-by-regex
+  "Semantic buttons are things that look or behave like buttons but do not necessarily consist of a `<button>` tag"
   [driver attr-val]
   (let [attr-vals-without-regex (into {}
                                         (remove
