@@ -15,3 +15,7 @@ Ostensibly, this library is most useful as a web testing tool (that's certainly 
 #### Wrappers/Middlewares ####
 
 Beyond simply interacting with the page, this library should allow developers to gather information about the elements, the page or the browser at any given point. To help foster this, it would be nice to be able to "wrap" functionality around the means of interacting with the page, and allow developers to write middlewares that do things like custom reporting, extra auxiliary validation, or even things that might alter the DOM based on context.
+
+Query-wrappers allow wrapping around the query sent to WebDriver, before ever touching the HTML page.
+
+Result-wrappers allow wrapping around the result of an interaction with the page, which is almost always an HTML element.
