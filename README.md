@@ -4,7 +4,12 @@ This is a Clojure library for driving a web browser using Selenium-WebDriver as 
 
 ## Usage
 
-**IMPORTANT:** This library uses *Clojure 1.3.0-beta1*. You *must* add the java.net Maven repository to your `project.clj` (for example: `:repositories {"java-dot-net" "http://download.java.net/maven/2"}`), because the JNA jars required by the latest Selenium-WebDriver release are only available there.
+### Important ###
+
+ * This library uses *Clojure 1.3.0-beta1*.
+ * You *must* add the java.net Maven repository to your own `project.clj` when using this library (for example: `:repositories {"java-dot-net" "http://download.java.net/maven/2"}`). The JNA jars required by the latest Selenium-WebDriver release are only available there.
+ 
+### Quickstart ###
 
 Use/require the library in your code:
 
