@@ -5,12 +5,15 @@
   (:use [clojure.test]))
 
 ;; Setup
-(def ^{:dynamic true} b (start :firefox "http://localhost:8080"))
+(def test-port "8888")
+(def test-host "localhost")
+(def test-base-url (str "http://" test-host ":" test-port "/"))
+(def b (start :firefox test-base-url))
 
 (defn reset-browser-fixture
   [f]
   (f)
-  (to b "http://localhost:8080"))
+  (to b test-base-url))
 
 (defn quit-browser-fixture
   [f]
@@ -23,7 +26,7 @@
 ;; Tests
 (deftest test-browser-basics
   (is (= org.openqa.selenium.firefox.FirefoxDriver (class b)))
-  (is (= "http://localhost:8080/" (current-url b)))
+  (is (= test-base-url (current-url b)))
   (is (= "Ministache" (title b)))
   (is (boolean (re-find #"(?i)<!DOCTYPE html>" (page-source b)))))
 
@@ -31,15 +34,15 @@
   (-> b
       (find-it :a {:text "example form"})
       click)
-  (is (= "http://localhost:8080/example-form" (current-url b)))
+  (is (= (str test-base-url "example-form") (current-url b)))
   (back b)
-  (is (= "http://localhost:8080/" (current-url b)))
+  (is (= test-base-url (current-url b)))
   (forward b)
-  (is (= "http://localhost:8080/example-form" (current-url b))))
+  (is (= (str test-base-url "example-form") (current-url b))))
 
 (deftest test-to
-  (to b "http://localhost:8080/example-form")
-  (is (= "http://localhost:8080/example-form" (current-url b)))
+  (to b (str test-base-url "example-form"))
+  (is (= (str test-base-url "example-form") (current-url b)))
   (is (= "Ministache" (title b))))
 
 (deftest test-bys
@@ -133,7 +136,7 @@
                (find-it b :area))))
 
 (deftest test-form-elements
-  (to b "http://localhost:8080/example-form")
+  (to b (str test-base-url "example-form"))
   ;; Clear element
   (-> b
       (find-it [:form {:id "example_form"}, :input {:name #"last_"}])
@@ -200,16 +203,16 @@
   (is (= 2
          (count (window-handles b))))
   (switch-to-window b (second (window-handles b)))
-  (is (= "http://localhost:8080/clojure"
+  (is (= (str test-base-url "clojure")
          (:url (window-handle b))))
   (switch-to-other-window b)
-  (is (= "http://localhost:8080/"
+  (is (= test-base-url
          (:url (window-handle b))))
   (-> b
-      (find-it :window {:url "http://localhost:8080/clojure"})
+      (find-it :window {:url (str test-base-url "clojure")})
       switch-to-window)
   (close b)
-  (is (= "http://localhost:8080/"
+  (is (= test-base-url
          (:url (window-handle b)))))
 ;; TODO:
 ;;   * Form element tests (comprehensive)
