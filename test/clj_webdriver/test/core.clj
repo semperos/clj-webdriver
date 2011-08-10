@@ -5,7 +5,7 @@
   (:use [clojure.test]))
 
 ;; Setup
-(def test-port "8888")
+(def test-port "5744")
 (def test-host "localhost")
 (def test-base-url (str "http://" test-host ":" test-port "/"))
 (def b (start :firefox test-base-url))

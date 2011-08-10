@@ -144,7 +144,7 @@ Here's how I run these tests:
 
 * Open a terminal and run `lein repl` or `lein swank` at the root of this project
 * Evaluate `(use 'clj-webdriver.test.example-app.core 'ring.adapter.jetty)`
-* Evaluate `(defonce my-server (run-jetty #'routes {:port 8080, :join? false}))`
+* Evaluate `(defonce my-server (run-jetty #'routes {:port 5744, :join? false}))`, making sure to adjust the `test-port` in `test/clj_webdriver/test/core.clj` to whatever you use here.
 * Open a new terminal tab/window and run `lein test` at the root of this project
 
 The last test in the suite closes the WebDriver browser instance; you can stop the Jetty server by evaluating `(.stop my-server)` or just killing the REPL with `Ctrl+C` or `C-c C-c`.
