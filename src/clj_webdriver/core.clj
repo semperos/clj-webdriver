@@ -26,17 +26,16 @@
            [java.util Date]
            [java.io File]))
 
-(def *drivers* ^{:doc "Drivers that are available via WebDriver"}
-  {
-   :firefox FirefoxDriver
+(def webdriver-drivers
+  {:firefox FirefoxDriver
    :ie InternetExplorerDriver
    :chrome ChromeDriver
-   :htmlunit HtmlUnitDriver })
+   :htmlunit HtmlUnitDriver})
 
 (defn new-driver
   "Create new driver instance given a browser type. If an additional profile object or string is passed in, Firefox will be started with the given profile instead of the default."
   ([browser]
-     (.newInstance (*drivers* browser)))
+     (.newInstance (webdriver-drivers browser)))
   ([browser profile]
      (when (not= :firefox browser)
        (throw (IllegalArgumentException. "Only Firefox supports profiles")))
@@ -184,9 +183,8 @@
   element)
 
 (defn toggle
-  "If the given element object is a checkbox, this will toggle its selected/unselected state"
+  "If the given element object is a checkbox, this will toggle its selected/unselected state. In Selenium 2, `.toggle()` was deprecated and replaced in usage by `.click()`."
   [element]
-  (println "WARNING: Current bug in 2.3.0 Selenium-WebDriver prevents using `.toggle()`. This function uses `.click()` as a temporary workaround.")
   (.click element)
   element)
 
