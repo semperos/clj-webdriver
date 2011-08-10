@@ -4,7 +4,7 @@ This is a Clojure library for driving a web browser using Selenium-WebDriver as 
 
 ## Usage
 
-**Clojure version 1.2.1 is required to use this library** due to a breaking change between Clojure versions 1.2.0 and 1.2.1 with regards to namespaces with dashes.
+This library uses Clojure 1.3.0-beta1.
 
 Use/require the library in your code:
 
