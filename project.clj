@@ -5,5 +5,5 @@
   :dev-dependencies [[ring "0.3.7"]
                      [enlive "1.0.0"]
                      [net.cgrand/moustache "1.0.0"]]
-  :repositories {"selenium-repository", "http://selenium.googlecode.com/svn/repository/"
-                 "java-dot-net", "http://download.java.net/maven/2"})
+  :repositories {"selenium-repository" "http://selenium.googlecode.com/svn/repository/",
+                 "java-dot-net" "http://download.java.net/maven/2"})
