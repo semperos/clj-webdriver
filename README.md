@@ -2,6 +2,11 @@
 
 This is a Clojure library for driving a web browser using Selenium-WebDriver as the backend. Credits to [mikitebeka/webdriver-clj][webdriver-orig] for the initial code for this project and many of the low-level wrappers around the WebDriver API.
 
+ * [Project Wiki](https://github.com/semperos/clj-webdriver/wiki)
+ * [Marginalia Documentation](http://techylinguist.com/project-static/clj-webdriver/uberdoc.html)
+ * [Google Group](https://groups.google.com/forum/#!forum/clj-webdriver)
+ * [Issue Queue](https://github.com/semperos/clj-webdriver/issues)
+
 ## Usage
 
 ### Important ###
