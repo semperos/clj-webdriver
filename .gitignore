@@ -5,3 +5,4 @@ classes
 outline*.html
 docs
 /.lein-failures
+/results.txt

@@ -2,9 +2,19 @@
 
 This is a Clojure library for driving a web browser using Selenium-WebDriver as the backend. Credits to [mikitebeka/webdriver-clj][webdriver-orig] for the initial code for this project and many of the low-level wrappers around the WebDriver API.
 
+ * [Project Wiki](https://github.com/semperos/clj-webdriver/wiki)
+ * [Marginalia Documentation](http://techylinguist.com/project-static/clj-webdriver/uberdoc.html)
+ * [Google Group](https://groups.google.com/forum/#!forum/clj-webdriver)
+ * [Issue Queue](https://github.com/semperos/clj-webdriver/issues)
+
 ## Usage
 
-**Clojure version 1.2.1 is required to use this library** due to a breaking change between Clojure versions 1.2.0 and 1.2.1 with regards to namespaces with dashes.
+### Important ###
+
+ * This library uses *Clojure 1.3.0-beta1*.
+ * You *must* add the java.net Maven repository to your own `project.clj` when using this library (for example: `:repositories {"java-dot-net" "http://download.java.net/maven/2"}`). The JNA jars required by the latest Selenium-WebDriver release are only available there.
+ 
+### Quickstart ###
 
 Use/require the library in your code:
 
@@ -144,7 +154,7 @@ Here's how I run these tests:
 
 * Open a terminal and run `lein repl` or `lein swank` at the root of this project
 * Evaluate `(use 'clj-webdriver.test.example-app.core 'ring.adapter.jetty)`
-* Evaluate `(defonce my-server (run-jetty #'routes {:port 8080, :join? false}))`
+* Evaluate `(defonce my-server (run-jetty #'routes {:port 5744, :join? false}))`, making sure to adjust the `test-port` in `test/clj_webdriver/test/core.clj` to whatever you use here.
 * Open a new terminal tab/window and run `lein test` at the root of this project
 
 The last test in the suite closes the WebDriver browser instance; you can stop the Jetty server by evaluating `(.stop my-server)` or just killing the REPL with `Ctrl+C` or `C-c C-c`.
