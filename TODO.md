@@ -4,6 +4,10 @@ The following are features I would like to implement or limitations I would like
 
 ### Features ###
 
+#### Wait Functionality ####
+
+WebDriver provides explicit and implicit waits.
+
 #### Form Filling ###
 
 I'd like to put together a function that takes a map of form-fields-to-values and "intuitively" fills out a form. The first arg would be this map of fields and values, followed by an optional map including entries for specifying a form id (if a page contains multiple forms), a toggle for submitting after filling, amongst other things.
@@ -15,3 +19,7 @@ Ostensibly, this library is most useful as a web testing tool (that's certainly 
 #### Wrappers/Middlewares ####
 
 Beyond simply interacting with the page, this library should allow developers to gather information about the elements, the page or the browser at any given point. To help foster this, it would be nice to be able to "wrap" functionality around the means of interacting with the page, and allow developers to write middlewares that do things like custom reporting, extra auxiliary validation, or even things that might alter the DOM based on context.
+
+#### Grid Support ####
+
+Selenium Grid is now part of the standalone jar distribution of Selenium server. It would be nice to provide mechanisms to easily start the grid and child nodes directly from code.
