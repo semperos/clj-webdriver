@@ -1,6 +1,6 @@
 ## Todo's for clj-webdriver ##
 
-The following are features I would like to implement or limitations I would like to eliminate.
+The following are features I would like to implement or limitations I would like to eliminate. Several of these may be inappropriate for `clj-webdriver`, but would be fine additions as libraries which depend on `clj-webdriver` for low-level browser manipulation.
 
 ### Features ###
 
@@ -11,6 +11,18 @@ WebDriver provides explicit and implicit waits.
 #### Form Filling ###
 
 I'd like to put together a function that takes a map of form-fields-to-values and "intuitively" fills out a form. The first arg would be this map of fields and values, followed by an optional map including entries for specifying a form id (if a page contains multiple forms), a toggle for submitting after filling, amongst other things.
+
+#### Grid Support ####
+
+Selenium Grid is now part of the standalone jar distribution of Selenium server. It would be nice to provide mechanisms to easily start the grid and child nodes directly from code.
+
+#### Test Record ####
+
+Create a record used to compose test suites. Attributes of this record would include:
+
+ * A function that actually runs the steps of driving the browser
+ * Wrapper definitions (see below)
+ * Test-specific configuration settings for browser/version and OS (useful with Grid support, see below)
 
 #### Data-Driven Testing ####
 
@@ -23,8 +35,4 @@ Beyond simply interacting with the page, this library should allow developers to
 Query-wrappers allow wrapping around the query sent to WebDriver, before ever touching the HTML page.
 
 Result-wrappers allow wrapping around the result of an interaction with the page, which is almost always an HTML element.
-
-#### Grid Support ####
-
-Selenium Grid is now part of the standalone jar distribution of Selenium server. It would be nice to provide mechanisms to easily start the grid and child nodes directly from code.
 
