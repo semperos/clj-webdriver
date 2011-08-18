@@ -9,14 +9,12 @@
 (defn quick-fill
   "`driver`              - browser driver
    `query-action-maps`   - a seq of maps of queries to actions (queries find HTML elements, actions are fn's that act on them)
-   `opts`                - extra options
 
-  Example usage:
-  (quick-fill a-driver
-    [{\"first_name\" \"Rich\"}
-     {{:class \"foobar\"} click}])"
-  ([driver query-action-maps] (quick-fill driver query-action-maps {:auto-submit true, :form-id nil}))
-  ([driver query-action-maps opts]
+   Example usage:
+   (quick-fill a-driver
+     [{\"first_name\" \"Rich\"}
+      {{:class \"foobar\"} click}])"
+  ([driver query-action-maps]
      (for [entries query-action-maps,
            [k v] entries]
        ;; shortcuts:
