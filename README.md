@@ -28,8 +28,6 @@ Start up a browser:
 (def b (start :firefox "https://github.com"))
 ```
 
-At the moment, the best documentation is the source code itself. While there are many functions in the core namespace, they're mostly short and straightforward wrappers around WebDriver API's. For the task of finding elements on the page, I've added some utility functions at the end of the core namespace.
-
 Here's an example of logging into Github:
 
 ```clj
@@ -57,9 +55,19 @@ Here's an example of logging into Github:
     click)
 ```
 
-The key functions for finding an element on the page are `find-it` and `find-them`. The `find-it` function returns the first result that matches the criteria, while `find-them` returns a seq of all matches for the given criteria. Both support the same syntax and set of attributes.
+Filling out the form can been accomplished more compactly using `clj-webdriver.form-helpers/quick-fill` as follows:
 
-Here is an overview of the arguments you can pass these functions:
+```clj
+(require '[clj-webdriver.form-helpers :as form])
+
+(form/quick-fill b [{{:class "text", :name "login"}     "username"}
+                    {{:xpath "//input[@id='password']"} "password"}
+                    {{:value #"(?i)log"}                click}])
+```
+
+### Finding Elements ###
+
+The `find-it` and `find-them` functions accept a variety of queries and return one or a seq of all matched elements respectively. Below is a list of query formats these functions accept:
 
 * **HTML Tag as keyword:** Pass in the name of an HTML tag as a keyword (`:div`, `:a`, `:span`, `:img`, etc.) `(find-it :a)` will find the first `<a>` tag on the page. There are also special keywords such as `:*` (match any tag), `:text` (match textfields and textareas), `:window` (to match an open browser window by title or url)
 * **HTML Tag plus attributes:** Pass in the name of an HTML tag as a keyword plus some attributes to describe it. `(find-it :a {:class "external"})` will return the first `<a>` tag with a class of "external"
@@ -68,8 +76,6 @@ Here is an overview of the arguments you can pass these functions:
 * **Regular Expressions:** Instead of looking for an exact match, you can use Java-style regular expressions to find elements. `(find-it :a {:class #"exter"})` will find the first `<a>` tag with a class which matches the regular expression `#"exter"`. You can also use regexes in the final position of an ancestry-based query (see below).
 * **Ancestry-based queries:** This library provides a pure-Clojure mechanism for finding an element based on parent elements. `(find-it [:div {:id "content"}, :a {:class "external"}])` will find the first `<a>` tag with a class of "external" that is located within the `<div>` with id "content". This is equivalent to the XPath `//div[@id='content']//a[@class='external']`. You can also include regular expressions in the final attribute-value map which you supply. (*Note: Due to issues of ambiguity and in order not to reinvent the wheel any further, applying regexes higher up the query is not supported and will cause an exception. In addition, none of the "semantic" tags such as `:button*`, `:radio`, `:checkbox`, `:textfield`, etc. that do not map directly to HTML tags are not supported. If you need more advanced querying, use XPath or CSS selectors directly.)* 
 * **XPath and CSS Selectors:** You can use the `:xpath` and `:css` attributes to use such queries in place of simple HTML attributes. If you use one of these attributes, you shouldn't use any others, as they will be ignored (e.g. `{:xpath "//a", :class "external"}` will only utilize the xpath `//a`). `(find-it {:xpath "//a[@class='external']"})` will return the first `<a>` tag with a class of "external"
-
-As mentioned above, the `find-it` and `find-them` functions share the same features and syntax; `find-it` returns a single element, `find-them` returns a seq of all matched elements.
 
 To demonstrate how to use arguments in different ways, consider the following example. If I wanted to find `<a href="/contact" id="contact-link" class="menu-item" name="contact">Contact Us</a>` in a page and click on it I could perform any of the following:
 
