@@ -4,7 +4,7 @@
 ;; faster and more intuitive for "common" use-cases.
 ;;
 (ns clj-webdriver.form-helpers
-  (:use [clj-webdriver.core :only [find-them]]))
+  (:use [clj-webdriver.core :only [find-them, input-text]]))
 
 (defn quick-fill
   "driver              - browser driver
@@ -16,10 +16,11 @@
            [k v] entries]
        ;; provide shortcut, if `k` is a string,
        ;; then assume it refers to an element's id
-       (let [query-action-map (if (string? k)
+       (let [query-map (if (string? k)
                                 {:id k}
                                 k)
-             target-els (find-them driver query-action-map)]
-         (apply v target-els)))))
-
-;; also support shortcut for v as a string, meaning input-text
+             action (if (string? v)
+                      #(input-text % v)
+                      v)
+             target-els (find-them driver query-map)]
+         (apply action target-els)))))
