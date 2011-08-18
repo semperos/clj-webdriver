@@ -146,9 +146,9 @@ Support for Firefox currently exceeds that for all other browsers, most notably 
 
 ## Running Tests
 
-The namespace `clj-webdriver.test.example-app.core` contains a [Ring][ring-github] app (routing by [Moustache][moustache-github]) that acts as my "control application" for this project's test suite. Instead of running my tests against a remote server on the Internet (prone to change, not always available), I've packaged this small web application to be run locally for the purposes of testing.
+The namespace `clj-webdriver.test.example-app.core` contains a [Ring][ring-github] app (routing by [Moustache][moustache-github]) that acts as the "control application" for this project's test suite.
 
-Running `lein test` will start the Ring app and WebDriver browser instance.  This requires port 5744 be free.
+Use `lein test` to run this library's test suite. Ensure port 5744 is free, or edit `test/clj_webdriver/test/core.clj` before running the tests.
 
 ## License
 
