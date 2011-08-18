@@ -5,23 +5,31 @@
   (:use [clojure.test]))
 
 ;; Setup
-(def test-port "5744")
+(def test-port 5744)
 (def test-host "localhost")
 (def test-base-url (str "http://" test-host ":" test-port "/"))
 (def b (start :firefox test-base-url))
 
+(defn start-server [f]
+  (loop [server (run-jetty #'web-app/routes {:port test-port, :join? false})]
+    (if (.isStarted server)
+      (do
+        (f)
+        (.stop server))
+      (recur server))))
+
 (defn reset-browser-fixture
   [f]
-  (f)
-  (to b test-base-url))
+  (to b test-base-url)
+  (f))
 
 (defn quit-browser-fixture
   [f]
   (f)
   (quit b))
 
+(use-fixtures :once start-server quit-browser-fixture)
 (use-fixtures :each reset-browser-fixture)
-(use-fixtures :once quit-browser-fixture)
 
 ;; Tests
 (deftest test-browser-basics
