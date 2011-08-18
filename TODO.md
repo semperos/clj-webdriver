@@ -6,7 +6,7 @@ The following are features I would like to implement or limitations I would like
 
 #### Form Filling ###
 
-I'd like to put together a function that takes a map of form-fields-to-values and "intuitively" fills out a form. The first arg would be this map of fields and values, followed by an optional map including entries for specifying a form id (if a page contains multiple forms), a toggle for submitting after filling, amongst other things.
+I'd like to put together a function that takes a map of form-fields-to-values and "intuitively" fills out a form based on sane shortcuts.
 
 #### Data-Driven Testing ####
 
