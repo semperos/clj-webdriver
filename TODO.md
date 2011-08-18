@@ -8,10 +8,6 @@ The following are features I would like to implement or limitations I would like
 
 WebDriver provides explicit and implicit waits.
 
-### Form Filling ###
-
-I'd like to put together a function that takes a map of form-fields-to-values and "intuitively" fills out a form based on sane shortcuts.
-
 ### Grid Support ###
 
 Selenium Grid is now part of the standalone jar distribution of Selenium server. It would be nice to provide mechanisms to easily start the grid and child nodes directly from code.
@@ -35,4 +31,3 @@ Beyond simply interacting with the page, this library should allow developers to
 Query-wrappers allow wrapping around the query sent to WebDriver, before ever touching the HTML page.
 
 Result-wrappers allow wrapping around the result of an interaction with the page, which is almost always an HTML element.
-
