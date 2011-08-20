@@ -241,11 +241,11 @@
   (is (thrown? TimeoutException
                (doto b
                  (execute-script "setTimeout(function () { window.document.title = \"test\"}, 10000)")
-                 (wait-until (fn [d] (= "test" (title d))) :timeout 1)))))
+                 (wait-until (fn [d] (= "test" (title d))) :timeout 1000)))))
 
 (deftest implicit-wait-should-cause-find-to-wait
   (doto b
-    (implicit-wait 3)
+    (implicit-wait 3000)
     (execute-script "setTimeout(function () { window.document.body.innerHTML = \"<div id='test'>hi!</div>\"}, 1000)"))
   (is (= "test"
          (attribute (find-element b (by-id "test")) :id))))

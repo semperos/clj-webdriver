@@ -45,14 +45,14 @@
      (FirefoxDriver. profile)))
 
 (defn implicit-wait
-  "Specify the amount of time the `driver` should wait when searching for an element if it is not immediately present. This setting holds for the lifetime of the driver across all requests."
+  "Specify the amount of time the `driver` should wait when searching for an element if it is not immediately present. This setting holds for the lifetime of the driver across all requests. Units in milliseconds."
   [driver timeout]
-  (.implicitlyWait (.. driver manage timeouts) timeout TimeUnit/SECONDS))
+  (.implicitlyWait (.. driver manage timeouts) timeout TimeUnit/MILLISECONDS))
 
 (defn wait-until
-  "Set an explicit wait time `timeout` for a particular condition `pred`. Optionally set an `interval` for testing the given predicate."
-  [driver pred & {:keys [timeout, interval] :or {timeout 5, interval 0}}]
-  (let [wait (WebDriverWait. driver timeout interval)]
+  "Set an explicit wait time `timeout` for a particular condition `pred`. Optionally set an `interval` for testing the given predicate. All units in milliseconds"
+  [driver pred & {:keys [timeout, interval] :or {timeout 5000, interval 0}}]
+  (let [wait (WebDriverWait. driver (/ timeout 1000) interval)]
     (.until wait (proxy [ExpectedCondition] []
                    (apply [d] (pred d))))))
 
