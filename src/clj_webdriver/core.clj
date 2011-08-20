@@ -1,4 +1,4 @@
-;; Clojure Wrapper for Selenium-WebDriver
+;; # Clojure Wrapper for Selenium-WebDriver #
 ;;
 ;; WebDriver is a library that allows for easy manipulation of the Firefox,
 ;; Chrome, Safari and  Internet Explorer graphical browsers, as well as the
@@ -27,6 +27,8 @@
            [java.io File]
            [java.util.concurrent TimeUnit]))
 
+
+;; ## Driver Management ##
 (def webdriver-drivers
   {:firefox FirefoxDriver
    :ie InternetExplorerDriver
@@ -42,6 +44,20 @@
        (throw (IllegalArgumentException. "Only Firefox supports profiles")))
      (FirefoxDriver. profile)))
 
+(defn implicit-wait
+  "Specify the amount of time the `driver` should wait when searching for an element if it is not immediately present. This setting holds for the lifetime of the driver across all requests."
+  [driver timeout]
+  (.implicitlyWait (.. driver manage timeouts) timeout TimeUnit/SECONDS))
+
+(defn wait-until
+  "Set an explicit wait time `timeout` for a particular condition `pred`. Optionally set an `interval` for testing the given predicate."
+  [driver pred & {:keys [timeout, interval] :or {timeout 5, interval 0}}]
+  (let [wait (WebDriverWait. driver timeout interval)]
+    (.until wait (proxy [ExpectedCondition] []
+                   (apply [d] (pred d))))))
+
+
+;; ## Browser Basics ##
 (defn get-url
   "Navigate the driver to a given URL"
   [driver url]
@@ -89,13 +105,13 @@
                     (switch-to-window driver (nth handles (dec idx))))))
       (.close driver))))
 
-; TODO catch webdriver exception
+;; TODO catch webdriver exception (not consistent)
 (defn quit
   "Destroy this browser instance"
   [driver]
   (.quit driver))
 
-;; ## Navigation Interface
+;; ## Navigation ##
 (defn back
   "Go back to the previous page in \"browsing history\""
   [driver]
@@ -118,19 +134,19 @@
   (.refresh (.navigate driver))
   driver)
 
-;; ## TargetLocator Interface (Windows, Frames)
+;; ## TargetLocator Interface (Windows, Frames) ##
 
 (load "core_window")
 
-;; ## Option Interface
+;; ## Option Interface ##
 
 (load "core_cookie")
 
-;; ## By* Functions
+;; ## By* Functions ##
 
 (load "core_by")
 
-;; ##  WebElement
+;; ##  Actions on WebElements ##
 (declare execute-script)
 (defn- browserbot
   [driver fn-name & arguments]
@@ -242,7 +258,7 @@
   (.getText element))
 
 (defn html
-  "Retrieve the HTML of an element"
+  "Retrieve the outer HTML of an element"
   [element]
   (browserbot (.getWrappedDriver element) "getOuterHTML" element))
 
@@ -293,22 +309,25 @@
   (.dragAndDropOn element-a element-b)
   element-a)
 
+;; ## JavaScript Execution ##
 (defn execute-script
   [driver js & js-args]
   (.executeScript driver js (to-array js-args)))
 
-;; ## org.openqa.selenium.support.ui.Select class
+;; TODO: Script Timeout (wait functionality)
+
+;; ## Select Helpers ##
 
 (load "core_select")
 
-;; ## Element-finding Utilities
+;; ## Element-finding Utilities ##
 
 ;; Helper functions kept in separate file yet in same namespace
 ;; because of interdependence on `find-them` function
 (load "core_find")
 
 (defn find-them*
-  "Given a browser `driver`, find the browser elements that match the query"
+  "Given a browser `driver`, return the elements that match the query"
   ([driver attr-val]
      (cond
       (= attr-val :button*)   (find-them driver :button* nil)
@@ -395,11 +414,3 @@
      (first (find-them driver attr-val)))
   ([driver tag attr-val]
      (first (find-them driver tag attr-val))))
-
-(defn implicit-wait [driver timeout]
-  (.implicitlyWait (.. driver manage timeouts) timeout TimeUnit/SECONDS))
-
-(defn wait-until [driver pred & {:keys [timeout] :or {timeout 5}}]
-  (let [wait (WebDriverWait. driver timeout)]
-    (.until wait (proxy [ExpectedCondition] []
-                   (apply [d] (pred d))))))
