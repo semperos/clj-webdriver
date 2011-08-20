@@ -4,10 +4,6 @@ The following are features I would like to implement or limitations I would like
 
 ## Features ##
 
-### Wait Functionality ###
-
-WebDriver provides explicit and implicit waits. (Pull request in review).
-
 ### Grid Support ###
 
 Selenium Grid is now part of the standalone jar distribution of Selenium server. It would be nice to provide mechanisms to easily start the grid and child nodes directly from code.

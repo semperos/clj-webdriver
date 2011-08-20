@@ -22,9 +22,10 @@
            [org.openqa.selenium.ie InternetExplorerDriver]
            [org.openqa.selenium.chrome ChromeDriver]
            [org.openqa.selenium.htmlunit HtmlUnitDriver]
-           [org.openqa.selenium.support.ui Select]
+           [org.openqa.selenium.support.ui Select WebDriverWait ExpectedCondition]
            [java.util Date]
-           [java.io File]))
+           [java.io File]
+           [java.util.concurrent TimeUnit]))
 
 (def webdriver-drivers
   {:firefox FirefoxDriver
@@ -394,3 +395,11 @@
      (first (find-them driver attr-val)))
   ([driver tag attr-val]
      (first (find-them driver tag attr-val))))
+
+(defn implicit-wait [driver timeout]
+  (.implicitlyWait (.. driver manage timeouts) timeout TimeUnit/SECONDS))
+
+(defn wait-until [driver pred & {:keys [timeout] :or {timeout 5}}]
+  (let [wait (WebDriverWait. driver timeout)]
+    (.until wait (proxy [ExpectedCondition] []
+                   (apply [d] (pred d))))))

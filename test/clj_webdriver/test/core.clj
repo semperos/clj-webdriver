@@ -2,7 +2,8 @@
   (:require [clj-webdriver.test.example-app.core :as web-app])
   (:use [clj-webdriver.core] :reload)
   (:use [ring.adapter.jetty :only [run-jetty]])
-  (:use [clojure.test]))
+  (:use [clojure.test])
+  (:import [org.openqa.selenium TimeoutException]))
 
 ;; Setup
 (def test-port 5744)
@@ -222,3 +223,29 @@
   (close b)
   (is (= test-base-url
          (:url (window-handle b)))))
+
+(deftest wait-until-should-wait-for-condition
+  (is (= "Ministache" (title b)))
+  (doto b
+    (execute-script "setTimeout(function () { window.document.title = \"asdf\"}, 3000)")
+    (wait-until (fn [d] (= "asdf" (title d)))))
+  (is (= "asdf" (title b))))
+
+(deftest wait-until-should-throw-on-timeout
+  (is (thrown? TimeoutException
+               (doto b
+                 (execute-script "setTimeout(function () { window.document.title = \"test\"}, 6000)")
+                 (wait-until (fn [d] (= "test" (title d))))))))
+
+(deftest wait-until-should-allow-timeout-argument
+  (is (thrown? TimeoutException
+               (doto b
+                 (execute-script "setTimeout(function () { window.document.title = \"test\"}, 10000)")
+                 (wait-until (fn [d] (= "test" (title d))) :timeout 1)))))
+
+(deftest implicit-wait-should-cause-find-to-wait
+  (doto b
+    (implicit-wait 3)
+    (execute-script "setTimeout(function () { window.document.body.innerHTML = \"<div id='test'>hi!</div>\"}, 1000)"))
+  (is (= "test"
+         (attribute (find-element b (by-id "test")) :id))))
