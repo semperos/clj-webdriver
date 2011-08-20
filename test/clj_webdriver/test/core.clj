@@ -249,7 +249,3 @@
     (execute-script "setTimeout(function () { window.document.body.innerHTML = \"<div id='test'>hi!</div>\"}, 1000)"))
   (is (= "test"
          (attribute (find-element b (by-id "test")) :id))))
-
-;; TODO:
-;;   * Form element tests (comprehensive)
-;;   * Exception throwing (esp. for find-it/find-them argument handling)p
