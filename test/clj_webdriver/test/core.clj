@@ -1,7 +1,7 @@
 (ns clj-webdriver.test.core
   (:require [clj-webdriver.test.example-app.core :as web-app])
   (:use [clj-webdriver.core] :reload)
-  (:use ring.adapter.jetty)
+  (:use [ring.adapter.jetty :only [run-jetty]])
   (:use [clojure.test]))
 
 ;; Setup
@@ -222,6 +222,3 @@
   (close b)
   (is (= test-base-url
          (:url (window-handle b)))))
-;; TODO:
-;;   * Form element tests (comprehensive)
-;;   * Exception throwing (esp. for find-it/find-them argument handling)p
