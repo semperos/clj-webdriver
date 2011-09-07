@@ -196,7 +196,7 @@
 (defn select
   "Select a given element object"
   [element]
-  (.setSelected element)
+  (.click element)
   element)
 
 (defn toggle
