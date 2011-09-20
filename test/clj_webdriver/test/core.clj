@@ -133,14 +133,17 @@
          (attribute (find-it b :input {:type "text", :name #"last_"}) "value")))
   (is (= "Smith"
          (attribute (find-it b [:div {:id "content"}, :input {:name #"last_"}]) "value")))
-  (is (true?
-       (-> b
-           (find-it :a)
-           exists?)))
-  (is (false?
+  (is (-> b
+        (find-it :a)
+        exists?))
+  (is (not
        (-> b
            (find-it :area)
            exists?)))
+  (is (nil?
+       (-> b
+           (find-it :area)
+           exists?)))           
   (is (thrown? org.openqa.selenium.NoSuchElementException
                (find-it b :area))))
 
