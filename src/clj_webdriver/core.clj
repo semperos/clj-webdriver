@@ -218,11 +218,12 @@
   (.isEnabled element))
 
 (defmacro exists?
+  "Returns element matching the find-it-form if it exists, or nil if it does not"
   [find-it-form]
-  `(try ~find-it-form
-        true
-        (catch org.openqa.selenium.NoSuchElementException e#
-          false)))
+  `(try 
+      ~find-it-form
+      (catch org.openqa.selenium.NoSuchElementException e#
+        nil)))
 
 (defn visible?
   "Returns true if the given element object is visible/displayed"
