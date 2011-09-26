@@ -1,6 +1,6 @@
 # Selenium-WebDriver Support for Clojure
 
-This is a Clojure library for driving a web browser using Selenium-WebDriver as the backend. Credits to [mikitebeka/webdriver-clj][webdriver-orig] for the initial code for this project and many of the low-level wrappers around the WebDriver API.
+This is a Clojure library for driving a web browser using Selenium-WebDriver as the backend.
 
  * [Project Wiki](https://github.com/semperos/clj-webdriver/wiki)
  * [Marginalia Documentation](http://techylinguist.com/project-static/clj-webdriver/uberdoc.html)
@@ -155,6 +155,18 @@ Support for Firefox currently exceeds that for all other browsers, most notably 
 The namespace `clj-webdriver.test.example-app.core` contains a [Ring][ring-github] app (routing by [Moustache][moustache-github]) that acts as the "control application" for this project's test suite.
 
 Use `lein test` to run this library's test suite. Ensure port 5744 is free, or edit `test/clj_webdriver/test/core.clj` before running the tests.
+
+## Acknowledgements
+
+Credits to [mikitebeka/webdriver-clj][webdriver-orig] for the initial code for this project and many of the low-level wrappers around the Selenium-WebDriver API.
+
+Many thanks to those who have contributed so far (in nick alphabetical order):
+
+ * [RobLally](https://github.com/RobLally) (Rob Lally)
+ * [ulsa](https://github.com/ulsa) (Ulrik Sandberg)
+ * [xeqi](https://github.com/xeqi) (Nelson Morris)
+
+See Github for an [up-to-date list of contributors](https://github.com/semperos/clj-webdriver/contributors)
 
 ## License
 
