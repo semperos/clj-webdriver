@@ -252,3 +252,10 @@
     (execute-script "setTimeout(function () { window.document.body.innerHTML = \"<div id='test'>hi!</div>\"}, 1000)"))
   (is (= "test"
          (attribute (find-element b (by-id "test")) :id))))
+
+;; Not sure how we'll test that flash in fact flashes,
+;; but at least this will catch changing API's
+(deftest test-flash-helper
+  (-> b
+      (find-it :a)
+      flash))
