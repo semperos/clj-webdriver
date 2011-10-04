@@ -6,6 +6,7 @@ This is a Clojure library for driving a web browser using Selenium-WebDriver as 
  * [Marginalia Documentation](http://techylinguist.com/project-static/clj-webdriver/uberdoc.html)
  * [Google Group](https://groups.google.com/forum/#!forum/clj-webdriver)
  * [Issue Queue](https://github.com/semperos/clj-webdriver/issues)
+ * [Selenium-WebDriver Javadoc](http://selenium.googlecode.com/svn/trunk/docs/api/java/index.html)
 
 ## Usage
 
