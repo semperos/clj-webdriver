@@ -240,8 +240,8 @@
 (defn flash
   "Flash the element in question, to verify you're looking at the correct element"
   [element]
-  (let [original-color (if (.getValueOfCssProperty element "background-color")
-                         (.getValueOfCssProperty element "background-color")
+  (let [original-color (if (.getCssValue element "background-color")
+                         (.getCssValue element "background-color")
                          "transparent")
         orig-colors (repeat original-color)
         change-colors (interleave (repeat "red") (repeat "blue"))]
