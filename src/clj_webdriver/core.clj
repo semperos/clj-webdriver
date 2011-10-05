@@ -66,10 +66,9 @@
 (defn start
   "Shortcut to instantiate a driver, navigate to a URL, and return the driver for further use"
   [browser url]
-  (let [d (new-driver browser)]
-    (do
-      (get-url d url)
-      d)))
+  (let [driver (new-driver browser)]
+    (get-url driver url)
+    driver))
 
 (defn current-url
   "Retrieve the URL of the current page"
