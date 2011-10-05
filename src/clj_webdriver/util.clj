@@ -71,6 +71,14 @@
   [s]
   (str/replace s #"(\r|\n|\r\n)" "  "))
 
+;; borrowed from Clojure's 1.2 Contrib
+(defn call-method
+  [klass method-name params obj & args]
+  (-> klass (.getDeclaredMethod (name method-name)
+                                (into-array Class params))
+      (doto (.setAccessible true))
+      (.invoke obj (into-array Object args))))
+
 (defmacro when-attr
   "Special `when` macro for checking if an attribute isn't available or is an empty string"
   [obj & body]
