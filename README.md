@@ -150,6 +150,13 @@ Support for Firefox currently exceeds that for all other browsers, most notably 
                                               :browser.helperApps.neverAsk.saveToDisk "application/pdf"})))
 ```
                                   
+### Grid Support ###
+
+If you already have a Selenium-WebDriver Grid (2) setup in place, you can now leverage the functions in `clj-webdriver.grid` to run your tests via the Grid.
+
+At this point, `clj-webdriver.grid` has two functions, `new-driver-on-grid` and `start-on-grid` which are Grid equivalents for the `clj-webdriver.core` functions named `new-driver` and `start` respectively. You simply replace your call to `start` or `new-driver` with `start-on-grid` or `new-driver-on-grid` and your tests will run on the Grid.
+
+For more information about configuring your Grid hub and nodes, read [the Selenium-WebDriver wiki documentation on Grid 2](http://code.google.com/p/selenium/wiki/Grid2).
 
 ## Running Tests
 
