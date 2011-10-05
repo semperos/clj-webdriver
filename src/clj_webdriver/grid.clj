@@ -8,9 +8,9 @@
 ;; Once you have the Grid in place and configured properly, the only thing
 ;; that should differ about your test runs is that you get your instance of
 ;; WebDriver via these functions, which will delegate the task to the Grid
-;; hub instead of running things locally. The function `new-driver-on-node` is
+;; hub instead of running things locally. The function `new-driver-on-grid` is
 ;; a Grid-based replacement for `clj-webdriver.core/new-driver`, just as
-;; `start-on-node` is a Grid-based replacement for `clj-webdriver.core/start`.
+;; `start-on-grid` is a Grid-based replacement for `clj-webdriver.core/start`.
 ;;
 (ns clj-webdriver.grid
   (:use [clj-webdriver.core :only [get-url]]
@@ -18,24 +18,24 @@
   (:import org.openqa.selenium.remote.DesiredCapabilities
            org.openqa.selenium.remote.RemoteWebDriver))
 
-(defn new-driver-on-node
+(defn new-driver-on-grid
   "Start a new RemoteWebDriver on a node managed by a Grid hub at `hub-url` using `browser` to run the test.
 
    If only a `browser` is supplied, this function assumes the hub is running locally and will use 'http://localhost:4444/wd/hub' as the value for `hub-url`."
-  ([browser] (new-driver-on-node "http://localhost:4444/wd/hub" browser))
+  ([browser] (new-driver-on-grid "http://localhost:4444/wd/hub" browser))
   ([hub-url browser]
      (RemoteWebDriver. (java.net.URL. hub-url),
                        (call-method DesiredCapabilities browser nil nil))))
 
-(defn start-on-node
+(defn start-on-grid
   "Convenience function for starting a new RemoteWebDriver on a Grid node managed by a Grid hub at `hub-url`, running tests with the given `browser` and `start-url`.
 
    If only a `browser` and `start-url` are supplied, this function assumes the hub is running locally and will use 'http://localhost:4444/wd/hub' as the value for `hub-url`."
   ([browser start-url]
-     (let [driver (new-driver-on-node "http://localhost:4444/wd/hub" browser)]
+     (let [driver (new-driver-on-grid "http://localhost:4444/wd/hub" browser)]
        (get-url driver start-url)
        driver))
   ([hub-url browser start-url]
-     (let [driver (new-driver-on-node hub-url browser)]
+     (let [driver (new-driver-on-grid hub-url browser)]
        (get-url driver start-url)
        driver)))
