@@ -6,9 +6,7 @@ The following are features I would like to implement or limitations I would like
 
 ### Grid Support ###
 
-Selenium Grid is now part of the standalone jar distribution of Selenium server. It would be nice to provide mechanisms to easily start the grid and child nodes directly from code.
-
-NOTE: Currently, it appears that starting the Grid via the Java API only works with the `selenium-server-standalone` jar, whereas this library depends on `selenium-server`. The standalone jar is too large to upload to Clojars, and is not available in a Maven repository (only place I know of is the main Selenium-WebDriver downloads page). Support will be added for the Grid, but special instructions for installing the standalone jar manually will be provided separately.
+Grid support has now been implemented. The Grid must be started separately using the Selenium-WebDriver standalone executable jar, but `clj-webdriver` now supports starting a new web driver and sending it to a Grid hub for use.
 
 ### Test Record ###
 
@@ -38,3 +36,4 @@ The following tests need to be written to cover the API more comprehensively:
 * JavaScript execution
 * Form submission
 * Exceptions thrown when finding elements
+* Grid functions
