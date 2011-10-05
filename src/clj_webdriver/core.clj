@@ -38,9 +38,9 @@
 (defn new-driver
   "Create new driver instance given a browser type. If an additional profile object or string is passed in, Firefox will be started with the given profile instead of the default."
   ([browser]
-     (.newInstance (webdriver-drivers browser)))
+     (.newInstance (webdriver-drivers (keyword browser))))
   ([browser profile]
-     (when (not= :firefox browser)
+     (when (not= :firefox (keyword browser))
        (throw (IllegalArgumentException. "Only Firefox supports profiles")))
      (FirefoxDriver. profile)))
 
