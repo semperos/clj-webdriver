@@ -114,12 +114,14 @@
 (defn back
   "Go back to the previous page in \"browsing history\""
   [driver]
-  (.back (.navigate driver)))
+  (.back (.navigate driver))
+  driver)
 
 (defn forward
   "Go forward to the next page in \"browsing history\"."
   [driver]
-  (.forward (.navigate driver)))
+  (.forward (.navigate driver))
+  driver)
 
 (defn to
   "Navigate to a particular URL. Arg `url` can be either String or java.net.URL. Equivalent to the `get` function, provided here for compatibility with WebDriver API."
