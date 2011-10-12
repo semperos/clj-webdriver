@@ -6,25 +6,35 @@
 (ns clj-webdriver.form-helpers
   (:use [clj-webdriver.core :only [find-them, input-text]]))
 
+(defn- quick-fill*
+  [driver entries k v]
+  ;; shortcuts:
+  ;; k as string => element's id attribute
+  ;; v as string => text to input
+  (let [query-map (if (string? k)
+                    {:id k}
+                    k)
+        action (if (string? v)
+                 #(input-text % v)
+                 v)
+        target-els (find-them driver query-map)]
+    (apply action target-els)))
+
 (defn quick-fill
   "`driver`              - browser driver
    `query-action-maps`   - a seq of maps of queries to actions (queries find HTML elements, actions are fn's that act on them)
+   `submit?`             - (WARNING: CHANGES RETURN TYPE) boolean, whether or not the call to this function will submit the form in question
 
    Example usage:
    (quick-fill a-driver
      [{\"first_name\" \"Rich\"}
       {{:class \"foobar\"} click}])"
-  ([driver query-action-maps]
-     (for [entries query-action-maps,
-           [k v] entries]
-       ;; shortcuts:
-       ;; k as string => element's id attribute
-       ;; v as string => text to input
-       (let [query-map (if (string? k)
-                                {:id k}
-                                k)
-             action (if (string? v)
-                      #(input-text % v)
-                      v)
-             target-els (find-them driver query-map)]
-         (apply action target-els)))))
+  ([driver query-action-maps] (quick-fill driver query-action-maps false))
+  ([driver query-action-maps submit?]
+     (if submit?
+       (doseq [entries query-action-maps,
+               [k v] entries]
+         (quick-fill* driver entries k v))
+       (for [entries query-action-maps,
+             [k v] entries]
+         (quick-fill* driver entries k v)))))
