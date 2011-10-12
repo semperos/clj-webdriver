@@ -7,7 +7,7 @@
   (:use [clj-webdriver.core :only [find-them, input-text]]))
 
 (defn- quick-fill*
-  [driver entries k v]
+  [driver entries k v submit?]
   ;; shortcuts:
   ;; k as string => element's id attribute
   ;; v as string => text to input
@@ -18,7 +18,10 @@
                  #(input-text % v)
                  v)
         target-els (find-them driver query-map)]
-    (apply action target-els)))
+    (if submit?
+      (doseq [el target-els]
+        (action el))
+      (apply action target-els))))
 
 (defn quick-fill
   "`driver`              - browser driver
@@ -34,7 +37,7 @@
      (if submit?
        (doseq [entries query-action-maps,
                [k v] entries]
-         (quick-fill* driver entries k v))
+         (quick-fill* driver entries k v submit?))
        (for [entries query-action-maps,
              [k v] entries]
-         (quick-fill* driver entries k v)))))
+         (quick-fill* driver entries k v submit?)))))
