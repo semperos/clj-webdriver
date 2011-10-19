@@ -1,7 +1,7 @@
 language: clojure
 branches:
   only:
-    - travis
+    - master
 notifications:
   recipients:
     - daniel.l.gregoire@gmail.com

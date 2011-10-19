@@ -66,6 +66,8 @@ Filling out the form can been accomplished more compactly using `clj-webdriver.f
                     {{:value #"(?i)log"}                click}])
 ```
 
+If you plan to submit the form, you need to pass a third parameter of `true` to prevent `quick-fill` from trying to return the elements you act upon (since the page will reload, they will be lost in the Selenium-WebDriver cache).
+
 ### Finding Elements ###
 
 The `find-it` and `find-them` functions accept a variety of queries and return one or a seq of all matched elements respectively. Below is a list of query formats these functions accept:
