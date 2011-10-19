@@ -2,9 +2,8 @@ language: clojure
 branches:
   only:
     - master
-before_script:
-  - "sh -e /etc/init.d/xvfb start"
-  - "export DISPLAY=:99.0"
+env: DISPLAY=:99.0
+before_script: "sh -e /etc/init.d/xvfb start"
 notifications:
   recipients:
     - daniel.l.gregoire@gmail.com
