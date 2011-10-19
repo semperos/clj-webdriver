@@ -2,6 +2,7 @@
   (:require [clj-webdriver.test.example-app.core :as web-app])
   (:use [clj-webdriver.core] :reload)
   (:use [ring.adapter.jetty :only [run-jetty]])
+  (:use [clojure.java.shell :only [sh]])
   (:use [clojure.test])
   (:import [org.openqa.selenium TimeoutException]))
 
@@ -9,6 +10,7 @@
 (def test-port 5744)
 (def test-host "localhost")
 (def test-base-url (str "http://" test-host ":" test-port "/"))
+(def is-travis? (some #{"TRAVIS=true"} (map str (System/getenv))))
 (def b (start :firefox test-base-url))
 
 (defn start-server [f]
@@ -18,6 +20,12 @@
         (f)
         (.stop server))
       (recur server))))
+
+(defn start-travis-xvfb
+  [f]
+  (while is-travis?
+    (sh "sh" "-e" "/etc/init.d/xvfb" "start"))
+  (f))
 
 (defn reset-browser-fixture
   [f]

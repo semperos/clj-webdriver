@@ -1,0 +1,7 @@
+language: clojure
+branches:
+  only:
+    - master
+notifications:
+  recipients:
+    - daniel.l.gregoire@gmail.com
