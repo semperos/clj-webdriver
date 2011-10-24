@@ -4,25 +4,20 @@ The following are features I would like to implement or limitations I would like
 
 ## Features ##
 
-### Grid Support ###
+### Driver Record ###
 
-Grid support has now been implemented. The Grid must be started separately using the Selenium-WebDriver standalone executable jar, but `clj-webdriver` now supports starting a new web driver and sending it to a Grid hub for use.
+A number of nice things could be accomplished by wrapping the raw WebDriver Java object in a Clojure record (let's call it Driver):
 
-### Test Record ###
+ * The `clj-wedriver` API could be composed of sane protocols that the Driver record implements
+ * The Driver could maintain a per-page cache of WebElement objects for those elements of the page's DOM that are static (basically a memoization scheme, so you pay the price of WebElement lookup once)
+ * The Driver record could register "wrapper functions" that act as middlewares (see below)
+ * The Driver could house extra meta-data, useful both for pure Clojure programming and for configuration with things like the Selenium Grid
 
-Create a record used to compose test suites. Attributes of this record would include:
-
- * A function that actually runs the steps of driving the browser
- * Wrapper definitions (see below)
- * Test-specific configuration settings for browser/version and OS (useful with Grid support, see below)
-
-### Data-Driven Testing ###
-
-Ostensibly, this library is most useful as a web testing tool (that's certainly how I use it). In that vein, it would be good to support various kinds of data-driven testing, including reading from common formats (CSV, SQL databases, even Excel spreadsheets (using existing Java libraries)).
+This record would still expose a painless way of retrieving the WebDriver Java object, but I think the above use cases alone justify adding this layer of abstraction. I'm considering this a blocker for the 1.0 release of `clj-webdriver`.
 
 ### Wrappers/Middlewares ###
 
-Beyond simply interacting with the page, this library should allow developers to gather information about the elements, the page or the browser at any given point. To help foster this, it would be nice to be able to "wrap" functionality around the means of interacting with the page, and allow developers to write middlewares that do things like custom reporting, extra auxiliary validation, or even things that might alter the DOM based on context.
+Beyond simply interactions with the page, this library should allow developers to gather information about the elements, the page or the browser at any given point. To help foster this, it would be nice to be able to "wrap" functionality around the means of interacting with the page, and allow developers to write middlewares that do things like custom reporting, extra auxiliary validation, or even things that might alter the DOM based on context.
 
 Query-wrappers allow wrapping around the query sent to WebDriver, before ever touching the HTML page.
 
