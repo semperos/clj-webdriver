@@ -232,11 +232,7 @@
   (.isDisplayed element))
 
 (def displayed? ^{:doc "Returns true if the given element object is visible/displayed"} visible?)
-
-(defn present?
-  "Returns true if element exists and is visible"
-  [element]
-  (and element (visible? element)))
+(def present? ^{:doc "Returns true if the given element object is visible/displayed"} visible?)
 
 (defn flash
   "Flash the element in question, to verify you're looking at the correct element"
