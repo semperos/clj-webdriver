@@ -1,4 +1,4 @@
-(ns clj-webdriver.protocols.driver-basics)
+(ns clj-webdriver.protocol.driver-basics)
 
 (defprotocol IDriverBasics
   "Basics of driver handling"

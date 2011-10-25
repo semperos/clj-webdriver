@@ -1,8 +1,8 @@
 (ns clj-webdriver.test.core
   (:require [clj-webdriver.test.example-app.core :as web-app])
   (:use [clj-webdriver.core] :reload)
-  (:use [clj-webdriver.protocols driver-basics target-locator
-                                 wait options find])
+  (:use [clj-webdriver.protocol driver-basics target-locator
+                                wait options find])
   (:use [ring.adapter.jetty :only [run-jetty]])
   (:use [clojure.java.shell :only [sh]])
   (:use [clojure.test])

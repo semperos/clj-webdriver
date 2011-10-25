@@ -1,4 +1,4 @@
-(ns clj-webdriver.protocols.wait)
+(ns clj-webdriver.protocol.wait)
 
 (defprotocol IWait
   "Implicit and explicit waiting"

@@ -1,4 +1,4 @@
-(ns clj-webdriver.protocols.find)
+(ns clj-webdriver.protocol.find)
 
 (defprotocol IFind
   "Functions used to locate elements on a given page"

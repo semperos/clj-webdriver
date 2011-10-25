@@ -1,4 +1,4 @@
-(ns clj-webdriver.protocols.options)
+(ns clj-webdriver.protocol.options)
 
 (defprotocol IOptions
   "Options interface, including cookie and timeout handling"
