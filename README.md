@@ -166,6 +166,12 @@ The namespace `clj-webdriver.test.example-app.core` contains a [Ring][ring-githu
 
 Use `lein test` to run this library's test suite. Ensure port 5744 is free, or edit `test/clj_webdriver/test/core.clj` before running the tests.
 
+*Note:* If you just want to run the example app that clj-webdriver uses for its testing purposes, do the following:
+
+ * Open a terminal and run `lein repl` or `lein swank` at the root of this project
+ * Evaluate `(use 'clj-webdriver.test.example-app.core 'ring.adapter.jetty)`
+ * Evaluate `(defonce my-server (run-jetty #'routes {:port 5744, :join? false}))`, making sure to adjust the `test-port` in `test/clj_webdriver/test/core.clj` to whatever you use here.
+
 ## Acknowledgements
 
 Credits to [mikitebeka/webdriver-clj][webdriver-orig] for the initial code for this project and many of the low-level wrappers around the Selenium-WebDriver API.
