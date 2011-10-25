@@ -58,9 +58,9 @@
 
 (defn start
   "Shortcut to instantiate a driver, navigate to a URL, and return the driver for further use"
-  ([browser url] (start browser url false))
-  ([browser url use-java-driver?]
-     (let [driver (if use-java-driver?
+  ([browser url] (start browser url :driver))
+  ([browser url driver-type]
+     (let [driver (if (= :webdriver driver-type)
                     (new-webdriver* browser)
                     (new-driver browser))]
        (get-url driver url)
