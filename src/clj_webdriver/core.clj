@@ -15,7 +15,7 @@
 (ns clj-webdriver.core
   (:use [clj-webdriver util record])
   (:require [clj-webdriver.js.browserbot :as browserbot-js] :reload)
-  (:import [clj_webdriver.record WindowHandle]
+  (:import [clj_webdriver WindowHandle]
            [org.openqa.selenium By WebDriver WebElement Cookie
                                 NoSuchElementException]
            [org.openqa.selenium.firefox FirefoxDriver]
