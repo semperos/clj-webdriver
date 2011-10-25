@@ -68,14 +68,14 @@
 
 ;; ##  Actions on WebElements ##
 (declare execute-script)
+(declare execute-script*)
 (defn- browserbot
   [driver fn-name & arguments]
   (let [script (str browserbot-js/script
                     "return browserbot."
                     fn-name
                     ".apply(browserbot, arguments)")
-        driver (:webdriver driver) ;; not in a protocol
-        execute-js-fn (partial execute-script driver script)]
+        execute-js-fn (partial execute-script* driver script)]
     (apply execute-js-fn arguments)))
 
 (defn click
@@ -167,7 +167,7 @@
         orig-colors (repeat original-color)
         change-colors (interleave (repeat "red") (repeat "blue"))]
     (doseq [flash-color (take 12 (interleave change-colors orig-colors))]
-      (execute-script (.getWrappedDriver element)
+      (execute-script* (.getWrappedDriver element)
                       (str "arguments[0].style.backgroundColor = '"
                            flash-color "'")
                       element)
@@ -192,7 +192,7 @@
 (defn focus
   "Apply focus to the given element"
   [element]
-  (execute-script
+  (execute-script*
    (.getWrappedDriver element) "return arguments[0].focus()" element))
 
 (defn send-keys
@@ -234,7 +234,14 @@
 ;; ## JavaScript Execution ##
 (defn execute-script
   [driver js & js-args]
-  (.executeScript driver js (to-array js-args)))
+  (.executeScript (:webdriver driver) js (to-array js-args))
+  driver)
+
+(defn execute-script*
+  "Version of execute-script that uses a WebDriver instance directly."
+  [driver js & js-args]
+  (.executeScript driver js (to-array js-args))
+  driver)
 
 ;; TODO: Script Timeout (wait functionality)
 
@@ -247,4 +254,8 @@
 ;; Helper functions kept in separate file yet in same namespace
 ;; because of interdependence on `find-them` function
 (load "core_find")
+
+;; API with clj-webdriver's Driver implementation
 (load "core_driver")
+;; API with Selenium-WebDriver's WebDriver class
+(load "core_webdriver")

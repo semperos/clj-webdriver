@@ -1,53 +1,53 @@
 (in-ns 'clj-webdriver.core)
 
-(defrecord Driver [webdriver cache-strategy middlewares]
-
+(extend-type WebDriver
+  
   ;;; Basic Functions ;;;
   IDriverBasics
   (get-url [driver url]
-    (.get (:webdriver driver) url)
+    (.get driver url)
     driver)
 
   (to [driver url]
-    (.to (.navigate (:webdriver driver)) url)
+    (.to (.navigate driver) url)
     driver)
 
   (current-url [driver]
-    (.getCurrentUrl (:webdriver driver)))
+    (.getCurrentUrl driver))
 
   (title [driver]
-    (.getTitle (:webdriver driver)))
+    (.getTitle driver))
 
   (page-source [driver]
-    (.getPageSource (:webdriver driver)))
+    (.getPageSource driver))
 
   (close [driver]
-    (let [handles (window-handles* (:webdriver driver))]
+    (let [handles (window-handles* driver)]
       (if (> (count handles) 1) ; get back to a window that is open before proceeding
-        (let [this-handle (window-handle* (:webdriver driver))
+        (let [this-handle (window-handle* driver)
               idx (.indexOf handles this-handle)]
           (cond
            (zero? idx) (do ; if first window, switch to next
-                         (.close (:webdriver driver))
+                         (.close driver)
                          (switch-to-window driver (nth handles (inc idx))))
            :else (do ; otherwise, switch back one window
-                   (.close (:webdriver driver))
+                   (.close driver)
                    (switch-to-window driver (nth handles (dec idx))))))
-        (.close (:webdriver driver)))))
+        (.close driver))))
   
   (quit [driver]
-    (.quit (:webdriver driver)))
+    (.quit driver))
   
   (back [driver]
-    (.back (.navigate (:webdriver driver)))
+    (.back (.navigate driver))
     driver)
 
   (forward [driver]
-    (.forward (.navigate (:webdriver driver)))
+    (.forward (.navigate driver))
     driver)
 
   (refresh [driver]
-    (.refresh (.navigate (:webdriver driver)))
+    (.refresh (.navigate driver))
     driver)
 
 
@@ -55,17 +55,17 @@
   ITargetLocator
 
   (window-handle [driver]
-    (init-window-handle (:webdriver driver)
-                        (.getWindowHandle (:webdriver driver))
+    (init-window-handle driver
+                        (.getWindowHandle driver)
                         (title driver)
                         (current-url driver)))
 
   (window-handles [driver]
-    (let [current-handle (.getWindowHandle (:webdriver driver))
-          all-handles (lazy-seq (.getWindowHandles (:webdriver driver)))
+    (let [current-handle (.getWindowHandle driver)
+          all-handles (lazy-seq (.getWindowHandles driver))
           handle-records (for [handle all-handles]
                            (let [b (switch-to-window driver handle)]
-                             (init-window-handle (:webdriver driver)
+                             (init-window-handle driver
                                                  handle
                                                  (title b)
                                                  (current-url b))))]
@@ -77,13 +77,13 @@
             (doall (window-handles driver))))
 
   (switch-to-frame [driver frame]
-    (.frame (.switchTo (:webdriver driver)) frame)
+    (.frame (.switchTo driver) frame)
     driver)
 
   (switch-to-window [driver handle]
     (cond
      (string? handle)            (do
-                                   (.window (.switchTo (:webdriver driver)) handle)
+                                   (.window (.switchTo driver) handle)
                                    driver)
      (is-window-handle? handle)  (do
                                    (.window (.switchTo (:driver handle)) (:handle handle))
@@ -92,7 +92,7 @@
                                    driver(switch-to-window driver (nth (window-handles driver) handle)))
      (nil? handle)               (throw (RuntimeException. "No window can be found"))
      :else                       (do
-                                   (.window (.switchTo (:webdriver driver)) handle)
+                                   (.window (.switchTo driver) handle)
                                    driver)))
 
   (switch-to-other-window [driver]
@@ -103,17 +103,17 @@
       (switch-to-window driver (first (other-window-handles driver)))))
 
   (switch-to-default [driver]
-    (.defaultContent (.switchTo (:webdriver driver))))
+    (.defaultContent (.switchTo driver)))
 
   (switch-to-active [driver]
-    (.activeElement (.switchTo (:webdriver driver))))
+    (.activeElement (.switchTo driver)))
 
 
   ;;; Wait Functionality ;;;
   IWait
 
   (implicit-wait [driver timeout]
-    (.implicitlyWait (.. (:webdriver driver) manage timeouts) timeout TimeUnit/MILLISECONDS)
+    (.implicitlyWait (.. driver manage timeouts) timeout TimeUnit/MILLISECONDS)
     driver)
 
   (wait-until [driver pred]
@@ -121,7 +121,7 @@
   (wait-until [driver pred timeout]
     (wait-until driver pred timeout 0))
   (wait-until [driver pred timeout interval]
-    (let [wait (WebDriverWait. (:webdriver driver) (/ timeout 1000) interval)]
+    (let [wait (WebDriverWait. driver (/ timeout 1000) interval)]
       (.until wait (proxy [ExpectedCondition] []
                      (apply [d] (pred d))))
       driver))
@@ -131,27 +131,27 @@
   IOptions
 
   (add-cookie [driver cookie]
-    (.addCookie (.manage (:webdriver driver)) cookie))
+    (.addCookie (.manage driver) cookie))
   (delete-cookie-named [driver cookie]
-    (.deleteCookieNamed (.manage (:webdriver driver)) name))
+    (.deleteCookieNamed (.manage driver) name))
   (delete-cookie [driver cookie]
-    (.deleteCookie (.manage (:webdriver driver)) cookie))
+    (.deleteCookie (.manage driver) cookie))
   (delete-all-cookies [driver]
-    (.deleteAllCookies (.manage (:webdriver driver))))
+    (.deleteAllCookies (.manage driver)))
   (cookies [driver]
-    (into #{} (.getCookies (.manage (:webdriver driver)))))
+    (into #{} (.getCookies (.manage driver))))
   (cookie-named [driver name]
-    (.getCookieNamed (.manage (:webdriver driver)) name))
+    (.getCookieNamed (.manage driver) name))
 
 
   ;;; Find Functions ;;;
   IFind
 
   (find-element [driver by]
-    (.findElement (:webdriver driver) by))
+    (.findElement driver by))
   
   (find-elements [driver by]
-    (lazy-seq (.findElements (:webdriver driver) by)))
+    (lazy-seq (.findElements driver by)))
   
   (find-elements-by-regex-alone [driver tag attr-val]
     (let [entry (first attr-val)
@@ -315,16 +315,3 @@
     (first (find-them driver attr-val)))
   (find-it [driver tag attr-val]
     (first (find-them driver tag attr-val))))
-
-
-(defn init-driver
-  "Constructor for Driver records"
-  ([] (Driver. nil nil nil))
-  ([webdriver] (Driver. webdriver nil nil))
-  ([webdriver cs] (Driver. webdriver cs nil))
-  ([webdriver cs mws] (Driver. webdriver cs mws)))
-
-(defn is-driver?
-  "Function to check class of a Driver, to prevent needing to import it"
-  [driver]
-  (= (class driver) Driver))

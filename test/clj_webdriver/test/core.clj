@@ -229,35 +229,35 @@
   (is (= test-base-url
          (:url (window-handle b)))))
 
-;; (deftest wait-until-should-wait-for-condition
-;;   (is (= "Ministache" (title b)))
-;;   (doto b
-;;     (execute-script "setTimeout(function () { window.document.title = \"asdf\"}, 3000)")
-;;     (wait-until (fn [d] (= "asdf" (title d))) )) ;add args
-;;   (is (= "asdf" (title b))))
+(deftest wait-until-should-wait-for-condition
+  (is (= "Ministache" (title b)))
+  (-> b
+    (execute-script "setTimeout(function () { window.document.title = \"asdf\"}, 3000)")
+    (wait-until (fn [d] (= "asdf" (title d)))))
+  (is (= "asdf" (title b))))
 
-;; (deftest wait-until-should-throw-on-timeout
-;;   (is (thrown? TimeoutException
-;;                (doto b
-;;                  (execute-script "setTimeout(function () { window.document.title = \"test\"}, 6000)")
-;;                  (wait-until (fn [d] (= "test" (title d))))))))
+(deftest wait-until-should-throw-on-timeout
+  (is (thrown? TimeoutException
+               (-> b
+                 (execute-script "setTimeout(function () { window.document.title = \"test\"}, 6000)")
+                 (wait-until (fn [d] (= "test" (title d))))))))
 
-;; (deftest wait-until-should-allow-timeout-argument
-;;   (is (thrown? TimeoutException
-;;                (doto b
-;;                  (execute-script "setTimeout(function () { window.document.title = \"test\"}, 10000)")
-;;                  (wait-until (fn [d] (= "test" (title d))) :timeout 1000)))))
+(deftest wait-until-should-allow-timeout-argument
+  (is (thrown? TimeoutException
+               (-> b
+                   (execute-script "setTimeout(function () { window.document.title = \"test\"}, 10000)")
+                   (wait-until (fn [d] (= "test" (title d))) 1000)))))
 
-;; (deftest implicit-wait-should-cause-find-to-wait
-;;   (doto b
-;;     (implicit-wait 3000)
-;;     (execute-script "setTimeout(function () { window.document.body.innerHTML = \"<div id='test'>hi!</div>\"}, 1000)"))
-;;   (is (= "test"
-;;          (attribute (find-element b (by-id "test")) :id))))
+(deftest implicit-wait-should-cause-find-to-wait
+  (-> b
+      (implicit-wait 3000)
+      (execute-script "setTimeout(function () { window.document.body.innerHTML = \"<div id='test'>hi!</div>\"}, 1000)"))
+  (is (= "test"
+         (attribute (find-element b (by-id "test")) :id))))
 
 ;; Not sure how we'll test that flash in fact flashes,
 ;; but at least this will catch changing API's
 (deftest test-flash-helper
   (-> b
-      (find-it :a)
+      (find-it :a {:text "Moustache"})
       flash))
