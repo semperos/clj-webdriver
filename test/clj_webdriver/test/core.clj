@@ -149,25 +149,25 @@
        (-> dr
            (find-it :area)
            exists?)))
-  (is (-> b
+  (is (-> dr 
           (find-it :a {:text "Moustache"})
           visible?))
-  (is (-> b
+  (is (-> dr 
           (find-it :a {:text "Moustache"})
           displayed?))
-  (is (-> b
+  (is (-> dr
           (find-it :a {:text "Moustache"})
           present?))
   (is (not
-       (-> b
+       (-> dr
            (find-it :a)
            visible?)))
   (is (not
-       (-> b
+       (-> dr 
            (find-it :a)
            displayed?)))
   (is (not
-       (-> b
+       (-> dr
            (find-it :a)
            present?)))
   (is (thrown? org.openqa.selenium.NoSuchElementException
@@ -332,7 +332,7 @@
 
 (deftest wdr-test-find*
   (is (= "Moustache"
-         (text (find-it wdr :a))))
+         (text (find-it wdr :a {:text "Moustache"}))))
   (is (= "Moustache"
          (text (find-it wdr {:class "external"}))))
   (is (= "https://github.com/cgrand/moustache"
@@ -353,7 +353,7 @@
          (text (find-it wdr [:div {:id "content"}, :a {:href #"github"}]))))
   (is (= "home"
          (text (find-it wdr [:* {:id "footer"}, :a {}]))))
-  (is (= 7
+  (is (= 8
          (count (find-them wdr :a))))
   (is (= 3
          (count (find-them wdr {:class #"-item"}))))
@@ -388,6 +388,7 @@
          (attribute (find-it wdr :input {:type "text", :name #"last_"}) "value")))
   (is (= "Smith"
          (attribute (find-it wdr [:div {:id "content"}, :input {:name #"last_"}]) "value")))
+  (back wdr) ;; get back to home page
   (is (-> wdr
         (find-it :a)
         exists?))
@@ -398,7 +399,28 @@
   (is (nil?
        (-> wdr
            (find-it :area)
-           exists?)))           
+           exists?)))
+  (is (-> wdr 
+          (find-it :a {:text "Moustache"})
+          visible?))
+  (is (-> wdr 
+          (find-it :a {:text "Moustache"})
+          displayed?))
+  (is (-> wdr
+          (find-it :a {:text "Moustache"})
+          present?))
+  (is (not
+       (-> wdr
+           (find-it :a)
+           visible?)))
+  (is (not
+       (-> wdr 
+           (find-it :a)
+           displayed?)))
+  (is (not
+       (-> wdr
+           (find-it :a)
+           present?)))
   (is (thrown? org.openqa.selenium.NoSuchElementException
                (find-it wdr :area))))
 
