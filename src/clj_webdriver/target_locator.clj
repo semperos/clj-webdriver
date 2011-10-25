@@ -1,4 +1,4 @@
-(ns clj-webdriver.protocol.target-locator)
+(ns clj-webdriver.target-locator)
 
 (defprotocol ITargetLocator
   "Functions that deal with browser windows and frames"
