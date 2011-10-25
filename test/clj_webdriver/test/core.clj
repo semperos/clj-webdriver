@@ -78,7 +78,7 @@
 
 (deftest test-find*
   (is (= "Moustache"
-         (text (find-it b :a))))
+         (text (nth (find-them b :a) 1))))
   (is (= "Moustache"
          (text (find-it b {:class "external"}))))
   (is (= "https://github.com/cgrand/moustache"
@@ -99,7 +99,7 @@
          (text (find-it b [:div {:id "content"}, :a {:href #"github"}]))))
   (is (= "home"
          (text (find-it b [:* {:id "footer"}, :a {}]))))
-  (is (= 7
+  (is (= 8
          (count (find-them b :a))))
   (is (= 3
          (count (find-them b {:class #"-item"}))))
@@ -134,6 +134,7 @@
          (attribute (find-it b :input {:type "text", :name #"last_"}) "value")))
   (is (= "Smith"
          (attribute (find-it b [:div {:id "content"}, :input {:name #"last_"}]) "value")))
+  (back b) ;; get back to home page
   (is (-> b
         (find-it :a)
         exists?))
@@ -144,7 +145,28 @@
   (is (nil?
        (-> b
            (find-it :area)
-           exists?)))           
+           exists?)))
+  (is (-> b
+          (find-it :a {:text "Moustache"})
+          visible?))
+  (is (-> b
+          (find-it :a {:text "Moustache"})
+          displayed?))
+  (is (-> b
+          (find-it :a {:text "Moustache"})
+          present?))
+  (is (not
+       (-> b
+           (find-it :a)
+           visible?)))
+  (is (not
+       (-> b
+           (find-it :a)
+           displayed?)))
+  (is (not
+       (-> b
+           (find-it :a)
+           present?)))
   (is (thrown? org.openqa.selenium.NoSuchElementException
                (find-it b :area))))
 
