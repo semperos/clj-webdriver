@@ -205,29 +205,29 @@
   (is (= "clojurian"
          (value (find-it b :textfield {:id "first_name"})))))
 
-;; (deftest test-window-handling
-;;   (is (= 1
-;;          (count (window-handles b))))
-;;   (is (= "Ministache"
-;;          (:title (window-handle b))))
-;;   (-> b
-;;       (find-it :a {:text "is amazing!"})
-;;       click)
-;;   (is (= "Ministache"
-;;          (:title (window-handle b))))
-;;   (is (= 2
-;;          (count (window-handles b))))
-;;   (switch-to-window b (second (window-handles b)))
-;;   (is (= (str test-base-url "clojure")
-;;          (:url (window-handle b))))
-;;   (switch-to-other-window b)
-;;   (is (= test-base-url
-;;          (:url (window-handle b))))
-;;   (-> b
-;;       (switch-to-window (b (find-it b :window {:url (str test-base-url "clojure")}))))
-;;   (close b)
-;;   (is (= test-base-url
-;;          (:url (window-handle b)))))
+(deftest test-window-handling
+  (is (= 1
+         (count (window-handles b))))
+  (is (= "Ministache"
+         (:title (window-handle b))))
+  (-> b
+      (find-it :a {:text "is amazing!"})
+      click)
+  (is (= "Ministache"
+         (:title (window-handle b))))
+  (is (= 2
+         (count (window-handles b))))
+  (switch-to-window b (second (window-handles b)))
+  (is (= (str test-base-url "clojure")
+         (:url (window-handle b))))
+  (switch-to-other-window b)
+  (is (= test-base-url
+         (:url (window-handle b))))
+  (-> b
+      (switch-to-window (find-it b :window {:url (str test-base-url "clojure")})))
+  (close b)
+  (is (= test-base-url
+         (:url (window-handle b)))))
 
 ;; (deftest wait-until-should-wait-for-condition
 ;;   (is (= "Ministache" (title b)))

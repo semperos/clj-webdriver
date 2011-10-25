@@ -81,13 +81,19 @@
     driver)
 
   (switch-to-window [driver handle]
-    ([driver handle]
-       (cond
-        (string? handle) (.window (.switchTo (:webdriver driver)) handle)
-        (is-window-handle? handle) (.window (.switchTo (:driver handle)) (:handle handle))
-        (number? handle) (switch-to-window driver (nth (window-handles driver) handle))
-        (nil? handle) (throw (RuntimeException. "No window can be found"))
-        :else (.window (.switchTo (:webdriver driver)) handle))))
+    (cond
+     (string? handle)            (do
+                                   (.window (.switchTo (:webdriver driver)) handle)
+                                   driver)
+     (is-window-handle? handle)  (do
+                                   (.window (.switchTo (:driver handle)) (:handle handle))
+                                   driver)
+     (number? handle)            (do
+                                   driver(switch-to-window driver (nth (window-handles driver) handle)))
+     (nil? handle)               (throw (RuntimeException. "No window can be found"))
+     :else                       (do
+                                   (.window (.switchTo (:webdriver driver)) handle)
+                                   driver)))
 
   (switch-to-other-window [driver]
     (if (not= (count (window-handles driver)) 2)
