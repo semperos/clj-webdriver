@@ -13,7 +13,8 @@
 ;; WebDriver API.
 ;;
 (ns clj-webdriver.core
-  (:use [clj-webdriver util driver window-handle])
+  (:use [clj-webdriver util window-handle]
+        [clj-webdriver.protocols driver-basics])
   (:require [clj-webdriver.js.browserbot :as browserbot-js] :reload)
   (:import [org.openqa.selenium By WebDriver WebElement Cookie
                                 NoSuchElementException]
@@ -34,10 +35,16 @@
    :chrome ChromeDriver
    :htmlunit HtmlUnitDriver})
 
+(declare window-handles*)
+(declare window-handle*)
+(declare switch-to-window)
+
+(load "core_driver")
+
 (defn new-driver
   "Create new driver instance given a browser type. If an additional profile object or string is passed in, Firefox will be started with the given profile instead of the default."
   ([browser]
-     (.newInstance (webdriver-drivers (keyword browser))))
+     (init-driver (.newInstance (webdriver-drivers (keyword browser)))))
   ([browser profile]
      (when (not= :firefox (keyword browser))
        (throw (IllegalArgumentException. "Only Firefox supports profiles")))
@@ -56,83 +63,12 @@
                    (apply [d] (pred d))))))
 
 
-;; ## Browser Basics ##
-(defn get-url
-  "Navigate the driver to a given URL"
-  [driver url]
-  (.get driver url))
-
 (defn start
   "Shortcut to instantiate a driver, navigate to a URL, and return the driver for further use"
   [browser url]
   (let [driver (new-driver browser)]
     (get-url driver url)
     driver))
-
-(defn current-url
-  "Retrieve the URL of the current page"
-  [driver]
-  (.getCurrentUrl driver))
-
-(defn title
-  "Retrieve the title of the current page as defined in the `head` tag"
-  [driver]
-  (.getTitle driver))
-
-(defn page-source
-  "Retrieve the source code of the current page"
-  [driver]
-  (.getPageSource driver))
-
-(declare window-handles*)
-(declare window-handle*)
-(declare switch-to-window)
-(defn close
-  "Close this browser instance, switching to an active one if more than one is open"
-  [driver]
-  (let [handles (window-handles* driver)]
-    (if (> (count handles) 1) ; get back to a window that is open before proceeding
-      (let [this-handle (window-handle* driver)
-            idx (.indexOf handles this-handle)]
-        (cond
-            (zero? idx) (do ; if first window, switch to next
-                          (.close driver)
-                          (switch-to-window driver (nth handles (inc idx))))
-            :else (do ; otherwise, switch back one window
-                    (.close driver)
-                    (switch-to-window driver (nth handles (dec idx))))))
-      (.close driver))))
-
-;; TODO catch webdriver exception (not consistent)
-(defn quit
-  "Destroy this browser instance"
-  [driver]
-  (.quit driver))
-
-;; ## Navigation ##
-(defn back
-  "Go back to the previous page in \"browsing history\""
-  [driver]
-  (.back (.navigate driver))
-  driver)
-
-(defn forward
-  "Go forward to the next page in \"browsing history\"."
-  [driver]
-  (.forward (.navigate driver))
-  driver)
-
-(defn to
-  "Navigate to a particular URL. Arg `url` can be either String or java.net.URL. Equivalent to the `get` function, provided here for compatibility with WebDriver API."
-  [driver url]
-  (.to (.navigate driver) url)
-  driver)
-
-(defn refresh
-  "Refresh the current page"
-  [driver]
-  (.refresh (.navigate driver))
-  driver)
 
 ;; ## TargetLocator Interface (Windows, Frames) ##
 
