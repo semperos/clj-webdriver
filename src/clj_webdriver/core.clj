@@ -39,22 +39,34 @@
 (declare window-handles*)
 (declare window-handle*)
 
-(declare init-driver)
-(defn new-driver
-  "Create new driver instance given a browser type. If an additional profile object or string is passed in, Firefox will be started with the given profile instead of the default."
+(defn new-webdriver*
+  "Instantiate a new WebDriver instance given a browser type. If an additional profile object or string is passed in, Firefox will be started with the given profile instead of the default."
   ([browser]
-     (init-driver (.newInstance (webdriver-drivers (keyword browser)))))
+     (.newInstance (webdriver-drivers (keyword browser))))
   ([browser profile]
      (when (not= :firefox (keyword browser))
        (throw (IllegalArgumentException. "Only Firefox supports profiles")))
      (FirefoxDriver. profile)))
 
+(declare init-driver)
+(defn new-driver
+  "Create new Driver given a browser type. If an additional profile object or string is passed in, Firefox will be started with the given profile instead of the default.
+
+   This is the preferred method for starting up a browser, as it leverages clj-webdriver-specific functionality not available with vanilla WebDriver instances. You can always access the underlying WebDriver instance with the :webdriver key of your Driver record."
+  ([browser]
+     (init-driver (new-webdriver* browser)))
+  ([browser profile]
+     (init-driver (new-webdriver* browser profile))))
+
 (defn start
   "Shortcut to instantiate a driver, navigate to a URL, and return the driver for further use"
-  [browser url]
-  (let [driver (new-driver browser)]
-    (get-url driver url)
-    driver))
+  ([browser url] (start browser url false))
+  ([browser url use-java-driver?]
+     (let [driver (if use-java-driver?
+                    (new-webdriver* browser)
+                    (new-driver browser))]
+       (get-url driver url)
+       driver)))
 
 ;; Include window/frame functions not included in ITargetLocator protocol
 (load "core_window")
