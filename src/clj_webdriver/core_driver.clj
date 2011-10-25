@@ -113,6 +113,23 @@
     (let [wait (WebDriverWait. (:webdriver driver) (/ timeout 1000) interval)]
     (.until wait (proxy [ExpectedCondition] []
                    (apply [d] (pred d))))))
+
+
+  ;;; Options Interface (cookies) ;;;
+  IOptions
+
+  (add-cookie [driver cookie]
+    (.addCookie (.manage (:webdriver driver)) cookie))
+  (delete-cookie-named [driver cookie]
+    (.deleteCookieNamed (.manage (:webdriver driver)) name))
+  (delete-cookie [driver cookie]
+    (.deleteCookie (.manage (:webdriver driver)) cookie))
+  (delete-all-cookies [driver]
+    (.deleteAllCookies (.manage (:webdriver driver))))
+  (cookies [driver]
+    (into #{} (.getCookies (.manage (:webdriver driver)))))
+  (cookie-named [driver name]
+    (.getCookieNamed (.manage (:webdriver driver)) name))
   )
 
 
