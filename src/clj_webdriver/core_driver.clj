@@ -53,11 +53,13 @@
 
   ;;; Windows and Frames ;;;
   ITargetLocator
+
   (window-handle [driver]
     (init-window-handle (:webdriver driver)
                         (.getWindowHandle (:webdriver driver))
                         (title (:webdriver driver))
                         (current-url (:webdriver driver))))
+
   (window-handles [driver]
     (let [current-handle (.getWindowHandle (:webdriver driver))
           all-handles (lazy-seq (.getWindowHandles (:webdriver driver)))
@@ -69,12 +71,15 @@
                                                  (current-url b))))]
       (switch-to-window (:webdriver driver) current-handle)
       handle-records))
+
   (other-window-handles [driver]
     (remove #(= (:handle %) (:handle (window-handle (:webdriver driver))))
             (doall (window-handles (:webdriver driver)))))
+
   (switch-to-frame [driver frame]
     (.frame (.switchTo (:webdriver driver)) frame)
     (:webdriver driver))
+
   (switch-to-window [driver handle]
     ([driver handle]
        (cond
@@ -83,16 +88,32 @@
         (number? handle) (switch-to-window (:webdriver driver) (nth (window-handles (:webdriver driver)) handle))
         (nil? handle) (throw (RuntimeException. "No window can be found"))
         :else (.window (.switchTo (:webdriver driver)) handle))))
+
   (switch-to-other-window [driver]
     (if (not= (count (window-handles (:webdriver driver))) 2)
       (throw (RuntimeException.
               (str "You may only use this function when two and only two "
                    "browser windows are open.")))
       (switch-to-window (:webdriver driver) (first (other-window-handles (:webdriver driver))))))
+
   (switch-to-default [driver]
     (.defaultContent (.switchTo (:webdriver driver))))
+
   (switch-to-active [driver]
-    (.activeElement (.switchTo (:webdriver driver)))))
+    (.activeElement (.switchTo (:webdriver driver))))
+
+
+  ;;; Wait Functionality ;;;
+  IWait
+
+  (implicit-wait [driver timeout]
+    (.implicitlyWait (.. (:webdriver driver) manage timeouts) timeout TimeUnit/MILLISECONDS))
+
+  (wait-until [driver pred timeout interval]
+    (let [wait (WebDriverWait. (:webdriver driver) (/ timeout 1000) interval)]
+    (.until wait (proxy [ExpectedCondition] []
+                   (apply [d] (pred d))))))
+  )
 
 
 (defn init-driver

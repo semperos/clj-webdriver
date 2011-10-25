@@ -14,7 +14,8 @@
 ;;
 (ns clj-webdriver.core
   (:use [clj-webdriver util window-handle]
-        [clj-webdriver.protocols driver-basics target-locator])
+        [clj-webdriver.protocols driver-basics target-locator
+                                 wait])
   (:require [clj-webdriver.js.browserbot :as browserbot-js] :reload)
   (:import [org.openqa.selenium By WebDriver WebElement Cookie
                                 NoSuchElementException]
@@ -37,7 +38,6 @@
 
 (declare window-handles*)
 (declare window-handle*)
-;; (declare switch-to-window)
 
 (load "core_driver")
 
@@ -50,17 +50,17 @@
        (throw (IllegalArgumentException. "Only Firefox supports profiles")))
      (FirefoxDriver. profile)))
 
-(defn implicit-wait
-  "Specify the amount of time the `driver` should wait when searching for an element if it is not immediately present. This setting holds for the lifetime of the driver across all requests. Units in milliseconds."
-  [driver timeout]
-  (.implicitlyWait (.. driver manage timeouts) timeout TimeUnit/MILLISECONDS))
+;; (defn implicit-wait
+;;   "Specify the amount of time the `driver` should wait when searching for an element if it is not immediately present. This setting holds for the lifetime of the driver across all requests. Units in milliseconds."
+;;   [driver timeout]
+;;   (.implicitlyWait (.. driver manage timeouts) timeout TimeUnit/MILLISECONDS))
 
-(defn wait-until
-  "Set an explicit wait time `timeout` for a particular condition `pred`. Optionally set an `interval` for testing the given predicate. All units in milliseconds"
-  [driver pred & {:keys [timeout, interval] :or {timeout 5000, interval 0}}]
-  (let [wait (WebDriverWait. driver (/ timeout 1000) interval)]
-    (.until wait (proxy [ExpectedCondition] []
-                   (apply [d] (pred d))))))
+;; (defn wait-until
+;;   "Set an explicit wait time `timeout` for a particular condition `pred`. Optionally set an `interval` for testing the given predicate. All units in milliseconds"
+;;   [driver pred & {:keys [timeout, interval] :or {timeout 5000, interval 0}}]
+;;   (let [wait (WebDriverWait. driver (/ timeout 1000) interval)]
+;;     (.until wait (proxy [ExpectedCondition] []
+;;                    (apply [d] (pred d))))))
 
 
 (defn start
