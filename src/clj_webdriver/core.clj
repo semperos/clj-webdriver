@@ -13,9 +13,7 @@
 ;; WebDriver API.
 ;;
 (ns clj-webdriver.core
-  (:use [clj-webdriver util window-handle]
-        [clj-webdriver.protocol driver-basics target-locator
-                                wait options find])
+  (:use [clj-webdriver util window-handle driver target-locator wait options find])
   (:require [clj-webdriver.js.browserbot :as browserbot-js] :reload)
   (:import [org.openqa.selenium By WebDriver WebElement Cookie
                                 NoSuchElementException]

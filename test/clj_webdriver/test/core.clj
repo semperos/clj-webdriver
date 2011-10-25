@@ -1,11 +1,8 @@
 (ns clj-webdriver.test.core
   (:require [clj-webdriver.test.example-app.core :as web-app])
-  (:use [clj-webdriver.core] :reload)
-  (:use [clj-webdriver.protocol driver-basics target-locator
-                                wait options find])
-  (:use [ring.adapter.jetty :only [run-jetty]])
-  (:use [clojure.java.shell :only [sh]])
-  (:use [clojure.test])
+  (:use [clj-webdriver core driver target-locator wait options find] :reload)
+  (:use [ring.adapter.jetty :only [run-jetty]]
+        clojure.test)
   (:import [org.openqa.selenium TimeoutException]))
 
 ;; Setup
