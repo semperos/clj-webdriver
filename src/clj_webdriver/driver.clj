@@ -1,6 +1,6 @@
-(ns clj-webdriver.driver-basics)
+(ns clj-webdriver.driver)
 
-(defprotocol IDriverBasics
+(defprotocol IDriver
   "Basics of driver handling"
   (get-url [driver url] "Navigate the driver to a given URL")
   (to [driver url] "Navigate to a particular URL. Arg `url` can be either String or java.net.URL. Equivalent to the `get` function, provided here for compatibility with WebDriver API.")

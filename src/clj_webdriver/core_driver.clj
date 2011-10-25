@@ -3,7 +3,7 @@
 (defrecord Driver [webdriver cache-strategy middlewares]
 
   ;;; Basic Functions ;;;
-  IDriverBasics
+  IDriver
   (get-url [driver url]
     (.get (:webdriver driver) url)
     driver)

@@ -3,7 +3,7 @@
 (extend-type WebDriver
   
   ;;; Basic Functions ;;;
-  IDriverBasics
+  IDriver
   (get-url [driver url]
     (.get driver url)
     driver)
