@@ -60,7 +60,7 @@
 ;; Include window/frame functions not included in ITargetLocator protocol
 (load "core_window")
 
-;; ## Option Interface ##
+;; Functions dealing directly with cookie objects
 (load "core_cookie")
 
 ;; ## By* Functions ##
