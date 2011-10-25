@@ -10,10 +10,10 @@
 (defn window-handle
   "Get the only (or first) window handle, return as a WindowHandler record"
   [driver]
-  (WindowHandle. driver
-                 (.getWindowHandle driver)
-                 (title driver)
-                 (current-url driver)))
+  (init-window-handle driver
+                      (.getWindowHandle driver)
+                      (title driver)
+                      (current-url driver)))
 
 (defn window-handle*
   "For WebDriver API compatibility: this simply wraps `.getWindowHandle`"
@@ -27,10 +27,10 @@
         all-handles (lazy-seq (.getWindowHandles driver))
         handle-records (for [handle all-handles]
                          (let [b (switch-to-window driver handle)]
-                           (WindowHandle. driver
-                                          handle
-                                          (title b)
-                                          (current-url b))))]
+                           (init-window-handle driver
+                                               handle
+                                               (title b)
+                                               (current-url b))))]
     (switch-to-window driver current-handle)
     handle-records))
 
@@ -63,7 +63,7 @@
   ([driver handle]
      (cond
       (string? handle) (.window (.switchTo driver) handle)
-      (= (class handle) WindowHandle) (.window (.switchTo (:driver handle)) (:handle handle))
+      (is-window-handle? handle) (.window (.switchTo (:driver handle)) (:handle handle))
       (number? handle) (switch-to-window driver (nth (window-handles driver) handle))
       (nil? handle) (throw (RuntimeException. "No window can be found"))
       :else (.window (.switchTo driver) handle))))

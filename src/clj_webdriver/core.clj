@@ -13,10 +13,9 @@
 ;; WebDriver API.
 ;;
 (ns clj-webdriver.core
-  (:use [clj-webdriver util record])
+  (:use [clj-webdriver util driver window-handle])
   (:require [clj-webdriver.js.browserbot :as browserbot-js] :reload)
-  (:import [clj_webdriver WindowHandle]
-           [org.openqa.selenium By WebDriver WebElement Cookie
+  (:import [org.openqa.selenium By WebDriver WebElement Cookie
                                 NoSuchElementException]
            [org.openqa.selenium.firefox FirefoxDriver]
            [org.openqa.selenium.ie InternetExplorerDriver]
