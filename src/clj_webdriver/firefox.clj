@@ -2,6 +2,16 @@
   (:require [clojure.java.io :as io])
   (:import org.openqa.selenium.firefox.FirefoxProfile))
 
+(defn new-firefox-driver
+  ([browser]
+     (init-driver (new-webdriver* browser)))
+  ([browser profile]
+     (init-driver (new-webdriver* browser profile)))
+  ([browser profile caching-strategy]
+     (init-driver (new-webdriver* browser profile) caching-strategy))
+  ([browser profile caching-strategy cache-args]
+     (init-driver (new-webdriver* browser profile) caching-strategy cache-args)))
+
 (defn new-profile
   "Create an instance of `FirefoxProfile`"
   []

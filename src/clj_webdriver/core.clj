@@ -14,7 +14,8 @@
 ;;
 (ns clj-webdriver.core
   (:use [clj-webdriver util window-handle driver target-locator wait options find])
-  (:require [clj-webdriver.js.browserbot :as browserbot-js] :reload)
+  (:require [clj-webdriver.js.browserbot :as browserbot-js]
+            [fogus.clache :as cache])
   (:import [org.openqa.selenium By WebDriver WebElement Cookie
                                 NoSuchElementException]
            [org.openqa.selenium.firefox FirefoxDriver]
@@ -53,8 +54,10 @@
    This is the preferred method for starting up a browser, as it leverages clj-webdriver-specific functionality not available with vanilla WebDriver instances. You can always access the underlying WebDriver instance with the :webdriver key of your Driver record."
   ([browser]
      (init-driver (new-webdriver* browser)))
-  ([browser profile]
-     (init-driver (new-webdriver* browser profile))))
+  ([browser cache-strategy]
+     (init-driver (new-webdriver* browser) cache-strategy))
+  ([browser cache-strategy cache-args]
+     (init-driver (new-webdriver* browser) cache-strategy cache-args)))
 
 (defn start
   "Shortcut to instantiate a driver, navigate to a URL, and return the driver for further use"
