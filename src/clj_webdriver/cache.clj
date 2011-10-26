@@ -45,12 +45,14 @@
 (defprotocol IElementCache
   "Cache for WebElement objects over the lifetime of a Driver on a given page"
   (cache-enabled? [driver] "Determine if caching is enabled for this record")
-;  (cacheable? [driver query] "Based on the driver's cache rules, determine if the given query is allowed to be cached")
+  (cacheable? [driver query] "Based on the driver's cache rules, determine if the given query is allowed to be cached")
   (in-cache? [driver query] "Check if cache contains an element")
   (insert [driver query value] "Insert a value into the cache")
   (retrieve [driver query] "Retrieve an element from the cache")
   (delete [driver query] "Delete the cached value at `query`")
-  (clear [driver] "Delete all contents of the cache"))
+  (seed
+    [driver]
+    [driver seed-value] "Replace all contents of cache with `seed-value`"))
 
 (extend-type Driver
 
@@ -65,5 +67,10 @@
     (get @(:element-cache driver) query))
   (delete [driver query]
     (swap! (:element-cache driver) dissoc query))
-  (clear [driver]
-    (reset! (:element-cache driver) {})))
+  (seed
+    ([driver]
+       (reset! (:element-cache driver) {}))
+    ([driver seed-value]
+       (reset! (:element-cache driver) seed-value)))
+  (cacheable? [driver query]
+    (= query :a)))

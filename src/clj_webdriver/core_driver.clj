@@ -312,8 +312,16 @@
                      (page-source driver))))
         elts)))
   (find-it [driver attr-val]
-;    (if (and (cache-enabled? driver) (in-cache? driver attr-val)))
-    (first (find-them driver attr-val)))
+    (first (find-them driver attr-val))
+    ;; (if (and (cache/cache-enabled? driver) (cache/in-cache? driver attr-val))
+    ;;   (cache/retrieve driver attr-val)
+    ;;   (let [el (first (find-them driver attr-val))]
+    ;;     (if (or (cache/cacheable? driver attr-val) (cache/cacheable? driver el))
+    ;;       (do
+    ;;         (cache/insert driver attr-val el)
+    ;;         el)
+    ;;       el)))
+    )
   (find-it [driver tag attr-val]
     (first (find-them driver tag attr-val))))
 
@@ -322,14 +330,14 @@
   "Initialize cache based on given strategy"
   ([cache-strategy]
      {:pre [(or (nil? cache-strategy) (= cache-strategy :basic))]}
-     (atom (cache/->BasicCache {})))
+     (atom (clache/->BasicCache {})))
   ([cache-strategy cache-args]
-     (let [strategy-legend {:basic cache/->BasicCache,
-                            :fifo cache/->FIFOCache,
-                            :lru cache/->LRUCache,
-                            :lirs cache/->LIRSCache,
-                            :ttl cache/->TTLCache,
-                            :lu cache/->LUCache}]
+     (let [strategy-legend {:basic clache/->BasicCache,
+                            :fifo clache/->FIFOCache,
+                            :lru clache/->LRUCache,
+                            :lirs clache/->LIRSCache,
+                            :ttl clache/->TTLCache,
+                            :lu clache/->LUCache}]
        (atom (apply
               (get strategy-legend cache-strategy)
               (into [{}] cache-args))))))

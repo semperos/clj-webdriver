@@ -13,9 +13,9 @@
 ;; WebDriver API.
 ;;
 (ns clj-webdriver.core
-  (:use [clj-webdriver util window-handle driver target-locator wait options find])
+  (:use [clj-webdriver util window-handle driver target-locator wait options find cache])
   (:require [clj-webdriver.js.browserbot :as browserbot-js]
-            [fogus.clache :as cache])
+            [fogus.clache :as clache])
   (:import [org.openqa.selenium By WebDriver WebElement Cookie
                                 NoSuchElementException]
            [org.openqa.selenium.firefox FirefoxDriver]
