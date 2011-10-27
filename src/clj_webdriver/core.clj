@@ -22,10 +22,9 @@
            [org.openqa.selenium.ie InternetExplorerDriver]
            [org.openqa.selenium.chrome ChromeDriver]
            [org.openqa.selenium.htmlunit HtmlUnitDriver]
-           [org.openqa.selenium.support.ui Select WebDriverWait ExpectedCondition]
+           [org.openqa.selenium.support.ui Select]
            [java.util Date]
-           [java.io File]
-           [java.util.concurrent TimeUnit]))
+           [java.io File]))
 
 
 ;; ## Driver Management ##
