@@ -69,11 +69,53 @@
        (get-url driver url)
        driver)))
 
-;; Include window/frame functions not included in ITargetLocator protocol
-(load "core_window")
+;; We've defined our own record type WindowHandler because
+;; the String id which WebDriver returns by default to identify
+;; a window is not particularly helpful
+;;
+;; The equivalent starred functions below wrap the WebDriver methods
+;; directly, without using a cusotm record.
+;; (declare switch-to-window)
+;; (defn window-handle
+;;   "Get the only (or first) window handle, return as a WindowHandler record"
+;;   [driver]
+;;   (init-window-handle driver
+;;                       (.getWindowHandle driver)
+;;                       (title driver)
+;;                       (current-url driver)))
+
+(defn window-handle*
+  "For WebDriver API compatibility: this simply wraps `.getWindowHandle`"
+  [driver]
+  (.getWindowHandle driver))
+
+(defn window-handles*
+  "For WebDriver API compatibility: this simply wraps `.getWindowHandles`"
+  [driver]
+  (lazy-seq (.getWindowHandles driver)))
+
+(defn other-window-handles*
+  "For consistency with other window handling functions, this starred version just returns the string-based ID's that WebDriver produces"
+  [driver]
+  (remove #(= % (window-handle* driver))
+          (doall (window-handles* driver))))
 
 ;; Functions dealing directly with cookie objects
-(load "core_cookie")
+(defn new-cookie
+  "Create a new cookie instance"
+  ([name value] (new-cookie name value "/" nil))
+  ([name value path] (new-cookie name value path nil))
+  ([name value path date] (new Cookie name value path date)))
+
+(defn cookie-name
+  "Retrieve the name of a particular cookie"
+  [cookie]
+  (.getName cookie))
+
+(defn cookie-value
+  "Retrieve the value of a particular cookie"
+  [cookie]
+  (.getValue cookie))
 
 ;; ## By* Functions ##
 
@@ -260,9 +302,27 @@
 
 ;; ## Element-finding Utilities ##
 
-;; Helper functions kept in separate file yet in same namespace
-;; because of interdependence on `find-them` function
-(load "core_find")
+;; Helper function to find-*
+(defn filter-elements-by-regex
+  "Given a collection of WebElements, filter the collection by the regular expression values for the respective attributes in the `attr-val` map"
+  [elements attr-val]
+  (let [attr-vals-with-regex (into {}
+                                   (filter
+                                    #(let [[k v] %] (= java.util.regex.Pattern (class v)))
+                                    attr-val))]
+    (loop [elements elements attr-vals-with-regex attr-vals-with-regex]
+      (if (empty? attr-vals-with-regex)
+        elements
+        (let [entry (first attr-vals-with-regex)
+              attr (key entry)
+              value (val entry)
+              matching-elements (if (= :text attr)
+                                  (filter #(re-find value (text %)) elements)
+                                  (filter (fn [el]
+                                            ((fnil (partial re-find value) "")
+                                             (attribute el (name attr))))
+                                          elements))]
+          (recur matching-elements (dissoc attr-vals-with-regex attr)))))))
 
 ;; API with clj-webdriver's Driver implementation
 (load "core_driver")
