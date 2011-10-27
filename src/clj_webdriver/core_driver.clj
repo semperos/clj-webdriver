@@ -51,9 +51,8 @@
     driver)
 
 
-  ;;; Windows and Frames ;;;
+  ;;; Window and Frame Handling ;;;
   ITargetLocator
-
   (window-handle [driver]
     (init-window-handle (:webdriver driver)
                         (.getWindowHandle (:webdriver driver))
@@ -109,27 +108,8 @@
     (.activeElement (.switchTo (:webdriver driver))))
 
 
-  ;;; Wait Functionality ;;;
-  IWait
-
-  (implicit-wait [driver timeout]
-    (.implicitlyWait (.. (:webdriver driver) manage timeouts) timeout TimeUnit/MILLISECONDS)
-    driver)
-
-  (wait-until [driver pred]
-    (wait-until driver pred 5000 0))
-  (wait-until [driver pred timeout]
-    (wait-until driver pred timeout 0))
-  (wait-until [driver pred timeout interval]
-    (let [wait (WebDriverWait. (:webdriver driver) (/ timeout 1000) interval)]
-      (.until wait (proxy [ExpectedCondition] []
-                     (apply [d] (pred d))))
-      driver))
-
-
   ;;; Options Interface (cookies) ;;;
   IOptions
-
   (add-cookie [driver cookie]
     (.addCookie (.manage (:webdriver driver)) cookie))
   (delete-cookie-named [driver cookie]
@@ -146,7 +126,6 @@
 
   ;;; Find Functions ;;;
   IFind
-
   (find-element [driver by]
     (.findElement (:webdriver driver) by))
   

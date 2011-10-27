@@ -13,7 +13,7 @@
 ;; WebDriver API.
 ;;
 (ns clj-webdriver.core
-  (:use [clj-webdriver util window-handle target-locator wait options cache])
+  (:use [clj-webdriver util window-handle options])
   (:require [clj-webdriver.js.browserbot :as browserbot-js]
             [fogus.clache :as clache])
   (:import [org.openqa.selenium By WebDriver WebElement Cookie
@@ -35,6 +35,7 @@
    :chrome ChromeDriver
    :htmlunit HtmlUnitDriver})
 
+;; TODO: Use precondition instead of throwing an exception
 (defn new-webdriver*
   "Instantiate a new WebDriver instance given a browser type. If an additional profile object or string is passed in, Firefox will be started with the given profile instead of the default."
   ([browser]
@@ -56,16 +57,6 @@
   ([browser cache-strategy cache-args]
      (init-driver (new-webdriver* browser) cache-strategy cache-args)))
 
-(defn start
-  "Shortcut to instantiate a driver, navigate to a URL, and return the driver for further use"
-  ([browser url] (start browser url :driver))
-  ([browser url driver-type]
-     (let [driver (if (= :webdriver driver-type)
-                    (new-webdriver* browser)
-                    (new-driver browser))]
-       (get-url driver url)
-       driver)))
-
 ;;; Protocols for API ;;;
 (defprotocol IDriver
   "Basics of driver handling"
@@ -79,6 +70,18 @@
   (back [driver] "Go back to the previous page in \"browsing history\"")
   (forward [driver] "Go forward to the next page in \"browsing history\".")
   (refresh [driver] "Refresh the current page"))
+
+;;; ## Windows and Frames ##
+(defprotocol ITargetLocator
+  "Functions that deal with browser windows and frames"
+  (window-handle [driver] "Get the only (or first) window handle, return as a WindowHandler record")
+  (window-handles [driver] "Retrieve a vector of `WindowHandle` records which can be used to switchTo particular open windows")
+  (other-window-handles [driver] "Retrieve window handles for all windows except the current one")
+  (switch-to-frame [driver frame] "Switch focus to a particular HTML frame")
+  (switch-to-window [driver handle] "Switch focus to a particular open window")
+  (switch-to-other-window [driver] "Given that two and only two browser windows are open, switch to the one not currently active")
+  (switch-to-default [driver] "Switch focus to the first first frame of the page, or the main document if the page contains iframes")
+  (switch-to-active [driver] "Switch to element that currently has focus, or to the body if this cannot be detected"))
 
 (defprotocol IFind
   "Functions used to locate elements on a given page"
@@ -100,6 +103,16 @@
   (find-it
     [driver attr-val]
     [driver tag attr-val] "Call (first (find-them args))"))
+
+(defn start
+  "Shortcut to instantiate a driver, navigate to a URL, and return the driver for further use"
+  ([browser url] (start browser url :driver))
+  ([browser url driver-type]
+     (let [driver (if (= :webdriver driver-type)
+                    (new-webdriver* browser)
+                    (new-driver browser))]
+       (get-url driver url)
+       driver)))
 
 
 ;; We've defined our own record type WindowHandler because
@@ -133,25 +146,7 @@
   (remove #(= % (window-handle* driver))
           (doall (window-handles* driver))))
 
-;; Functions dealing directly with cookie objects
-(defn new-cookie
-  "Create a new cookie instance"
-  ([name value] (new-cookie name value "/" nil))
-  ([name value path] (new-cookie name value path nil))
-  ([name value path date] (new Cookie name value path date)))
-
-(defn cookie-name
-  "Retrieve the name of a particular cookie"
-  [cookie]
-  (.getName cookie))
-
-(defn cookie-value
-  "Retrieve the value of a particular cookie"
-  [cookie]
-  (.getValue cookie))
-
 ;; ## By* Functions ##
-
 (load "core_by")
 
 ;; ##  Actions on WebElements ##
@@ -327,13 +322,8 @@
   (.executeScript driver js (to-array js-args))
   driver)
 
-;; TODO: Script Timeout (wait functionality)
-
 ;; ## Select Helpers ##
-
 (load "core_select")
-
-;; ## Element-finding Utilities ##
 
 ;; Helper function to find-*
 (defn filter-elements-by-regex
@@ -361,3 +351,4 @@
 (load "core_driver")
 ;; API with Selenium-WebDriver's WebDriver class
 (load "core_webdriver")
+
