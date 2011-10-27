@@ -13,7 +13,7 @@
 ;; WebDriver API.
 ;;
 (ns clj-webdriver.core
-  (:use [clj-webdriver util window-handle driver target-locator wait options find cache])
+  (:use [clj-webdriver util window-handle target-locator wait options cache])
   (:require [clj-webdriver.js.browserbot :as browserbot-js]
             [fogus.clache :as clache])
   (:import [org.openqa.selenium By WebDriver WebElement Cookie
@@ -34,9 +34,6 @@
    :ie InternetExplorerDriver
    :chrome ChromeDriver
    :htmlunit HtmlUnitDriver})
-
-(declare window-handles*)
-(declare window-handle*)
 
 (defn new-webdriver*
   "Instantiate a new WebDriver instance given a browser type. If an additional profile object or string is passed in, Firefox will be started with the given profile instead of the default."
@@ -68,6 +65,42 @@
                     (new-driver browser))]
        (get-url driver url)
        driver)))
+
+;;; Protocols for API ;;;
+(defprotocol IDriver
+  "Basics of driver handling"
+  (get-url [driver url] "Navigate the driver to a given URL")
+  (to [driver url] "Navigate to a particular URL. Arg `url` can be either String or java.net.URL. Equivalent to the `get` function, provided here for compatibility with WebDriver API.")
+  (current-url [driver] "Retrieve the URL of the current page")
+  (title [driver] "Retrieve the title of the current page as defined in the `head` tag")
+  (page-source [driver] "Retrieve the source code of the current page")
+  (close [driver] "Close this browser instance, switching to an active one if more than one is open")
+  (quit [driver] "Destroy this browser instance")
+  (back [driver] "Go back to the previous page in \"browsing history\"")
+  (forward [driver] "Go forward to the next page in \"browsing history\".")
+  (refresh [driver] "Refresh the current page"))
+
+(defprotocol IFind
+  "Functions used to locate elements on a given page"
+  (find-element [driver by] "Retrieve the element object of an element described by `by`")
+  (find-elements [driver by] "Retrieve a seq of element objects described by `by`")
+  (find-elements-by-regex-alone [driver tag attr-val] "Given an `attr-val` pair with a regex value, find the elements that match")
+  (find-elements-by-regex [driver tag attr-val])
+  (find-window-handles [driver attr-val] "Given a browser `driver` and a map of attributes, return the WindowHandle that matches")
+  (find-semantic-buttons [driver attr-val] "Find HTML element that is either a `<button>` or an `<input>` of type submit, reset, image or button")
+  (find-semantic-buttons-by-regex [driver attr-val] "Semantic buttons are things that look or behave like buttons but do not necessarily consist of a `<button>` tag")
+  (find-checkables-by-text [driver attr-val] "Finding the 'text' of a radio or checkbox is complex. Handle it here.")
+  (find-table-cells [driver attr-val] "Given a WebDriver `driver` and a vector `attr-val`, find the correct")
+  (find-them*
+    [driver attr-val]
+    [driver tag attr-val] "Given a browser `driver`, return the elements that match the query")
+  (find-them
+    [driver attr-val]
+    [driver tag attr-val] "Call find-them*, then make sure elements are actually returned; if not, throw NoSuchElementException so other code can handle exceptions appropriately")
+  (find-it
+    [driver attr-val]
+    [driver tag attr-val] "Call (first (find-them args))"))
+
 
 ;; We've defined our own record type WindowHandler because
 ;; the String id which WebDriver returns by default to identify
