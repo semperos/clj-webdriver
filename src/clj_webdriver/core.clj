@@ -51,10 +51,10 @@
    This is the preferred method for starting up a browser, as it leverages clj-webdriver-specific functionality not available with vanilla WebDriver instances. You can always access the underlying WebDriver instance with the :webdriver key of your Driver record."
   ([browser]
      (init-driver (new-webdriver* browser)))
-  ([browser cache-specs]
-     (init-driver (new-webdriver* browser) cache-specs))
-  ([browser cache-specs cache-args]
-     (init-driver (new-webdriver* browser) cache-specs cache-args)))
+  ([browser cache-spec]
+     (init-driver (new-webdriver* browser) cache-spec))
+  ([browser cache-spec cache-args]
+     (init-driver (new-webdriver* browser) cache-spec cache-args)))
 
 ;;; Protocols for API ;;;
 (defprotocol IDriver

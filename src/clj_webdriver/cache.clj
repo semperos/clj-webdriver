@@ -27,16 +27,20 @@
 ;;
 ;; Cache rules can be based on element-level attributes or based on the query
 ;; used to acquire the element. The cache rules are defined as a vector of functions
-;; (for element-based rules) or maps (for query-based rules)
+;; (for element-based rules) or maps (for query-based rules). Here are two examples:
 ;;
 ;;     {:include [ (fn [element] (= (attribute element class) "foo"))
-;;                 {:css "ul.menu a"} ],
-;;      :exclude [ {:query [:div {:id "content"}, :a {:class "external"}]} ]}
+;;                 {:css "ul.menu a"} ]}
 ;;
+;;     {:exclude [ {:query [:div {:id "content"}, :a {:class "external"}]} ]}
+;;
+;; You may either choose a whitelisting approach (`:include`) or a blacklisting approach
+;; (`:exclude`), but not both.
+;; 
 ;; For the sake of API sanity, if you create a cache rule based on css, xpath,
 ;; or ancestry-based queries, the match must be exact (whitespace excluded).
 ;; Cache rules are evaluated in order, so put most-frequently-used cache rules
-;; at the beginning of the vector. Includes are evaluated before excludes.
+;; at the beginning of the vector.
 ;;
 
 (ns clj-webdriver.cache
@@ -58,7 +62,7 @@
 
   IElementCache
   (cache-enabled? [driver]
-    (boolean (get-in driver [:cache-specs :strategy])))
+    (boolean (get-in driver [:cache-spec :strategy])))
   (in-cache? [driver query]
     (contains? @(:element-cache driver) query))
   (insert [driver query value]
@@ -73,4 +77,28 @@
     ([driver seed-value]
        (reset! (:element-cache driver) seed-value)))
   (cacheable? [driver query]
-    (let [rules (dissoc (:cache-specs driver) :args)])))
+    (if (contains? (:cache-spec driver) :exclude)
+      ;; handle excludes
+      (let [excludes (get-in driver [:cache-spec :exclude])]
+        (if (map? query)
+          ;; xpath, css or ancestry
+          (let [excludes (remove #(fn? %) excludes)]
+            (case (first (keys query))
+              :xpath (not (some #(= (:xpath query) (:xpath %)) excludes))
+              :css   (not (some #(= (:css query) (:css %)) excludes))
+              :query (not (some #(= (:query query) (:query %)) excludes))))
+          ;; WebElement
+          (let [excludes (remove #(map? %) excludes)]
+            (not (some #{true} (map (fn [f] (f query)) excludes))))))
+      ;; handle includes
+      (let [includes (get-in driver [:cache-spec :include])]
+        (if (map? query)
+        ;; xpath, css or ancestry
+        (let [includes (remove #(fn? %) includes)]
+          (case (first (keys query))
+            :xpath (some #(= (:xpath query) (:xpath %)) includes)
+            :css   (some #(= (:css query) (:css %)) includes)
+            :query (some #(= (:query query) (:query %)) includes)))
+        ;; WebElement
+        (let [includes (remove #(map? %) includes)]
+          (some #{true} (map (fn [f] (f query)) includes))))))))
