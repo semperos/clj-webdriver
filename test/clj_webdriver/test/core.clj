@@ -38,7 +38,7 @@
 
 ;; Tests
 (deftest test-browser-basics
-  (is (= clj_webdriver.core.Driver (class dr)))
+  (is (= clj_webdriver.driver.Driver (class dr)))
   (is (= test-base-url (current-url dr)))
   (is (= "Ministache" (title dr)))
   (is (boolean (re-find #"(?i)<!DOCTYPE html>" (page-source dr)))))
@@ -284,6 +284,8 @@
   (-> dr
       (find-it :a {:text "Moustache"})
       flash))
+
+;; Caching
 
 
 ;;; Raw Java WebDriver

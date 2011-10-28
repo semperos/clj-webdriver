@@ -6,7 +6,7 @@
 (ns clj-webdriver.form-helpers
   (:use [clj-webdriver.core :only [input-text]]
         [clj-webdriver find])
-  (:import clj_webdriver.core.Driver))
+  (:import clj_webdriver.driver.Driver))
 
 (defn- quick-fill*
   [driver entries k v submit?]

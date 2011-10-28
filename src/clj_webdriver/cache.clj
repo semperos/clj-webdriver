@@ -44,7 +44,7 @@
 ;;
 
 (ns clj-webdriver.cache
-  (:import clj_webdriver.core.Driver))
+  (:import clj_webdriver.driver.Driver))
 
 (defprotocol IElementCache
   "Cache for WebElement objects over the lifetime of a Driver on a given page"

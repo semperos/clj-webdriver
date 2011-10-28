@@ -13,10 +13,11 @@
 ;; WebDriver API.
 ;;
 (ns clj-webdriver.core
-  (:use [clj-webdriver util window-handle options])
+  (:use [clj-webdriver driver util window-handle options])
   (:require [clj-webdriver.js.browserbot :as browserbot-js]
-            [fogus.clache :as clache])
-  (:import [org.openqa.selenium By WebDriver WebElement Cookie
+            [clj-webdriver.cache :as cache])
+  (:import [clj_webdriver.driver Driver]
+           [org.openqa.selenium By WebDriver WebElement Cookie
                                 NoSuchElementException]
            [org.openqa.selenium.firefox FirefoxDriver]
            [org.openqa.selenium.ie InternetExplorerDriver]
@@ -44,7 +45,6 @@
        (throw (IllegalArgumentException. "Only Firefox supports profiles")))
      (FirefoxDriver. profile)))
 
-(declare init-driver)
 (defn new-driver
   "Create new Driver given a browser type. If an additional profile object or string is passed in, Firefox will be started with the given profile instead of the default.
 
