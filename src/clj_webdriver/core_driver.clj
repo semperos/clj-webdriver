@@ -295,15 +295,23 @@
 
   (find-it
     ([driver attr-val]
-           (first (find-them driver attr-val))
-    ;; (if (and (cache/cache-enabled? driver) (cache/in-cache? driver attr-val))
-    ;;   (cache/retrieve driver attr-val)
-    ;;   (let [el (first (find-them driver attr-val))]
-    ;;     (if (or (cache/cacheable? driver attr-val) (cache/cacheable? driver el))
-    ;;       (do
-    ;;         (cache/insert driver attr-val el)
-    ;;         el)
-    ;;       el)))
-    )
+        (if (and (cache/cache-enabled? driver) (cache/in-cache? driver attr-val))
+         (do
+           (println "Retrieved from cache.")
+           (cache/retrieve driver attr-val))
+         (let [el (first (find-them driver attr-val))]
+           (if (or (cache/cacheable? driver attr-val) (cache/cacheable? driver el))
+             (do
+               (println "Saving to cache")
+               (cache/insert driver attr-val el)
+               el)
+             el))))
     ([driver tag attr-val]
-       (first (find-them driver tag attr-val)))))
+       (if (and (cache/cache-enabled? driver) (cache/in-cache? driver attr-val))
+         (cache/retrieve driver attr-val)
+         (let [el (first (find-them driver tag attr-val))]
+           (if (or (cache/cacheable? driver attr-val) (cache/cacheable? driver el))
+             (do
+               (cache/insert driver attr-val el)
+               el)
+             el))))))

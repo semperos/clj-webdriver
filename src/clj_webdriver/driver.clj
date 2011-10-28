@@ -6,8 +6,6 @@
 (defn- init-cache
   "Initialize cache based on given strategy"
   ([cache-spec]
-     {:pre [(when (nil? (:args cache-spec))
-              (= (:strategy cache-spec) :basic))]}
      (let [strategy-legend {:basic clache/->BasicCache,
                             :fifo clache/->FIFOCache,
                             :lru clache/->LRUCache,
@@ -26,7 +24,7 @@
   ([] (Driver. nil nil nil nil))
   ([webdriver] (Driver. webdriver nil nil nil))
   ([webdriver cache-spec]
-     (Driver. webdriver cache-spec nil nil))
+     (Driver. webdriver cache-spec (init-cache cache-spec) nil))
   ([webdriver cache-spec element-cache]
      (Driver. webdriver cache-spec element-cache nil))
   ([webdriver cache-spec element-cache middlewares]

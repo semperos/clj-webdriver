@@ -98,7 +98,8 @@
           (case (first (keys query))
             :xpath (some #(= (:xpath query) (:xpath %)) includes)
             :css   (some #(= (:css query) (:css %)) includes)
-            :query (some #(= (:query query) (:query %)) includes)))
+            :query (some #(= (:query query) (:query %)) includes)
+            false))
         ;; WebElement
         (let [includes (remove #(map? %) includes)]
           (some #{true} (map (fn [f] (f query)) includes))))))))
