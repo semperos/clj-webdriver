@@ -26,10 +26,10 @@
 ;;  * Once element is found, does this element conform to a cache rule? If so, cache it.
 ;;
 ;; Cache rules can be based on element-level attributes or based on the query
-;; used to acquire the element. The cache rules are defined as a vector of maps,
-;; with this structure:
+;; used to acquire the element. The cache rules are defined as a vector of functions
+;; (for element-based rules) or maps (for query-based rules)
 ;;
-;;     {:include [ {:class "foo"}
+;;     {:include [ (fn [element] (= (attribute element class) "foo"))
 ;;                 {:css "ul.menu a"} ],
 ;;      :exclude [ {:query [:div {:id "content"}, :a {:class "external"}]} ]}
 ;;
@@ -37,7 +37,7 @@
 ;; or ancestry-based queries, the match must be exact (whitespace excluded).
 ;; Cache rules are evaluated in order, so put most-frequently-used cache rules
 ;; at the beginning of the vector. Includes are evaluated before excludes.
-;; 
+;;
 
 (ns clj-webdriver.cache
   (:import clj_webdriver.core.Driver))
@@ -58,7 +58,7 @@
 
   IElementCache
   (cache-enabled? [driver]
-    (boolean (:cache-strategy driver)))
+    (boolean (get-in driver [:cache-specs :strategy])))
   (in-cache? [driver query]
     (contains? @(:element-cache driver) query))
   (insert [driver query value]
@@ -73,4 +73,4 @@
     ([driver seed-value]
        (reset! (:element-cache driver) seed-value)))
   (cacheable? [driver query]
-    (= query :a)))
+    (let [rules (dissoc (:cache-specs driver) :args)])))

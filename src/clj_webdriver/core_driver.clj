@@ -1,6 +1,6 @@
 (in-ns 'clj-webdriver.core)
 
-(defrecord Driver [webdriver cache-strategy cache-args element-cache middlewares]
+(defrecord Driver [webdriver cache-specs element-cache middlewares]
 
   ;;; Basic Functions ;;;
   IDriver
@@ -307,10 +307,9 @@
 
 (defn- init-cache
   "Initialize cache based on given strategy"
-  ([cache-strategy]
-     {:pre [(or (nil? cache-strategy) (= cache-strategy :basic))]}
-     (atom (clache/->BasicCache {})))
-  ([cache-strategy cache-args]
+  ([cache-specs]
+     {:pre [(when (nil? (:args cache-specs))
+              (= (:strategy cache-specs) :basic))]}
      (let [strategy-legend {:basic clache/->BasicCache,
                             :fifo clache/->FIFOCache,
                             :lru clache/->LRUCache,
@@ -318,26 +317,22 @@
                             :ttl clache/->TTLCache,
                             :lu clache/->LUCache}]
        (atom (apply
-              (get strategy-legend cache-strategy)
-              (into [{}] cache-args))))))
+              (get strategy-legend (:strategy cache-specs))
+              (into [{}] (:args cache-specs)))))))
 
 (defn init-driver
   "Constructor for Driver records.
 
    webdriver - WebDriver instance
-   cache-strategy - Keyword, one of: `:basic`, `:fifo`, `:lru`, `:lirs`, `:ttl`, `:lu`
-   cache-args - Map, with keys `:args` for arguments to the respective clache function (excluding the initial arg for the cache itself, which is captured in the record's :element-cache key), `:include` for rules to include elements in the cache, `:exclude` for rules to exclude elements from the cache
-   element-cache"
-  ([] (Driver. nil nil nil nil nil))
-  ([webdriver] (Driver. webdriver nil nil nil nil))
-  ([webdriver cache-strategy]
-     (Driver. webdriver cache-strategy nil (init-cache cache-strategy) nil))
-  ([webdriver cache-strategy cache-args]
-     (Driver. webdriver cache-strategy cache-args (init-cache cache-strategy cache-args) nil))
-  ([webdriver cache-strategy cache-args element-cache]
-     (Driver. webdriver cache-strategy cache-args element-cache nil))
-  ([webdriver cache-strategy cache-args element-cache middlewares]
-     (Driver. webdriver cache-strategy cache-args element-cache middlewares)))
+   cache-specs - map with keys :strategy, :args, :include and :exclude"
+  ([] (Driver. nil nil nil nil))
+  ([webdriver] (Driver. webdriver nil nil nil))
+  ([webdriver cache-specs]
+     (Driver. webdriver cache-specs nil nil))
+  ([webdriver cache-specs element-cache]
+     (Driver. webdriver cache-specs element-cache nil))
+  ([webdriver cache-specs element-cache middlewares]
+     (Driver. webdriver cache-specs element-cache middlewares)))
 
 (defn is-driver?
   "Function to check class of a Driver, to prevent needing to import it"
