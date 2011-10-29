@@ -46,11 +46,20 @@
 (ns clj-webdriver.cache
   (:import clj_webdriver.driver.Driver))
 
+;; Possible values are `:keep`, `:check`, `:flush`
+(def status (atom :keep))
+
+;; Functions we need, but don't want circular deps in namespaces
+(defn- current-url [driver]
+    (.getCurrentUrl (:webdriver driver)))
+
 (defprotocol IElementCache
   "Cache for WebElement objects over the lifetime of a Driver on a given page"
   (cache-enabled? [driver] "Determine if caching is enabled for this record")
   (cacheable? [driver query] "Based on the driver's cache rules, determine if the given query is allowed to be cached")
   (in-cache? [driver query] "Check if cache contains an element")
+  (cache-url [driver] "Retrieve the URL all elements are currently being cached for")
+  (set-cache-url [driver url] "Set a new URL under which all elements will be cached")
   (insert [driver query value] "Insert a value into the cache")
   (retrieve [driver query] "Retrieve an element from the cache")
   (delete [driver query] "Delete the cached value at `query`")
@@ -69,11 +78,15 @@
     (swap! (:element-cache driver) assoc query value))
   (retrieve [driver query]
     (get @(:element-cache driver) query))
+  (cache-url [driver]
+    (get @(:element-cache driver) :url))
+  (set-cache-url [driver url]
+    (swap! (:element-cache driver) assoc :url url))
   (delete [driver query]
     (swap! (:element-cache driver) dissoc query))
   (seed
     ([driver]
-       (reset! (:element-cache driver) {}))
+       (reset! (:element-cache driver) {:url (current-url driver)}))
     ([driver seed-value]
        (reset! (:element-cache driver) seed-value)))
   (cacheable? [driver query]
@@ -103,3 +116,26 @@
         ;; WebElement
         (let [includes (remove #(map? %) includes)]
           (some #{true} (map (fn [f] (f query)) includes))))))))
+
+(defn set-status
+  "Change the current cache status"
+  [st]
+  {:pre [(or (= st :keep)
+             (= st :check)
+             (= st :flush))]}
+  (reset! status st)
+  st)
+
+(defn check-status
+  "Check cache status, delete if needed"
+  [driver]
+  (case @status
+    :flush (do
+             (seed driver)
+             (set-status :keep))
+    :check (if-not (= (current-url driver) (cache-url driver))
+                      (do
+                        (seed driver)
+                        (set-status :keep))
+                      (set-status :keep))
+    (set-status :keep)))

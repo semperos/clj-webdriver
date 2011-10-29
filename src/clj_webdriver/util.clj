@@ -1,6 +1,9 @@
 (ns clj-webdriver.util
-  (:require [clojure.string :as str])
-  (:import [org.openqa.selenium WebDriver WebElement]))
+  (:require [clojure.string :as str]
+            [clj-webdriver.cache :as cache])
+  (:import clj_webdriver.driver.Driver
+           [org.openqa.selenium WebDriver WebElement]
+           java.io.Writer))
 
 (defn build-xpath-attrs
   "Given a map of attribute-value pairs, build the bracketed portion of an XPath query that follows the tag"
@@ -84,6 +87,75 @@
   [obj & body]
   `(when (not (or (nil? ~obj) (empty? ~obj)))
      ~@body))
+
+;; #clj_webdriver.driver.Driver{:webdriver #<Title: Ministache, URL: http://localhost:5744/, Browser: firefox, Version: 7.0.1, JS Enabled: true, Native Events Enabled: false, Object: org.openqa.selenium.firefox.FirefoxDriver@576a13d5>, :cache-spec {:strategy :basic, :args [], :include [#<core$fn__3522 clj_webdriver.core$fn__3522@42e87d99>]}, :element-cache #<Atom@4005f23d: {}>, :middlewares nil}
+
+;; from Clojure's core.clj
+(defn pr-on
+  {:private true
+   :static true}
+  [x w]
+  (if *print-dup*
+    (print-dup x w)
+    (print-method x w))
+  nil)
+
+;; from Clojure core_print.clj
+(defn- print-sequential [^String begin, print-one, ^String sep, ^String end, sequence, ^Writer w]
+  (binding [*print-level* (and (not *print-dup*) *print-level* (dec *print-level*))]
+    (if (and *print-level* (neg? *print-level*))
+      (.write w "#")
+      (do
+        (.write w begin)
+        (when-let [xs (seq sequence)]
+          (if (and (not *print-dup*) *print-length*)
+            (loop [[x & xs] xs
+                   print-length *print-length*]
+              (if (zero? print-length)
+                (.write w "...")
+                (do
+                  (print-one x w)
+                  (when xs
+                    (.write w sep)
+                    (recur xs (dec print-length))))))
+            (loop [[x & xs] xs]
+              (print-one x w)
+              (when xs
+                (.write w sep)
+                (recur xs)))))
+        (.write w end)))))
+
+;; from Clojure core_print.clj
+(defn- print-map [m print-one w]
+  (print-sequential 
+   "{"
+   (fn [e  ^Writer w]
+     (do (print-one (key e) w) (.append w \space) (print-one (val e) w)))
+   ", "
+   "}"
+   (seq m) w))
+
+;; from Clojure core_print.clj
+(defn- print-meta [o, ^Writer w]
+  (when-let [m (meta o)]
+    (when (and (pos? (count m))
+               (or *print-dup*
+                   (and *print-meta* *print-readably*)))
+      (.write w "^")
+      (if (and (= (count m) 1) (:tag m))
+          (pr-on (:tag m) w)
+          (pr-on m w))
+      (.write w " "))))
+
+;; We check the cache at this point, so that interactive REPL dev
+;; isn't interrupted at every page load with exceptions due to
+;; missing WebElement's from the WebDriver's default cache
+(defmethod print-method clj_webdriver.driver.Driver [r, ^Writer w]
+  (cache/check-status r)
+  (print-meta r w)
+  (.write w "#")
+  (.write w (.getName (class r)))
+  (print-map r pr-on w))
 
 (defmethod print-method WebDriver
   [q w]

@@ -6,10 +6,12 @@
   IDriver
   (get-url [driver url]
     (.get (:webdriver driver) url)
+    (cache/set-status :flush)
     driver)
 
   (to [driver url]
     (.to (.navigate (:webdriver driver)) url)
+    (cache/set-status :flush)
     driver)
 
   (current-url [driver]
@@ -32,22 +34,29 @@
                          (switch-to-window driver (nth handles (inc idx))))
            :else (do ; otherwise, switch back one window
                    (.close (:webdriver driver))
-                   (switch-to-window driver (nth handles (dec idx))))))
-        (.close (:webdriver driver)))))
+                   (switch-to-window driver (nth handles (dec idx)))))
+          (cache/set-status :flush))
+        (do
+          (.close (:webdriver driver))
+          (cache/set-status :flush)))))
   
   (quit [driver]
-    (.quit (:webdriver driver)))
+    (.quit (:webdriver driver))
+    (cache/set-status :flush))
   
   (back [driver]
     (.back (.navigate (:webdriver driver)))
+    (cache/set-status :flush)
     driver)
 
   (forward [driver]
     (.forward (.navigate (:webdriver driver)))
+    (cache/set-status :flush)
     driver)
 
   (refresh [driver]
     (.refresh (.navigate (:webdriver driver)))
+    (cache/set-status :flush)
     driver)
 
 
