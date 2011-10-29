@@ -9,7 +9,9 @@
 (def test-port 5744)
 (def test-host "localhost")
 (def test-base-url (str "http://" test-host ":" test-port "/"))
-(def dr (start :firefox test-base-url))
+(def dr (to (new-driver :firefox {:strategy :basic,
+                               :args [],
+                               :include [ (fn [element] (= (attribute element :class) "external")) ]}) test-base-url))
 (def wdr (start :firefox test-base-url :webdriver))
 
 (defn start-server [f]

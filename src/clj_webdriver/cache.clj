@@ -72,50 +72,62 @@
   IElementCache
   (cache-enabled? [driver]
     (boolean (get-in driver [:cache-spec :strategy])))
+
   (in-cache? [driver query]
     (contains? @(:element-cache driver) query))
-  (insert [driver query value]
-    (swap! (:element-cache driver) assoc query value))
+
+  ;; here the query needs the same normalizing as occurs
+  ;; in the cacheable? function below
+  (insert [driver raw-query value]
+    (let [query (cond
+                 (vector? raw-query)  {:query raw-query}
+                 (keyword? raw-query) {:query [raw-query]}
+                 :else                raw-query)]
+      (swap! (:element-cache driver) assoc query value)))
+
   (retrieve [driver query]
     (get @(:element-cache driver) query))
+
   (cache-url [driver]
     (get @(:element-cache driver) :url))
+
   (set-cache-url [driver url]
     (swap! (:element-cache driver) assoc :url url))
+
   (delete [driver query]
     (swap! (:element-cache driver) dissoc query))
+
   (seed
     ([driver]
        (reset! (:element-cache driver) {:url (current-url driver)}))
     ([driver seed-value]
        (reset! (:element-cache driver) seed-value)))
-  (cacheable? [driver query]
-    (if (contains? (:cache-spec driver) :exclude)
-      ;; handle excludes
-      (let [excludes (get-in driver [:cache-spec :exclude])]
-        (if (map? query)
-          ;; xpath, css or ancestry
-          (let [excludes (remove #(fn? %) excludes)]
-            (case (first (keys query))
-              :xpath (not (some #(= (:xpath query) (:xpath %)) excludes))
-              :css   (not (some #(= (:css query) (:css %)) excludes))
-              :query (not (some #(= (:query query) (:query %)) excludes))))
-          ;; WebElement
-          (let [excludes (remove #(map? %) excludes)]
-            (not (some #{true} (map (fn [f] (f query)) excludes))))))
-      ;; handle includes
-      (let [includes (get-in driver [:cache-spec :include])]
-        (if (map? query)
-        ;; xpath, css or ancestry
-        (let [includes (remove #(fn? %) includes)]
-          (case (first (keys query))
-            :xpath (some #(= (:xpath query) (:xpath %)) includes)
-            :css   (some #(= (:css query) (:css %)) includes)
-            :query (some #(= (:query query) (:query %)) includes)
-            false))
-        ;; WebElement
-        (let [includes (remove #(map? %) includes)]
-          (some #{true} (map (fn [f] (f query)) includes))))))))
+
+  (cacheable? [driver raw-query]
+    ;; normalize query
+    (let [query (cond
+                 (vector? raw-query)  {:query raw-query}
+                 (keyword? raw-query) {:query [raw-query]}
+                 :else                raw-query)]
+      (if (contains? (:cache-spec driver) :exclude)
+        ;; handle excludes
+        (let [excludes (get-in driver [:cache-spec :exclude])]
+          (if (map? query)
+            ;; xpath, css or ancestry
+            (let [excludes (remove #(fn? %) excludes)]
+              (not (some (fn [exclude-item] (= query exclude-item)) excludes)))
+            ;; WebElement
+            (let [excludes (remove #(map? %) excludes)]
+              (not (some #{true} (map (fn [f] (f query)) excludes))))))
+        ;; handle includes
+        (let [includes (get-in driver [:cache-spec :include])]
+          (if (map? query)
+            ;; xpath, css or ancestry
+            (let [includes (remove #(fn? %) includes)]
+              (some (fn [include-item] (= query include-item)) includes))
+            ;; WebElement
+            (let [includes (remove #(map? %) includes)]
+              (some #{true} (map (fn [f] (f query)) includes)))))))))
 
 (defn set-status
   "Change the current cache status"

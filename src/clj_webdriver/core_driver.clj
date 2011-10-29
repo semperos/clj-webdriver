@@ -35,14 +35,14 @@
            :else (do ; otherwise, switch back one window
                    (.close (:webdriver driver))
                    (switch-to-window driver (nth handles (dec idx)))))
-          (cache/seed driver))
+          (cache/seed driver {}))
         (do
           (.close (:webdriver driver))
-          (cache/seed driver)))))
+          (cache/seed driver {})))))
   
   (quit [driver]
     (.quit (:webdriver driver))
-    (cache/seed driver))
+    (cache/seed driver {}))
   
   (back [driver]
     (.back (.navigate (:webdriver driver)))
@@ -321,3 +321,5 @@
                (cache/insert driver [tag attr-val] el)
                el)
              el))))))
+
+
