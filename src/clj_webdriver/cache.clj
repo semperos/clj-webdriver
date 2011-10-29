@@ -32,7 +32,8 @@
 ;;     {:include [ (fn [element] (= (attribute element class) "foo"))
 ;;                 {:css "ul.menu a"} ]}
 ;;
-;;     {:exclude [ {:query [:div {:id "content"}, :a {:class "external"}]} ]}
+;;     {:exclude [ {:query [:div {:id "content"}, :a {:class "external"}]},
+;;                 {:xpath "//h1"}  ]}
 ;;
 ;; You may either choose a whitelisting approach (`:include`) or a blacklisting approach
 ;; (`:exclude`), but not both.
@@ -44,6 +45,7 @@
 ;;
 
 (ns clj-webdriver.cache
+  (:require [clojure.tools.logging :as log])
   (:import clj_webdriver.driver.Driver))
 
 ;; Possible values are `:keep`, `:check`, `:flush`
@@ -83,10 +85,16 @@
                  (vector? raw-query)  {:query raw-query}
                  (keyword? raw-query) {:query [raw-query]}
                  :else                raw-query)]
+      (log/info (str "Inserting " query " entry into cache."))
       (swap! (:element-cache driver) assoc query value)))
 
-  (retrieve [driver query]
-    (get @(:element-cache driver) query))
+  (retrieve [driver raw-query]
+    (let [query (cond
+                 (vector? raw-query)  {:query raw-query}
+                 (keyword? raw-query) {:query [raw-query]}
+                 :else                raw-query)]
+      (log/info (str "Retrieving " query " entry from cache."))
+      (get @(:element-cache driver) query)))
 
   (cache-url [driver]
     (get @(:element-cache driver) :url))
