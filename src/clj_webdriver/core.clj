@@ -13,19 +13,19 @@
 ;; WebDriver API.
 ;;
 (ns clj-webdriver.core
-  (:use [clj-webdriver util record])
-  (:require [clj-webdriver.js.browserbot :as browserbot-js] :reload)
-  (:import [clj_webdriver.record WindowHandle]
+  (:use [clj-webdriver driver util window-handle options])
+  (:require [clj-webdriver.js.browserbot :as browserbot-js]
+            [clj-webdriver.cache :as cache])
+  (:import [clj_webdriver.driver Driver]
            [org.openqa.selenium By WebDriver WebElement Cookie
                                 NoSuchElementException]
            [org.openqa.selenium.firefox FirefoxDriver]
            [org.openqa.selenium.ie InternetExplorerDriver]
            [org.openqa.selenium.chrome ChromeDriver]
            [org.openqa.selenium.htmlunit HtmlUnitDriver]
-           [org.openqa.selenium.support.ui Select WebDriverWait ExpectedCondition]
+           [org.openqa.selenium.support.ui Select]
            [java.util Date]
-           [java.io File]
-           [java.util.concurrent TimeUnit]))
+           [java.io File]))
 
 
 ;; ## Driver Management ##
@@ -35,8 +35,9 @@
    :chrome ChromeDriver
    :htmlunit HtmlUnitDriver})
 
-(defn new-driver
-  "Create new driver instance given a browser type. If an additional profile object or string is passed in, Firefox will be started with the given profile instead of the default."
+;; TODO: Use precondition instead of throwing an exception
+(defn new-webdriver*
+  "Instantiate a new WebDriver instance given a browser type. If an additional profile object or string is passed in, Firefox will be started with the given profile instead of the default."
   ([browser]
      (.newInstance (webdriver-drivers (keyword browser))))
   ([browser profile]
@@ -44,129 +45,132 @@
        (throw (IllegalArgumentException. "Only Firefox supports profiles")))
      (FirefoxDriver. profile)))
 
-(defn implicit-wait
-  "Specify the amount of time the `driver` should wait when searching for an element if it is not immediately present. This setting holds for the lifetime of the driver across all requests. Units in milliseconds."
-  [driver timeout]
-  (.implicitlyWait (.. driver manage timeouts) timeout TimeUnit/MILLISECONDS))
+(defn new-driver
+  "Create new Driver given a browser type. If an additional profile object or string is passed in, Firefox will be started with the given profile instead of the default.
 
-(defn wait-until
-  "Set an explicit wait time `timeout` for a particular condition `pred`. Optionally set an `interval` for testing the given predicate. All units in milliseconds"
-  [driver pred & {:keys [timeout, interval] :or {timeout 5000, interval 0}}]
-  (let [wait (WebDriverWait. driver (/ timeout 1000) interval)]
-    (.until wait (proxy [ExpectedCondition] []
-                   (apply [d] (pred d))))))
+   This is the preferred method for starting up a browser, as it leverages clj-webdriver-specific functionality not available with vanilla WebDriver instances. You can always access the underlying WebDriver instance with the :webdriver key of your Driver record."
+  ([browser]
+     (init-driver (new-webdriver* browser)))
+  ([browser cache-spec]
+     (init-driver (new-webdriver* browser) cache-spec))
+  ([browser cache-spec cache-args]
+     (init-driver (new-webdriver* browser) cache-spec cache-args)))
 
+;;; Protocols for API ;;;
+(defprotocol IDriver
+  "Basics of driver handling"
+  (get-url [driver url] "Navigate the driver to a given URL")
+  (to [driver url] "Navigate to a particular URL. Arg `url` can be either String or java.net.URL. Equivalent to the `get` function, provided here for compatibility with WebDriver API.")
+  (current-url [driver] "Retrieve the URL of the current page")
+  (title [driver] "Retrieve the title of the current page as defined in the `head` tag")
+  (page-source [driver] "Retrieve the source code of the current page")
+  (close [driver] "Close this browser instance, switching to an active one if more than one is open")
+  (quit [driver] "Destroy this browser instance")
+  (back [driver] "Go back to the previous page in \"browsing history\"")
+  (forward [driver] "Go forward to the next page in \"browsing history\".")
+  (refresh [driver] "Refresh the current page"))
 
-;; ## Browser Basics ##
-(defn get-url
-  "Navigate the driver to a given URL"
-  [driver url]
-  (.get driver url))
+;;; ## Windows and Frames ##
+(defprotocol ITargetLocator
+  "Functions that deal with browser windows and frames"
+  (window-handle [driver] "Get the only (or first) window handle, return as a WindowHandler record")
+  (window-handles [driver] "Retrieve a vector of `WindowHandle` records which can be used to switchTo particular open windows")
+  (other-window-handles [driver] "Retrieve window handles for all windows except the current one")
+  (switch-to-frame [driver frame] "Switch focus to a particular HTML frame")
+  (switch-to-window [driver handle] "Switch focus to a particular open window")
+  (switch-to-other-window [driver] "Given that two and only two browser windows are open, switch to the one not currently active")
+  (switch-to-default [driver] "Switch focus to the first first frame of the page, or the main document if the page contains iframes")
+  (switch-to-active [driver] "Switch to element that currently has focus, or to the body if this cannot be detected"))
+
+(defprotocol IFind
+  "Functions used to locate elements on a given page"
+  (find-element [driver by] "Retrieve the element object of an element described by `by`")
+  (find-elements [driver by] "Retrieve a seq of element objects described by `by`")
+  (find-elements-by-regex-alone [driver tag attr-val] "Given an `attr-val` pair with a regex value, find the elements that match")
+  (find-elements-by-regex [driver tag attr-val])
+  (find-window-handles [driver attr-val] "Given a browser `driver` and a map of attributes, return the WindowHandle that matches")
+  (find-semantic-buttons [driver attr-val] "Find HTML element that is either a `<button>` or an `<input>` of type submit, reset, image or button")
+  (find-semantic-buttons-by-regex [driver attr-val] "Semantic buttons are things that look or behave like buttons but do not necessarily consist of a `<button>` tag")
+  (find-checkables-by-text [driver attr-val] "Finding the 'text' of a radio or checkbox is complex. Handle it here.")
+  (find-table-cells [driver attr-val] "Given a WebDriver `driver` and a vector `attr-val`, find the correct")
+  (find-them*
+    [driver attr-val]
+    [driver tag attr-val] "Given a browser `driver`, return the elements that match the query")
+  (find-them
+    [driver attr-val]
+    [driver tag attr-val] "Call find-them*, then make sure elements are actually returned; if not, throw NoSuchElementException so other code can handle exceptions appropriately")
+  (find-it
+    [driver attr-val]
+    [driver tag attr-val] "Call (first (find-them args))"))
 
 (defn start
   "Shortcut to instantiate a driver, navigate to a URL, and return the driver for further use"
-  [browser url]
-  (let [driver (new-driver browser)]
-    (get-url driver url)
-    driver))
+  ([browser url] (start browser url :driver))
+  ([browser url driver-type]
+     (let [driver (if (= :webdriver driver-type)
+                    (new-webdriver* browser)
+                    (new-driver browser))]
+       (get-url driver url)
+       driver)))
 
-(defn current-url
-  "Retrieve the URL of the current page"
+
+;; We've defined our own record type WindowHandler because
+;; the String id which WebDriver returns by default to identify
+;; a window is not particularly helpful
+;;
+;; The equivalent starred functions below wrap the WebDriver methods
+;; directly, without using a cusotm record.
+;; (declare switch-to-window)
+;; (defn window-handle
+;;   "Get the only (or first) window handle, return as a WindowHandler record"
+;;   [driver]
+;;   (init-window-handle driver
+;;                       (.getWindowHandle driver)
+;;                       (title driver)
+;;                       (current-url driver)))
+
+(defn window-handle*
+  "For WebDriver API compatibility: this simply wraps `.getWindowHandle`"
   [driver]
-  (.getCurrentUrl driver))
+  (.getWindowHandle driver))
 
-(defn title
-  "Retrieve the title of the current page as defined in the `head` tag"
+(defn window-handles*
+  "For WebDriver API compatibility: this simply wraps `.getWindowHandles`"
   [driver]
-  (.getTitle driver))
+  (lazy-seq (.getWindowHandles driver)))
 
-(defn page-source
-  "Retrieve the source code of the current page"
+(defn other-window-handles*
+  "For consistency with other window handling functions, this starred version just returns the string-based ID's that WebDriver produces"
   [driver]
-  (.getPageSource driver))
-
-(declare window-handles*)
-(declare window-handle*)
-(declare switch-to-window)
-(defn close
-  "Close this browser instance, switching to an active one if more than one is open"
-  [driver]
-  (let [handles (window-handles* driver)]
-    (if (> (count handles) 1) ; get back to a window that is open before proceeding
-      (let [this-handle (window-handle* driver)
-            idx (.indexOf handles this-handle)]
-        (cond
-            (zero? idx) (do ; if first window, switch to next
-                          (.close driver)
-                          (switch-to-window driver (nth handles (inc idx))))
-            :else (do ; otherwise, switch back one window
-                    (.close driver)
-                    (switch-to-window driver (nth handles (dec idx))))))
-      (.close driver))))
-
-;; TODO catch webdriver exception (not consistent)
-(defn quit
-  "Destroy this browser instance"
-  [driver]
-  (.quit driver))
-
-;; ## Navigation ##
-(defn back
-  "Go back to the previous page in \"browsing history\""
-  [driver]
-  (.back (.navigate driver))
-  driver)
-
-(defn forward
-  "Go forward to the next page in \"browsing history\"."
-  [driver]
-  (.forward (.navigate driver))
-  driver)
-
-(defn to
-  "Navigate to a particular URL. Arg `url` can be either String or java.net.URL. Equivalent to the `get` function, provided here for compatibility with WebDriver API."
-  [driver url]
-  (.to (.navigate driver) url)
-  driver)
-
-(defn refresh
-  "Refresh the current page"
-  [driver]
-  (.refresh (.navigate driver))
-  driver)
-
-;; ## TargetLocator Interface (Windows, Frames) ##
-
-(load "core_window")
-
-;; ## Option Interface ##
-
-(load "core_cookie")
+  (remove #(= % (window-handle* driver))
+          (doall (window-handles* driver))))
 
 ;; ## By* Functions ##
-
 (load "core_by")
 
 ;; ##  Actions on WebElements ##
 (declare execute-script)
+(declare execute-script*)
 (defn- browserbot
   [driver fn-name & arguments]
   (let [script (str browserbot-js/script
                     "return browserbot."
                     fn-name
                     ".apply(browserbot, arguments)")
-        execute-js-fn (partial execute-script driver script)]
+        execute-js-fn (partial execute-script* driver script)]
     (apply execute-js-fn arguments)))
 
 (defn click
   "Click a particular HTML element"
   [element]
-  (.click element))
+  (.click element)
+  (cache/set-status :check))
 
 (defn submit
   "Submit the form which contains the given element object"
   [element]
-  (.submit element))
+  (.submit element)
+  (cache/set-status :flush))
 
 (defn value
   "Retrieve the `value` attribute of the given element object"
@@ -243,7 +247,7 @@
         orig-colors (repeat original-color)
         change-colors (interleave (repeat "red") (repeat "blue"))]
     (doseq [flash-color (take 12 (interleave change-colors orig-colors))]
-      (execute-script (.getWrappedDriver element)
+      (execute-script* (.getWrappedDriver element)
                       (str "arguments[0].style.backgroundColor = '"
                            flash-color "'")
                       element)
@@ -268,7 +272,7 @@
 (defn focus
   "Apply focus to the given element"
   [element]
-  (execute-script
+  (execute-script*
    (.getWrappedDriver element) "return arguments[0].focus()" element))
 
 (defn send-keys
@@ -310,105 +314,42 @@
 ;; ## JavaScript Execution ##
 (defn execute-script
   [driver js & js-args]
-  (.executeScript driver js (to-array js-args)))
+  (.executeScript (:webdriver driver) js (to-array js-args))
+  driver)
 
-;; TODO: Script Timeout (wait functionality)
+(defn execute-script*
+  "Version of execute-script that uses a WebDriver instance directly."
+  [driver js & js-args]
+  (.executeScript driver js (to-array js-args))
+  driver)
 
 ;; ## Select Helpers ##
-
 (load "core_select")
 
-;; ## Element-finding Utilities ##
+;; Helper function to find-*
+(defn filter-elements-by-regex
+  "Given a collection of WebElements, filter the collection by the regular expression values for the respective attributes in the `attr-val` map"
+  [elements attr-val]
+  (let [attr-vals-with-regex (into {}
+                                   (filter
+                                    #(let [[k v] %] (= java.util.regex.Pattern (class v)))
+                                    attr-val))]
+    (loop [elements elements attr-vals-with-regex attr-vals-with-regex]
+      (if (empty? attr-vals-with-regex)
+        elements
+        (let [entry (first attr-vals-with-regex)
+              attr (key entry)
+              value (val entry)
+              matching-elements (if (= :text attr)
+                                  (filter #(re-find value (text %)) elements)
+                                  (filter (fn [el]
+                                            ((fnil (partial re-find value) "")
+                                             (attribute el (name attr))))
+                                          elements))]
+          (recur matching-elements (dissoc attr-vals-with-regex attr)))))))
 
-;; Helper functions kept in separate file yet in same namespace
-;; because of interdependence on `find-them` function
-(load "core_find")
+;; API with clj-webdriver's Driver implementation
+(load "core_driver")
+;; API with Selenium-WebDriver's WebDriver class
+(load "core_webdriver")
 
-(defn find-them*
-  "Given a browser `driver`, return the elements that match the query"
-  ([driver attr-val]
-     (cond
-      (= attr-val :button*)   (find-them driver :button* nil)
-      (keyword? attr-val)     (find-elements
-                               driver
-                               (by-tag-name (name attr-val))) ; supplied just :tag
-      (vector? attr-val)      (cond
-                               (some #{:row :col} attr-val) (find-table-cells driver attr-val)
-                               (query-with-ancestry-has-regex? attr-val) (if (query-with-ancestry-has-regex? (drop-last 2 attr-val))
-                                                                           (throw (IllegalArgumentException.
-                                                                                   (str "You may not pass in a regex until "
-                                                                                        "the last attribute-value pair")))
-                                                                           (filter-elements-by-regex
-                                                                            (find-elements driver (by-xpath (str (build-xpath-with-ancestry attr-val) "//*")))
-                                                                            (last attr-val)))
-                               :else (find-elements driver (by-xpath (build-xpath-with-ancestry attr-val)))) ; supplied vector of queries in hierarchy
-      (map? attr-val)         (find-them driver :* attr-val))) ; no :tag specified, use global *
-  ([driver tag attr-val]
-     (when (keyword? driver) ; I keep forgetting to pass in the WebDriver instance while testing
-       (throw (IllegalArgumentException.
-               (str "The first parameter to find-them must be an instance of WebDriver."))))
-     (cond
-      (and (> (count attr-val) 1)
-           (contains? attr-val :xpath))          (find-them driver :* {:xpath (:xpath attr-val)})
-      (and (> (count attr-val) 1)
-           (contains? attr-val :css))            (find-them driver :* {:css (:css attr-val)})
-      (contains? attr-val :tag-name)             (find-them driver
-                                                            (-> (:tag-name attr-val)
-                                                                .toLowerCase
-                                                                keyword)
-                                                            (dissoc attr-val :tag-name))
-      (contains? attr-val :index)                (find-elements driver (by-xpath (build-xpath tag attr-val)))
-      (= tag :radio)                             (find-them driver :input (assoc attr-val :type "radio"))
-      (= tag :checkbox)                          (find-them driver :input (assoc attr-val :type "checkbox"))
-      (= tag :textfield)                         (find-them driver :input (assoc attr-val :type "text"))
-      (= tag :password)                          (find-them driver :input (assoc attr-val :type "password"))
-      (= tag :filefield)                         (find-them driver :input (assoc attr-val :type "file"))
-      (and (= tag :input)
-           (contains? attr-val :type)
-           (or (= "radio" (:type attr-val))
-               (= "checkbox" (:type attr-val)))
-           (or (contains? attr-val :text)
-               (contains? attr-val :label)))     (find-checkables-by-text driver attr-val)
-      (= tag :window)                            (find-window-handles driver attr-val)
-      (= tag :button*)                           (if (contains-regex? attr-val)
-                                                   (find-semantic-buttons-by-regex driver attr-val)
-                                                   (find-semantic-buttons driver attr-val))
-      (= 1 (count attr-val))                     (let [entry (first attr-val)
-                                                       attr  (key entry)
-                                                       value (val entry)]
-                                                   (cond
-                                                    (= :xpath attr) (find-elements driver (by-xpath value))
-                                                    (= :css attr)   (find-elements driver (by-css-selector value))
-                                                    (= java.util.regex.Pattern (class value)) (find-elements-by-regex-alone driver tag attr-val)
-                                                    :else           (find-elements driver (by-attr= tag attr value))))
-      (contains-regex? attr-val)                 (find-elements-by-regex driver tag attr-val)
-      :else                                      (find-elements driver (by-xpath (build-xpath tag attr-val))))))
-
-(defn find-them
-  "Call find-them*, then make sure elements are actually returned; if not, throw NoSuchElementException so other code can handle exceptions appropriately"
-  ([driver attr-val]
-     (let [elts (find-them* driver attr-val)]
-       (if-not (seq elts)
-         (throw (NoSuchElementException.
-                 (str "No element with attributes "
-                      attr-val " "
-                      "could be found on the page:\n"
-                      (page-source driver))))
-         elts)))
-  ([driver tag attr-val]
-     (let [elts (find-them* driver tag attr-val)]
-       (if-not (seq elts)
-         (throw (NoSuchElementException.
-                 (str "No element with tag "
-                      tag " and attributes "
-                      attr-val " "
-                      "could be found on the page:\n"
-                      (page-source driver))))
-         elts))))
-
-(defn find-it
-  "Call (first (find-them args))"
-  ([driver attr-val]
-     (first (find-them driver attr-val)))
-  ([driver tag attr-val]
-     (first (find-them driver tag attr-val))))

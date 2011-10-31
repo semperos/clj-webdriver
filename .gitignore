@@ -6,3 +6,4 @@ outline*.html
 docs
 /.lein-failures
 /results.txt
+*.properties
