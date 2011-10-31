@@ -75,8 +75,12 @@
   (cache-enabled? [driver]
     (boolean (get-in driver [:cache-spec :strategy])))
 
-  (in-cache? [driver query]
-    (contains? @(:element-cache driver) query))
+  (in-cache? [driver raw-query]
+    (let [query (cond
+                 (vector? raw-query)  {:query raw-query}
+                 (keyword? raw-query) {:query [raw-query]}
+                 :else                raw-query)]
+      (contains? @(:element-cache driver) query)))
 
   ;; here the query needs the same normalizing as occurs
   ;; in the cacheable? function below
@@ -102,8 +106,12 @@
   (set-cache-url [driver url]
     (swap! (:element-cache driver) assoc :url url))
 
-  (delete [driver query]
-    (swap! (:element-cache driver) dissoc query))
+  (delete [driver raw-query]
+    (let [query (cond
+                 (vector? raw-query)  {:query raw-query}
+                 (keyword? raw-query) {:query [raw-query]}
+                 :else                raw-query)]
+     (swap! (:element-cache driver) dissoc query)))
 
   (seed
     ([driver]
