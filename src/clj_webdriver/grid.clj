@@ -18,24 +18,35 @@
   (:import org.openqa.selenium.remote.DesiredCapabilities
            org.openqa.selenium.remote.RemoteWebDriver))
 
-(defn new-driver-on-grid
+(defn new-webdriver-on-grid*
   "Start a new RemoteWebDriver on a node managed by a Grid hub at `hub-url` using `browser` to run the test.
 
    If only a `browser` is supplied, this function assumes the hub is running locally and will use 'http://localhost:4444/wd/hub' as the value for `hub-url`."
   ([browser] (new-driver-on-grid "http://localhost:4444/wd/hub" browser))
-  ([hub-url browser]
+  ([browser hub-url]
      (RemoteWebDriver. (java.net.URL. hub-url),
                        (call-method DesiredCapabilities browser nil nil))))
+
+(defn new-driver-on-grid
+  "Create new Driver on a node managed by a Grid hub at `hub-url`."
+  ([browser]
+     (init-driver (new-webdriver-on-grid* browser)))
+  ([browser hub-url]
+     (init-driver (new-webdriver-on-grid* browser hub-url)))
+  ([browser hub-url cache-spec]
+     (init-driver (new-webdriver-on-grid* browser hub-url) cache-spec))
+  ([browser hub-url cache-spec cache-args]
+     (init-driver (new-webdriver-on-grid* browser hub-url) cache-spec cache-args)))
 
 (defn start-on-grid
   "Convenience function for starting a new RemoteWebDriver on a Grid node managed by a Grid hub at `hub-url`, running tests with the given `browser` and `start-url`.
 
    If only a `browser` and `start-url` are supplied, this function assumes the hub is running locally and will use 'http://localhost:4444/wd/hub' as the value for `hub-url`."
   ([browser start-url]
-     (let [driver (new-driver-on-grid "http://localhost:4444/wd/hub" browser)]
+     (let [driver (new-driver-on-grid browser "http://localhost:4444/wd/hub")]
        (get-url driver start-url)
        driver))
   ([hub-url browser start-url]
-     (let [driver (new-driver-on-grid hub-url browser)]
+     (let [driver (new-driver-on-grid browser hub-url)]
        (get-url driver start-url)
        driver)))
