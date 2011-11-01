@@ -176,7 +176,7 @@ Use `lein test` to run this library's test suite. Ensure port 5744 is free, or e
 
 Credits to [mikitebeka/webdriver-clj][webdriver-orig] for the initial code for this project and many of the low-level wrappers around the Selenium-WebDriver API.
 
-Many thanks to those who have contributed so far (in nick alphabetical order):
+Many thanks to those who have contributed so far (in nick-alphabetical order):
 
  * [RobLally](https://github.com/RobLally) (Rob Lally)
  * [ulsa](https://github.com/ulsa) (Ulrik Sandberg)
@@ -186,7 +186,7 @@ See Github for an [up-to-date list of contributors](https://github.com/semperos/
 
 ## License
 
-Distributed under the Eclipse Public License, the same as Clojure.
+Distributed under the [Eclipse Public License](http://opensource.org/licenses/eclipse-1.0.php), the same as Clojure.
 
 [webdriver-orig]: https://github.com/mikitebeka/webdriver-clj
 [ring-github]: https://github.com/mmcgrana/ring
