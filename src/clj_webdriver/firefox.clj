@@ -1,4 +1,6 @@
 (ns clj-webdriver.firefox
+  (:use [clj-webdriver.core :only [new-webdriver*]]
+        [clj-webdriver.driver :only [init-driver]])
   (:require [clojure.java.io :as io])
   (:import org.openqa.selenium.firefox.FirefoxProfile))
 
@@ -6,14 +8,14 @@
   "Create new Driver given a browser type. If an additional profile object or string is passed in, Firefox will be started with the given profile instead of the default.
 
    This is the preferred method for starting up a browser, as it leverages clj-webdriver-specific functionality not available with vanilla WebDriver instances. You can always access the underlying WebDriver instance with the :webdriver key of your Driver record."
-  ([browser]
-     (init-driver (new-webdriver* browser)))
-  ([browser profile]
-     (init-driver (new-webdriver* browser profile)))
-  ([browser profile cache-spec]
-     (init-driver (new-webdriver* browser profile) cache-spec))
-  ([browser profile cache-spec cache-args]
-     (init-driver (new-webdriver* browser profile) cache-spec cache-args)))
+  ([]
+     (init-driver (new-webdriver* :firefox)))
+  ([profile]
+     (init-driver (new-webdriver* :firefox profile)))
+  ([profile cache-spec]
+     (init-driver (new-webdriver* :firefox profile) cache-spec))
+  ([profile cache-spec cache-args]
+     (init-driver (new-webdriver* :firefox profile) cache-spec cache-args)))
 
 (defn new-profile
   "Create an instance of `FirefoxProfile`"
@@ -34,10 +36,10 @@
 
 (defn accept-untrusted-certs
   "Set whether or not Firefox should accept untrusted certificates."
-  [profile ^Boolean bool]
+  [profile bool]
   (.setAcceptUntrustedCertificates profile bool))
 
 (defn enable-native-events
   "Set whether or not native events should be enabled (true by default on Windows, false on other platforms)."
-  [profile ^Boolean bool]
+  [profile bool]
   (.setEnableNativeEvents profile bool))
