@@ -35,7 +35,6 @@
    :chrome ChromeDriver
    :htmlunit HtmlUnitDriver})
 
-;; TODO: Use precondition instead of throwing an exception
 (defn new-webdriver*
   "Instantiate a new WebDriver instance given a browser type. If an additional profile object or string is passed in, Firefox will be started with the given profile instead of the default."
   ([browser]
@@ -351,4 +350,3 @@
 (load "core_driver")
 ;; API with Selenium-WebDriver's WebDriver class
 (load "core_webdriver")
-
