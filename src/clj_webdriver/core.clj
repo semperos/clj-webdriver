@@ -41,8 +41,7 @@
   ([browser]
      (.newInstance (webdriver-drivers (keyword browser))))
   ([browser profile]
-     (when (not= :firefox (keyword browser))
-       (throw (IllegalArgumentException. "Only Firefox supports profiles")))
+     {:pre [(= browser :firefox)]}
      (FirefoxDriver. profile)))
 
 (defn new-driver
