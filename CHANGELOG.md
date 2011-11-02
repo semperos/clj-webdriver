@@ -2,7 +2,7 @@
 
 ## Release History ##
 
-### [v0.4.0-SNAPSHOT (master)](https://github.com/semperos/clj-webdriver) ###
+### [v0.4.0](https://github.com/semperos/clj-webdriver/tree/v0.4.0) ###
 
  - Refactor API to use a Driver record (wrapped around the WebDriver instance)
  - Provide API support for both the new Driver and old plain Java WebDriver
