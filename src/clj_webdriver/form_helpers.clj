@@ -4,12 +4,11 @@
 ;; faster and more intuitive for "common" use-cases.
 ;;
 (ns clj-webdriver.form-helpers
-  (:use [clj-webdriver.core :only [input-text]]
-        [clj-webdriver find])
+  (:use [clj-webdriver.core :only [input-text find-them]])
   (:import clj_webdriver.driver.Driver))
 
 (defn- quick-fill*
-  [driver entries k v submit?]
+  [driver k v submit?]
   ;; shortcuts:
   ;; k as string => element's id attribute
   ;; v as string => text to input
@@ -44,10 +43,6 @@
   (quick-fill
     ([driver query-action-maps] (quick-fill driver query-action-maps false))
     ([driver query-action-maps submit?]
-       (if submit?
-         (doseq [entries query-action-maps,
-                 [k v] entries]
-           (quick-fill* driver entries k v submit?))
-         (for [entries query-action-maps,
+       (doseq [entries query-action-maps,
                [k v] entries]
-           (quick-fill* driver entries k v submit?))))))
+         (quick-fill* driver k v submit?)))))
