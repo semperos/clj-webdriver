@@ -163,7 +163,7 @@
   [element]
   (.click element)
   (cache/set-status :check)
-  element)
+  nil)
 
 (defn submit
   "Submit the form which contains the given element object"
