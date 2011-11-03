@@ -6,15 +6,16 @@
 (defn- init-cache
   "Initialize cache based on given strategy"
   ([cache-spec]
-     (let [strategy-legend {:basic clache/->BasicCache,
-                            :fifo clache/->FIFOCache,
-                            :lru clache/->LRUCache,
-                            :lirs clache/->LIRSCache,
-                            :ttl clache/->TTLCache,
-                            :lu clache/->LUCache}]
-       (atom (apply
-              (get strategy-legend (:strategy cache-spec))
-              (into [{}] (:args cache-spec)))))))
+     (when-not (nil? cache-spec)
+       (let [strategy-legend {:basic clache/->BasicCache,
+                              :fifo clache/->FIFOCache,
+                              :lru clache/->LRUCache,
+                              :lirs clache/->LIRSCache,
+                              :ttl clache/->TTLCache,
+                              :lu clache/->LUCache}]
+         (atom (apply
+                (get strategy-legend (:strategy cache-spec))
+                (into [{}] (:args cache-spec))))))))
 
 (defn init-driver
   "Constructor for Driver records.

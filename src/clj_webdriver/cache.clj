@@ -115,9 +115,11 @@
 
   (seed
     ([driver]
-       (reset! (:element-cache driver) {:url (current-url driver)}))
+       (when (cache-enabled? driver)
+         (reset! (:element-cache driver) {:url (current-url driver)})))
     ([driver seed-value]
-       (reset! (:element-cache driver) seed-value)))
+       (when (cache-enabled? driver)
+         (reset! (:element-cache driver) seed-value))))
 
   (cacheable? [driver raw-query]
     ;; normalize query
@@ -157,13 +159,14 @@
 (defn check-status
   "Check cache status, delete if needed"
   [driver]
-  (case @status
-    :flush (do
-             (seed driver)
-             (set-status :keep))
-    :check (if-not (= (current-url driver) (cache-url driver))
-                      (do
-                        (seed driver)
-                        (set-status :keep))
-                      (set-status :keep))
-    (set-status :keep)))
+  (when (cache-enabled? driver)
+    (case @status
+      :flush (do
+               (seed driver)
+               (set-status :keep))
+      :check (if-not (= (current-url driver) (cache-url driver))
+               (do
+                 (seed driver)
+                 (set-status :keep))
+               (set-status :keep))
+      (set-status :keep))))
