@@ -180,6 +180,7 @@ Credits to [mikitebeka/webdriver-clj][webdriver-orig] for the initial code for t
 
 Many thanks to those who have contributed so far (in nick-alphabetical order):
 
+ * [maxweber](https://github.com/maxweber) (Max Weber)
  * [RobLally](https://github.com/RobLally) (Rob Lally)
  * [ulsa](https://github.com/ulsa) (Ulrik Sandberg)
  * [xeqi](https://github.com/xeqi) (Nelson Morris)
