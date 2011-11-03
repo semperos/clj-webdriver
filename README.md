@@ -1,6 +1,6 @@
 # Selenium-WebDriver Support for Clojure [![Build Status](https://secure.travis-ci.org/semperos/clj-webdriver.png)](http://travis-ci.org/semperos/clj-webdriver)
 
-This is a Clojure library for driving a web browser using Selenium-WebDriver as the backend.
+This is a Clojure library for driving a web browser using Selenium-WebDriver as the backend. For instructions on contributing, see below.
 
  * [Project Wiki](https://github.com/semperos/clj-webdriver/wiki)
  * [Marginalia Documentation (v0.4.0)](http://semperos.github.com/clj-webdriver/uberdoc-latest.html)
@@ -161,6 +161,12 @@ If you already have a Selenium-WebDriver Grid (2) setup in place, you can now le
 At this point, `clj-webdriver.grid` has two functions, `new-driver-on-grid` and `start-on-grid` which are Grid equivalents for the `clj-webdriver.core` functions named `new-driver` and `start` respectively. You simply replace your call to `start` or `new-driver` with `start-on-grid` or `new-driver-on-grid` and your tests will run on the Grid.
 
 For more information about configuring your Grid hub and nodes, read [the Selenium-WebDriver wiki documentation on Grid 2](http://code.google.com/p/selenium/wiki/Grid2).
+
+## Contributing ##
+
+The `master` branch of clj-webdriver houses code intended for the next **minor-version release.** If you want to propose new features for the next release, you're welcome to fork, make a topic branch and issue a pull request against the `master` branch.
+
+If you want to fix a bug in the **current release**, please pull against the appropriate branch for the current minor version, e.g. 0.4.x.
 
 ## Running Tests
 
