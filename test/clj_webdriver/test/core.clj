@@ -188,6 +188,10 @@
   (is (thrown? org.openqa.selenium.NoSuchElementException
                (find-it dr :area))))
 
+;; Default wrap for strings is double quotes
+(deftest test-xpath-quote-handling
+  (is (find-it dr {:text "File's Name"})))
+
 (deftest test-form-elements
   (to dr (str test-base-url "example-form"))
   ;; Clear element

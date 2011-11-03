@@ -10,7 +10,7 @@
   [attr-val]
   (apply str (for [[attr value] attr-val]
                (cond
-                (= :text attr) (str "[text()='" value "']")
+                (= :text attr) (str "[text()=\"" value "\"]")
                 (= :index attr) (str "[" (inc value) "]") ; in clj-webdriver,
                 :else (str "[@"                           ; all indeces 0-based
                            (name attr)

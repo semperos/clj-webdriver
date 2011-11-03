@@ -55,7 +55,7 @@
          (= :text attr)   (by-xpath (str "//"
                                          (name tag)
                                          "[text()"
-                                         "='" value "']"))
+                                         "=\"" value "\"]"))
          :else   (by-xpath (str "//"                  ; anywhere in DOM
                                 (name tag)            ; tag from kw
                                 "[@" (name attr)      ; attr from kw
