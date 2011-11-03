@@ -15,7 +15,8 @@
 (ns clj-webdriver.core
   (:use [clj-webdriver driver util window-handle options])
   (:require [clj-webdriver.js.browserbot :as browserbot-js]
-            [clj-webdriver.cache :as cache])
+            [clj-webdriver.cache :as cache]
+            [clojure.tools.logging :as log])
   (:import [clj_webdriver.driver Driver]
            [org.openqa.selenium By WebDriver WebElement Cookie
                                 NoSuchElementException]
