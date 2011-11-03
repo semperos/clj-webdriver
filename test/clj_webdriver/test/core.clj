@@ -8,7 +8,7 @@
   (:import [clj_webdriver.driver.Driver]
            [org.openqa.selenium TimeoutException]))
 
-;; Setup
+;; ## Setup ##
 (def test-port 5744)
 (def test-host "localhost")
 (def test-base-url (str "http://" test-host ":" test-port "/"))
@@ -17,6 +17,7 @@
                                   :include [ (fn [element] (= (attribute element :class) "external"))
                                              {:css "ol#pages"}]}) test-base-url))
 (def wdr (start :firefox test-base-url :webdriver))
+(def dr-plain (to (new-driver :firefox) test-base-url))
 
 (defn start-server [f]
   (loop [server (run-jetty #'web-app/routes {:port test-port, :join? false})]
@@ -29,6 +30,7 @@
 (defn reset-browser-fixture
   [f]
   (to dr test-base-url)
+  (to dr-plain test-base-url)
   (to wdr test-base-url)
   (f))
 
@@ -36,6 +38,7 @@
   [f]
   (f)
   (quit dr)
+  (quit dr-plain)
   (quit wdr))
 
 (defn seed-driver-cache
@@ -46,7 +49,9 @@
 (use-fixtures :once start-server quit-browser-fixture)
 (use-fixtures :each reset-browser-fixture seed-driver-cache)
 
-;; Tests
+
+
+;; ## Cache-Based Tests ##
 (deftest test-browser-basics
   (is (= clj_webdriver.driver.Driver (class dr)))
   (is (= test-base-url (current-url dr)))
@@ -344,8 +349,261 @@
     (is (not (cache/cacheable? temp-dr {:css "ol#pages"})))
     (quit temp-dr)))
 
-;;; Raw Java WebDriver
-;; Tests
+
+
+
+;; ## Tests (sans cache) ##
+(deftest plain-test-browser-basics
+  (is (= clj_webdriver.driver.Driver (class dr-plain)))
+  (is (= test-base-url (current-url dr-plain)))
+  (is (= "Ministache" (title dr-plain)))
+  (is (boolean (re-find #"(?i)<!DOCTYPE html>" (page-source dr-plain)))))
+
+(deftest plain-test-back-forward
+  (-> dr-plain
+      (find-it :a {:text "example form"})
+      click)
+  (is (= (str test-base-url "example-form") (current-url dr-plain)))
+  (back dr-plain)
+  (is (= test-base-url (current-url dr-plain)))
+  (forward dr-plain)
+  (is (= (str test-base-url "example-form") (current-url dr-plain))))
+
+(deftest plain-test-to
+  (to dr-plain (str test-base-url "example-form"))
+  (is (= (str test-base-url "example-form") (current-url dr-plain)))
+  (is (= "Ministache" (title dr-plain))))
+
+(deftest plain-test-bys
+  (-> dr-plain
+      (find-it :a {:text "example form"})
+      click)
+  (is (= "first_name"
+         (attribute (find-element dr-plain (by-id "first_name")) :id)))
+  (is (= "home"
+         (text (find-element dr-plain (by-link-text "home")))))
+  (is (= "example form"
+         (text (find-element dr-plain (by-partial-link-text "example")))))
+  (is (= "first_name"
+         (attribute (find-element dr-plain (by-name "first_name")) :id)))
+  (is (= "home"
+         (text (find-element dr-plain (by-tag-name "a")))))
+  (is (= "home"
+         (text (find-element dr-plain (by-xpath "//a[text()='home']")))))
+  (is (= "home"
+         (text (find-element dr-plain (by-class-name "menu-item")))))
+  (is (= "home"
+         (text (find-element dr-plain (by-css-selector "#footer a.menu-item"))))))
+
+(deftest plain-test-find*
+  (is (= "Moustache"
+         (text (nth (find-them dr-plain :a) 1))))
+  (is (= "Moustache"
+         (text (find-it dr-plain {:class "external"}))))
+  (is (= "https://github.com/cgrand/moustache"
+         (attribute (find-it dr-plain {:text "Moustache"}) "href")))
+  (is (= "Moustache"
+         (text (find-it dr-plain :a {:class #"exter"}))))
+  (is (= "Moustache"
+         (text (find-it dr-plain :a {:text #"Mous"}))))
+  (is (= "Moustache"
+         (text (find-it dr-plain :a {:class "external", :href #"github"}))))
+  (is (= "Moustache"
+         (text (find-it dr-plain :a {:class #"exter", :href #"github"}))))
+  (is (= "Moustache"
+         (text (find-it dr-plain [:div {:id "content"}, :a {:class "external"}]))))
+  (is (= "Moustache"
+         (text (find-it dr-plain [:div {:id "content"}, :a {:class #"exter"}]))))
+  (is (= "Moustache"
+         (text (find-it dr-plain [:div {:id "content"}, :a {:href #"github"}]))))
+  (is (= "home"
+         (text (find-it dr-plain [:* {:id "footer"}, :a {}]))))
+  (is (= 8
+         (count (find-them dr-plain :a))))
+  (is (= 3
+         (count (find-them dr-plain {:class #"-item"}))))
+  (is (= 3
+         (count (find-them dr-plain :a {:class #"-item"}))))
+  (is (= 1
+         (count (find-them dr-plain :a {:text #"hom"}))))
+  (is (= 1
+         (count (find-them dr-plain :a {:text #"(?i)HOM"}))))
+  (is (= 2
+         (count (find-them dr-plain :a {:class #"exter", :href #"github"}))))
+  (is (= 3
+         (count (find-them dr-plain [:* {:id "footer"}, :a {}]))))
+  (is (= 2
+         (count (find-them dr-plain [:div {:id "content"}, :a {:class #"exter"}]))))
+  (-> dr-plain
+      (find-it :a {:text "example form"})
+      click)
+  (is (= "first_name"
+         (attribute (find-it dr-plain {:type "text"}) "id")))
+  (is (= "first_name"
+         (attribute (find-it dr-plain :input {:type "text"}) "id")))
+  (is (= "first_name"
+         (attribute (find-it dr-plain :input {:type "text", :name "first_name"}) "id")))
+  (is (= "first_name"
+         (attribute (find-it dr-plain :input {:type "text", :name #"first_"}) "id")))
+  (is (= "last_name"
+         (attribute (find-it dr-plain :input {:type "text", :name #"last_"}) "id")))
+  (is (= "Smith"
+         (attribute (find-it dr-plain :input {:type "text", :name #"last_"}) "value")))
+  (is (= "Smith"
+         (attribute (find-it dr-plain :input {:type "text", :name #"last_"}) "value")))
+  (is (= "Smith"
+         (attribute (find-it dr-plain [:div {:id "content"}, :input {:name #"last_"}]) "value")))
+  (back dr-plain) ;; get back to home page
+  (is (-> dr-plain
+        (find-it :a)
+        exists?))
+  (is (not
+       (-> dr-plain
+           (find-it :area)
+           exists?)))
+  (is (nil?
+       (-> dr-plain
+           (find-it :area)
+           exists?)))
+  (is (-> dr-plain 
+          (find-it :a {:text "Moustache"})
+          visible?))
+  (is (-> dr-plain 
+          (find-it :a {:text "Moustache"})
+          displayed?))
+  (is (-> dr-plain
+          (find-it :a {:text "Moustache"})
+          present?))
+  (is (not
+       (-> dr-plain
+           (find-it :a)
+           visible?)))
+  (is (not
+       (-> dr-plain 
+           (find-it :a)
+           displayed?)))
+  (is (not
+       (-> dr-plain
+           (find-it :a)
+           present?)))
+  (is (thrown? org.openqa.selenium.NoSuchElementException
+               (find-it dr-plain :area))))
+
+(deftest plain-test-form-elements
+  (to dr-plain (str test-base-url "example-form"))
+  ;; Clear element
+  (-> dr-plain
+      (find-it [:form {:id "example_form"}, :input {:name #"last_"}])
+      clear)
+  (is (= ""
+         (value (find-it dr-plain [:form {:id "example_form"}, :input {:name #"last_"}]))))
+  ;; Radio buttons
+  (is (= true
+         (selected? (find-it dr-plain :input {:type "radio", :value "male"}))))
+  (-> dr-plain
+      (find-it :input {:type "radio", :value "female"})
+      select)
+  (is (= true
+         (selected? (find-it dr-plain :input {:type "radio", :value "female"}))))
+  (-> dr-plain
+      (find-it :radio {:value "male"})
+      select)
+  (is (= true
+         (selected? (find-it dr-plain :input {:type "radio", :value "male"}))))
+  ;; Checkboxes
+  (is (= false
+         (selected? (find-it dr-plain :input {:type "checkbox", :name #"(?i)clojure"}))))
+  (-> dr-plain
+      (find-it :input {:type "checkbox", :name #"(?i)clojure"})
+      toggle)
+  (is (= true
+         (selected? (find-it dr-plain :input {:type "checkbox", :name #"(?i)clojure"}))))
+  (-> dr-plain
+      (find-it :checkbox {:name #"(?i)clojure"})
+      click)
+  (is (= false
+         (selected? (find-it dr-plain :input {:type "checkbox", :name #"(?i)clojure"}))))
+  (-> dr-plain
+      (find-it :checkbox {:type "checkbox", :name #"(?i)clojure"})
+      select)
+  (is (= true
+         (selected? (find-it dr-plain :input {:type "checkbox", :name #"(?i)clojure"}))))
+  ;; Text fields
+  (is (= "true"
+         (attribute (find-it dr-plain :input {:type "text", :value "Testing!"})
+                    "readonly")))
+  (-> dr-plain
+      (find-it :input {:id "first_name"})
+      (input-text "foobar"))
+  (is (= "foobar"
+         (value (find-it dr-plain :input {:id "first_name"}))))
+  (-> dr-plain
+      (find-it :textfield {:id "first_name"})
+      clear
+      (input-text "clojurian"))
+  (is (= "clojurian"
+         (value (find-it dr-plain :textfield {:id "first_name"})))))
+
+(deftest plain-test-window-handling
+  (is (= 1
+         (count (window-handles dr-plain))))
+  (is (= "Ministache"
+         (:title (window-handle dr-plain))))
+  (-> dr-plain
+      (find-it :a {:text "is amazing!"})
+      click)
+  (is (= "Ministache"
+         (:title (window-handle dr-plain))))
+  (is (= 2
+         (count (window-handles dr-plain))))
+  (switch-to-window dr-plain (second (window-handles dr-plain)))
+  (is (= (str test-base-url "clojure")
+         (:url (window-handle dr-plain))))
+  (switch-to-other-window dr-plain)
+  (is (= test-base-url
+         (:url (window-handle dr-plain))))
+  (-> dr-plain
+      (switch-to-window (find-it dr-plain :window {:url (str test-base-url "clojure")})))
+  (close dr-plain)
+  (is (= test-base-url
+         (:url (window-handle dr-plain)))))
+
+(deftest plain-wait-until-should-wait-for-condition
+  (is (= "Ministache" (title dr-plain)))
+  (-> dr-plain
+    (execute-script "setTimeout(function () { window.document.title = \"asdf\"}, 3000)")
+    (wait-until (fn [d] (= "asdf" (title d)))))
+  (is (= "asdf" (title dr-plain))))
+
+(deftest plain-wait-until-should-throw-on-timeout
+  (is (thrown? TimeoutException
+               (-> dr-plain
+                 (execute-script "setTimeout(function () { window.document.title = \"test\"}, 6000)")
+                 (wait-until (fn [d] (= "test" (title d))))))))
+
+(deftest plain-wait-until-should-allow-timeout-argument
+  (is (thrown? TimeoutException
+               (-> dr-plain
+                   (execute-script "setTimeout(function () { window.document.title = \"test\"}, 10000)")
+                   (wait-until (fn [d] (= "test" (title d))) 1000)))))
+
+(deftest plain-implicit-wait-should-cause-find-to-wait
+  (-> dr-plain
+      (implicit-wait 3000)
+      (execute-script "setTimeout(function () { window.document.body.innerHTML = \"<div id='test'>hi!</div>\"}, 1000)"))
+  (is (= "test"
+         (attribute (find-element dr-plain (by-id "test")) :id))))
+
+;; Not sure how we'll test that flash in fact flashes,
+;; but at least this will catch changing API's
+(deftest plain-test-flash-helper
+  (-> dr-plain
+      (find-it :a {:text "Moustache"})
+      flash))
+
+
+
+;; ## Raw Java WebDriver Tests ##
 (deftest wdr-test-browser-basics
   (is (contains? (supers (class wdr)) org.openqa.selenium.WebDriver))
   (is (= test-base-url (current-url wdr)))
