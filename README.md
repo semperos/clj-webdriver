@@ -8,6 +8,8 @@ This is a Clojure library for driving a web browser using Selenium-WebDriver as 
  * [Issue Queue](https://github.com/semperos/clj-webdriver/issues)
  * [Selenium-WebDriver Javadoc](http://selenium.googlecode.com/svn/trunk/docs/api/java/index.html)
 
+**Please join the Google group if you use this library.** I regularly post announcements about upcoming releases, and although I ensure all tests are passing and try to maintain good test coverage before releases, user testing is invaluable. Thank you!
+
 ## Usage
 
 ### Important ###
