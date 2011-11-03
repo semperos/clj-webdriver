@@ -162,13 +162,15 @@
   "Click a particular HTML element"
   [element]
   (.click element)
-  (cache/set-status :check))
+  (cache/set-status :check)
+  element)
 
 (defn submit
   "Submit the form which contains the given element object"
   [element]
   (.submit element)
-  (cache/set-status :flush))
+  (cache/set-status :flush)
+  nil)
 
 (defn value
   "Retrieve the `value` attribute of the given element object"
