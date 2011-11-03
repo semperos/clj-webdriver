@@ -1,5 +1,5 @@
 (ns clj-webdriver.test.core
-  (:use [clj-webdriver core util window-handle wait options])
+  (:use [clj-webdriver core util window-handle wait options form-helpers])
   (:use [ring.adapter.jetty :only [run-jetty]]
         clojure.test)  
   (:require [clj-webdriver.test.example-app.core :as web-app]
@@ -242,6 +242,28 @@
       (input-text "clojurian"))
   (is (= "clojurian"
          (value (find-it dr :textfield {:id "first_name"})))))
+
+(deftest test-form-helpers
+  (to dr (str test-base-url "example-form"))
+  (quick-fill dr
+              [{"first_name" clear}
+               {"first_name" "Richard"}
+               {{:id "last_name"} clear}
+               {{:id "last_name"} "Hickey"}
+               {{:name "bio"} clear}
+               {{:name "bio"} #(input-text % "Creator of Clojure")}
+               {{:tag-name "input", :type "radio", :value "female"} click}
+               {{:css "select#countries"} #(select-by-value % "france")}])
+  (is (= "Richard"
+         (value (find-it dr :input {:id "first_name"}))))
+  (is (= "Hickey"
+         (value (find-it dr :input {:id "last_name"}))))
+  (is (= "Creator of Clojure"
+         (value (find-it dr :input {:name "bio"}))))
+  (is (selected?
+       (find-it dr :input {:type "radio", :value "female"})))
+  (is (selected?
+       (find-it dr :option {:value "france"}))))
 
 (deftest test-window-handling
   (is (= 1
