@@ -30,13 +30,15 @@
     [driver query-action-maps]
     [driver query-action-maps submit?]
     "`driver`              - browser driver
-   `query-action-maps`   - a seq of maps of queries to actions (queries find HTML elements, actions are fn's that act on them)
-   `submit?`             - (WARNING: CHANGES RETURN TYPE) boolean, whether or not the call to this function will submit the form in question
+    `query-action-maps`   - a seq of maps of queries to actions (queries find HTML elements, actions are fn's that act on them)
+    `submit?`             - (WARNING: CHANGES RETURN TYPE) boolean, whether or not the call to this function will submit the form in question
 
-   Example usage:
-   (quick-fill a-driver
-     [{\"first_name\" \"Rich\"}
-      {{:class \"foobar\"} click}])"))
+     Note that an \"action\" that is just a String will be interpreted as a call to `input-text` on that String for the target text field
+
+    Example usage:
+    (quick-fill a-driver
+      [{\"first_name\" \"Rich\"}
+       {{:class \"foobar\"} click}])"))
 
 (extend-type Driver
   IFormHelper
