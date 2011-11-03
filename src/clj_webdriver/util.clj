@@ -21,12 +21,10 @@
 (defn build-xpath
   "Given a tag and a map of attribute-value pairs, generate XPath"
   [tag attr-val]
-  (if (contains-regex? attr-val)
-    nil
+  (when-not (contains-regex? attr-val)
     (str "//"
          (name tag)
-         (if (empty? attr-val)
-           nil
+         (when-not (empty? attr-val)
            (build-xpath-attrs attr-val)))))
 
 (defn build-xpath-with-ancestry
