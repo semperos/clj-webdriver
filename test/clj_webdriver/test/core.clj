@@ -566,6 +566,28 @@
   (is (= "clojurian"
          (value (find-it dr-plain :textfield {:id "first_name"})))))
 
+(deftest plain-test-form-helpers
+  (to dr-plain (str test-base-url "example-form"))
+  (quick-fill dr-plain
+              [{"first_name" clear}
+               {"first_name" "Richard"}
+               {{:id "last_name"} clear}
+               {{:id "last_name"} "Hickey"}
+               {{:name "bio"} clear}
+               {{:name "bio"} #(input-text % "Creator of Clojure")}
+               {{:tag-name "input", :type "radio", :value "female"} click}
+               {{:css "select#countries"} #(select-by-value % "france")}])
+  (is (= "Richard"
+         (value (find-it dr-plain :input {:id "first_name"}))))
+  (is (= "Hickey"
+         (value (find-it dr-plain :input {:id "last_name"}))))
+  (is (= "Creator of Clojure"
+         (value (find-it dr-plain :input {:name "bio"}))))
+  (is (selected?
+       (find-it dr-plain :input {:type "radio", :value "female"})))
+  (is (selected?
+       (find-it dr-plain :option {:value "france"}))))
+
 (deftest plain-test-window-handling
   (is (= 1
          (count (window-handles dr-plain))))
@@ -816,6 +838,28 @@
       (input-text "clojurian"))
   (is (= "clojurian"
          (value (find-it wdr :textfield {:id "first_name"})))))
+
+(deftest wdr-test-form-helpers
+  (to wdr (str test-base-url "example-form"))
+  (quick-fill wdr
+              [{"first_name" clear}
+               {"first_name" "Richard"}
+               {{:id "last_name"} clear}
+               {{:id "last_name"} "Hickey"}
+               {{:name "bio"} clear}
+               {{:name "bio"} #(input-text % "Creator of Clojure")}
+               {{:tag-name "input", :type "radio", :value "female"} click}
+               {{:css "select#countries"} #(select-by-value % "france")}])
+  (is (= "Richard"
+         (value (find-it wdr :input {:id "first_name"}))))
+  (is (= "Hickey"
+         (value (find-it wdr :input {:id "last_name"}))))
+  (is (= "Creator of Clojure"
+         (value (find-it wdr :input {:name "bio"}))))
+  (is (selected?
+       (find-it wdr :input {:type "radio", :value "female"})))
+  (is (selected?
+       (find-it wdr :option {:value "france"}))))
 
 (deftest wdr-test-window-handling
   (is (= 1
