@@ -5,7 +5,8 @@
 ;;
 (ns clj-webdriver.form-helpers
   (:use [clj-webdriver.core :only [input-text find-them]])
-  (:import clj_webdriver.driver.Driver))
+  (:import clj_webdriver.driver.Driver)
+  (:import org.openqa.selenium.WebDriver))
 
 (defn- quick-fill*
   [driver k v submit?]
@@ -41,6 +42,15 @@
        {{:class \"foobar\"} click}])"))
 
 (extend-type Driver
+  IFormHelper
+  (quick-fill
+    ([driver query-action-maps] (quick-fill driver query-action-maps false))
+    ([driver query-action-maps submit?]
+       (doseq [entries query-action-maps,
+               [k v] entries]
+         (quick-fill* driver k v submit?)))))
+
+(extend-type WebDriver
   IFormHelper
   (quick-fill
     ([driver query-action-maps] (quick-fill driver query-action-maps false))
