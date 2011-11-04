@@ -150,7 +150,7 @@
         (filter #(re-find value (text %)) all-elements)
         (filter (fn [el]
                   ((fnil (partial re-find value) "") ; `(attribute)` will return nil if the HTML element in question
-                   (attribute el (name attr))))      ; doesn't support the attribute being passed in (e.g. :href on a <p>)
+                   (.getAttribute el (name attr))))      ; doesn't support the attribute being passed in (e.g. :href on a <p>)
                 all-elements))))
 
   (find-elements-by-regex [driver tag attr-val]
@@ -290,10 +290,12 @@
   
   (find-them
     ([driver attr-val]
-       (for [el (find-them* driver attr-val)]
+       (for [el (find-them* driver attr-val)
+             :when (not= (class el) clj_webdriver.element.Element)]
          (init-element el)))
     ([driver tag attr-val]
-       (for [el (find-them* driver tag attr-val)]
+       (for [el (find-them* driver tag attr-val)
+             :when (not= (class el) clj_webdriver.element.Element)]
          (init-element el))))
 
   (find-it

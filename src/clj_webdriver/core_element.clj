@@ -4,7 +4,7 @@
 
   ;; Element action basics
   IElement
-  (attribute [element]
+  (attribute [element attr]
     (.getAttribute (:webelement element) (name attr)))
   
   (click [element]
@@ -106,7 +106,7 @@
   (selected? [element]
     (.isSelected (:webelement element)))
 
-  (send-keys [element]
+  (send-keys [element s]
     (.sendKeys (:webelement element) (into-array CharSequence (list s)))
     element)
   

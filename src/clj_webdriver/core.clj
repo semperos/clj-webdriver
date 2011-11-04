@@ -105,7 +105,7 @@
 
 (defprotocol IElement
   "Basic actions on elements"
-  (attribute [element] "Retrieve the value of the attribute of the given element object")
+  (attribute [element attr] "Retrieve the value of the attribute of the given element object")
   (click [element] "Click a particular HTML element")
   (displayed? [element] "Returns true if the given element object is visible/displayed")
   (drag-and-drop-by [element x y] "Drag an element by `x` pixels to the right and `y` pixels down. Use negative numbers for opposite directions.")
@@ -128,11 +128,11 @@
   (clear [element] "Clear the contents of the given element object")
   (deselect [element] "Deselect a given element object")
   (enabled? [element] "Returns true if the given element object is enabled")
-  (input-text [element text] "Type the string of keys into the element object")
+  (input-text [element s] "Type the string of keys into the element object")
   (submit [element] "Submit the form which contains the given element object")
   (select [element] "Select a given element object")
   (selected? [element] "Returns true if the given element object is selected")
-  (send-keys [element text] "Type the string of keys into the element object")
+  (send-keys [element s] "Type the string of keys into the element object")
   (toggle [element] "If the given element object is a checkbox, this will toggle its selected/unselected state. In Selenium 2, `.toggle()` was deprecated and replaced in usage by `.click()`."))
 
 (defn start
@@ -213,7 +213,7 @@
                                   (filter #(re-find value (text %)) elements)
                                   (filter (fn [el]
                                             ((fnil (partial re-find value) "")
-                                             (attribute el (name attr))))
+                                             (.getAttribute el (name attr))))
                                           elements))]
           (recur matching-elements (dissoc attr-vals-with-regex attr)))))))
 
