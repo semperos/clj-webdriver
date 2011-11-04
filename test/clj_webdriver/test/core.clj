@@ -192,8 +192,9 @@
 (deftest test-xpath-quote-handling
   (is (find-it dr {:text "File's Name"})))
 
-(deftest text-xpath-js
-  (is (= (xpath (find-it dr :a {:text "Moustache"})) "/html/body/div[2]/div/p/a")))
+(deftest text-js-based-fns
+  (is (= (xpath (find-it dr :a {:text "Moustache"})) "/html/body/div[2]/div/p/a"))
+  (is (= (html (find-it dr :a {:text "Moustache"})) "<a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"external\" href=\"https://github.com/cgrand/moustache\">Moustache</a>")))
 
 (deftest test-form-elements
   (to dr (str test-base-url "example-form"))
