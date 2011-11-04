@@ -13,11 +13,12 @@
 ;; WebDriver API.
 ;;
 (ns clj-webdriver.core
-  (:use [clj-webdriver driver util window-handle options])
+  (:use [clj-webdriver driver element util window-handle options])
   (:require [clj-webdriver.js.browserbot :as browserbot-js]
             [clj-webdriver.cache :as cache]
             [clojure.tools.logging :as log])
   (:import [clj_webdriver.driver Driver]
+           [clj_webdriver.element Element]
            [org.openqa.selenium By WebDriver WebElement Cookie
                                 NoSuchElementException]
            [org.openqa.selenium.firefox FirefoxDriver]
@@ -102,6 +103,38 @@
     [driver attr-val]
     [driver tag attr-val] "Call (first (find-them args))"))
 
+(defprotocol IElement
+  "Basic actions on elements"
+  (attribute [element] "Retrieve the value of the attribute of the given element object")
+  (click [element] "Click a particular HTML element")
+  (displayed? [element] "Returns true if the given element object is visible/displayed")
+  (drag-and-drop-by [element x y] "Drag an element by `x` pixels to the right and `y` pixels down. Use negative numbers for opposite directions.")
+  (drag-and-drop-on [element-a element-b] "Drag `element-a` onto `element-b`. The (0,0) coordinates (top-left corners) of each element are aligned.")
+  (exists? [element] "Returns true if the given element exists")
+  (flash [element] "Flash the element in question, to verify you're looking at the correct element")
+  (focus [element] "Apply focus to the given element")
+  (html [element] "Retrieve the outer HTML of an element")
+  (location [element] "Given an element object, return its location as a map of its x/y coordinates")
+  (location-once-visible [element] "Given an element object, return its location on the screen once it is scrolled into view as a map of its x/y coordinates. The window will scroll as much as possible until the element hits the top of the page; thus even visible elements will be scrolled until they reach that point.")
+  (present? [element] "Returns true if the element exists and is visible")
+  (tag-name [element] "Retrieve the name of the HTML tag of the given element object")
+  (text [element] "Retrieve the content, or inner HTML, of a given element object")
+  (value [element] "Retrieve the `value` attribute of the given element object")
+  (visible? [element] "Returns true if the given element object is visible/displayed")
+  (xpath [element] "Retrieve the XPath of an element"))
+
+(defprotocol IFormElement
+  "Actions for form elements"
+  (clear [element] "Clear the contents of the given element object")
+  (deselect [element] "Deselect a given element object")
+  (enabled? [element] "Returns true if the given element object is enabled")
+  (input-text [element text] "Type the string of keys into the element object")
+  (submit [element] "Submit the form which contains the given element object")
+  (select [element] "Select a given element object")
+  (selected? [element] "Returns true if the given element object is selected")
+  (send-keys [element text] "Type the string of keys into the element object")
+  (toggle [element] "If the given element object is a checkbox, this will toggle its selected/unselected state. In Selenium 2, `.toggle()` was deprecated and replaced in usage by `.click()`."))
+
 (defn start
   "Shortcut to instantiate a driver, navigate to a URL, and return the driver for further use"
   ([browser url] (start browser url :driver))
@@ -112,22 +145,7 @@
        (get-url driver url)
        driver)))
 
-
-;; We've defined our own record type WindowHandler because
-;; the String id which WebDriver returns by default to identify
-;; a window is not particularly helpful
-;;
-;; The equivalent starred functions below wrap the WebDriver methods
-;; directly, without using a cusotm record.
-;; (declare switch-to-window)
-;; (defn window-handle
-;;   "Get the only (or first) window handle, return as a WindowHandler record"
-;;   [driver]
-;;   (init-window-handle driver
-;;                       (.getWindowHandle driver)
-;;                       (title driver)
-;;                       (current-url driver)))
-
+;; TODO: verify these functions' necessity
 (defn window-handle*
   "For WebDriver API compatibility: this simply wraps `.getWindowHandle`"
   [driver]
@@ -159,158 +177,8 @@
         execute-js-fn (partial execute-script* driver script)]
     (apply execute-js-fn arguments)))
 
-(defn click
-  "Click a particular HTML element"
-  [element]
-  (.click element)
-  (cache/set-status :check)
-  nil)
-
-(defn submit
-  "Submit the form which contains the given element object"
-  [element]
-  (.submit element)
-  (cache/set-status :flush)
-  nil)
-
-(defn value
-  "Retrieve the `value` attribute of the given element object"
-  [element]
-  (.getAttribute element "value"))
-
-(defn clear
-  "Clear the contents of the given element object"
-  [element]
-  (.clear element)
-  element)
-
-(defn tag-name
-  "Retrieve the name of the HTML tag of the given element object"
-  [element]
-  (.getTagName element))
-
-(defn attribute
-  "Retrieve the value of the attribute of the given element object"
-  [element attr]
-  (.getAttribute element (name attr)))
-
-(defn selected?
-  "Returns true if the given element object is selected"
-  [element]
-  (.isSelected element))
-
-(defn select
-  "Select a given element object"
-  [element]
-  (.click element)
-  element)
-
-(defn toggle
-  "If the given element object is a checkbox, this will toggle its selected/unselected state. In Selenium 2, `.toggle()` was deprecated and replaced in usage by `.click()`."
-  [element]
-  (.click element)
-  element)
-
-(defn deselect
-  "Deselect a given element object"
-  [element]
-  (if (.isSelected element)
-    (toggle element)
-    element))
-
-(defn enabled?
-  "Returns true if the given element object is enabled"
-  [element]
-  (.isEnabled element))
-
-(defmacro exists?
-  "Returns element matching the find-it-form if it exists, or nil if it does not"
-  [find-it-form]
-  `(try 
-      ~find-it-form
-      (catch org.openqa.selenium.NoSuchElementException e#
-        nil)))
-
-(defn visible?
-  "Returns true if the given element object is visible/displayed"
-  [element]
-  (.isDisplayed element))
-
-(def displayed? ^{:doc "Returns true if the given element object is visible/displayed"} visible?)
-(def present? ^{:doc "Returns true if the given element object is visible/displayed"} visible?)
-
-(defn flash
-  "Flash the element in question, to verify you're looking at the correct element"
-  [element]
-  (let [original-color (if (.getCssValue element "background-color")
-                         (.getCssValue element "background-color")
-                         "transparent")
-        orig-colors (repeat original-color)
-        change-colors (interleave (repeat "red") (repeat "blue"))]
-    (doseq [flash-color (take 12 (interleave change-colors orig-colors))]
-      (execute-script* (.getWrappedDriver element)
-                      (str "arguments[0].style.backgroundColor = '"
-                           flash-color "'")
-                      element)
-      (Thread/sleep 80)))
-  element)
-
-(defn text
-  "Retrieve the content, or inner HTML, of a given element object"
-  [element]
-  (.getText element))
-
-(defn html
-  "Retrieve the outer HTML of an element"
-  [element]
-  (browserbot (.getWrappedDriver element) "getOuterHTML" element))
-
-(defn xpath
-  "Retrieve the XPath of an element"
-  [element]
-  (browserbot (.getWrappedDriver element) "getXPath" element []))
-
-(defn focus
-  "Apply focus to the given element"
-  [element]
-  (execute-script*
-   (.getWrappedDriver element) "return arguments[0].focus()" element))
-
-(defn send-keys
-  "Type the string of keys into the element object"
-  [element s]
-  (.sendKeys element (into-array CharSequence (list s)))
-  element)
-
-(def input-text send-keys)
-
-(defn location
-  "Given an element object, return its location as a map of its x/y coordinates"
-  [element]
-  (let [loc (.getLocation element)
-        x   (.x loc)
-        y   (.y loc)]
-    {:x x, :y y}))
-
-(defn location-once-visible
-  "Given an element object, return its location on the screen once it is scrolled into view as a map of its x/y coordinates. The window will scroll as much as possible until the element hits the top of the page; thus even visible elements will be scrolled until they reach that point."
-  [element]
-  (let [loc (.getLocationOnScreenOnceScrolledIntoView element)
-        x   (.x loc)
-        y   (.y loc)]
-    {:x x, :y y}))
-
-(defn drag-and-drop-by
-  "Drag an element by `x` pixels to the right and `y` pixels down. Use negative numbers for opposite directions."
-  [element ^Integer x ^Integer y]
-  (.dragAndDropBy element x y)
-  element)
-
-(defn drag-and-drop-on
-  "Drag `element-a` onto `element-b`. The (0,0) coordinates (top-left corners) of each element are aligned."
-  [element-a element-b]
-  (.dragAndDropOn element-a element-b)
-  element-a)
+;; Implementations of the above IElement and IFormElement protocols
+(load "core_element")
 
 ;; ## JavaScript Execution ##
 (defn execute-script
