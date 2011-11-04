@@ -192,6 +192,9 @@
 (deftest test-xpath-quote-handling
   (is (find-it dr {:text "File's Name"})))
 
+(deftest text-xpath-js
+  (is (= (xpath (find-it dr :a {:text "Moustache"})) "/html/body/div[2]/div/p/a")))
+
 (deftest test-form-elements
   (to dr (str test-base-url "example-form"))
   ;; Clear element
@@ -295,27 +298,25 @@
 
 (deftest wait-until-should-wait-for-condition
   (is (= "Ministache" (title dr)))
-  (-> dr
-    (execute-script "setTimeout(function () { window.document.title = \"asdf\"}, 3000)")
-    (wait-until (fn [d] (= "asdf" (title d)))))
+  (execute-script dr "setTimeout(function () { window.document.title = \"asdf\"}, 3000)")
+  (wait-until dr (fn [d] (= "asdf" (title d))))
   (is (= "asdf" (title dr))))
 
 (deftest wait-until-should-throw-on-timeout
   (is (thrown? TimeoutException
-               (-> dr
-                 (execute-script "setTimeout(function () { window.document.title = \"test\"}, 6000)")
-                 (wait-until (fn [d] (= "test" (title d))))))))
+               (do
+                 (execute-script dr "setTimeout(function () { window.document.title = \"test\"}, 6000)")
+                 (wait-until dr (fn [d] (= "test" (title d))))))))
 
 (deftest wait-until-should-allow-timeout-argument
   (is (thrown? TimeoutException
-               (-> dr
-                   (execute-script "setTimeout(function () { window.document.title = \"test\"}, 10000)")
-                   (wait-until (fn [d] (= "test" (title d))) 1000)))))
+               (do
+                   (execute-script dr "setTimeout(function () { window.document.title = \"test\"}, 10000)")
+                   (wait-until dr (fn [d] (= "test" (title d))) 1000)))))
 
 (deftest implicit-wait-should-cause-find-to-wait
-  (-> dr
-      (implicit-wait 3000)
-      (execute-script "setTimeout(function () { window.document.body.innerHTML = \"<div id='test'>hi!</div>\"}, 1000)"))
+  (implicit-wait dr 3000)
+  (execute-script dr "setTimeout(function () { window.document.body.innerHTML = \"<div id='test'>hi!</div>\"}, 1000)")
   (is (= "test"
          (attribute (find-element dr (by-id "test")) :id))))
 
@@ -618,27 +619,25 @@
 
 (deftest plain-wait-until-should-wait-for-condition
   (is (= "Ministache" (title dr-plain)))
-  (-> dr-plain
-    (execute-script "setTimeout(function () { window.document.title = \"asdf\"}, 3000)")
-    (wait-until (fn [d] (= "asdf" (title d)))))
+  (execute-script dr-plain "setTimeout(function () { window.document.title = \"asdf\"}, 3000)")
+  (wait-until dr-plain (fn [d] (= "asdf" (title d))))
   (is (= "asdf" (title dr-plain))))
 
 (deftest plain-wait-until-should-throw-on-timeout
   (is (thrown? TimeoutException
-               (-> dr-plain
-                 (execute-script "setTimeout(function () { window.document.title = \"test\"}, 6000)")
-                 (wait-until (fn [d] (= "test" (title d))))))))
+               (do
+                 (execute-script dr-plain "setTimeout(function () { window.document.title = \"test\"}, 6000)")
+                 (wait-until dr-plain (fn [d] (= "test" (title d))))))))
 
 (deftest plain-wait-until-should-allow-timeout-argument
   (is (thrown? TimeoutException
-               (-> dr-plain
-                   (execute-script "setTimeout(function () { window.document.title = \"test\"}, 10000)")
-                   (wait-until (fn [d] (= "test" (title d))) 1000)))))
+               (do
+                   (execute-script dr-plain "setTimeout(function () { window.document.title = \"test\"}, 10000)")
+                   (wait-until dr-plain (fn [d] (= "test" (title d))) 1000)))))
 
 (deftest plain-implicit-wait-should-cause-find-to-wait
-  (-> dr-plain
-      (implicit-wait 3000)
-      (execute-script "setTimeout(function () { window.document.body.innerHTML = \"<div id='test'>hi!</div>\"}, 1000)"))
+  (implicit-wait dr-plain 3000)
+  (execute-script dr-plain "setTimeout(function () { window.document.body.innerHTML = \"<div id='test'>hi!</div>\"}, 1000)")
   (is (= "test"
          (attribute (find-element dr-plain (by-id "test")) :id))))
 
@@ -891,27 +890,25 @@
 
 (deftest wdr-wait-until-should-wait-for-condition
   (is (= "Ministache" (title wdr)))
-  (-> wdr
-    (execute-script* "setTimeout(function () { window.document.title = \"asdf\"}, 3000)")
-    (wait-until (fn [d] (= "asdf" (title d)))))
+  (execute-script* wdr "setTimeout(function () { window.document.title = \"asdf\"}, 3000)")
+  (wait-until wdr (fn [d] (= "asdf" (title d))))
   (is (= "asdf" (title wdr))))
 
 (deftest wdr-wait-until-should-throw-on-timeout
   (is (thrown? TimeoutException
-               (-> wdr
-                 (execute-script* "setTimeout(function () { window.document.title = \"test\"}, 6000)")
-                 (wait-until (fn [d] (= "test" (title d))))))))
+               (do
+                 (execute-script* wdr "setTimeout(function () { window.document.title = \"test\"}, 6000)")
+                 (wait-until wdr (fn [d] (= "test" (title d))))))))
 
 (deftest wdr-wait-until-should-allow-timeout-argument
   (is (thrown? TimeoutException
-               (-> wdr
-                   (execute-script* "setTimeout(function () { window.document.title = \"test\"}, 10000)")
-                   (wait-until (fn [d] (= "test" (title d))) 1000)))))
+               (do
+                   (execute-script* wdr "setTimeout(function () { window.document.title = \"test\"}, 10000)")
+                   (wait-until wdr (fn [d] (= "test" (title d))) 1000)))))
 
 (deftest wdr-implicit-wait-should-cause-find-to-wait
-  (-> wdr
-      (implicit-wait 3000)
-      (execute-script* "setTimeout(function () { window.document.body.innerHTML = \"<div id='test'>hi!</div>\"}, 1000)"))
+  (implicit-wait wdr 3000)
+  (execute-script* wdr "setTimeout(function () { window.document.body.innerHTML = \"<div id='test'>hi!</div>\"}, 1000)")
   (is (= "test"
          (attribute (find-element wdr (by-id "test")) :id))))
 
