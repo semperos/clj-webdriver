@@ -136,10 +136,10 @@
   ;;; Find Functions ;;;
   IFind
   (find-element [driver by]
-    (.findElement (:webdriver driver) by))
+    (init-element (.findElement (:webdriver driver) by)))
   
   (find-elements [driver by]
-    (lazy-seq (.findElements (:webdriver driver) by)))
+    (lazy-seq (map init-element (.findElements (:webdriver driver) by))))
   
   (find-elements-by-regex-alone [driver tag attr-val]
     (let [entry (first attr-val)
@@ -150,7 +150,7 @@
         (filter #(re-find value (text %)) all-elements)
         (filter (fn [el]
                   ((fnil (partial re-find value) "") ; `(attribute)` will return nil if the HTML element in question
-                   (.getAttribute el (name attr))))      ; doesn't support the attribute being passed in (e.g. :href on a <p>)
+                   (attribute el (name attr))))      ; doesn't support the attribute being passed in (e.g. :href on a <p>)
                 all-elements))))
 
   (find-elements-by-regex [driver tag attr-val]
@@ -227,7 +227,7 @@
     ([driver attr-val]
        (try
          (cond
-          (= attr-val :button*)   (find-them driver :button* nil)
+          (= attr-val :button*)   (find-them* driver :button* nil)
           (keyword? attr-val)     (find-elements
                                    driver
                                    (by-tag-name (name attr-val))) ; supplied just :tag
@@ -241,30 +241,30 @@
                                                                                 (find-elements driver (by-xpath (str (build-xpath-with-ancestry attr-val) "//*")))
                                                                                 (last attr-val)))
                                    :else (find-elements driver (by-xpath (build-xpath-with-ancestry attr-val)))) ; supplied vector of queries in hierarchy
-          (map? attr-val)         (find-them driver :* attr-val))
+          (map? attr-val)         (find-them* driver :* attr-val))
          (catch org.openqa.selenium.NoSuchElementException e
            nil)))
     ([driver tag attr-val]
        (when (keyword? driver) ; I keep forgetting to pass in the WebDriver instance while testing
          (throw (IllegalArgumentException.
-                 (str "The first parameter to find-them must be an instance of WebDriver."))))
+                 (str "The first parameter to find-them* must be an instance of WebDriver."))))
        (try
          (cond
           (and (> (count attr-val) 1)
-               (contains? attr-val :xpath))          (find-them driver :* {:xpath (:xpath attr-val)})
+               (contains? attr-val :xpath))          (find-them* driver :* {:xpath (:xpath attr-val)})
           (and (> (count attr-val) 1)
-               (contains? attr-val :css))            (find-them driver :* {:css (:css attr-val)})
-          (contains? attr-val :tag-name)             (find-them driver
+               (contains? attr-val :css))            (find-them* driver :* {:css (:css attr-val)})
+          (contains? attr-val :tag-name)             (find-them* driver
                                                                 (-> (:tag-name attr-val)
                                                                     .toLowerCase
                                                                     keyword)
                                                                 (dissoc attr-val :tag-name))
           (contains? attr-val :index)                (find-elements driver (by-xpath (build-xpath tag attr-val)))
-          (= tag :radio)                             (find-them driver :input (assoc attr-val :type "radio"))
-          (= tag :checkbox)                          (find-them driver :input (assoc attr-val :type "checkbox"))
-          (= tag :textfield)                         (find-them driver :input (assoc attr-val :type "text"))
-          (= tag :password)                          (find-them driver :input (assoc attr-val :type "password"))
-          (= tag :filefield)                         (find-them driver :input (assoc attr-val :type "file"))
+          (= tag :radio)                             (find-them* driver :input (assoc attr-val :type "radio"))
+          (= tag :checkbox)                          (find-them* driver :input (assoc attr-val :type "checkbox"))
+          (= tag :textfield)                         (find-them* driver :input (assoc attr-val :type "text"))
+          (= tag :password)                          (find-them* driver :input (assoc attr-val :type "password"))
+          (= tag :filefield)                         (find-them* driver :input (assoc attr-val :type "file"))
           (and (= tag :input)
                (contains? attr-val :type)
                (or (= "radio" (:type attr-val))
@@ -303,7 +303,9 @@
        (if (and (cache/cache-enabled? driver) (cache/in-cache? driver attr-val))
          (cache/retrieve driver attr-val)
          (let [el (first (find-them driver attr-val))]
-           (if (or (cache/cacheable? driver attr-val) (cache/cacheable? driver el))
+           (if (and (cache/cache-enabled? driver)
+                    (not (nil? el))
+                    (or (cache/cacheable? driver attr-val) (cache/cacheable? driver el)))
              (do
                (cache/insert driver attr-val el)
                el)
@@ -312,7 +314,8 @@
        (if (and (cache/cache-enabled? driver) (cache/in-cache? driver [tag attr-val]))
          (cache/retrieve driver [tag attr-val])
          (let [el (first (find-them driver tag attr-val))]
-           (if (cache/cacheable? driver el)
+           (if (and (cache/cache-enabled? driver)
+                    (cache/cacheable? driver el))
              (do
                (cache/insert driver [tag attr-val] el)
                el)
