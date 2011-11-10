@@ -2,7 +2,7 @@ language: clojure
 branches:
   only:
     - master
-    - driver-record
+    - 0.4.x
 env: DISPLAY=:99.0
 before_script: "sh -e /etc/init.d/xvfb start"
 notifications:

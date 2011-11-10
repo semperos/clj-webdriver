@@ -2,6 +2,23 @@
 
 ## Release History ##
 
+### [v0.4.3](https://github.com/semperos/clj-webdriver/tree/v0.4.3) ###
+
+ - Merge fixes from @maxweber for form-helpers namespace
+ - Implement IFormHelper for WebDriver class
+ - Clean up if/when usage
+ - Change default quoting of XPath queries to use double quotes
+
+### [v0.4.2](https://github.com/semperos/clj-webdriver/tree/v0.4.2) ###
+
+ - Limit use of cache to when caching is enabled
+ - Fix functions that check cache as an intermediate step, ensuring they still return proper values
+ - Add suite of tests for driver that doesn't use caching
+
+### [v0.4.1](https://github.com/semperos/clj-webdriver/tree/v0.4.1) ###
+
+ - Upgrade dependency for clache, since the 0.7.0 jar had a bug in it
+
 ### [v0.4.0](https://github.com/semperos/clj-webdriver/tree/v0.4.0) ###
 
  - Refactor API to use a Driver record (wrapped around the WebDriver instance)
