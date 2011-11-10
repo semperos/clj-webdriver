@@ -93,12 +93,9 @@
   (find-semantic-buttons-by-regex [driver attr-val] "Semantic buttons are things that look or behave like buttons but do not necessarily consist of a `<button>` tag")
   (find-checkables-by-text [driver attr-val] "Finding the 'text' of a radio or checkbox is complex. Handle it here.")
   (find-table-cells [driver attr-val] "Given a WebDriver `driver` and a vector `attr-val`, find the correct")
-  (find-them*
-    [driver attr-val]
-    [driver tag attr-val] "Given a browser `driver`, return the elements that match the query")
   (find-them
     [driver attr-val]
-    [driver tag attr-val] "Call find-them*, then make sure elements are actually returned; if not, throw NoSuchElementException so other code can handle exceptions appropriately")
+    [driver tag attr-val] "Find all elements that match the tag/attr-val query")
   (find-it
     [driver attr-val]
     [driver tag attr-val] "Call (first (find-them args))"))
@@ -219,5 +216,3 @@
 
 ;; API with clj-webdriver's Driver implementation
 (load "core_driver")
-;; API with Selenium-WebDriver's WebDriver class
-(load "core_webdriver")
