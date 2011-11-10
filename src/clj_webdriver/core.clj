@@ -180,14 +180,12 @@
 ;; ## JavaScript Execution ##
 (defn execute-script
   [driver js & js-args]
-  (.executeScript (:webdriver driver) js (to-array js-args))
-  driver)
+  (.executeScript (:webdriver driver) js (to-array js-args)))
 
 (defn execute-script*
   "Version of execute-script that uses a WebDriver instance directly."
   [driver js & js-args]
-  (.executeScript driver js (to-array js-args))
-  driver)
+  (.executeScript driver js (to-array js-args)))
 
 ;; ## Select Helpers ##
 (load "core_select")
