@@ -157,7 +157,7 @@
        (-> dr
            (find-it :area)
            exists?)))
-  (is (nil?
+  (is (not
        (-> dr
            (find-it :area)
            exists?)))
@@ -181,9 +181,7 @@
   (is (not
        (-> dr
            (find-it :a)
-           present?)))
-  (is (thrown? org.openqa.selenium.NoSuchElementException
-               (find-it dr :area))))
+           present?))))
 
 ;; Default wrap for strings is double quotes
 (deftest test-xpath-quote-handling
@@ -486,7 +484,7 @@
        (-> dr-plain
            (find-it :area)
            exists?)))
-  (is (nil?
+  (is (not
        (-> dr-plain
            (find-it :area)
            exists?)))
@@ -510,9 +508,7 @@
   (is (not
        (-> dr-plain
            (find-it :a)
-           present?)))
-  (is (thrown? org.openqa.selenium.NoSuchElementException
-               (find-it dr-plain :area))))
+           present?))))
 
 (deftest plain-test-form-elements
   (to dr-plain (str test-base-url "example-form"))

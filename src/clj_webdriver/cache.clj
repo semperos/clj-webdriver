@@ -45,6 +45,7 @@
 ;;
 
 (ns clj-webdriver.cache
+  (:use [clj-webdriver.element :only [is-element?]])
   (:require [clojure.tools.logging :as log])
   (:import clj_webdriver.driver.Driver))
 
@@ -130,22 +131,22 @@
       (if (contains? (:cache-spec driver) :exclude)
         ;; handle excludes
         (let [excludes (get-in driver [:cache-spec :exclude])]
-          (if (map? query)
-            ;; xpath, css or ancestry
-            (let [excludes (remove #(fn? %) excludes)]
-              (not (some (fn [exclude-item] (= query exclude-item)) excludes)))
+          (if (is-element? query)
             ;; WebElement
             (let [excludes (remove #(map? %) excludes)]
-              (not (some #{true} (map (fn [f] (f query)) excludes))))))
+              (not (some #{true} (map (fn [f] (f query)) excludes))))
+            ;; xpath, css or ancestry
+            (let [excludes (remove #(fn? %) excludes)]
+              (not (some (fn [exclude-item] (= query exclude-item)) excludes)))))
         ;; handle includes
         (let [includes (get-in driver [:cache-spec :include])]
-          (if (map? query)
-            ;; xpath, css or ancestry
-            (let [includes (remove #(fn? %) includes)]
-              (some (fn [include-item] (= query include-item)) includes))
+          (if (is-element? query)
             ;; WebElement
             (let [includes (remove #(map? %) includes)]
-              (some #{true} (map (fn [f] (f query)) includes)))))))))
+              (some #{true} (map (fn [f] (f query)) includes)))
+            ;; xpath, css or ancestry
+            (let [includes (remove #(fn? %) includes)]
+              (some (fn [include-item] (= query include-item)) includes))))))))
 
 (defn set-status
   "Change the current cache status"

@@ -1,5 +1,4 @@
-(ns clj-webdriver.element
-  (:require [clj-webdriver.cache :as cache]))
+(ns clj-webdriver.element)
 
 (defrecord Element [webelement])
 
@@ -8,3 +7,7 @@
   ([] (Element. nil))
   ([webelement] (Element. webelement)))
 
+(defn is-element?
+  "Return true if parameter is an Element record"
+  [element]
+  (= (class element) Element))

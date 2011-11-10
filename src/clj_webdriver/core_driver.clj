@@ -139,7 +139,10 @@
     (init-element (.findElement (:webdriver driver) by)))
   
   (find-elements [driver by]
-    (lazy-seq (map init-element (.findElements (:webdriver driver) by))))
+    (let [els (.findElements (:webdriver driver) by)]
+      (if (seq els)
+        (lazy-seq (map init-element els))
+        (lazy-seq (map init-element [nil])))))
   
   (find-elements-by-regex-alone [driver tag attr-val]
     (let [entry (first attr-val)
@@ -243,9 +246,7 @@
                                    :else (find-elements driver (by-xpath (build-xpath-with-ancestry attr-val)))) ; supplied vector of queries in hierarchy
           (map? attr-val)         (find-them driver :* attr-val))
          (catch org.openqa.selenium.NoSuchElementException e
-           (do
-             (log/warn "No such element exception caught")
-             nil))))
+           (lazy-seq (init-element nil)))))
     ([driver tag attr-val]
        (when (keyword? driver) ; I keep forgetting to pass in the WebDriver instance while testing
          (throw (IllegalArgumentException.
@@ -288,9 +289,7 @@
           (contains-regex? attr-val)                 (find-elements-by-regex driver tag attr-val)
           :else                                      (find-elements driver (by-xpath (build-xpath tag attr-val))))
          (catch org.openqa.selenium.NoSuchElementException e
-           (do
-             (log/warn "No such element exception caught again")
-             nil)))))
+           (lazy-seq (init-element nil))))))
   
   (find-it
     ([driver attr-val]
@@ -298,7 +297,8 @@
          (cache/retrieve driver attr-val)
          (let [el (first (find-them driver attr-val))]
            (if (and (cache/cache-enabled? driver)
-                    (not (nil? el))
+                    (and (not (nil? el))
+                         (exists? el))
                     (or (cache/cacheable? driver attr-val) (cache/cacheable? driver el)))
              (do
                (cache/insert driver attr-val el)
@@ -309,6 +309,7 @@
          (cache/retrieve driver [tag attr-val])
          (let [el (first (find-them driver tag attr-val))]
            (if (and (cache/cache-enabled? driver)
+                    (exists? el)
                     (cache/cacheable? driver el))
              (do
                (cache/insert driver [tag attr-val] el)

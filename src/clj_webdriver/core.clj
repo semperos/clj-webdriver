@@ -208,7 +208,7 @@
                                   (filter #(re-find value (text %)) elements)
                                   (filter (fn [el]
                                             ((fnil (partial re-find value) "")
-                                             (.getAttribute el (name attr))))
+                                             (attribute el (name attr))))
                                           elements))]
           (recur matching-elements (dissoc attr-vals-with-regex attr)))))))
 

@@ -87,8 +87,9 @@
   (enabled? [element]
     (.isEnabled (:webelement element)))
   
-  (send-keys [element text]
-    :foo)
+  (input-text [element s]
+    (.sendKeys (:webelement element) (into-array CharSequence (list s)))
+    element)
   
   (submit [element]
     (.submit (:webelement element))
