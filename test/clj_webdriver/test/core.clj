@@ -373,6 +373,8 @@
     (quit temp-dr)))
 
 
+;; TODO: write tests for screenshot functionality, ensure diff outputs
+;;(deftest test-screenshot-should-return-different-outputs)
 
 
 ;; ## Tests (sans cache) ##

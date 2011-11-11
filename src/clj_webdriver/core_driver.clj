@@ -4,25 +4,11 @@
 
   ;;; Basic Functions ;;;
   IDriver
-  (get-url [driver url]
-    (.get (:webdriver driver) url)
+  (back [driver]
+    (.back (.navigate (:webdriver driver)))
     (cache/seed driver)
     driver)
-
-  (to [driver url]
-    (.to (.navigate (:webdriver driver)) url)
-    (cache/seed driver)
-    driver)
-
-  (current-url [driver]
-    (.getCurrentUrl (:webdriver driver)))
-
-  (title [driver]
-    (.getTitle (:webdriver driver)))
-
-  (page-source [driver]
-    (.getPageSource (:webdriver driver)))
-
+  
   (close [driver]
     (let [handles (window-handles* (:webdriver driver))]
       (if (> (count handles) 1) ; get back to a window that is open before proceeding
@@ -39,23 +25,56 @@
         (do
           (.close (:webdriver driver))
           (cache/seed driver {})))))
-  
-  (quit [driver]
-    (.quit (:webdriver driver))
-    (cache/seed driver {}))
-  
-  (back [driver]
-    (.back (.navigate (:webdriver driver)))
-    (cache/seed driver)
-    driver)
+
+  (current-url [driver]
+    (.getCurrentUrl (:webdriver driver)))
 
   (forward [driver]
     (.forward (.navigate (:webdriver driver)))
     (cache/seed driver)
     driver)
+  
+  (get-url [driver url]
+    (.get (:webdriver driver) url)
+    (cache/seed driver)
+    driver)
+
+  (get-screenshot
+    ([driver] (get-screenshot driver :file))
+    ([driver format] (get-screenshot driver format nil))
+    ([driver format destination]
+       {:pre [(or (= format :file)
+                  (= format :base64)
+                  (= format :bytes))]}
+       (let [wd (:webdriver driver)
+             output (case format
+                      :file (.getScreenshotAs wd OutputType/FILE)
+                      :base64 (.getScreenshotAs wd OutputType/BASE64)
+                      :bytes (.getScreenshotAs wd OutputType/BYTES))]
+         (if destination
+           (do
+             (jio/copy output (jio/file destination))
+             (log/info "Screenshot written to destination")
+             output)
+           output))))
+
+  (page-source [driver]
+    (.getPageSource (:webdriver driver)))
+
+  (quit [driver]
+    (.quit (:webdriver driver))
+    (cache/seed driver {}))
 
   (refresh [driver]
     (.refresh (.navigate (:webdriver driver)))
+    (cache/seed driver)
+    driver)
+
+  (title [driver]
+    (.getTitle (:webdriver driver)))
+
+  (to [driver url]
+    (.to (.navigate (:webdriver driver)) url)
     (cache/seed driver)
     driver)
 
