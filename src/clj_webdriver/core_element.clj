@@ -126,6 +126,9 @@
         (lazy-seq (.getAllSelectedOptions select-list))))
     
     (deselect-option [element attr-val]
+      {:pre [(or (= (first (keys attr-val)) :index)
+                 (= (first (keys attr-val)) :value)
+                 (= (first (keys attr-val)) :text))]}
       (case (first (keys attr-val))
         :index (deselect-by-index element (:index attr-val))
         :value (deselect-by-value element (:value attr-val))
@@ -164,6 +167,9 @@
             (= value "multiple"))))
     
     (select-option [element attr-val]
+      {:pre [(or (= (first (keys attr-val)) :index)
+                (= (first (keys attr-val)) :value)
+                (= (first (keys attr-val)) :text))]}
       (case (first (keys attr-val))
         :index (select-by-index element (:index attr-val))
         :value (select-by-value element (:value attr-val))
