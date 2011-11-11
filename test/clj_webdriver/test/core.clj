@@ -4,7 +4,8 @@
         clojure.test)  
   (:require [clj-webdriver.test.example-app.core :as web-app]
             [clj-webdriver.cache :as cache]
-            [clojure.tools.logging :as log])
+            [clojure.tools.logging :as log]
+            [clojure.java.io :as jio])
   (:import [clj_webdriver.driver.Driver]
            [org.openqa.selenium TimeoutException]))
 
@@ -374,7 +375,13 @@
 
 
 ;; TODO: write tests for screenshot functionality, ensure diff outputs
-;;(deftest test-screenshot-should-return-different-outputs)
+(deftest test-screenshot-should-return-different-outputs
+  (is (string? (get-screenshot dr :base64)))
+  (is (> (count (get-screenshot dr :bytes)) 0))
+  (is (= (class (get-screenshot dr :file)) java.io.File))
+  (is (= (class (get-screenshot dr :file "/tmp/screenshot_test.png")) java.io.File))
+  ;; the following will throw an exception if deletion fails, hence our test
+  (jio/delete-file "/tmp/screenshot_test.png"))
 
 
 ;; ## Tests (sans cache) ##
