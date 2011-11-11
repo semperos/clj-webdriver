@@ -9,3 +9,4 @@ docs
 *.properties
 /wiki
 test-output.txt
+chromedriver.log
