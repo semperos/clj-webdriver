@@ -3,7 +3,6 @@ branches:
   only:
     - master
     - 0.4.x
-    - element-record
 env: DISPLAY=:99.0
 before_script: "sh -e /etc/init.d/xvfb start"
 notifications:
