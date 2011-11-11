@@ -287,7 +287,7 @@
   (is (= test-base-url
          (:url (window-handle dr))))
   (-> dr
-      (switch-to-window (find-it dr :window {:url (str test-base-url "clojure")})))
+      (switch-to-window (find-window dr {:url (str test-base-url "clojure")})))
   (close dr)
   (is (= test-base-url
          (:url (window-handle dr)))))
@@ -606,7 +606,7 @@
   (is (= test-base-url
          (:url (window-handle dr-plain))))
   (-> dr-plain
-      (switch-to-window (find-it dr-plain :window {:url (str test-base-url "clojure")})))
+      (switch-to-window (find-window dr-plain {:url (str test-base-url "clojure")})))
   (close dr-plain)
   (is (= test-base-url
          (:url (window-handle dr-plain)))))

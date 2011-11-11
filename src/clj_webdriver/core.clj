@@ -88,7 +88,8 @@
   (find-elements [driver by] "Retrieve a seq of element objects described by `by`")
   (find-elements-by-regex-alone [driver tag attr-val] "Given an `attr-val` pair with a regex value, find the elements that match")
   (find-elements-by-regex [driver tag attr-val])
-  (find-window-handles [driver attr-val] "Given a browser `driver` and a map of attributes, return the WindowHandle that matches")
+  (find-windows [driver attr-val] "Given a browser `driver` and a map of attributes, return the WindowHandles that matche")
+  (find-window [driver attr-val] "Given a browser `driver` and a map of attributes, return the WindowHandles that matche")
   (find-semantic-buttons [driver attr-val] "Find HTML element that is either a `<button>` or an `<input>` of type submit, reset, image or button")
   (find-semantic-buttons-by-regex [driver attr-val] "Semantic buttons are things that look or behave like buttons but do not necessarily consist of a `<button>` tag")
   (find-checkables-by-text [driver attr-val] "Finding the 'text' of a radio or checkbox is complex. Handle it here.")
@@ -131,6 +132,24 @@
   (selected? [element] "Returns true if the given element object is selected")
   (send-keys [element s] "Type the string of keys into the element object")
   (toggle [element] "If the given element object is a checkbox, this will toggle its selected/unselected state. In Selenium 2, `.toggle()` was deprecated and replaced in usage by `.click()`."))
+
+(defprotocol ISelectElement
+  "Actions specific to select lists"
+  (all-options [select-element] "Retrieve all options from the given select list")
+  (all-selected-options [select-element] "Retrieve a seq of all selected options from the select list described by `by`")
+  (deselect-option [select-element attr-val] "Deselect an option from a select list, either by `:value`, `:index` or `:text`")
+  (deselect-all [select-element] "Deselect all options for a given select list. Does not leverage WebDriver method because WebDriver's isMultiple method is faulty.")
+  (deselect-by-index [select-element idx] "Deselect the option at index `idx` for the select list described by `by`. Indeces begin at 0")
+  (deselect-by-text [select-element text] "Deselect all options with visible text `text` for the select list described by `by`")
+  (deselect-by-value [select-element value] "Deselect all options with value `value` for the select list described by `by`")  
+  (first-selected-option [select-element] "Retrieve the first selected option (or the only one for single-select lists) from the given select list")
+  (multiple? [select-element] "Return true if the given select list allows for multiple selections")
+  (select-option [select-element attr-val] "Select an option from a select list, either by `:value`, `:index` or `:text`")
+  (select-all [select-element] "Select all options for a given select list")
+  (select-by-index [select-element idx] "Select an option by its index in the given select list. Indeces begin at 0.")
+  (select-by-text [select-element text] "Select all options with visible text `text` in the select list described by `by`")
+  (select-by-value [select-element value] "Select all options with value `value` in the select list described by `by`"))
+
 
 (defn start
   "Shortcut to instantiate a driver, navigate to a URL, and return the driver for further use"
@@ -188,7 +207,7 @@
   (.executeScript driver js (to-array js-args)))
 
 ;; ## Select Helpers ##
-(load "core_select")
+;;(load "core_select")
 
 ;; Helper function to find-*
 (defn filter-elements-by-regex

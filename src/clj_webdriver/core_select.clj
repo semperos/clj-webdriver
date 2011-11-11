@@ -33,6 +33,17 @@
     (.deselectByVisibleText select-list text)
     element))
 
+(defn deselect
+  [element attr-val]
+  {:pre (let [k (first (keys attr-val))]
+          (or (= k :index)
+              (= k :value)
+              (= k :text)))}
+  (case (first (keys attr-val))
+    :index (deselect-by-index element (:index attr-val))
+    :value (deselect-by-value element (:value attr-val))
+    :text  (deselect-by-text element (:text attr-val))))
+
 (defn all-selected-options
   "Retrieve a seq of all selected options from the select list described by `by`"
   [element]
@@ -89,3 +100,14 @@
   (let [select-list (Select. element)]
     (.selectByVisibleText select-list text)
     element))
+
+(defn select
+  [element attr-val]
+  {:pre (let [k (first (keys attr-val))]
+          (or (= k :index)
+              (= k :value)
+              (= k :text)))}
+  (case (first (keys attr-val))
+    :index (select-by-index element (:index attr-val))
+    :value (select-by-value element (:value attr-val))
+    :text  (select-by-text element (:text attr-val))))

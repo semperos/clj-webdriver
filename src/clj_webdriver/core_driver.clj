@@ -167,13 +167,16 @@
             elements (find-them driver tag attr-vals-without-regex)]
         (filter-elements-by-regex elements attr-val))))
 
-  (find-window-handles [driver attr-val]
+  (find-windows [driver attr-val]
     (if (contains? attr-val :index)
       [(nth (window-handles driver) (:index attr-val))] ; vector for consistency below
       (filter #(every? (fn [[k v]] (if (= java.util.regex.Pattern (class v))
                                      (re-find v (k %))
                                      (= (k %) v)))
                        attr-val) (window-handles driver))))
+
+  (find-window [driver attr-val]
+    (first (find-windows driver attr-val)))
 
   (find-semantic-buttons [driver attr-val]
     (let [xpath-parts ["//input[@type='submit']"
@@ -274,7 +277,6 @@
                    (= "checkbox" (:type attr-val)))
                (or (contains? attr-val :text)
                    (contains? attr-val :label)))     (find-checkables-by-text driver attr-val)
-          (= tag :window)                            (find-window-handles driver attr-val)
           (= tag :button*)                           (if (contains-regex? attr-val)
                                                        (find-semantic-buttons-by-regex driver attr-val)
                                                        (find-semantic-buttons driver attr-val))
