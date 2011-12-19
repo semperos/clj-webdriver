@@ -4,7 +4,7 @@ lib
 classes
 outline*.html
 docs
-/.lein-failures
+.lein*
 /results.txt
 *.properties
 /wiki
