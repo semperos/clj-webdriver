@@ -1,5 +1,5 @@
 (ns clj-webdriver.driver
-  (require [fogus.clache :as clache]))
+  (require [clojure.core.cache :as cache]))
 
 (defrecord Driver [webdriver cache-spec element-cache middlewares])
 
@@ -7,12 +7,12 @@
   "Initialize cache based on given strategy"
   ([cache-spec]
      (when-not (nil? cache-spec)
-       (let [strategy-legend {:basic clache/->BasicCache,
-                              :fifo clache/->FIFOCache,
-                              :lru clache/->LRUCache,
-                              :lirs clache/->LIRSCache,
-                              :ttl clache/->TTLCache,
-                              :lu clache/->LUCache}]
+       (let [strategy-legend {:basic cache/->BasicCache,
+                              :fifo cache/->FIFOCache,
+                              :lru cache/->LRUCache,
+                              :lirs cache/->LIRSCache,
+                              :ttl cache/->TTLCache,
+                              :lu cache/->LUCache}]
          (atom (apply
                 (get strategy-legend (:strategy cache-spec))
                 (into [{}] (:args cache-spec))))))))
