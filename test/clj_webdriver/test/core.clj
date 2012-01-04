@@ -1,14 +1,21 @@
 (ns clj-webdriver.test.core
   (:use [clj-webdriver core util window-handle wait options form-helpers]
-        [clj-webdriver.driver :only [get-cache]])
+        [clj-webdriver.driver :only [get-cache driver?]])
   (:use [ring.adapter.jetty :only [run-jetty]]
         clojure.test)  
   (:require [clj-webdriver.test.example-app.core :as web-app]
             [clj-webdriver.cache :as cache]
+            [clj-webdriver.firefox :as ff]
             [clojure.tools.logging :as log]
             [clojure.java.io :as jio])
   (:import [clj_webdriver.driver.Driver]
            [org.openqa.selenium TimeoutException]))
+
+;; CI
+(defn travis?
+  "Return true if running on Travis server"
+  []
+  (= (System/getenv "TRAVIS") "true"))
 
 ;; ## Setup ##
 (def test-port 5744)
@@ -656,3 +663,25 @@
   (-> dr-plain
       (find-it :a {:text "Moustache"})
       flash))
+
+;; Firefox-specific Functionality
+
+(deftest firefox-should-support-custom-profiles
+  (is (if (travis?)
+        true
+        (do
+          (log/info "[x] Starting Firefox with custom profile.")
+          (driver? (to (new-driver {:browser :firefox
+                                    :profile (ff/new-profile)})
+                       test-base-url))))))
+
+(deftest firefox-should-support-extensions
+  (is (if (travis?)
+        true
+        (do
+          (log/info "[x] Starting Firefox with extensions.")
+          (driver? (to (new-driver {:browser :firefox
+                                    :profile (doto (ff/new-profile)
+                                               (ff/enable-extension :firebug))})
+                       test-base-url))))))
+
