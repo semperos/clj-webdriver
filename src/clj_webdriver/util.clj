@@ -86,8 +86,6 @@
   `(when (not (or (nil? ~obj) (empty? ~obj)))
      ~@body))
 
-;; #clj_webdriver.driver.Driver{:webdriver #<Title: Ministache, URL: http://localhost:5744/, Browser: firefox, Version: 7.0.1, JS Enabled: true, Native Events Enabled: false, Object: org.openqa.selenium.firefox.FirefoxDriver@576a13d5>, :cache-spec {:strategy :basic, :args [], :include [#<core$fn__3522 clj_webdriver.core$fn__3522@42e87d99>]}, :element-cache #<Atom@4005f23d: {}>, :middlewares nil}
-
 ;; from Clojure's core.clj
 (defn pr-on
   {:private true

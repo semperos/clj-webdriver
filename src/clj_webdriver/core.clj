@@ -39,23 +39,27 @@
    :htmlunit HtmlUnitDriver})
 
 (defn new-webdriver*
-  "Instantiate a new WebDriver instance given a browser type. If an additional profile object or string is passed in, Firefox will be started with the given profile instead of the default."
-  ([browser]
-     (.newInstance (webdriver-drivers (keyword browser))))
-  ([browser profile]
-     {:pre [(= browser :firefox)]}
-     (FirefoxDriver. profile)))
+  "Return a Selenium-WebDriver WebDriver instance, optionally configured to leverage a custom FirefoxProfile."
+  ([browser-spec]
+     (let [{:keys [browser profile] :or {browser :firefox
+                                         profile nil}} browser-spec]
+       (if-not profile
+         (.newInstance (webdriver-drivers (keyword browser)))
+         (FirefoxDriver. profile)))))
 
 (defn new-driver
-  "Create new Driver given a browser type. If an additional profile object or string is passed in, Firefox will be started with the given profile instead of the default.
+  "Start a new Driver instance. The `browser-spec` can include `:browser`, `:profile`, and `:cache-spec` keys.
 
-   This is the preferred method for starting up a browser, as it leverages clj-webdriver-specific functionality not available with vanilla WebDriver instances. You can always access the underlying WebDriver instance with the :webdriver key of your Driver record."
-  ([browser]
-     (init-driver (new-webdriver* browser)))
-  ([browser cache-spec]
-     (init-driver (new-webdriver* browser) cache-spec))
-  ([browser cache-spec cache-args]
-     (init-driver (new-webdriver* browser) cache-spec cache-args)))
+   The `:browser` can be one of `:firefox`, `:ie`, `:chrome` or `:htmlunit`.
+   The `:profile` should be an instance of FirefoxProfile you wish to use.
+   The `:cache-spec` can contain `:strategy`, `:args`, `:include` and/or `:exclude keys. See documentation on caching for more details."
+  ([browser-spec]
+     (let [{:keys [browser profile cache-spec] :or {browser :firefox
+                                                    profile nil
+                                                    cache-spec {}}} browser-spec]
+       (init-driver {:webdriver (new-webdriver* {:browser browser
+                                                 :profile profile})
+                     :cache-spec cache-spec}))))
 
 ;;; Protocols for API ;;;
 (defprotocol IDriver
@@ -155,11 +159,8 @@
 
 (defn start
   "Shortcut to instantiate a driver, navigate to a URL, and return the driver for further use"
-  ([browser url] (start browser url :driver))
-  ([browser url driver-type]
-     (let [driver (if (= :webdriver driver-type)
-                    (new-webdriver* browser)
-                    (new-driver browser))]
+  ([browser-spec url]
+     (let [driver (new-driver browser-spec)]
        (get-url driver url)
        driver)))
 

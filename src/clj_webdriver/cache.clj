@@ -45,7 +45,8 @@
 ;;
 
 (ns clj-webdriver.cache
-  (:use [clj-webdriver.element :only [is-element?]])
+  (:use [clj-webdriver.element :only [is-element?]]
+        [clj-webdriver.driver :only [get-cache]])
   (:require [clojure.tools.logging :as log])
   (:import clj_webdriver.driver.Driver))
 
@@ -81,7 +82,7 @@
                  (vector? raw-query)  {:query raw-query}
                  (keyword? raw-query) {:query [raw-query]}
                  :else                raw-query)]
-      (contains? @(:element-cache driver) query)))
+      (contains? @(get-cache driver) query)))
 
   ;; here the query needs the same normalizing as occurs
   ;; in the cacheable? function below
@@ -91,7 +92,7 @@
                  (keyword? raw-query) {:query [raw-query]}
                  :else                raw-query)]
       (log/info (str "Inserting " query " entry into cache."))
-      (swap! (:element-cache driver) assoc query value)))
+      (swap! (get-cache driver) assoc query value)))
 
   (retrieve [driver raw-query]
     (let [query (cond
@@ -99,28 +100,30 @@
                  (keyword? raw-query) {:query [raw-query]}
                  :else                raw-query)]
       (log/info (str "Retrieving " query " entry from cache."))
-      (get @(:element-cache driver) query)))
+      (get @(get-cache driver) query)))
 
   (cache-url [driver]
-    (get @(:element-cache driver) :url))
+    (get @(get-cache driver) :url))
 
   (set-cache-url [driver url]
-    (swap! (:element-cache driver) assoc :url url))
+    (swap! (get-cache driver) assoc :url url))
 
   (delete [driver raw-query]
     (let [query (cond
                  (vector? raw-query)  {:query raw-query}
                  (keyword? raw-query) {:query [raw-query]}
                  :else                raw-query)]
-     (swap! (:element-cache driver) dissoc query)))
+     (swap! (get-cache driver) dissoc query)))
 
   (seed
     ([driver]
        (when (cache-enabled? driver)
-         (reset! (:element-cache driver) {:url (current-url driver)})))
+         (reset!
+          (get-cache driver)
+          {:url (current-url driver)})))
     ([driver seed-value]
        (when (cache-enabled? driver)
-         (reset! (:element-cache driver) seed-value))))
+         (reset! (get-cache driver) seed-value))))
 
   (cacheable? [driver raw-query]
     ;; normalize query
