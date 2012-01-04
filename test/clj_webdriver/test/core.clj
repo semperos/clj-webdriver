@@ -243,9 +243,6 @@
   (is (= true
          (selected? (find-it dr {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
   ;; Text fields
-  (is (= "true"
-         (attribute (find-it dr {:tag :input, :type "text", :value "Testing!"})
-                    "readonly")))
   (-> dr
       (find-it {:tag :input, :id "first_name"})
       (input-text "foobar"))
@@ -256,7 +253,16 @@
       clear
       (input-text "clojurian"))
   (is (= "clojurian"
-         (value (find-it dr {:tag :textfield, :id "first_name"})))))
+         (value (find-it dr {:tag :textfield, :id "first_name"}))))
+  ;; Boolean attributes (disabled, readonly, etc)
+  (is (= "disabled"
+         (attribute (find-it dr {:id "disabled_field"}) :disabled)))
+  (is (= "readonly"
+         (attribute (find-it dr {:id "purpose_here"}) :readonly)))
+  (is (nil?
+       (attribute (find-it dr {:id "disabled_field"}) :readonly)))
+  (is (nil?
+       (attribute (find-it dr {:id "purpose_here"}) :disabled))))
 
 (deftest test-form-helpers
   (to dr (str test-base-url "example-form"))
@@ -572,9 +578,6 @@
   (is (= true
          (selected? (find-it dr-plain {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
   ;; Text fields
-  (is (= "true"
-         (attribute (find-it dr-plain {:tag :input, :type "text", :value "Testing!"})
-                    "readonly")))
   (-> dr-plain
       (find-it {:tag :input, :id "first_name"})
       (input-text "foobar"))
@@ -585,7 +588,16 @@
       clear
       (input-text "clojurian"))
   (is (= "clojurian"
-         (value (find-it dr-plain {:tag :textfield, :id "first_name"})))))
+         (value (find-it dr-plain {:tag :textfield, :id "first_name"}))))
+  ;; Boolean attributes (disabled, readonly, etc.)
+  (is (= "disabled"
+         (attribute (find-it dr-plain {:id "disabled_field"}) :disabled)))
+  (is (= "readonly"
+         (attribute (find-it dr-plain {:id "purpose_here"}) :readonly)))
+  (is (nil?
+       (attribute (find-it dr-plain {:id "disabled_field"}) :readonly)))
+  (is (nil?
+       (attribute (find-it dr-plain {:id "purpose_here"}) :disabled))))
 
 (deftest plain-test-form-helpers
   (to dr-plain (str test-base-url "example-form"))
