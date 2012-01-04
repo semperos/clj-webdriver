@@ -28,7 +28,7 @@
        (Driver. webdriver
                 (assoc cache-spec :cache (init-cache cache-spec))))))
 
-(defn is-driver?
+(defn driver?
   "Function to check class of a Driver, to prevent needing to import it"
   [driver]
   (= (class driver) Driver))

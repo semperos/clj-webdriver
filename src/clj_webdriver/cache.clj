@@ -91,7 +91,7 @@
                  (vector? raw-query)  {:query raw-query}
                  (keyword? raw-query) {:query [raw-query]}
                  :else                raw-query)]
-      (log/info (str "Inserting " query " entry into cache."))
+      (log/info (str "[x] Inserting " query " entry into cache."))
       (swap! (get-cache driver) assoc query value)))
 
   (retrieve [driver raw-query]
@@ -99,7 +99,7 @@
                  (vector? raw-query)  {:query raw-query}
                  (keyword? raw-query) {:query [raw-query]}
                  :else                raw-query)]
-      (log/info (str "Retrieving " query " entry from cache."))
+      (log/info (str "[x] Retrieving " query " entry from cache."))
       (get @(get-cache driver) query)))
 
   (cache-url [driver]
