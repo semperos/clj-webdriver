@@ -69,7 +69,7 @@
 
 (deftest test-back-forward
   (-> dr
-      (find-it :a {:text "example form"})
+      (find-it {:tag :a, :text "example form"})
       click)
   (is (= (str test-base-url "example-form") (current-url dr)))
   (back dr)
@@ -84,7 +84,7 @@
 
 (deftest test-bys
   (-> dr
-      (find-it :a {:text "example form"})
+      (find-it {:tag :a, :text "example form"})
       click)
   (is (= "first_name"
          (attribute (find-element dr (by-id "first_name")) :id)))
@@ -95,7 +95,7 @@
   (is (= "first_name"
          (attribute (find-element dr (by-name "first_name")) :id)))
   (is (= "home"
-         (text (find-element dr (by-tag-name "a")))))
+         (text (find-element dr (by-tag "a")))))
   (is (= "home"
          (text (find-element dr (by-xpath "//a[text()='home']")))))
   (is (= "home"
@@ -105,19 +105,19 @@
 
 (deftest test-find*
   (is (= "Moustache"
-         (text (nth (find-them dr :a) 1))))
+         (text (nth (find-them dr {:tag :a}) 1))))
   (is (= "Moustache"
          (text (find-it dr {:class "external"}))))
   (is (= "https://github.com/cgrand/moustache"
          (attribute (find-it dr {:text "Moustache"}) "href")))
   (is (= "Moustache"
-         (text (find-it dr :a {:class #"exter"}))))
+         (text (find-it dr {:tag :a, :class #"exter"}))))
   (is (= "Moustache"
-         (text (find-it dr :a {:text #"Mous"}))))
+         (text (find-it dr {:tag :a, :text #"Mous"}))))
   (is (= "Moustache"
-         (text (find-it dr :a {:class "external", :href #"github"}))))
+         (text (find-it dr {:tag :a, :class "external", :href #"github"}))))
   (is (= "Moustache"
-         (text (find-it dr :a {:class #"exter", :href #"github"}))))
+         (text (find-it dr {:tag :a, :class #"exter", :href #"github"}))))
   (is (= "Moustache"
          (text (find-it dr [:div {:id "content"}, :a {:class "external"}]))))
   (is (= "Moustache"
@@ -127,72 +127,72 @@
   (is (= "home"
          (text (find-it dr [:* {:id "footer"}, :a {}]))))
   (is (= 8
-         (count (find-them dr :a))))
+         (count (find-them dr {:tag :a}))))
   (is (= 3
          (count (find-them dr {:class #"-item"}))))
   (is (= 3
-         (count (find-them dr :a {:class #"-item"}))))
+         (count (find-them dr {:tag :a, :class #"-item"}))))
   (is (= 1
-         (count (find-them dr :a {:text #"hom"}))))
+         (count (find-them dr {:tag :a, :text #"hom"}))))
   (is (= 1
-         (count (find-them dr :a {:text #"(?i)HOM"}))))
+         (count (find-them dr {:tag :a, :text #"(?i)HOM"}))))
   (is (= 2
-         (count (find-them dr :a {:class #"exter", :href #"github"}))))
+         (count (find-them dr {:tag :a, :class #"exter", :href #"github"}))))
   (is (= 3
          (count (find-them dr [:* {:id "footer"}, :a {}]))))
   (is (= 2
          (count (find-them dr [:div {:id "content"}, :a {:class #"exter"}]))))
   (-> dr
-      (find-it :a {:text "example form"})
+      (find-it {:tag :a, :text "example form"})
       click)
   (is (= "first_name"
          (attribute (find-it dr {:type "text"}) "id")))
   (is (= "first_name"
-         (attribute (find-it dr :input {:type "text"}) "id")))
+         (attribute (find-it dr {:tag :input, :type "text"}) "id")))
   (is (= "first_name"
-         (attribute (find-it dr :input {:type "text", :name "first_name"}) "id")))
+         (attribute (find-it dr {:tag :input, :type "text", :name "first_name"}) "id")))
   (is (= "first_name"
-         (attribute (find-it dr :input {:type "text", :name #"first_"}) "id")))
+         (attribute (find-it dr {:tag :input, :type "text", :name #"first_"}) "id")))
   (is (= "last_name"
-         (attribute (find-it dr :input {:type "text", :name #"last_"}) "id")))
+         (attribute (find-it dr {:tag :input, :type "text", :name #"last_"}) "id")))
   (is (= "Smith"
-         (attribute (find-it dr :input {:type "text", :name #"last_"}) "value")))
+         (attribute (find-it dr {:tag :input, :type "text", :name #"last_"}) "value")))
   (is (= "Smith"
-         (attribute (find-it dr :input {:type "text", :name #"last_"}) "value")))
+         (attribute (find-it dr {:tag :input, :type "text", :name #"last_"}) "value")))
   (is (= "Smith"
          (attribute (find-it dr [:div {:id "content"}, :input {:name #"last_"}]) "value")))
   (back dr) ;; get back to home page
   (is (-> dr
-        (find-it :a)
+        (find-it {:tag :a})
         exists?))
   (is (not
        (-> dr
-           (find-it :area)
+           (find-it {:tag :area})
            exists?)))
   (is (not
        (-> dr
-           (find-it :area)
+           (find-it {:tag :area})
            exists?)))
   (is (-> dr 
-          (find-it :a {:text "Moustache"})
+          (find-it {:tag :a, :text "Moustache"})
           visible?))
   (is (-> dr 
-          (find-it :a {:text "Moustache"})
+          (find-it {:tag :a, :text "Moustache"})
           displayed?))
   (is (-> dr
-          (find-it :a {:text "Moustache"})
+          (find-it {:tag :a, :text "Moustache"})
           present?))
   (is (not
        (-> dr
-           (find-it :a)
+           (find-it {:tag :a})
            visible?)))
   (is (not
        (-> dr 
-           (find-it :a)
+           (find-it {:tag :a})
            displayed?)))
   (is (not
        (-> dr
-           (find-it :a)
+           (find-it {:tag :a})
            present?))))
 
 ;; Default wrap for strings is double quotes
@@ -200,8 +200,8 @@
   (is (find-it dr {:text "File's Name"})))
 
 (deftest text-js-based-fns
-  (is (= (xpath (find-it dr :a {:text "Moustache"})) "/html/body/div[2]/div/p/a"))
-  (is (= (html (find-it dr :a {:text "Moustache"})) "<a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"external\" href=\"https://github.com/cgrand/moustache\">Moustache</a>")))
+  (is (= (xpath (find-it dr {:tag :a, :text "Moustache"})) "/html/body/div[2]/div/p/a"))
+  (is (= (html (find-it dr {:tag :a, :text "Moustache"})) "<a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"external\" href=\"https://github.com/cgrand/moustache\">Moustache</a>")))
 
 (deftest test-form-elements
   (to dr (str test-base-url "example-form"))
@@ -213,50 +213,50 @@
          (value (find-it dr [:form {:id "example_form"}, :input {:name #"last_"}]))))
   ;; Radio buttons
   (is (= true
-         (selected? (find-it dr :input {:type "radio", :value "male"}))))
+         (selected? (find-it dr {:tag :input, :type "radio", :value "male"}))))
   (-> dr
-      (find-it :input {:type "radio", :value "female"})
+      (find-it {:tag :input, :type "radio", :value "female"})
       select)
   (is (= true
-         (selected? (find-it dr :input {:type "radio", :value "female"}))))
+         (selected? (find-it dr {:tag :input, :type "radio", :value "female"}))))
   (-> dr
-      (find-it :radio {:value "male"})
+      (find-it {:tag :radio, :value "male"})
       select)
   (is (= true
-         (selected? (find-it dr :input {:type "radio", :value "male"}))))
+         (selected? (find-it dr {:tag :input, :type "radio", :value "male"}))))
   ;; Checkboxes
   (is (= false
-         (selected? (find-it dr :input {:type "checkbox", :name #"(?i)clojure"}))))
+         (selected? (find-it dr {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
   (-> dr
-      (find-it :input {:type "checkbox", :name #"(?i)clojure"})
+      (find-it {:tag :input, :type "checkbox", :name #"(?i)clojure"})
       toggle)
   (is (= true
-         (selected? (find-it dr :input {:type "checkbox", :name #"(?i)clojure"}))))
+         (selected? (find-it dr {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
   (-> dr
-      (find-it :checkbox {:name #"(?i)clojure"})
+      (find-it {:tag :checkbox, :name #"(?i)clojure"})
       click)
   (is (= false
-         (selected? (find-it dr :input {:type "checkbox", :name #"(?i)clojure"}))))
+         (selected? (find-it dr {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
   (-> dr
-      (find-it :checkbox {:type "checkbox", :name #"(?i)clojure"})
+      (find-it {:tag :checkbox, :type "checkbox", :name #"(?i)clojure"})
       select)
   (is (= true
-         (selected? (find-it dr :input {:type "checkbox", :name #"(?i)clojure"}))))
+         (selected? (find-it dr {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
   ;; Text fields
   (is (= "true"
-         (attribute (find-it dr :input {:type "text", :value "Testing!"})
+         (attribute (find-it dr {:tag :input, :type "text", :value "Testing!"})
                     "readonly")))
   (-> dr
-      (find-it :input {:id "first_name"})
+      (find-it {:tag :input, :id "first_name"})
       (input-text "foobar"))
   (is (= "foobar"
-         (value (find-it dr :input {:id "first_name"}))))
+         (value (find-it dr {:tag :input, :id "first_name"}))))
   (-> dr
-      (find-it :textfield {:id "first_name"})
+      (find-it {:tag :textfield, :id "first_name"})
       clear
       (input-text "clojurian"))
   (is (= "clojurian"
-         (value (find-it dr :textfield {:id "first_name"})))))
+         (value (find-it dr {:tag :textfield, :id "first_name"})))))
 
 (deftest test-form-helpers
   (to dr (str test-base-url "example-form"))
@@ -267,18 +267,18 @@
                {{:id "last_name"} "Hickey"}
                {{:name "bio"} clear}
                {{:name "bio"} #(input-text % "Creator of Clojure")}
-               {{:tag-name "input", :type "radio", :value "female"} click}
+               {{:tag "input", :type "radio", :value "female"} click}
                {{:css "select#countries"} #(select-by-value % "france")}])
   (is (= "Richard"
-         (value (find-it dr :input {:id "first_name"}))))
+         (value (find-it dr {:tag :input, :id "first_name"}))))
   (is (= "Hickey"
-         (value (find-it dr :input {:id "last_name"}))))
+         (value (find-it dr {:tag :input, :id "last_name"}))))
   (is (= "Creator of Clojure"
-         (value (find-it dr :input {:name "bio"}))))
+         (value (find-it dr {:tag :textarea, :name "bio"}))))
   (is (selected?
-       (find-it dr :input {:type "radio", :value "female"})))
+       (find-it dr {:tag :input, :type "radio", :value "female"})))
   (is (selected?
-       (find-it dr :option {:value "france"}))))
+       (find-it dr {:tag :option, :value "france"}))))
 
 (deftest test-window-handling
   (is (= 1
@@ -286,7 +286,7 @@
   (is (= "Ministache"
          (:title (window-handle dr))))
   (-> dr
-      (find-it :a {:text "is amazing!"})
+      (find-it {:tag :a, :text "is amazing!"})
       click)
   (is (= "Ministache"
          (:title (window-handle dr))))
@@ -332,7 +332,7 @@
 ;; but at least this will catch changing API's
 (deftest test-flash-helper
   (-> dr
-      (find-it :a {:text "Moustache"})
+      (find-it {:tag :a, :text "Moustache"})
       flash))
 
 ;; Caching
@@ -366,7 +366,7 @@
 
 (deftest test-cacheable?
   ;; assume at test-base-url
-  (is (cache/cacheable? dr (find-it dr :a {:class "external"})))
+  (is (cache/cacheable? dr (find-it dr {:tag :a, :class "external"})))
   (is (not (cache/cacheable? dr {:class "external"})))
   (is (cache/cacheable? dr {:css "ol#pages"}))
   (is (not (cache/cacheable? dr :table)))
@@ -380,9 +380,9 @@
                                               :exclude [ (fn [element] (= (attribute element :class) "external")),
                                                          {:css "ol#pages"}]}})
                     test-base-url)]
-    (is (cache/cacheable? temp-dr (find-it temp-dr :table)))
+    (is (cache/cacheable? temp-dr (find-it temp-dr {:tag :table})))
     (is (cache/cacheable? temp-dr (find-it temp-dr {:css "#pages"})))
-    (is (not (cache/cacheable? temp-dr (find-it temp-dr :a {:class "external"}))))
+    (is (not (cache/cacheable? temp-dr (find-it temp-dr {:tag :a, :class "external"}))))
     (is (not (cache/cacheable? temp-dr {:css "ol#pages"})))
     (quit temp-dr)))
 
@@ -406,7 +406,7 @@
 
 (deftest plain-test-back-forward
   (-> dr-plain
-      (find-it :a {:text "example form"})
+      (find-it {:tag :a, :text "example form"})
       click)
   (is (= (str test-base-url "example-form") (current-url dr-plain)))
   (back dr-plain)
@@ -421,7 +421,7 @@
 
 (deftest plain-test-bys
   (-> dr-plain
-      (find-it :a {:text "example form"})
+      (find-it {:tag :a, :text "example form"})
       click)
   (is (= "first_name"
          (attribute (find-element dr-plain (by-id "first_name")) :id)))
@@ -432,7 +432,7 @@
   (is (= "first_name"
          (attribute (find-element dr-plain (by-name "first_name")) :id)))
   (is (= "home"
-         (text (find-element dr-plain (by-tag-name "a")))))
+         (text (find-element dr-plain (by-tag "a")))))
   (is (= "home"
          (text (find-element dr-plain (by-xpath "//a[text()='home']")))))
   (is (= "home"
@@ -442,19 +442,19 @@
 
 (deftest plain-test-find*
   (is (= "Moustache"
-         (text (nth (find-them dr-plain :a) 1))))
+         (text (nth (find-them dr-plain {:tag :a}) 1))))
   (is (= "Moustache"
          (text (find-it dr-plain {:class "external"}))))
   (is (= "https://github.com/cgrand/moustache"
          (attribute (find-it dr-plain {:text "Moustache"}) "href")))
   (is (= "Moustache"
-         (text (find-it dr-plain :a {:class #"exter"}))))
+         (text (find-it dr-plain {:tag :a, :class #"exter"}))))
   (is (= "Moustache"
-         (text (find-it dr-plain :a {:text #"Mous"}))))
+         (text (find-it dr-plain {:tag :a, :text #"Mous"}))))
   (is (= "Moustache"
-         (text (find-it dr-plain :a {:class "external", :href #"github"}))))
+         (text (find-it dr-plain {:tag :a, :class "external", :href #"github"}))))
   (is (= "Moustache"
-         (text (find-it dr-plain :a {:class #"exter", :href #"github"}))))
+         (text (find-it dr-plain {:tag :a, :class #"exter", :href #"github"}))))
   (is (= "Moustache"
          (text (find-it dr-plain [:div {:id "content"}, :a {:class "external"}]))))
   (is (= "Moustache"
@@ -464,72 +464,72 @@
   (is (= "home"
          (text (find-it dr-plain [:* {:id "footer"}, :a {}]))))
   (is (= 8
-         (count (find-them dr-plain :a))))
+         (count (find-them dr-plain {:tag :a}))))
   (is (= 3
          (count (find-them dr-plain {:class #"-item"}))))
   (is (= 3
-         (count (find-them dr-plain :a {:class #"-item"}))))
+         (count (find-them dr-plain {:tag :a, :class #"-item"}))))
   (is (= 1
-         (count (find-them dr-plain :a {:text #"hom"}))))
+         (count (find-them dr-plain {:tag :a, :text #"hom"}))))
   (is (= 1
-         (count (find-them dr-plain :a {:text #"(?i)HOM"}))))
+         (count (find-them dr-plain {:tag :a, :text #"(?i)HOM"}))))
   (is (= 2
-         (count (find-them dr-plain :a {:class #"exter", :href #"github"}))))
+         (count (find-them dr-plain {:tag :a, :class #"exter", :href #"github"}))))
   (is (= 3
          (count (find-them dr-plain [:* {:id "footer"}, :a {}]))))
   (is (= 2
          (count (find-them dr-plain [:div {:id "content"}, :a {:class #"exter"}]))))
   (-> dr-plain
-      (find-it :a {:text "example form"})
+      (find-it {:tag :a, :text "example form"})
       click)
   (is (= "first_name"
          (attribute (find-it dr-plain {:type "text"}) "id")))
   (is (= "first_name"
-         (attribute (find-it dr-plain :input {:type "text"}) "id")))
+         (attribute (find-it dr-plain {:tag :input, :type "text"}) "id")))
   (is (= "first_name"
-         (attribute (find-it dr-plain :input {:type "text", :name "first_name"}) "id")))
+         (attribute (find-it dr-plain {:tag :input, :type "text", :name "first_name"}) "id")))
   (is (= "first_name"
-         (attribute (find-it dr-plain :input {:type "text", :name #"first_"}) "id")))
+         (attribute (find-it dr-plain {:tag :input, :type "text", :name #"first_"}) "id")))
   (is (= "last_name"
-         (attribute (find-it dr-plain :input {:type "text", :name #"last_"}) "id")))
+         (attribute (find-it dr-plain {:tag :input, :type "text", :name #"last_"}) "id")))
   (is (= "Smith"
-         (attribute (find-it dr-plain :input {:type "text", :name #"last_"}) "value")))
+         (attribute (find-it dr-plain {:tag :input, :type "text", :name #"last_"}) "value")))
   (is (= "Smith"
-         (attribute (find-it dr-plain :input {:type "text", :name #"last_"}) "value")))
+         (attribute (find-it dr-plain {:tag :input, :type "text", :name #"last_"}) "value")))
   (is (= "Smith"
          (attribute (find-it dr-plain [:div {:id "content"}, :input {:name #"last_"}]) "value")))
   (back dr-plain) ;; get back to home page
   (is (-> dr-plain
-        (find-it :a)
+        (find-it {:tag :a})
         exists?))
   (is (not
        (-> dr-plain
-           (find-it :area)
+           (find-it {:tag :area})
            exists?)))
   (is (not
        (-> dr-plain
-           (find-it :area)
+           (find-it {:tag :area})
            exists?)))
   (is (-> dr-plain 
-          (find-it :a {:text "Moustache"})
+          (find-it {:tag :a, :text "Moustache"})
           visible?))
   (is (-> dr-plain 
-          (find-it :a {:text "Moustache"})
+          (find-it {:tag :a, :text "Moustache"})
           displayed?))
   (is (-> dr-plain
-          (find-it :a {:text "Moustache"})
+          (find-it {:tag :a, :text "Moustache"})
           present?))
   (is (not
        (-> dr-plain
-           (find-it :a)
+           (find-it {:tag :a})
            visible?)))
   (is (not
        (-> dr-plain 
-           (find-it :a)
+           (find-it {:tag :a})
            displayed?)))
   (is (not
        (-> dr-plain
-           (find-it :a)
+           (find-it {:tag :a})
            present?))))
 
 (deftest plain-test-form-elements
@@ -542,50 +542,50 @@
          (value (find-it dr-plain [:form {:id "example_form"}, :input {:name #"last_"}]))))
   ;; Radio buttons
   (is (= true
-         (selected? (find-it dr-plain :input {:type "radio", :value "male"}))))
+         (selected? (find-it dr-plain {:tag :input, :type "radio", :value "male"}))))
   (-> dr-plain
-      (find-it :input {:type "radio", :value "female"})
+      (find-it {:tag :input, :type "radio", :value "female"})
       select)
   (is (= true
-         (selected? (find-it dr-plain :input {:type "radio", :value "female"}))))
+         (selected? (find-it dr-plain {:tag :input, :type "radio", :value "female"}))))
   (-> dr-plain
-      (find-it :radio {:value "male"})
+      (find-it {:tag :radio, :value "male"})
       select)
   (is (= true
-         (selected? (find-it dr-plain :input {:type "radio", :value "male"}))))
+         (selected? (find-it dr-plain {:tag :input, :type "radio", :value "male"}))))
   ;; Checkboxes
   (is (= false
-         (selected? (find-it dr-plain :input {:type "checkbox", :name #"(?i)clojure"}))))
+         (selected? (find-it dr-plain {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
   (-> dr-plain
-      (find-it :input {:type "checkbox", :name #"(?i)clojure"})
+      (find-it {:tag :input, :type "checkbox", :name #"(?i)clojure"})
       toggle)
   (is (= true
-         (selected? (find-it dr-plain :input {:type "checkbox", :name #"(?i)clojure"}))))
+         (selected? (find-it dr-plain {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
   (-> dr-plain
-      (find-it :checkbox {:name #"(?i)clojure"})
+      (find-it {:tag :checkbox, :name #"(?i)clojure"})
       click)
   (is (= false
-         (selected? (find-it dr-plain :input {:type "checkbox", :name #"(?i)clojure"}))))
+         (selected? (find-it dr-plain {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
   (-> dr-plain
-      (find-it :checkbox {:type "checkbox", :name #"(?i)clojure"})
+      (find-it {:tag :checkbox, :type "checkbox", :name #"(?i)clojure"})
       select)
   (is (= true
-         (selected? (find-it dr-plain :input {:type "checkbox", :name #"(?i)clojure"}))))
+         (selected? (find-it dr-plain {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
   ;; Text fields
   (is (= "true"
-         (attribute (find-it dr-plain :input {:type "text", :value "Testing!"})
+         (attribute (find-it dr-plain {:tag :input, :type "text", :value "Testing!"})
                     "readonly")))
   (-> dr-plain
-      (find-it :input {:id "first_name"})
+      (find-it {:tag :input, :id "first_name"})
       (input-text "foobar"))
   (is (= "foobar"
-         (value (find-it dr-plain :input {:id "first_name"}))))
+         (value (find-it dr-plain {:tag :input, :id "first_name"}))))
   (-> dr-plain
-      (find-it :textfield {:id "first_name"})
+      (find-it {:tag :textfield, :id "first_name"})
       clear
       (input-text "clojurian"))
   (is (= "clojurian"
-         (value (find-it dr-plain :textfield {:id "first_name"})))))
+         (value (find-it dr-plain {:tag :textfield, :id "first_name"})))))
 
 (deftest plain-test-form-helpers
   (to dr-plain (str test-base-url "example-form"))
@@ -596,18 +596,18 @@
                {{:id "last_name"} "Hickey"}
                {{:name "bio"} clear}
                {{:name "bio"} #(input-text % "Creator of Clojure")}
-               {{:tag-name "input", :type "radio", :value "female"} click}
+               {{:tag "input", :type "radio", :value "female"} click}
                {{:css "select#countries"} #(select-by-value % "france")}])
   (is (= "Richard"
-         (value (find-it dr-plain :input {:id "first_name"}))))
+         (value (find-it dr-plain {:tag :input, :id "first_name"}))))
   (is (= "Hickey"
-         (value (find-it dr-plain :input {:id "last_name"}))))
+         (value (find-it dr-plain {:tag :input, :id "last_name"}))))
   (is (= "Creator of Clojure"
-         (value (find-it dr-plain :input {:name "bio"}))))
+         (value (find-it dr-plain {:tag :textarea, :name "bio"}))))
   (is (selected?
-       (find-it dr-plain :input {:type "radio", :value "female"})))
+       (find-it dr-plain {:tag :input, :type "radio", :value "female"})))
   (is (selected?
-       (find-it dr-plain :option {:value "france"}))))
+       (find-it dr-plain {:tag :option, :value "france"}))))
 
 (deftest plain-test-window-handling
   (is (= 1
@@ -615,7 +615,7 @@
   (is (= "Ministache"
          (:title (window-handle dr-plain))))
   (-> dr-plain
-      (find-it :a {:text "is amazing!"})
+      (find-it {:tag :a, :text "is amazing!"})
       click)
   (is (= "Ministache"
          (:title (window-handle dr-plain))))
@@ -661,7 +661,7 @@
 ;; but at least this will catch changing API's
 (deftest plain-test-flash-helper
   (-> dr-plain
-      (find-it :a {:text "Moustache"})
+      (find-it {:tag :a, :text "Moustache"})
       flash))
 
 ;; Firefox-specific Functionality
