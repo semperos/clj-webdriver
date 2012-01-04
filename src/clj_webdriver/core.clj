@@ -100,12 +100,8 @@
   (find-semantic-buttons-by-regex [driver attr-val] "Semantic buttons are things that look or behave like buttons but do not necessarily consist of a `<button>` tag")
   (find-checkables-by-text [driver attr-val] "Finding the 'text' of a radio or checkbox is complex. Handle it here.")
   (find-table-cells [driver attr-val] "Given a WebDriver `driver` and a vector `attr-val`, find the correct")
-  (find-them
-    [driver attr-val]
-    [driver tag attr-val] "Find all elements that match the tag/attr-val query")
-  (find-it
-    [driver attr-val]
-    [driver tag attr-val] "Call (first (find-them args))"))
+  (find-them [driver attr-val] "Find all elements that match the tag/attr-val query")
+  (find-it [driver attr-val] "Call (first (find-them args))"))
 
 (defprotocol IElement
   "Basic actions on elements"
@@ -121,7 +117,7 @@
   (location [element] "Given an element object, return its location as a map of its x/y coordinates")
   (location-once-visible [element] "Given an element object, return its location on the screen once it is scrolled into view as a map of its x/y coordinates. The window will scroll as much as possible until the element hits the top of the page; thus even visible elements will be scrolled until they reach that point.")
   (present? [element] "Returns true if the element exists and is visible")
-  (tag-name [element] "Retrieve the name of the HTML tag of the given element object")
+  (tag [element] "Retrieve the name of the HTML tag of the given element object (returned as a keyword)")
   (text [element] "Retrieve the content, or inner HTML, of a given element object")
   (value [element] "Retrieve the `value` attribute of the given element object")
   (visible? [element] "Returns true if the given element object is visible/displayed")

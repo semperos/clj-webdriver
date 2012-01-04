@@ -3,7 +3,7 @@
 (defn by-id
   "Used when finding elements. Returns `By/id` of `expr`"
   [expr]
-  (By/id expr))
+  (By/id (name expr)))
 
 (defn by-link-text
   "Used when finding elements. Returns `By/linkText` of `expr`"
@@ -18,12 +18,12 @@
 (defn by-name
   "Used when finding elements. Returns `By/name` of `expr`"
   [expr]
-  (By/name expr))
+  (By/name (name expr)))
 
-(defn by-tag-name
+(defn by-tag
   "Used when finding elements. Returns `By/tagName` of `expr`"
   [expr]
-  (By/tagName expr))
+  (By/tagName (name expr)))
 
 (defn by-xpath
   "Used when finding elements. Returns `By/xpath` of `expr`"
@@ -33,7 +33,7 @@
 (defn by-class-name
   "Used when finding elements. Returns `By/className` of `expr`"
   [expr]
-  (By/className expr))
+  (By/className (name expr)))
 
 (defn by-css-selector
   "Used when finding elements. Returns `By/cssSelector` of `expr`"
@@ -51,7 +51,7 @@
          (= :class attr)  (by-class-name value)
          (= :id attr)     (by-id value)
          (= :name attr)   (by-name value)
-         (= :tag attr)    (by-tag-name value)
+         (= :tag attr)    (by-tag value)
          (= :text attr)   (by-xpath (str "//"
                                          (name tag)
                                          "[text()"

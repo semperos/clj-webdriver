@@ -22,10 +22,11 @@
   "Given a tag and a map of attribute-value pairs, generate XPath"
   [tag attr-val]
   (when-not (contains-regex? attr-val)
-    (str "//"
-         (name tag)
-         (when-not (empty? attr-val)
-           (build-xpath-attrs attr-val)))))
+    (let [attr-val (dissoc attr-val :tag)]
+      (str "//"
+           (name tag)
+           (when-not (empty? attr-val)
+             (build-xpath-attrs attr-val))))))
 
 (defn build-xpath-with-ancestry
   "Given a vector of queries in hierarchical order, create XPath.

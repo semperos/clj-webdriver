@@ -183,7 +183,7 @@
                                           (remove
                                            #(let [[k v] %] (= java.util.regex.Pattern (class v)))
                                            attr-val))
-            elements (find-them driver tag attr-vals-without-regex)]
+            elements (find-them driver (assoc attr-vals-without-regex :tag tag))]
         (filter-elements-by-regex elements attr-val))))
 
   (find-windows [driver attr-val]
@@ -250,15 +250,14 @@
   ;; NoSuchElementException caught so that `exists?` will behave as expected
   (find-them
     ([driver attr-val]
+       (when (keyword? driver) ; I keep forgetting to pass in the WebDriver instance while testing
+         (throw (IllegalArgumentException.
+                 (str "The first parameter to find-them must be an instance of WebDriver."))))
        (if (and (map? attr-val)
                 (empty? attr-val))
          nil
          (try
            (cond
-            (= attr-val :button*)   (find-them driver :button* nil)
-            (keyword? attr-val)     (find-elements
-                                     driver
-                                     (by-tag-name (name attr-val))) ; supplied just :tag
             (vector? attr-val)      (cond
                                      (some #{:row :col} attr-val) (find-table-cells driver attr-val)
                                      (query-with-ancestry-has-regex? attr-val) (if (query-with-ancestry-has-regex? (drop-last 2 attr-val))
@@ -269,37 +268,30 @@
                                                                                   (find-elements driver (by-xpath (str (build-xpath-with-ancestry attr-val) "//*")))
                                                                                   (last attr-val)))
                                      :else (find-elements driver (by-xpath (build-xpath-with-ancestry attr-val)))) ; supplied vector of queries in hierarchy
-            (map? attr-val)         (find-them driver :* attr-val))
-           (catch org.openqa.selenium.NoSuchElementException e
-             (lazy-seq (init-element nil))))))
-    ([driver tag attr-val]
-       (when (keyword? driver) ; I keep forgetting to pass in the WebDriver instance while testing
-         (throw (IllegalArgumentException.
-                 (str "The first parameter to find-them must be an instance of WebDriver."))))
-       (try
-         (cond
+          (= (keys attr-val) '(:tag))     (find-elements
+                                           driver
+                                           (by-tag (:tag attr-val)))
+          (and (not (contains? attr-val :tag))
+               (not (contains? attr-val :xpath))
+               (not (contains? attr-val :css)))     (find-them driver (assoc attr-val :tag :*))
           (and (> (count attr-val) 1)
-               (contains? attr-val :xpath))          (find-them driver :* {:xpath (:xpath attr-val)})
+               (contains? attr-val :xpath))          (find-them driver {:xpath (:xpath attr-val)})
           (and (> (count attr-val) 1)
-               (contains? attr-val :css))            (find-them driver :* {:css (:css attr-val)})
-          (contains? attr-val :tag-name)             (find-them driver
-                                                                (-> (:tag-name attr-val)
-                                                                    .toLowerCase
-                                                                    keyword)
-                                                                (dissoc attr-val :tag-name))
-          (contains? attr-val :index)                (find-elements driver (by-xpath (build-xpath tag attr-val)))
-          (= tag :radio)                             (find-them driver :input (assoc attr-val :type "radio"))
-          (= tag :checkbox)                          (find-them driver :input (assoc attr-val :type "checkbox"))
-          (= tag :textfield)                         (find-them driver :input (assoc attr-val :type "text"))
-          (= tag :password)                          (find-them driver :input (assoc attr-val :type "password"))
-          (= tag :filefield)                         (find-them driver :input (assoc attr-val :type "file"))
-          (and (= tag :input)
+               (contains? attr-val :css))            (find-them driver {:css (:css attr-val)})
+
+          (contains? attr-val :index)                (find-elements driver (by-xpath (build-xpath (:tag attr-val) attr-val)))
+          (= (:tag attr-val) :radio)                             (find-them driver (assoc attr-val :tag :input :type "radio"))
+          (= (:tag attr-val) :checkbox)                          (find-them driver (assoc attr-val :tag :input :type "checkbox"))
+          (= (:tag attr-val) :textfield)                         (find-them driver (assoc attr-val :tag :input :type "text"))
+          (= (:tag attr-val) :password)                          (find-them driver (assoc attr-val :tag :input :type "password"))
+          (= (:tag attr-val) :filefield)                         (find-them driver (assoc attr-val :tag :input :type "file"))
+          (and (= (:tag attr-val) :input)
                (contains? attr-val :type)
                (or (= "radio" (:type attr-val))
                    (= "checkbox" (:type attr-val)))
                (or (contains? attr-val :text)
                    (contains? attr-val :label)))     (find-checkables-by-text driver attr-val)
-          (= tag :button*)                           (if (contains-regex? attr-val)
+          (= (:tag attr-val) :button*)                           (if (contains-regex? attr-val)
                                                        (find-semantic-buttons-by-regex driver attr-val)
                                                        (find-semantic-buttons driver attr-val))
           (= 1 (count attr-val))                     (let [entry (first attr-val)
@@ -308,12 +300,12 @@
                                                        (cond
                                                         (= :xpath attr) (find-elements driver (by-xpath value))
                                                         (= :css attr)   (find-elements driver (by-css-selector value))
-                                                        (= java.util.regex.Pattern (class value)) (find-elements-by-regex-alone driver tag attr-val)
-                                                        :else           (find-elements driver (by-attr= tag attr value))))
-          (contains-regex? attr-val)                 (find-elements-by-regex driver tag attr-val)
-          :else                                      (find-elements driver (by-xpath (build-xpath tag attr-val))))
-         (catch org.openqa.selenium.NoSuchElementException e
-           (lazy-seq (init-element nil))))))
+                                                        (= java.util.regex.Pattern (class value)) (find-elements-by-regex-alone driver (:tag attr-val) attr-val)
+                                                        :else           (find-elements driver (by-attr= (:tag attr-val) attr value))))
+          (contains-regex? attr-val)                 (find-elements-by-regex driver (:tag attr-val) attr-val)
+          :else                                      (find-elements driver (by-xpath (build-xpath (:tag attr-val) attr-val))))
+           (catch org.openqa.selenium.NoSuchElementException e
+             (lazy-seq (init-element nil)))))))
   
   (find-it
     ([driver attr-val]
@@ -326,17 +318,6 @@
                     (or (cache/cacheable? driver attr-val) (cache/cacheable? driver el)))
              (do
                (cache/insert driver attr-val el)
-               el)
-             el))))
-    ([driver tag attr-val]
-       (if (and (cache/cache-enabled? driver) (cache/in-cache? driver [tag attr-val]))
-         (cache/retrieve driver [tag attr-val])
-         (let [el (first (find-them driver tag attr-val))]
-           (if (and (cache/cache-enabled? driver)
-                    (exists? el)
-                    (cache/cacheable? driver el))
-             (do
-               (cache/insert driver [tag attr-val] el)
                el)
              el))))))
 
