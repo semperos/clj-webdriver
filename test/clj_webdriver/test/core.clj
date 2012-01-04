@@ -1,5 +1,6 @@
 (ns clj-webdriver.test.core
-  (:use [clj-webdriver core util window-handle wait options form-helpers])
+  (:use [clj-webdriver core util window-handle wait options form-helpers]
+        [clj-webdriver.driver :only [get-cache]])
   (:use [ring.adapter.jetty :only [run-jetty]]
         clojure.test)  
   (:require [clj-webdriver.test.example-app.core :as web-app]
@@ -13,11 +14,14 @@
 (def test-port 5744)
 (def test-host "localhost")
 (def test-base-url (str "http://" test-host ":" test-port "/"))
-(def dr (to (new-driver :firefox {:strategy :basic,
-                                  :args [],
-                                  :include [ (fn [element] (= (attribute element :class) "external"))
-                                             {:css "ol#pages"}]}) test-base-url))
-(def dr-plain (to (new-driver :firefox) test-base-url))
+
+(def dr (to (new-driver {:browser :firefox
+                         :cache-spec {:strategy :basic,
+                                      :args [],
+                                      :include [ (fn [element] (= (attribute element :class) "external"))
+                                                 {:css "ol#pages"}]}})
+            test-base-url))
+(def dr-plain (to (new-driver {:browser :firefox}) test-base-url))
 
 (defn start-server [f]
   (loop [server (run-jetty #'web-app/routes {:port test-port, :join? false})]
@@ -309,7 +313,7 @@
   (is (thrown? TimeoutException
                (do
                    (execute-script dr "setTimeout(function () { window.document.title = \"test\"}, 10000)")
-                   (wait-until dr (fn [d] (= "test" (title d))) 1000)))))
+                   (wait-until dr (fn [d] (= (title d) "test")) 1000)))))
 
 (deftest implicit-wait-should-cause-find-to-wait
   (implicit-wait dr 3000)
@@ -330,8 +334,8 @@
 
 (deftest test-cache-insert
   ;; insert was used to seed the data in the test fixture; test now for presence
-  (is (= (get @(:element-cache dr) {:query [:foo]}) "bar"))
-  (is (nil? (get @(:element-cache dr) :wowza))))
+  (is (= (get @(get-cache dr) {:query [:foo]}) "bar"))
+  (is (nil? (get @(get-cache dr) :wowza))))
 
 (deftest test-in-cache?
   (is (cache/in-cache? dr {:query [:foo]}))
@@ -351,7 +355,7 @@
   (cache/seed dr {{:query [:foo]} "clojure"})
   (is (= (cache/retrieve dr :foo) "clojure"))
   (cache/seed dr)
-  (is (= @(:element-cache dr) {:url (current-url dr)})))
+  (is (= @(get-cache dr) {:url (current-url dr)})))
 
 (deftest test-cacheable?
   ;; assume at test-base-url
@@ -363,10 +367,12 @@
 
 (deftest test-cache-excludes
   ;; includes are tested by default
-  (let [temp-dr (to (new-driver :firefox {:strategy :basic,
-                                           :args [],
-                                           :exclude [ (fn [element] (= (attribute element :class) "external")),
-                                                      {:css "ol#pages"}]}) test-base-url)]
+  (let [temp-dr (to (new-driver {:browser :firefox
+                                 :cache-spec {:strategy :basic,
+                                              :args [],
+                                              :exclude [ (fn [element] (= (attribute element :class) "external")),
+                                                         {:css "ol#pages"}]}})
+                    test-base-url)]
     (is (cache/cacheable? temp-dr (find-it temp-dr :table)))
     (is (cache/cacheable? temp-dr (find-it temp-dr {:css "#pages"})))
     (is (not (cache/cacheable? temp-dr (find-it temp-dr :a {:class "external"}))))
