@@ -181,7 +181,7 @@ Support for Firefox currently exceeds that for all other browsers, most notably 
                               ;; Auto-download certain file types to a specific folder
                               (ff/set-preferences {:browser.download.dir "C:/Users/semperos/Desktop",
                                                    :browser.download.folderList 2
-                                                   :browser.helperApps.neverAsk.saveToDisk "application/pdf"})))
+                                                   :browser.helperApps.neverAsk.saveToDisk "application/pdf"})}))
 ```
                                   
 ### Grid Support ###
