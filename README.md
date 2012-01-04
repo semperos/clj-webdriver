@@ -1,6 +1,6 @@
 # Selenium-WebDriver Support for Clojure [![Build Status](https://secure.travis-ci.org/semperos/clj-webdriver.png)](http://travis-ci.org/semperos/clj-webdriver)
 
-This is a Clojure library for driving a web browser using Selenium-WebDriver as the backend. For more comprehensive documentation on all of clj-webdriver's facets, read the [Github wiki](https://github.com/semperos/clj-webdriver/wiki).
+This is a Clojure library for driving a web browser using Selenium-WebDriver as the backend. For more comprehensive documentation on all of clj-webdriver's features, read the [Github wiki](https://github.com/semperos/clj-webdriver/wiki).
 
 **clj-webdriver Resources**
 
@@ -34,14 +34,14 @@ Use/require the library in your code:
 Start up a browser:
 
 ```clj
-(def b (start :firefox "https://github.com"))
+(def b (start {:browser :firefox} "https://github.com"))
 ```
 
 Here's an example of logging into Github:
 
 ```clj
 ;; Start the browser and bind it to `b`
-(def b (start :firefox "https://github.com"))
+(def b (start {:browser :firefox} "https://github.com"))
 
 ;; Click "Login" link
 (-> b
@@ -60,7 +60,7 @@ Here's an example of logging into Github:
 
 ;; Click the "Log in" button"
 (-> b
-    (find-it :input {:value #"(?i)log"}) ; use of regular expressions
+    (find-it {:tag :input, :value #"(?i)log"}) ; use of regular expressions
     click)
 ```
 
@@ -78,21 +78,54 @@ If you plan to submit the form, you need to pass a third parameter of `true` to 
 
 ### Finding Elements ###
 
-The `find-it` and `find-them` functions accept a variety of queries and return one or a seq of all matched elements respectively. Below is a list of query formats these functions accept:
+The `find-it` function provides high-level querying abilities against the DOM using HTML attribute comparisons, XPath and CSS queries, or pure-Clojure hierarchical queries. As parameters it always takes a Driver record first, followed by one of the following:
 
-* **HTML Tag as keyword:** Pass in the name of an HTML tag as a keyword (`:div`, `:a`, `:span`, `:img`, etc.) `(find-it :a)` will find the first `<a>` tag on the page. There are also special keywords such as `:*` (match any tag), `:text` (match textfields and textareas), `:window` (to match an open browser window by title or url)
-* **HTML Tag plus attributes:** Pass in the name of an HTML tag as a keyword plus some attributes to describe it. `(find-it :a {:class "external"})` will return the first `<a>` tag with a class of "external"
-* **HTML attributes alone:** You don't have to pass in a tag. `(find-it {:class "external"})` will find the first element of any tag with class "external"
-* **Multiple HTML attributes:** You can pass in as many attribute-value pairs as you like. `(find-it {:class "external", :text "Moustache"})` will find the first HTML element on the page with both a class of "external" and visible text of "Moustache"
-* **Regular Expressions:** Instead of looking for an exact match, you can use Java-style regular expressions to find elements. `(find-it :a {:class #"exter"})` will find the first `<a>` tag with a class which matches the regular expression `#"exter"`. You can also use regexes in the final position of an ancestry-based query (see below).
-* **Ancestry-based queries:** This library provides a pure-Clojure mechanism for finding an element based on parent elements. `(find-it [:div {:id "content"}, :a {:class "external"}])` will find the first `<a>` tag with a class of "external" that is located within the `<div>` with id "content". This is equivalent to the XPath `//div[@id='content']//a[@class='external']`. You can also include regular expressions in the final attribute-value map which you supply. (*Note: Due to issues of ambiguity and in order not to reinvent the wheel any further, applying regexes higher up the query is not supported and will cause an exception. In addition, none of the "semantic" tags such as `:button*`, `:radio`, `:checkbox`, `:textfield`, etc. that do not map directly to HTML tags are not supported. If you need more advanced querying, use XPath or CSS selectors directly.)* 
-* **XPath and CSS Selectors:** You can use the `:xpath` and `:css` attributes to use such queries in place of simple HTML attributes. If you use one of these attributes, you shouldn't use any others, as they will be ignored (e.g. `{:xpath "//a", :class "external"}` will only utilize the xpath `//a`). `(find-it {:xpath "//a[@class='external']"})` will return the first `<a>` tag with a class of "external"
+#### Attribute-Value Map ####
+
+The attribute-value map (`attr-val`) can consist of HTML attributes, or can designate an XPath or CSS query:
+
+```clj
+(find-it driver {:class "foo"})
+(find-it driver {:tag :a, :class "bar"})
+
+(find-it driver {:xpath "//a[@class='foo']"})
+(find-it driver {:css "a.bar"})
+```
+
+If the `:xpath` or `:css` options are used, everything else in the `attr-val` map is ignored.
+
+##### Special Tags #####
+
+By default, the `:tag` option represents a standard HTML tag like `<a>` or `<div>`. Clj-webdriver, however, supports a number of "special" tags to make using `find-it` more intuitive or concise.
+
+Here are all the special tags in action:
+
+```clj
+(find-it driver {:tag :radio})
+;=> (find-it driver {:tag :input, :type "radio"})
+
+(find-it driver {:tag :checkbox})
+;=> (find-it driver {:tag :input, :type "checkbox"})
+
+(find-it driver {:tag :textfield})
+;=> (find-it driver {:tag :input, :type "text"})
+
+(find-it driver {:tag :password})
+;=> (find-it driver {:tag :input, :type "password"})
+
+(find-it driver {:tag :filefield})
+;=> (find-it driver {:tag :input, :type "file"})
+
+(find-it driver {:tag :button*})
+```
+
+The `:button*` option, unlike the others, conflates all button-like elements (form submit buttons, actual `<button>` tags, etc.).
 
 To demonstrate how to use arguments in different ways, consider the following example. If I wanted to find `<a href="/contact" id="contact-link" class="menu-item" name="contact">Contact Us</a>` in a page and click on it I could perform any of the following:
 
 ```clj
 (-> b
-    (find-it :a)    ; assuming its the first <a> on the page
+    (find-it {:tag :a})    ; assuming its the first <a> on the page
     click)
 
 (-> b
@@ -104,25 +137,16 @@ To demonstrate how to use arguments in different ways, consider the following ex
     click)
 
 (-> b
-    (find-it :a {:class "menu-item", :name "contact"})    ; specify tag
+    (find-it {:tag :a, :class "menu-item", :name "contact"})    ; specify tag
     click)
 
 (-> b
-    (find-it :a {:text "Contact Us"})    ; special :text attribute, uses XPath's
-    click)                               ; text() function to find the element
+    (find-it {:tag :a, :text "Contact Us"})    ; special :text attribute, uses XPath's
+    click)                                     ; text() function to find the element
 
 (-> b
-    (find-it :a {:class #"(?i)menu-"})  ; use Java-style regular
-    click)                               ; expressions
-
-(-> b
-    (find-it [:div {:id "content"}, :a {:id "contact-link"}]) ; hierarchical/ancestry-based query
-    click)                                                    ; equivalent to
-                                                              ; //div[@id='content']//a[@id='contact-link']
-
-(-> b
-    (find-it [:div {:id "content"}, :a {}]) ; ancestry-based query, tag with
-    click)                                  ; no attributes (empty map required)
+    (find-it {:tag :a, :class #"(?i)menu-"})  ; use Java-style regular
+    click)                                    ; expressions
 
 (-> b
     (find-it {:xpath "//a[@id='contact-link']"})    ; XPath query
@@ -149,15 +173,15 @@ Support for Firefox currently exceeds that for all other browsers, most notably 
 (use 'clj-webdriver.core)
 (require '[clj-webdriver.firefox :as ff])
 
-(def b (new-driver :firefox
-                   (doto (ff/new-profile)
-                         ;; Enable Firebug
-                         (ff/enable-extension "/path/to/extensions/firebug.xpi")))
+(def b (new-driver {:browser :firefox,
+                    :profile (doto (ff/new-profile)
+                              ;; Enable Firebug
+                              (ff/enable-extension "/path/to/extensions/firebug.xpi")))
                          
-                         ;; Auto-download certain file types to a specific folder
-                         (ff/set-preferences {:browser.download.dir "C:/Users/semperos/Desktop",
-                                              :browser.download.folderList 2
-                                              :browser.helperApps.neverAsk.saveToDisk "application/pdf"})))
+                              ;; Auto-download certain file types to a specific folder
+                              (ff/set-preferences {:browser.download.dir "C:/Users/semperos/Desktop",
+                                                   :browser.download.folderList 2
+                                                   :browser.helperApps.neverAsk.saveToDisk "application/pdf"})))
 ```
                                   
 ### Grid Support ###
@@ -172,7 +196,7 @@ For more information about configuring your Grid hub and nodes, read [the Seleni
 
 The `master` branch of clj-webdriver houses code intended for the next **minor-version release.** If you want to propose new features for the next release, you're welcome to fork, make a topic branch and issue a pull request against the `master` branch.
 
-If you want to fix a bug in the **current release**, please pull against the appropriate branch for the current minor version, e.g. 0.4.x.
+If you want to fix a bug in the **current release**, please pull against the appropriate branch for the current minor version, **0.4.x**.
 
 ## Running Tests
 
