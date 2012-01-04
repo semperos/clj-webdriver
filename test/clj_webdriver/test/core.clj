@@ -7,7 +7,7 @@
             [clj-webdriver.cache :as cache]
             [clj-webdriver.firefox :as ff]
             [clojure.tools.logging :as log]
-            [clojure.java.io :as jio])
+            [clojure.java.io :as io])
   (:import [clj_webdriver.driver.Driver]
            [org.openqa.selenium TimeoutException]))
 
@@ -67,7 +67,7 @@
   (is (= "Ministache" (title dr)))
   (is (boolean (re-find #"(?i)<!DOCTYPE html>" (page-source dr)))))
 
-(deftest test-back-forward
+(deftest back-forward-should-traverse-browser-history
   (-> dr
       (find-it {:tag :a, :text "example form"})
       click)
@@ -77,12 +77,12 @@
   (forward dr)
   (is (= (str test-base-url "example-form") (current-url dr))))
 
-(deftest test-to
+(deftest to-should-open-given-url-in-browser
   (to dr (str test-base-url "example-form"))
   (is (= (str test-base-url "example-form") (current-url dr)))
   (is (= "Ministache" (title dr))))
 
-(deftest test-bys
+(deftest should-be-able-to-find-elements-using-low-level-by-wrappers
   (-> dr
       (find-it {:tag :a, :text "example form"})
       click)
@@ -103,45 +103,15 @@
   (is (= "home"
          (text (find-element dr (by-css-selector "#footer a.menu-item"))))))
 
-(deftest test-find*
+(deftest find-it-should-support-basic-attr-val-map
   (is (= "Moustache"
          (text (nth (find-them dr {:tag :a}) 1))))
   (is (= "Moustache"
          (text (find-it dr {:class "external"}))))
   (is (= "https://github.com/cgrand/moustache"
          (attribute (find-it dr {:text "Moustache"}) "href")))
-  (is (= "Moustache"
-         (text (find-it dr {:tag :a, :class #"exter"}))))
-  (is (= "Moustache"
-         (text (find-it dr {:tag :a, :text #"Mous"}))))
-  (is (= "Moustache"
-         (text (find-it dr {:tag :a, :class "external", :href #"github"}))))
-  (is (= "Moustache"
-         (text (find-it dr {:tag :a, :class #"exter", :href #"github"}))))
-  (is (= "Moustache"
-         (text (find-it dr [:div {:id "content"}, :a {:class "external"}]))))
-  (is (= "Moustache"
-         (text (find-it dr [:div {:id "content"}, :a {:class #"exter"}]))))
-  (is (= "Moustache"
-         (text (find-it dr [:div {:id "content"}, :a {:href #"github"}]))))
-  (is (= "home"
-         (text (find-it dr [:* {:id "footer"}, :a {}]))))
   (is (= 8
          (count (find-them dr {:tag :a}))))
-  (is (= 3
-         (count (find-them dr {:class #"-item"}))))
-  (is (= 3
-         (count (find-them dr {:tag :a, :class #"-item"}))))
-  (is (= 1
-         (count (find-them dr {:tag :a, :text #"hom"}))))
-  (is (= 1
-         (count (find-them dr {:tag :a, :text #"(?i)HOM"}))))
-  (is (= 2
-         (count (find-them dr {:tag :a, :class #"exter", :href #"github"}))))
-  (is (= 3
-         (count (find-them dr [:* {:id "footer"}, :a {}]))))
-  (is (= 2
-         (count (find-them dr [:div {:id "content"}, :a {:class #"exter"}]))))
   (-> dr
       (find-it {:tag :a, :text "example form"})
       click)
@@ -160,47 +130,84 @@
   (is (= "Smith"
          (attribute (find-it dr {:tag :input, :type "text", :name #"last_"}) "value")))
   (is (= "Smith"
-         (attribute (find-it dr [:div {:id "content"}, :input {:name #"last_"}]) "value")))
-  (back dr) ;; get back to home page
+         (attribute (find-it dr [:div {:id "content"}, :input {:name #"last_"}]) "value"))))
+
+(deftest find-it-should-support-regexes-in-attr-val-map
+  (is (= "Moustache"
+         (text (find-it dr {:tag :a, :class #"exter"}))))
+  (is (= "Moustache"
+         (text (find-it dr {:tag :a, :text #"Mous"}))))
+  (is (= "Moustache"
+         (text (find-it dr {:tag :a, :class "external", :href #"github"}))))
+  (is (= "Moustache"
+         (text (find-it dr {:tag :a, :class #"exter", :href #"github"}))))
+  (is (= 3
+         (count (find-them dr {:class #"-item"}))))
+  (is (= 3
+         (count (find-them dr {:tag :a, :class #"-item"}))))
+  (is (= 1
+         (count (find-them dr {:tag :a, :text #"hom"}))))
+  (is (= 1
+         (count (find-them dr {:tag :a, :text #"(?i)HOM"}))))
+  (is (= 2
+         (count (find-them dr {:tag :a, :class #"exter", :href #"github"})))))
+
+(deftest find-it-should-support-hierarchical-querying
+  (is (= "Moustache"
+         (text (find-it dr [:div {:id "content"}, :a {:class "external"}]))))
+  (is (= "Moustache"
+         (text (find-it dr [:div {:id "content"}, :a {:class #"exter"}]))))
+  (is (= "Moustache"
+         (text (find-it dr [:div {:id "content"}, :a {:href #"github"}]))))
+  (is (= "home"
+         (text (find-it dr [:* {:id "footer"}, :a {}]))))
+  (is (= 3
+         (count (find-them dr [:* {:id "footer"}, :a {}]))))
+  (is (= 2
+         (count (find-them dr [:div {:id "content"}, :a {:class #"exter"}])))))
+
+(deftest exists-should-return-truthy-falsey-and-should-not-throw-an-exception
   (is (-> dr
         (find-it {:tag :a})
         exists?))
   (is (not
        (-> dr
            (find-it {:tag :area})
-           exists?)))
-  (is (not
-       (-> dr
-           (find-it {:tag :area})
-           exists?)))
+           exists?))))
+
+(deftest visible-should-return-truthy-falsey-when-visible
   (is (-> dr 
           (find-it {:tag :a, :text "Moustache"})
           visible?))
+  (is (not
+       (-> dr
+           (find-it {:tag :a, :href "#pages"})
+           visible?)))
   (is (-> dr 
           (find-it {:tag :a, :text "Moustache"})
           displayed?))
+  (is (not
+       (-> dr
+           (find-it {:tag :a, :href "#pages"})
+           displayed?))))
+
+(deftest present-should-return-truthy-falsey-when-exists-and-visible
   (is (-> dr
           (find-it {:tag :a, :text "Moustache"})
           present?))
   (is (not
        (-> dr
-           (find-it {:tag :a})
-           visible?)))
-  (is (not
-       (-> dr 
-           (find-it {:tag :a})
-           displayed?)))
-  (is (not
-       (-> dr
-           (find-it {:tag :a})
+           (find-it {:tag :a, :href "#pages"})
            present?))))
 
 ;; Default wrap for strings is double quotes
-(deftest test-xpath-quote-handling
+(deftest generated-xpath-should-wrap-strings-in-double-quotes
   (is (find-it dr {:text "File's Name"})))
 
-(deftest text-js-based-fns
-  (is (= (xpath (find-it dr {:tag :a, :text "Moustache"})) "/html/body/div[2]/div/p/a"))
+(deftest xpath-function-should-return-string-xpath-of-element
+  (is (= (xpath (find-it dr {:tag :a, :text "Moustache"})) "/html/body/div[2]/div/p/a")))
+
+(deftest html-function-should-return-string-html-of-element
   (is (= (html (find-it dr {:tag :a, :text "Moustache"})) "<a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"external\" href=\"https://github.com/cgrand/moustache\">Moustache</a>")))
 
 (deftest test-form-elements
@@ -264,7 +271,7 @@
   (is (nil?
        (attribute (find-it dr {:id "purpose_here"}) :disabled))))
 
-(deftest test-form-helpers
+(deftest quick-fill-should-accept-special-seq-and-perform-batch-actions-on-form
   (to dr (str test-base-url "example-form"))
   (quick-fill dr
               [{"first_name" clear}
@@ -286,7 +293,7 @@
   (is (selected?
        (find-it dr {:tag :option, :value "france"}))))
 
-(deftest test-window-handling
+(deftest should-be-able-to-toggle-between-open-windows
   (is (= 1
          (count (window-handles dr))))
   (is (= "Ministache"
@@ -400,7 +407,7 @@
   (is (= (class (get-screenshot dr :file)) java.io.File))
   (is (= (class (get-screenshot dr :file "/tmp/screenshot_test.png")) java.io.File))
   ;; the following will throw an exception if deletion fails, hence our test
-  (jio/delete-file "/tmp/screenshot_test.png"))
+  (io/delete-file "/tmp/screenshot_test.png"))
 
 
 ;; ## Tests (sans cache) ##
