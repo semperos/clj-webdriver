@@ -1,4 +1,4 @@
-# Selenium-WebDriver Support for Clojure [![Build Status](https://secure.travis-ci.org/semperos/clj-webdriver.png)](http://travis-ci.org/semperos/clj-webdriver)
+# Selenium-WebDriver Support for Clojure #
 
 This is a Clojure library for driving a web browser using Selenium-WebDriver as the backend. For more comprehensive documentation on all of clj-webdriver's features, read the [Github wiki](https://github.com/semperos/clj-webdriver/wiki).
 
@@ -16,7 +16,7 @@ This is a Clojure library for driving a web browser using Selenium-WebDriver as 
 
 **Please join the Google group if you use this library.** I regularly post announcements about upcoming releases, and although I ensure all tests are passing and try to maintain good test coverage before releases, user testing is invaluable. Thank you!
 
-## Usage
+## Usage ##
 
 ### Important ###
 
