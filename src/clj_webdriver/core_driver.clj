@@ -240,7 +240,7 @@
     (let [attr-val-map (apply hash-map attr-val)
           table-xpath (build-xpath :table (:table attr-val-map))
           row-xpath (str "//tr[" (inc (:row attr-val-map)) "]")
-          col-xpath (if (and (find-element driver (by-xpath (str table-xpath "//th")))
+          col-xpath (if (and (find-element driver (by-xpath (str table-xpath "/th")))
                              (zero? (:row attr-val-map)))
                       (str "/th[" (inc (:col attr-val-map)) "]")
                       (str "/td[" (inc (:col attr-val-map)) "]"))
