@@ -685,27 +685,22 @@
 
 ;; Firefox-specific Functionality
 
-(def tmp-firefox-driver (atom nil))
 (deftest firefox-should-support-custom-profiles
   (is (if (travis?)
         true
-        (do
+        (with-browser [tmp-dr (to (new-driver {:browser :firefox
+                                               :profile (ff/new-profile)})
+                                  test-base-url)]
           (log/info "[x] Starting Firefox with custom profile.")
-          (reset! tmp-firefox-driver (to (new-driver {:browser :firefox
-                                                      :profile (ff/new-profile)})
-                                         test-base-url))
-          (driver? @tmp-firefox-driver))))
-  (quit @tmp-firefox-driver))
+          (driver? tmp-dr)))))
 
 (deftest firefox-should-support-extensions
   (is (if (travis?)
         true
-        (do
+        (with-browser [tmp-dr (to (new-driver {:browser :firefox
+                                               :profile (doto (ff/new-profile)
+                                                          (ff/enable-extension :firebug))})
+                                  test-base-url)]
           (log/info "[x] Starting Firefox with extensions.")
-          (reset! tmp-firefox-driver (to (new-driver {:browser :firefox
-                                                      :profile (doto (ff/new-profile)
-                                                                 (ff/enable-extension :firebug))})
-                                         test-base-url))
-          (driver? @tmp-firefox-driver))))
-  (quit @tmp-firefox-driver))
+          (driver? tmp-dr)))))
 
