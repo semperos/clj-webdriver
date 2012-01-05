@@ -76,6 +76,40 @@
   (title [driver] "Retrieve the title of the current page as defined in the `head` tag")
   (to [driver url] "Navigate to a particular URL. Arg `url` can be either String or java.net.URL. Equivalent to the `get` function, provided here for compatibility with WebDriver API."))
 
+;; (with-drivers) for spooling up multiple, probably not good idea, but...
+;; Borrowed from core Clojure
+(defmacro with-driver
+  "bindings => [name init ...]
+
+  Evaluates body in a try expression with names bound to the values
+  of the inits, and a finally clause that calls (.close name) on each
+  name in reverse order."
+  [bindings & body]
+  (assert-args
+     (vector? bindings) "a vector for its binding"
+     (even? (count bindings)) "an even number of forms in binding vector")
+  (cond
+    (= (count bindings) 0) `(do ~@body)
+    (symbol? (bindings 0)) `(let ~(subvec bindings 0 2)
+                              (try
+                                (with-driver ~(subvec bindings 2) ~@body)
+                                (finally
+                                  (quit ~(bindings 0)))))
+    :else (throw (IllegalArgumentException.
+                   "with-driver only allows Symbols in bindings"))))
+
+;; alias for with-driver
+(defmacro with-browser
+  "Alias for with-driver
+
+  bindings => [name init ...]
+
+  Evaluates body in a try expression with names bound to the values
+  of the inits, and a finally clause that calls (.close name) on each
+  name in reverse order."
+  [& args]
+  `(with-driver ~@args))
+
 ;;; ## Windows and Frames ##
 (defprotocol ITargetLocator
   "Functions that deal with browser windows and frames"
