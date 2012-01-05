@@ -10,3 +10,4 @@ docs
 /wiki
 test-output.txt
 chromedriver.log
+/autodoc
