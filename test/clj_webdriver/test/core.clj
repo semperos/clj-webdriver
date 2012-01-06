@@ -152,17 +152,17 @@
 
 (deftest find-it-should-support-hierarchical-querying
   (is (= "Moustache"
-         (text (find-it dr [:div {:id "content"}, :a {:class "external"}]))))
+         (text (find-it dr [{:tag :div, :id "content"}, {:tag :a, :class "external"}]))))
   (is (= "Moustache"
-         (text (find-it dr [:div {:id "content"}, :a {:class #"exter"}]))))
+         (text (find-it dr [{:tag :div, :id "content"}, {:tag :a, :class #"exter"}]))))
   (is (= "Moustache"
-         (text (find-it dr [:div {:id "content"}, :a {:href #"github"}]))))
+         (text (find-it dr [{:tag :div, :id "content"}, {:tag :a, :href #"github"}]))))
   (is (= "home"
-         (text (find-it dr [:* {:id "footer"}, :a {}]))))
+         (text (find-it dr [{:tag :*, :id "footer"}, {:tag :a}]))))
   (is (= 3
-         (count (find-them dr [:* {:id "footer"}, :a {}]))))
+         (count (find-them dr [{:tag :*, :id "footer"}, {:tag :a}]))))
   (is (= 2
-         (count (find-them dr [:div {:id "content"}, :a {:class #"exter"}])))))
+         (count (find-them dr [{:tag :div, :id "content"}, {:tag :a, :class #"exter"}])))))
 
 (deftest exists-should-return-truthy-falsey-and-should-not-throw-an-exception
   (is (-> dr
@@ -230,10 +230,10 @@
   (to dr (str test-base-url "example-form"))
   ;; Clear element
   (-> dr
-      (find-it [:form {:id "example_form"}, :input {:name #"last_"}])
+      (find-it [{:tag :form, :id "example_form"}, {:tag :input, :name #"last_"}])
       clear)
   (is (= ""
-         (value (find-it dr [:form {:id "example_form"}, :input {:name #"last_"}]))))
+         (value (find-it dr [{:tag :form, :id "example_form"}, {:tag :input, :name #"last_"}]))))
   ;; Radio buttons
   (is (= true
          (selected? (find-it dr {:tag :input, :type "radio", :value "male"}))))
@@ -485,13 +485,13 @@
   (is (= "Moustache"
          (text (find-it dr-plain {:tag :a, :class #"exter", :href #"github"}))))
   (is (= "Moustache"
-         (text (find-it dr-plain [:div {:id "content"}, :a {:class "external"}]))))
+         (text (find-it dr-plain [{:tag :div, :id "content"}, {:tag :a, :class "external"}]))))
   (is (= "Moustache"
-         (text (find-it dr-plain [:div {:id "content"}, :a {:class #"exter"}]))))
+         (text (find-it dr-plain [{:tag :div, :id "content"}, {:tag :a, :class #"exter"}]))))
   (is (= "Moustache"
-         (text (find-it dr-plain [:div {:id "content"}, :a {:href #"github"}]))))
+         (text (find-it dr-plain [{:tag :div, :id "content"}, {:tag :a, :href #"github"}]))))
   (is (= "home"
-         (text (find-it dr-plain [:* {:id "footer"}, :a {}]))))
+         (text (find-it dr-plain [{:tag :*, :id "footer"}, {:tag :a}]))))
   (is (= 8
          (count (find-them dr-plain {:tag :a}))))
   (is (= 3
@@ -505,9 +505,9 @@
   (is (= 2
          (count (find-them dr-plain {:tag :a, :class #"exter", :href #"github"}))))
   (is (= 3
-         (count (find-them dr-plain [:* {:id "footer"}, :a {}]))))
+         (count (find-them dr-plain [{:tag :*, :id "footer"}, {:tag :a}]))))
   (is (= 2
-         (count (find-them dr-plain [:div {:id "content"}, :a {:class #"exter"}]))))
+         (count (find-them dr-plain [{:tag :div, :id "content"}, {:tag :a, :class #"exter"}]))))
   (-> dr-plain
       (find-it {:tag :a, :text "example form"})
       click)
@@ -526,7 +526,7 @@
   (is (= "Smith"
          (attribute (find-it dr-plain {:tag :input, :type "text", :name #"last_"}) "value")))
   (is (= "Smith"
-         (attribute (find-it dr-plain [:div {:id "content"}, :input {:name #"last_"}]) "value")))
+         (attribute (find-it dr-plain [{:tag :div, :id "content"}, {:tag :input, :name #"last_"}]) "value")))
   (back dr-plain) ;; get back to home page
   (is (-> dr-plain
         (find-it {:tag :a})
@@ -565,10 +565,10 @@
   (to dr-plain (str test-base-url "example-form"))
   ;; Clear element
   (-> dr-plain
-      (find-it [:form {:id "example_form"}, :input {:name #"last_"}])
+      (find-it [{:tag :form, :id "example_form"}, {:tag :input, :name #"last_"}])
       clear)
   (is (= ""
-         (value (find-it dr-plain [:form {:id "example_form"}, :input {:name #"last_"}]))))
+         (value (find-it dr-plain [{:tag :form, :id "example_form"}, {:tag :input, :name #"last_"}]))))
   ;; Radio buttons
   (is (= true
          (selected? (find-it dr-plain {:tag :input, :type "radio", :value "male"}))))
