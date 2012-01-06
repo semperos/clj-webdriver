@@ -8,6 +8,6 @@
   [driver handle title url]
   (WindowHandle. driver handle title url))
 
-(defn is-window-handle?
+(defn window-handle?
   [handle]
   (= (class handle) WindowHandle))

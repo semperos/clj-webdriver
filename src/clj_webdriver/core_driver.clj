@@ -134,7 +134,7 @@
      (string? handle)            (do
                                    (.window (.switchTo (:webdriver driver)) handle)
                                    driver)
-     (is-window-handle? handle)  (do
+     (window-handle? handle)  (do
                                    (.window (.switchTo (:driver handle)) (:handle handle))
                                    driver)
      (number? handle)            (do
