@@ -210,6 +210,24 @@
 (deftest html-function-should-return-string-html-of-element
   (is (= (html (find-it dr {:tag :a, :text "Moustache"})) "<a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"external\" href=\"https://github.com/cgrand/moustache\">Moustache</a>")))
 
+(deftest find-table-cell-should-find-cell-with-coords
+  (is (= "th"
+         (tag (find-table-cell dr {:id "pages-table"} [0 0]))))
+  (is (= "th"
+         (tag (find-table-cell dr {:id "pages-table"} [0 1]))))
+  (is (= "td"
+         (tag (find-table-cell dr {:id "pages-table"} [1 0]))))
+  (is (= "td"
+         (tag (find-table-cell dr {:id "pages-table"} [1 1])))))
+
+(deftest find-table-row-should-find-all-cells-for-row
+  (is (= 2
+         (count (find-table-row dr {:id "pages-table"} 0))))
+  (is (= "th"
+         (tag (first (find-table-row dr {:id "pages-table"} 0)))))
+  (is (= "td"
+         (tag (first (find-table-row dr {:id "pages-table"} 1))))))
+
 (deftest test-form-elements
   (to dr (str test-base-url "example-form"))
   ;; Clear element
