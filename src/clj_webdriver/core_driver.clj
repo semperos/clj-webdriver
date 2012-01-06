@@ -236,48 +236,68 @@
             text-xpath (str non-text-xpath "[contains(..,'" (text-kw attr-val) "')]")]
         (find-elements driver (by-xpath text-xpath)))))
 
-  (find-table-cells [driver attr-val]
-    (let [attr-val-map (apply hash-map attr-val)
-          table-xpath (build-xpath :table (:table attr-val-map))
-          row-xpath (str "//tr[" (inc (:row attr-val-map)) "]")
-          col-xpath (if (and (find-element driver (by-xpath (str table-xpath "/th")))
-                             (zero? (:row attr-val-map)))
-                      (str "/th[" (inc (:col attr-val-map)) "]")
-                      (str "/td[" (inc (:col attr-val-map)) "]"))
+  ;; TODO: needs test coverage
+  (find-table-cell [driver table coords]
+    (when (not= (count coords) 2)
+      (throw (IllegalArgumentException.
+              (str "The `coordinates` parameter must be a seq with two items."))))
+    (let [[row col] coords
+          table-xpath (build-xpath :table table)
+          row-xpath (str "//tr[" (inc row) "]")
+          col-xpath (if (and (find-element driver (by-xpath (str table-xpath "//th")))
+                             (zero? row))
+                      (str "/th[" (inc col) "]")
+                      (str "/td[" (inc col) "]"))
           complete-xpath (str table-xpath row-xpath col-xpath)]
+      (find-element driver (by-xpath complete-xpath))))
+
+  ;; TODO: needs test coverage
+  (find-table-row [driver table row]
+    (let [table-xpath (build-xpath :table table)
+          row-xpath (str table-xpath "//tr[" (inc row) "]")
+          complete-xpath (if (and (find-element driver (by-xpath (str table-xpath "//th")))
+                                  (zero? row))
+                           (str row-xpath "//th")
+                           (str row-xpath "//td"))]
       (find-elements driver (by-xpath complete-xpath))))
 
+  ;; There is no find-table-col due to XPath irregularity regarding tr counts
+
+  (find-by-hierarchy [driver hierarchy-vec]
+    (if (query-with-ancestry-has-regex? hierarchy-vec)
+      (if (query-with-ancestry-has-regex? (drop-last 2 hierarchy-vec))
+        (throw (IllegalArgumentException.
+                (str "You may not pass in a regex until "
+                     "the last attribute-value pair")))
+        (filter-elements-by-regex
+         (find-elements driver (by-xpath (str (build-xpath-with-ancestry hierarchy-vec) "//*")))
+         (last hierarchy-vec)))
+      (find-elements driver (by-xpath (build-xpath-with-ancestry hierarchy-vec)))))
+  
   ;; NoSuchElementException caught so that `exists?` will behave as expected
   (find-them
     ([driver attr-val]
        (when (keyword? driver) ; I keep forgetting to pass in the WebDriver instance while testing
          (throw (IllegalArgumentException.
                  (str "The first parameter to find-them must be an instance of WebDriver."))))
-       (if (and (map? attr-val)
+       (if (and (or
+                 (map? attr-val)
+                 (vector? attr-val))
                 (empty? attr-val))
-         nil
+         nil ; return nil if {} or [] is passed to find-it
          (try
            (cond
-            (vector? attr-val)      (cond
-                                     (some #{:row :col} attr-val) (find-table-cells driver attr-val)
-                                     (query-with-ancestry-has-regex? attr-val) (if (query-with-ancestry-has-regex? (drop-last 2 attr-val))
-                                                                                 (throw (IllegalArgumentException.
-                                                                                         (str "You may not pass in a regex until "
-                                                                                              "the last attribute-value pair")))
-                                                                                 (filter-elements-by-regex
-                                                                                  (find-elements driver (by-xpath (str (build-xpath-with-ancestry attr-val) "//*")))
-                                                                                  (last attr-val)))
-                                     :else (find-elements driver (by-xpath (build-xpath-with-ancestry attr-val)))) ; supplied vector of queries in hierarchy
-          (= (keys attr-val) '(:tag))     (find-elements
-                                           driver
-                                           (by-tag (:tag attr-val)))
-          (and (not (contains? attr-val :tag))
-               (not (contains? attr-val :xpath))
-               (not (contains? attr-val :css)))     (find-them driver (assoc attr-val :tag :*))
-          (and (> (count attr-val) 1)
-               (contains? attr-val :xpath))          (find-them driver {:xpath (:xpath attr-val)})
-          (and (> (count attr-val) 1)
-               (contains? attr-val :css))            (find-them driver {:css (:css attr-val)})
+            (vector? attr-val)       (find-by-hierarchy driver attr-val); supplied vector of queries in hierarchy
+            (= (keys attr-val) '(:tag))     (find-elements
+                                             driver
+                                             (by-tag (:tag attr-val)))
+            (and (not (contains? attr-val :tag))
+                 (not (contains? attr-val :xpath))
+                 (not (contains? attr-val :css)))     (find-them driver (assoc attr-val :tag :*))
+            (and (> (count attr-val) 1)
+                 (contains? attr-val :xpath))          (find-them driver {:xpath (:xpath attr-val)})
+            (and (> (count attr-val) 1)
+                 (contains? attr-val :css))            (find-them driver {:css (:css attr-val)})
 
           (contains? attr-val :index)                (find-elements driver (by-xpath (build-xpath (:tag attr-val) attr-val)))
           (= (:tag attr-val) :radio)                             (find-them driver (assoc attr-val :tag :input :type "radio"))

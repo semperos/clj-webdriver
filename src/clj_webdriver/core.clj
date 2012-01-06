@@ -133,8 +133,10 @@
   (find-semantic-buttons [driver attr-val] "Find HTML element that is either a `<button>` or an `<input>` of type submit, reset, image or button")
   (find-semantic-buttons-by-regex [driver attr-val] "Semantic buttons are things that look or behave like buttons but do not necessarily consist of a `<button>` tag")
   (find-checkables-by-text [driver attr-val] "Finding the 'text' of a radio or checkbox is complex. Handle it here.")
-  (find-table-cells [driver attr-val] "Given a WebDriver `driver` and a vector `attr-val`, find the correct")
-  (find-them [driver attr-val] "Find all elements that match the tag/attr-val query")
+  (find-table-cell [driver table coordinates] "Given a `driver`, a `table` find-it-style spec (e.g. `{:id \"my-table\"}` and a zero-based set of coordinates for row and column, return the table cell at those coordinates for the given table.")
+  (find-table-row [driver table row-index] "Return all cells in the row of the given table. The `table` is a find-it-style map to identify the table uniquely (e.g., `{:id \"my-table\"}`), and `row-index` is a zero-based index of the target row.")
+  (find-by-hierarchy [driver hierarchy-vector] "Given a Webdriver `driver` and a vector `hierarchy-vector`, return a lazy seq of the described elements in the hierarchy dictated by the order of elements in the `hierarchy-vector`.")
+  (find-them [driver attr-val] "Find all elements that match the parameters supplied in the `attr-val` map. Also provides a shortcut to `find-by-hierarchy` if a vector is supplied instead of a map.")
   (find-it [driver attr-val] "Call (first (find-them args))"))
 
 (defprotocol IElement

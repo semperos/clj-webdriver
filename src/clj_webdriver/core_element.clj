@@ -76,7 +76,7 @@
   (present? [element]
     (and (exists? element) (visible? element)))
   
-  (tag-name [element]
+  (tag [element]
     (.getTagName (:webelement element)))
 
   (text [element]
