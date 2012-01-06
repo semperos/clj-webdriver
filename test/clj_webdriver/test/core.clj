@@ -128,9 +128,7 @@
   (is (= "Smith"
          (attribute (find-it dr {:tag :input, :type "text", :name #"last_"}) "value")))
   (is (= "Smith"
-         (attribute (find-it dr {:tag :input, :type "text", :name #"last_"}) "value")))
-  (is (= "Smith"
-         (attribute (find-it dr [:div {:id "content"}, :input {:name #"last_"}]) "value"))))
+         (attribute (find-it dr {:tag :input, :type "text", :name #"last_"}) "value"))))
 
 (deftest find-it-should-support-regexes-in-attr-val-map
   (is (= "Moustache"
