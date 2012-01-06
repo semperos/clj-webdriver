@@ -1,5 +1,27 @@
 (in-ns 'clj-webdriver.core)
 
+;; Utility used below
+(defn filter-elements-by-regex
+  "Given a collection of WebElements, filter the collection by the regular expression values for the respective attributes in the `attr-val` map"
+  [elements attr-val]
+  (let [attr-vals-with-regex (into {}
+                                   (filter
+                                    #(let [[k v] %] (= java.util.regex.Pattern (class v)))
+                                    attr-val))]
+    (loop [elements elements attr-vals-with-regex attr-vals-with-regex]
+      (if (empty? attr-vals-with-regex)
+        elements
+        (let [entry (first attr-vals-with-regex)
+              attr (key entry)
+              value (val entry)
+              matching-elements (if (= :text attr)
+                                  (filter #(re-find value (text %)) elements)
+                                  (filter (fn [el]
+                                            ((fnil (partial re-find value) "")
+                                             (attribute el (name attr))))
+                                          elements))]
+          (recur matching-elements (dissoc attr-vals-with-regex attr)))))))
+
 (extend-type Driver 
 
   ;;; Basic Functions ;;;
@@ -265,10 +287,10 @@
 
   (find-by-hierarchy [driver hierarchy-vec]
     (if (query-with-ancestry-has-regex? hierarchy-vec)
-      (if (query-with-ancestry-has-regex? (drop-last 2 hierarchy-vec))
+      (if (query-with-ancestry-has-regex? (drop-last hierarchy-vec))
         (throw (IllegalArgumentException.
                 (str "You may not pass in a regex until "
-                     "the last attribute-value pair")))
+                     "the last attr-val map")))
         (filter-elements-by-regex
          (find-elements driver (by-xpath (str (build-xpath-with-ancestry hierarchy-vec) "//*")))
          (last hierarchy-vec)))

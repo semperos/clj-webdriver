@@ -30,12 +30,15 @@
 
 (defn build-xpath-with-ancestry
   "Given a vector of queries in hierarchical order, create XPath.
-   For example: `[:div {:id \"content\"}, :a {:class \"external\"}]` would
+   For example: `[{:tag :div, :id \"content\"}, {:tag :a, :class \"external\"}]` would
    produce the XPath \"//div[@id='content']//a[@class='external']"
-  [attr-val]
-  (apply str (let [tag-to-attrs (partition 2 attr-val)]
-               (for [xpath-parts tag-to-attrs]
-                 (build-xpath (first xpath-parts) (second xpath-parts))))))
+  [v-of-attr-vals]
+  (apply str 
+         (for [attr-val v-of-attr-vals]
+           (if (not (contains? attr-val :tag))
+             ;; use :* for "*" if no tag specified
+             (build-xpath :* attr-val)
+             (build-xpath (:tag attr-val) (dissoc attr-val :tag))))))
 
 (defn contains-regex?
   "Checks if the values of a map contain a regex"
@@ -54,11 +57,9 @@
 
 (defn query-with-ancestry-has-regex?
   "Check if any values in maps as part of ancestry-based query have a regex"
-  [v]
-  (let [maps (flatten (for [chunk (partition 2 v)]
-                        (second chunk)))]
-    (boolean (some true? (for [m maps]
-                           (contains-regex? m))))))
+  [v-of-ms]
+  (boolean (some true? (for [m v-of-ms]
+                         (contains-regex? m)))))
 
 (defn first-60
   "Get first twenty characters of `s`, then add ellipsis"
