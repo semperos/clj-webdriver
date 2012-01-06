@@ -309,6 +309,19 @@
   (is (selected?
        (find-it dr {:tag :option, :value "france"}))))
 
+(deftest quick-fill-submit-should-always-return-nil
+  (to dr (str test-base-url "example-form"))
+  (is (nil?
+       (quick-fill-submit dr
+                   [{"first_name" clear}
+                    {"first_name" "Richard"}
+                    {{:id "last_name"} clear}
+                    {{:id "last_name"} "Hickey"}
+                    {{:name "bio"} clear}
+                    {{:name "bio"} #(input-text % "Creator of Clojure")}
+                    {{:tag "input", :type "radio", :value "female"} click}
+                    {{:css "select#countries"} #(select-by-value % "france")}]))))
+
 (deftest should-be-able-to-toggle-between-open-windows
   (is (= 1
          (count (window-handles dr))))
