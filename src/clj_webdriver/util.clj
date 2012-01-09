@@ -201,7 +201,7 @@
          (when-attr name-name
                     (str "Name: "  name-name ", "))
          (when-attr value
-                    (str "Value: "  value ", "))
+                    (str "Value: "  (-> value elim-breaks first-60) ", "))
          (when-attr href
                     (str "Href: "   href ", "))
          (when-attr src
