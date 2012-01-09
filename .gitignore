@@ -11,3 +11,4 @@ docs
 test-output.txt
 chromedriver.log
 /autodoc
+/doc
