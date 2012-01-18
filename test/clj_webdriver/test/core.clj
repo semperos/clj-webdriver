@@ -101,7 +101,10 @@
   (is (= "home"
          (text (find-element dr (by-class-name "menu-item")))))
   (is (= "home"
-         (text (find-element dr (by-css-selector "#footer a.menu-item"))))))
+         (text (find-element dr (by-css-selector "#footer a.menu-item")))))
+  (to dr test-base-url)
+  (is (= "first odd"
+         (attribute (find-element dr (by-class-name "first odd")) :class))))
 
 (deftest find-it-should-support-basic-attr-val-map
   (is (= "Moustache"
