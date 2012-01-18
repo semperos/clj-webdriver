@@ -108,6 +108,8 @@
          (text (nth (find-them dr {:tag :a}) 1))))
   (is (= "Moustache"
          (text (find-it dr {:class "external"}))))
+  (is (= "first odd"
+         (attribute (find-it dr {:tag :li, :class "first odd"}) :class)))
   (is (= "https://github.com/cgrand/moustache"
          (attribute (find-it dr {:text "Moustache"}) "href")))
   (is (= 8
