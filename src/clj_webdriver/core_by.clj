@@ -48,7 +48,13 @@
   ([attr value] (by-attr= :* attr value)) ; default to * any tag
   ([tag attr value]
      (cond
-         (= :class attr)  (by-class-name value)
+         (= :class attr)  (if-not (re-find #"\s" value)
+                            (by-class-name value)
+                            (by-xpath (str "//"
+                                           (name tag)
+                                           "[@class='"
+                                           value
+                                           "']")))
          (= :id attr)     (by-id value)
          (= :name attr)   (by-name value)
          (= :tag attr)    (by-tag value)
