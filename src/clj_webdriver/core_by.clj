@@ -33,7 +33,13 @@
 (defn by-class-name
   "Used when finding elements. Returns `By/className` of `expr`"
   [expr]
-  (By/className (name expr)))
+  (let [expr (str expr)]
+    (if (re-find #"\s" expr)
+      (by-xpath (str "//*"
+                     "[@class='"
+                     expr
+                     "']"))
+      (By/className (name expr)))))
 
 (defn by-css-selector
   "Used when finding elements. Returns `By/cssSelector` of `expr`"
