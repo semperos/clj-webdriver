@@ -25,6 +25,7 @@
            [org.openqa.selenium.firefox FirefoxDriver]
            [org.openqa.selenium.ie InternetExplorerDriver]
            [org.openqa.selenium.chrome ChromeDriver]
+           [com.opera.core.systems OperaDriver]
            [org.openqa.selenium.htmlunit HtmlUnitDriver]
            [org.openqa.selenium.support.ui Select]
            [java.util Date]
@@ -136,6 +137,7 @@
   {:firefox FirefoxDriver
    :ie InternetExplorerDriver
    :chrome ChromeDriver
+   :opera OperaDriver
    :htmlunit HtmlUnitDriver})
 
 (defn new-webdriver*
