@@ -2,7 +2,7 @@
   (:use [clj-webdriver core util window-handle wait options form-helpers]
         [clj-webdriver.driver :only [get-cache driver?]])
   (:use [ring.adapter.jetty :only [run-jetty]]
-        clojure.test)  
+        clojure.test)
   (:require [clj-webdriver.test.example-app.core :as web-app]
             [clj-webdriver.cache :as cache]
             [clj-webdriver.firefox :as ff]
@@ -22,7 +22,9 @@
                                       :include [ (fn [element] (= (attribute element :class) "external"))
                                                  {:css "ol#pages"}]}})
             test-base-url))
-(def dr-plain (to (new-driver {:browser :firefox}) test-base-url))
+
+(def firefox-driver-no-cache (to (new-driver {:browser :firefox}) test-base-url))
+;; (def opera-driver (start {:browser :opera} test-base-url))
 
 (defn start-server [f]
   (loop [server (run-jetty #'web-app/routes {:port test-port, :join? false})]
@@ -35,262 +37,294 @@
 (defn reset-browser-fixture
   [f]
   (to firefox-driver test-base-url)
-  (to dr-plain test-base-url)
+  (to firefox-driver-no-cache test-base-url)
+;  (to opera-driver test-base-url)
   (f))
 
 (defn quit-browser-fixture
   [f]
   (f)
   (quit firefox-driver)
-  (quit dr-plain))
+  (quit firefox-driver-no-cache)
+;  (quit opera-driver)
+  )
 
-(defn seed-driver-cache
+(defn seed-driver-cache-fixture
   [f]
   (cache/seed firefox-driver {:url (current-url firefox-driver), {:query [:foo]} "bar"})
   (f))
 
 (use-fixtures :once start-server quit-browser-fixture)
-(use-fixtures :each reset-browser-fixture seed-driver-cache)
+(use-fixtures :each reset-browser-fixture seed-driver-cache-fixture)
 
+;; Utilities
+(defmacro thrown?
+  "Return truthy if the exception in `klass` is thrown, otherwise return falsey (nil) (code adapted from clojure.test)"
+  [klass & forms]
+  `(try ~@forms
+        false
+        (catch ~klass e#
+          true)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;
+;;;                  ;;;
+;;; Test Definitions ;;;
+;;;                  ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;
+(defn test-browser-basics
+  [driver]
+  (is (= clj_webdriver.driver.Driver (class driver)))
+  (is (= test-base-url (current-url driver)))
+  (is (= "Ministache" (title driver)))
+  (is (boolean (re-find #"(?i)<!DOCTYPE html>" (page-source driver)))))
 
-;; ## Cache-Based Tests ##
-(deftest test-browser-basics
-  (is (= clj_webdriver.driver.Driver (class firefox-driver)))
-  (is (= test-base-url (current-url firefox-driver)))
-  (is (= "Ministache" (title firefox-driver)))
-  (is (boolean (re-find #"(?i)<!DOCTYPE html>" (page-source firefox-driver)))))
-
-(deftest back-forward-should-traverse-browser-history
-  (-> firefox-driver
+(defn back-forward-should-traverse-browser-history
+  [driver]
+  (-> driver
       (find-it {:tag :a, :text "example form"})
       click)
-  (is (= (str test-base-url "example-form") (current-url firefox-driver)))
-  (back firefox-driver)
-  (is (= test-base-url (current-url firefox-driver)))
-  (forward firefox-driver)
-  (is (= (str test-base-url "example-form") (current-url firefox-driver))))
+  (is (= (str test-base-url "example-form") (current-url driver)))
+  (back driver)
+  (is (= test-base-url (current-url driver)))
+  (forward driver)
+  (is (= (str test-base-url "example-form") (current-url driver))))
 
-(deftest to-should-open-given-url-in-browser
-  (to firefox-driver (str test-base-url "example-form"))
-  (is (= (str test-base-url "example-form") (current-url firefox-driver)))
-  (is (= "Ministache" (title firefox-driver))))
+(defn to-should-open-given-url-in-browser
+  [driver]
+  (to driver (str test-base-url "example-form"))
+  (is (= (str test-base-url "example-form") (current-url driver)))
+  (is (= "Ministache" (title driver))))
 
-(deftest should-be-able-to-find-elements-using-low-level-by-wrappers
-  (-> firefox-driver
+(defn should-be-able-to-find-elements-using-low-level-by-wrappers
+  [driver]
+  (-> driver
       (find-it {:tag :a, :text "example form"})
       click)
   (is (= "first_name"
-         (attribute (find-element firefox-driver (by-id "first_name")) :id)))
+         (attribute (find-element driver (by-id "first_name")) :id)))
   (is (= "home"
-         (text (find-element firefox-driver (by-link-text "home")))))
+         (text (find-element driver (by-link-text "home")))))
   (is (= "example form"
-         (text (find-element firefox-driver (by-partial-link-text "example")))))
+         (text (find-element driver (by-partial-link-text "example")))))
   (is (= "first_name"
-         (attribute (find-element firefox-driver (by-name "first_name")) :id)))
+         (attribute (find-element driver (by-name "first_name")) :id)))
   (is (= "home"
-         (text (find-element firefox-driver (by-tag "a")))))
+         (text (find-element driver (by-tag "a")))))
   (is (= "home"
-         (text (find-element firefox-driver (by-xpath "//a[text()='home']")))))
+         (text (find-element driver (by-xpath "//a[text()='home']")))))
   (is (= "home"
-         (text (find-element firefox-driver (by-class-name "menu-item")))))
+         (text (find-element driver (by-class-name "menu-item")))))
   (is (= "home"
-         (text (find-element firefox-driver (by-css-selector "#footer a.menu-item")))))
-  (to firefox-driver test-base-url)
+         (text (find-element driver (by-css-selector "#footer a.menu-item")))))
+  (to driver test-base-url)
   (is (= "first odd"
-         (attribute (find-element firefox-driver (by-class-name "first odd")) :class))))
+         (attribute (find-element driver (by-class-name "first odd")) :class))))
 
-(deftest find-it-should-support-basic-attr-val-map
+(defn find-it-should-support-basic-attr-val-map
+  [driver]
   (is (= "Moustache"
-         (text (nth (find-them firefox-driver {:tag :a}) 1))))
+         (text (nth (find-them driver {:tag :a}) 1))))
   (is (= "Moustache"
-         (text (find-it firefox-driver {:class "external"}))))
+         (text (find-it driver {:class "external"}))))
   (is (= "first odd"
-         (attribute (find-it firefox-driver {:class "first odd"}) :class)))
+         (attribute (find-it driver {:class "first odd"}) :class)))
   (is (= "first odd"
-         (attribute (find-it firefox-driver {:tag :li, :class "first odd"}) :class)))
+         (attribute (find-it driver {:tag :li, :class "first odd"}) :class)))
   (is (= "https://github.com/cgrand/moustache"
-         (attribute (find-it firefox-driver {:text "Moustache"}) "href")))
+         (attribute (find-it driver {:text "Moustache"}) "href")))
   (is (= 8
-         (count (find-them firefox-driver {:tag :a}))))
-  (-> firefox-driver
+         (count (find-them driver {:tag :a}))))
+  (-> driver
       (find-it {:tag :a, :text "example form"})
       click)
   (is (= "first_name"
-         (attribute (find-it firefox-driver {:type "text"}) "id")))
+         (attribute (find-it driver {:type "text"}) "id")))
   (is (= "first_name"
-         (attribute (find-it firefox-driver {:tag :input, :type "text"}) "id")))
+         (attribute (find-it driver {:tag :input, :type "text"}) "id")))
   (is (= "first_name"
-         (attribute (find-it firefox-driver {:tag :input, :type "text", :name "first_name"}) "id")))
+         (attribute (find-it driver {:tag :input, :type "text", :name "first_name"}) "id")))
   (is (= "first_name"
-         (attribute (find-it firefox-driver {:tag :input, :type "text", :name #"first_"}) "id")))
+         (attribute (find-it driver {:tag :input, :type "text", :name #"first_"}) "id")))
   (is (= "last_name"
-         (attribute (find-it firefox-driver {:tag :input, :type "text", :name #"last_"}) "id")))
+         (attribute (find-it driver {:tag :input, :type "text", :name #"last_"}) "id")))
   (is (= "Smith"
-         (attribute (find-it firefox-driver {:tag :input, :type "text", :name #"last_"}) "value")))
+         (attribute (find-it driver {:tag :input, :type "text", :name #"last_"}) "value")))
   (is (= "Smith"
-         (attribute (find-it firefox-driver {:tag :input, :type "text", :name #"last_"}) "value"))))
+         (attribute (find-it driver {:tag :input, :type "text", :name #"last_"}) "value"))))
 
-(deftest find-it-should-support-regexes-in-attr-val-map
+(defn find-it-should-support-regexes-in-attr-val-map
+  [driver]
   (is (= "Moustache"
-         (text (find-it firefox-driver {:tag :a, :class #"exter"}))))
+         (text (find-it driver {:tag :a, :class #"exter"}))))
   (is (= "Moustache"
-         (text (find-it firefox-driver {:tag :a, :text #"Mous"}))))
+         (text (find-it driver {:tag :a, :text #"Mous"}))))
   (is (= "Moustache"
-         (text (find-it firefox-driver {:tag :a, :class "external", :href #"github"}))))
+         (text (find-it driver {:tag :a, :class "external", :href #"github"}))))
   (is (= "Moustache"
-         (text (find-it firefox-driver {:tag :a, :class #"exter", :href #"github"}))))
+         (text (find-it driver {:tag :a, :class #"exter", :href #"github"}))))
   (is (= 3
-         (count (find-them firefox-driver {:class #"-item"}))))
+         (count (find-them driver {:class #"-item"}))))
   (is (= 3
-         (count (find-them firefox-driver {:tag :a, :class #"-item"}))))
+         (count (find-them driver {:tag :a, :class #"-item"}))))
   (is (= 1
-         (count (find-them firefox-driver {:tag :a, :text #"hom"}))))
+         (count (find-them driver {:tag :a, :text #"hom"}))))
   (is (= 1
-         (count (find-them firefox-driver {:tag :a, :text #"(?i)HOM"}))))
+         (count (find-them driver {:tag :a, :text #"(?i)HOM"}))))
   (is (= 2
-         (count (find-them firefox-driver {:tag :a, :class #"exter", :href #"github"})))))
+         (count (find-them driver {:tag :a, :class #"exter", :href #"github"})))))
 
-(deftest find-it-should-support-hierarchical-querying
+
+(defn find-it-should-support-hierarchical-querying
+  [driver]
   (is (= "Moustache"
-         (text (find-it firefox-driver [{:tag :div, :id "content"}, {:tag :a, :class "external"}]))))
+         (text (find-it driver [{:tag :div, :id "content"}, {:tag :a, :class "external"}]))))
   (is (= "Moustache"
-         (text (find-it firefox-driver [{:tag :div, :id "content"}, {:tag :a, :class #"exter"}]))))
+         (text (find-it driver [{:tag :div, :id "content"}, {:tag :a, :class #"exter"}]))))
   (is (= "Moustache"
-         (text (find-it firefox-driver [{:tag :div, :id "content"}, {:tag :a, :href #"github"}]))))
+         (text (find-it driver [{:tag :div, :id "content"}, {:tag :a, :href #"github"}]))))
   (is (= "home"
-         (text (find-it firefox-driver [{:tag :*, :id "footer"}, {:tag :a}]))))
+         (text (find-it driver [{:tag :*, :id "footer"}, {:tag :a}]))))
   (is (= 3
-         (count (find-them firefox-driver [{:tag :*, :id "footer"}, {:tag :a}]))))
+         (count (find-them driver [{:tag :*, :id "footer"}, {:tag :a}]))))
   (is (= 2
-         (count (find-them firefox-driver [{:tag :div, :id "content"}, {:tag :a, :class #"exter"}])))))
+         (count (find-them driver [{:tag :div, :id "content"}, {:tag :a, :class #"exter"}])))))
 
-(deftest exists-should-return-truthy-falsey-and-should-not-throw-an-exception
-  (is (-> firefox-driver
-        (find-it {:tag :a})
-        exists?))
+(defn exists-should-return-truthy-falsey-and-should-not-throw-an-exception
+  [driver]
+  (is (-> driver
+          (find-it {:tag :a})
+          exists?))
   (is (not
-       (-> firefox-driver
+       (-> driver
            (find-it {:tag :area})
            exists?))))
 
-(deftest visible-should-return-truthy-falsey-when-visible
-  (is (-> firefox-driver 
+(defn visible-should-return-truthy-falsey-when-visible
+  [driver]
+  (is (-> driver
           (find-it {:tag :a, :text "Moustache"})
           visible?))
   (is (not
-       (-> firefox-driver
+       (-> driver
            (find-it {:tag :a, :href "#pages"})
            visible?)))
-  (is (-> firefox-driver 
+  (is (-> driver
           (find-it {:tag :a, :text "Moustache"})
           displayed?))
   (is (not
-       (-> firefox-driver
+       (-> driver
            (find-it {:tag :a, :href "#pages"})
            displayed?))))
 
-(deftest present-should-return-truthy-falsey-when-exists-and-visible
-  (is (-> firefox-driver
+(defn present-should-return-truthy-falsey-when-exists-and-visible
+  [driver]
+  (is (-> driver
           (find-it {:tag :a, :text "Moustache"})
           present?))
   (is (not
-       (-> firefox-driver
+       (-> driver
            (find-it {:tag :a, :href "#pages"})
            present?))))
 
 ;; Default wrap for strings is double quotes
-(deftest generated-xpath-should-wrap-strings-in-double-quotes
-  (is (find-it firefox-driver {:text "File's Name"})))
+(defn generated-xpath-should-wrap-strings-in-double-quotes
+  [driver]
+  (is (find-it driver {:text "File's Name"})))
 
-(deftest xpath-function-should-return-string-xpath-of-element
-  (is (= (xpath (find-it firefox-driver {:tag :a, :text "Moustache"})) "/html/body/div[2]/div/p/a")))
+(defn xpath-function-should-return-string-xpath-of-element
+  [driver]
+  (is (= (xpath (find-it driver {:tag :a, :text "Moustache"})) "/html/body/div[2]/div/p/a")))
 
-(deftest html-function-should-return-string-html-of-element
-  (is (= (html (find-it firefox-driver {:tag :a, :text "Moustache"})) "<a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"external\" href=\"https://github.com/cgrand/moustache\">Moustache</a>")))
+(defn html-function-should-return-string-html-of-element
+  [driver]
+  (is (= (html (find-it driver {:tag :a, :text "Moustache"})) "<a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"external\" href=\"https://github.com/cgrand/moustache\">Moustache</a>")))
 
-(deftest find-table-cell-should-find-cell-with-coords
+(defn find-table-cell-should-find-cell-with-coords
+  [driver]
   (is (= "th"
-         (tag (find-table-cell firefox-driver {:id "pages-table"} [0 0]))))
+         (tag (find-table-cell driver {:id "pages-table"} [0 0]))))
   (is (= "th"
-         (tag (find-table-cell firefox-driver {:id "pages-table"} [0 1]))))
+         (tag (find-table-cell driver {:id "pages-table"} [0 1]))))
   (is (= "td"
-         (tag (find-table-cell firefox-driver {:id "pages-table"} [1 0]))))
+         (tag (find-table-cell driver {:id "pages-table"} [1 0]))))
   (is (= "td"
-         (tag (find-table-cell firefox-driver {:id "pages-table"} [1 1])))))
+         (tag (find-table-cell driver {:id "pages-table"} [1 1])))))
 
-(deftest find-table-row-should-find-all-cells-for-row
+(defn find-table-row-should-find-all-cells-for-row
+  [driver]
   (is (= 2
-         (count (find-table-row firefox-driver {:id "pages-table"} 0))))
+         (count (find-table-row driver {:id "pages-table"} 0))))
   (is (= "th"
-         (tag (first (find-table-row firefox-driver {:id "pages-table"} 0)))))
+         (tag (first (find-table-row driver {:id "pages-table"} 0)))))
   (is (= "td"
-         (tag (first (find-table-row firefox-driver {:id "pages-table"} 1))))))
+         (tag (first (find-table-row driver {:id "pages-table"} 1))))))
 
-(deftest test-form-elements
-  (to firefox-driver (str test-base-url "example-form"))
+(defn test-form-elements
+  [driver]
+  (to driver (str test-base-url "example-form"))
   ;; Clear element
-  (-> firefox-driver
+  (-> driver
       (find-it [{:tag :form, :id "example_form"}, {:tag :input, :name #"last_"}])
       clear)
   (is (= ""
-         (value (find-it firefox-driver [{:tag :form, :id "example_form"}, {:tag :input, :name #"last_"}]))))
+         (value (find-it driver [{:tag :form, :id "example_form"}, {:tag :input, :name #"last_"}]))))
   ;; Radio buttons
   (is (= true
-         (selected? (find-it firefox-driver {:tag :input, :type "radio", :value "male"}))))
-  (-> firefox-driver
+         (selected? (find-it driver {:tag :input, :type "radio", :value "male"}))))
+  (-> driver
       (find-it {:tag :input, :type "radio", :value "female"})
       select)
   (is (= true
-         (selected? (find-it firefox-driver {:tag :input, :type "radio", :value "female"}))))
-  (-> firefox-driver
+         (selected? (find-it driver {:tag :input, :type "radio", :value "female"}))))
+  (-> driver
       (find-it {:tag :radio, :value "male"})
       select)
   (is (= true
-         (selected? (find-it firefox-driver {:tag :input, :type "radio", :value "male"}))))
+         (selected? (find-it driver {:tag :input, :type "radio", :value "male"}))))
   ;; Checkboxes
   (is (= false
-         (selected? (find-it firefox-driver {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
-  (-> firefox-driver
+         (selected? (find-it driver {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
+  (-> driver
       (find-it {:tag :input, :type "checkbox", :name #"(?i)clojure"})
       toggle)
   (is (= true
-         (selected? (find-it firefox-driver {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
-  (-> firefox-driver
+         (selected? (find-it driver {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
+  (-> driver
       (find-it {:tag :checkbox, :name #"(?i)clojure"})
       click)
   (is (= false
-         (selected? (find-it firefox-driver {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
-  (-> firefox-driver
+         (selected? (find-it driver {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
+  (-> driver
       (find-it {:tag :checkbox, :type "checkbox", :name #"(?i)clojure"})
       select)
   (is (= true
-         (selected? (find-it firefox-driver {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
+         (selected? (find-it driver {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
   ;; Text fields
-  (-> firefox-driver
+  (-> driver
       (find-it {:tag :input, :id "first_name"})
       (input-text "foobar"))
   (is (= "foobar"
-         (value (find-it firefox-driver {:tag :input, :id "first_name"}))))
-  (-> firefox-driver
+         (value (find-it driver {:tag :input, :id "first_name"}))))
+  (-> driver
       (find-it {:tag :textfield, :id "first_name"})
       clear
       (input-text "clojurian"))
   (is (= "clojurian"
-         (value (find-it firefox-driver {:tag :textfield, :id "first_name"}))))
+         (value (find-it driver {:tag :textfield, :id "first_name"}))))
   ;; Boolean attributes (disabled, readonly, etc)
   (is (= "disabled"
-         (attribute (find-it firefox-driver {:id "disabled_field"}) :disabled)))
+         (attribute (find-it driver {:id "disabled_field"}) :disabled)))
   (is (= "readonly"
-         (attribute (find-it firefox-driver {:id "purpose_here"}) :readonly)))
+         (attribute (find-it driver {:id "purpose_here"}) :readonly)))
   (is (nil?
-       (attribute (find-it firefox-driver {:id "disabled_field"}) :readonly)))
+       (attribute (find-it driver {:id "disabled_field"}) :readonly)))
   (is (nil?
-       (attribute (find-it firefox-driver {:id "purpose_here"}) :disabled))))
+       (attribute (find-it driver {:id "purpose_here"}) :disabled))))
 
-(deftest quick-fill-should-accept-special-seq-and-perform-batch-actions-on-form
-  (to firefox-driver (str test-base-url "example-form"))
-  (quick-fill firefox-driver
+(defn quick-fill-should-accept-special-seq-and-perform-batch-actions-on-form
+  [driver]
+  (to driver (str test-base-url "example-form"))
+  (quick-fill driver
               [{"first_name" clear}
                {"first_name" "Richard"}
                {{:id "last_name"} clear}
@@ -300,85 +334,151 @@
                {{:tag "input", :type "radio", :value "female"} click}
                {{:css "select#countries"} #(select-by-value % "france")}])
   (is (= "Richard"
-         (value (find-it firefox-driver {:tag :input, :id "first_name"}))))
+         (value (find-it driver {:tag :input, :id "first_name"}))))
   (is (= "Hickey"
-         (value (find-it firefox-driver {:tag :input, :id "last_name"}))))
+         (value (find-it driver {:tag :input, :id "last_name"}))))
   (is (= "Creator of Clojure"
-         (value (find-it firefox-driver {:tag :textarea, :name "bio"}))))
+         (value (find-it driver {:tag :textarea, :name "bio"}))))
   (is (selected?
-       (find-it firefox-driver {:tag :input, :type "radio", :value "female"})))
+       (find-it driver {:tag :input, :type "radio", :value "female"})))
   (is (selected?
-       (find-it firefox-driver {:tag :option, :value "france"}))))
+       (find-it driver {:tag :option, :value "france"}))))
 
-(deftest quick-fill-submit-should-always-return-nil
-  (to firefox-driver (str test-base-url "example-form"))
+(defn quick-fill-submit-should-always-return-nil
+  [driver]
+  (to driver (str test-base-url "example-form"))
   (is (nil?
-       (quick-fill-submit firefox-driver
-                   [{"first_name" clear}
-                    {"first_name" "Richard"}
-                    {{:id "last_name"} clear}
-                    {{:id "last_name"} "Hickey"}
-                    {{:name "bio"} clear}
-                    {{:name "bio"} #(input-text % "Creator of Clojure")}
-                    {{:tag "input", :type "radio", :value "female"} click}
-                    {{:css "select#countries"} #(select-by-value % "france")}]))))
+       (quick-fill-submit driver
+                          [{"first_name" clear}
+                           {"first_name" "Richard"}
+                           {{:id "last_name"} clear}
+                           {{:id "last_name"} "Hickey"}
+                           {{:name "bio"} clear}
+                           {{:name "bio"} #(input-text % "Creator of Clojure")}
+                           {{:tag "input", :type "radio", :value "female"} click}
+                           {{:css "select#countries"} #(select-by-value % "france")}]))))
 
-(deftest should-be-able-to-toggle-between-open-windows
+(defn should-be-able-to-toggle-between-open-windows
+  [driver]
   (is (= 1
-         (count (window-handles firefox-driver))))
+         (count (window-handles driver))))
   (is (= "Ministache"
-         (:title (window-handle firefox-driver))))
-  (-> firefox-driver
+         (:title (window-handle driver))))
+  (-> driver
       (find-it {:tag :a, :text "is amazing!"})
       click)
   (is (= "Ministache"
-         (:title (window-handle firefox-driver))))
+         (:title (window-handle driver))))
   (is (= 2
-         (count (window-handles firefox-driver))))
-  (switch-to-window firefox-driver (second (window-handles firefox-driver)))
+         (count (window-handles driver))))
+  (switch-to-window driver (second (window-handles driver)))
   (is (= (str test-base-url "clojure")
-         (:url (window-handle firefox-driver))))
-  (switch-to-other-window firefox-driver)
+         (:url (window-handle driver))))
+  (switch-to-other-window driver)
   (is (= test-base-url
-         (:url (window-handle firefox-driver))))
-  (-> firefox-driver
-      (switch-to-window (find-window firefox-driver {:url (str test-base-url "clojure")})))
-  (close firefox-driver)
+         (:url (window-handle driver))))
+  (-> driver
+      (switch-to-window (find-window driver {:url (str test-base-url "clojure")})))
+  (close driver)
   (is (= test-base-url
-         (:url (window-handle firefox-driver)))))
+         (:url (window-handle driver)))))
 
-(deftest wait-until-should-wait-for-condition
-  (is (= "Ministache" (title firefox-driver)))
-  (execute-script firefox-driver "setTimeout(function () { window.document.title = \"asdf\"}, 3000)")
-  (wait-until firefox-driver (fn [d] (= "asdf" (title d))))
-  (is (= "asdf" (title firefox-driver))))
+(defn wait-until-should-wait-for-condition
+  [driver]
+  (is (= "Ministache" (title driver)))
+  (execute-script driver "setTimeout(function () { window.document.title = \"asdf\"}, 3000)")
+  (wait-until driver (fn [d#] (= "asdf" (title d#))))
+  (is (= "asdf" (title driver))))
 
-(deftest wait-until-should-throw-on-timeout
+(defn wait-until-should-throw-on-timeout
+  [driver]
   (is (thrown? TimeoutException
                (do
-                 (execute-script firefox-driver "setTimeout(function () { window.document.title = \"test\"}, 6000)")
-                 (wait-until firefox-driver (fn [d] (= "test" (title d))))))))
+                 (execute-script driver "setTimeout(function () { window.document.title = \"test\"}, 6000)")
+                 (wait-until driver (fn [d#] (= "test" (title d#))))))))
 
-(deftest wait-until-should-allow-timeout-argument
+(defn wait-until-should-allow-timeout-argument
+  [driver]
   (is (thrown? TimeoutException
                (do
-                   (execute-script firefox-driver "setTimeout(function () { window.document.title = \"test\"}, 10000)")
-                   (wait-until firefox-driver (fn [d] (= (title d) "test")) 1000)))))
+                 (execute-script driver "setTimeout(function () { window.document.title = \"test\"}, 10000)")
+                 (wait-until driver (fn [d#] (= (title d#) "test")) 1000)))))
 
-(deftest implicit-wait-should-cause-find-to-wait
-  (implicit-wait firefox-driver 3000)
-  (execute-script firefox-driver "setTimeout(function () { window.document.body.innerHTML = \"<div id='test'>hi!</div>\"}, 1000)")
+(defn implicit-wait-should-cause-find-to-wait
+  [driver]
+  (implicit-wait driver 3000)
+  (execute-script driver "setTimeout(function () { window.document.body.innerHTML = \"<div id='test'>hi!</div>\"}, 1000)")
   (is (= "test"
-         (attribute (find-element firefox-driver (by-id "test")) :id))))
+         (attribute (find-element driver (by-id "test")) :id))))
 
 ;; Not sure how we'll test that flash in fact flashes,
 ;; but at least this will catch changing API's
-(deftest test-flash-helper
-  (-> firefox-driver
+(defn test-flash-helper
+  [driver]
+  (-> driver
       (find-it {:tag :a, :text "Moustache"})
       flash))
 
-;; Caching
+;;; Fixture fn's ;;;
+(defn reset-driver
+  [driver]
+  (to driver test-base-url))
+
+(defn seed-driver-cache
+  [driver]
+  (cache/seed driver {:url (current-url driver), {:query [:foo]} "bar"}))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;                       ;;;
+;;; RUN ACTUAL TESTS HERE ;;;
+;;;                       ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn run-common-tests
+  [driver]
+  (doseq [common-test [test-browser-basics
+                       back-forward-should-traverse-browser-history
+                       to-should-open-given-url-in-browser
+                       should-be-able-to-find-elements-using-low-level-by-wrappers
+                       find-it-should-support-basic-attr-val-map
+                       find-it-should-support-regexes-in-attr-val-map
+                       find-it-should-support-hierarchical-querying
+                       exists-should-return-truthy-falsey-and-should-not-throw-an-exception
+                       visible-should-return-truthy-falsey-when-visible
+                       present-should-return-truthy-falsey-when-exists-and-visible
+                       generated-xpath-should-wrap-strings-in-double-quotes
+                       xpath-function-should-return-string-xpath-of-element
+                       html-function-should-return-string-html-of-element
+                       find-table-cell-should-find-cell-with-coords
+                       find-table-row-should-find-all-cells-for-row
+                       test-form-elements
+                       quick-fill-should-accept-special-seq-and-perform-batch-actions-on-form
+                       quick-fill-submit-should-always-return-nil
+                       should-be-able-to-toggle-between-open-windows
+                       wait-until-should-wait-for-condition
+                       wait-until-should-throw-on-timeout
+                       wait-until-should-allow-timeout-argument
+                       implicit-wait-should-cause-find-to-wait
+                       test-flash-helper]]
+    (reset-driver driver)
+    (seed-driver-cache driver)
+    (common-test driver)))
+
+(deftest test-common-features-across-browsers
+  (doseq [driver [firefox-driver
+                  firefox-driver-no-cache
+                  ;;opera-driver
+                  ]]
+    (run-common-tests driver)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;                            ;;;
+;;; SPECIAL CASE FUNCTIONALITY ;;;
+;;;                            ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Includes cache-support and browser-specific settings
+
+;; Caching Functionality
 (deftest test-cache-initialization
   (is (cache/cache-enabled? firefox-driver)))
 
@@ -439,280 +539,6 @@
   ;; the following will throw an exception if deletion fails, hence our test
   (io/delete-file "/tmp/screenshot_test.png"))
 
-
-;; ## Tests (sans cache) ##
-(deftest plain-test-browser-basics
-  (is (= clj_webdriver.driver.Driver (class dr-plain)))
-  (is (= test-base-url (current-url dr-plain)))
-  (is (= "Ministache" (title dr-plain)))
-  (is (boolean (re-find #"(?i)<!DOCTYPE html>" (page-source dr-plain)))))
-
-(deftest plain-test-back-forward
-  (-> dr-plain
-      (find-it {:tag :a, :text "example form"})
-      click)
-  (is (= (str test-base-url "example-form") (current-url dr-plain)))
-  (back dr-plain)
-  (is (= test-base-url (current-url dr-plain)))
-  (forward dr-plain)
-  (is (= (str test-base-url "example-form") (current-url dr-plain))))
-
-(deftest plain-test-to
-  (to dr-plain (str test-base-url "example-form"))
-  (is (= (str test-base-url "example-form") (current-url dr-plain)))
-  (is (= "Ministache" (title dr-plain))))
-
-(deftest plain-test-bys
-  (-> dr-plain
-      (find-it {:tag :a, :text "example form"})
-      click)
-  (is (= "first_name"
-         (attribute (find-element dr-plain (by-id "first_name")) :id)))
-  (is (= "home"
-         (text (find-element dr-plain (by-link-text "home")))))
-  (is (= "example form"
-         (text (find-element dr-plain (by-partial-link-text "example")))))
-  (is (= "first_name"
-         (attribute (find-element dr-plain (by-name "first_name")) :id)))
-  (is (= "home"
-         (text (find-element dr-plain (by-tag "a")))))
-  (is (= "home"
-         (text (find-element dr-plain (by-xpath "//a[text()='home']")))))
-  (is (= "home"
-         (text (find-element dr-plain (by-class-name "menu-item")))))
-  (is (= "home"
-         (text (find-element dr-plain (by-css-selector "#footer a.menu-item"))))))
-
-(deftest plain-test-find*
-  (is (= "Moustache"
-         (text (nth (find-them dr-plain {:tag :a}) 1))))
-  (is (= "Moustache"
-         (text (find-it dr-plain {:class "external"}))))
-  (is (= "https://github.com/cgrand/moustache"
-         (attribute (find-it dr-plain {:text "Moustache"}) "href")))
-  (is (= "Moustache"
-         (text (find-it dr-plain {:tag :a, :class #"exter"}))))
-  (is (= "Moustache"
-         (text (find-it dr-plain {:tag :a, :text #"Mous"}))))
-  (is (= "Moustache"
-         (text (find-it dr-plain {:tag :a, :class "external", :href #"github"}))))
-  (is (= "Moustache"
-         (text (find-it dr-plain {:tag :a, :class #"exter", :href #"github"}))))
-  (is (= "Moustache"
-         (text (find-it dr-plain [{:tag :div, :id "content"}, {:tag :a, :class "external"}]))))
-  (is (= "Moustache"
-         (text (find-it dr-plain [{:tag :div, :id "content"}, {:tag :a, :class #"exter"}]))))
-  (is (= "Moustache"
-         (text (find-it dr-plain [{:tag :div, :id "content"}, {:tag :a, :href #"github"}]))))
-  (is (= "home"
-         (text (find-it dr-plain [{:tag :*, :id "footer"}, {:tag :a}]))))
-  (is (= 8
-         (count (find-them dr-plain {:tag :a}))))
-  (is (= 3
-         (count (find-them dr-plain {:class #"-item"}))))
-  (is (= 3
-         (count (find-them dr-plain {:tag :a, :class #"-item"}))))
-  (is (= 1
-         (count (find-them dr-plain {:tag :a, :text #"hom"}))))
-  (is (= 1
-         (count (find-them dr-plain {:tag :a, :text #"(?i)HOM"}))))
-  (is (= 2
-         (count (find-them dr-plain {:tag :a, :class #"exter", :href #"github"}))))
-  (is (= 3
-         (count (find-them dr-plain [{:tag :*, :id "footer"}, {:tag :a}]))))
-  (is (= 2
-         (count (find-them dr-plain [{:tag :div, :id "content"}, {:tag :a, :class #"exter"}]))))
-  (-> dr-plain
-      (find-it {:tag :a, :text "example form"})
-      click)
-  (is (= "first_name"
-         (attribute (find-it dr-plain {:type "text"}) "id")))
-  (is (= "first_name"
-         (attribute (find-it dr-plain {:tag :input, :type "text"}) "id")))
-  (is (= "first_name"
-         (attribute (find-it dr-plain {:tag :input, :type "text", :name "first_name"}) "id")))
-  (is (= "first_name"
-         (attribute (find-it dr-plain {:tag :input, :type "text", :name #"first_"}) "id")))
-  (is (= "last_name"
-         (attribute (find-it dr-plain {:tag :input, :type "text", :name #"last_"}) "id")))
-  (is (= "Smith"
-         (attribute (find-it dr-plain {:tag :input, :type "text", :name #"last_"}) "value")))
-  (is (= "Smith"
-         (attribute (find-it dr-plain {:tag :input, :type "text", :name #"last_"}) "value")))
-  (is (= "Smith"
-         (attribute (find-it dr-plain [{:tag :div, :id "content"}, {:tag :input, :name #"last_"}]) "value")))
-  (back dr-plain) ;; get back to home page
-  (is (-> dr-plain
-        (find-it {:tag :a})
-        exists?))
-  (is (not
-       (-> dr-plain
-           (find-it {:tag :area})
-           exists?)))
-  (is (not
-       (-> dr-plain
-           (find-it {:tag :area})
-           exists?)))
-  (is (-> dr-plain 
-          (find-it {:tag :a, :text "Moustache"})
-          visible?))
-  (is (-> dr-plain 
-          (find-it {:tag :a, :text "Moustache"})
-          displayed?))
-  (is (-> dr-plain
-          (find-it {:tag :a, :text "Moustache"})
-          present?))
-  (is (not
-       (-> dr-plain
-           (find-it {:tag :a})
-           visible?)))
-  (is (not
-       (-> dr-plain 
-           (find-it {:tag :a})
-           displayed?)))
-  (is (not
-       (-> dr-plain
-           (find-it {:tag :a})
-           present?))))
-
-(deftest plain-test-form-elements
-  (to dr-plain (str test-base-url "example-form"))
-  ;; Clear element
-  (-> dr-plain
-      (find-it [{:tag :form, :id "example_form"}, {:tag :input, :name #"last_"}])
-      clear)
-  (is (= ""
-         (value (find-it dr-plain [{:tag :form, :id "example_form"}, {:tag :input, :name #"last_"}]))))
-  ;; Radio buttons
-  (is (= true
-         (selected? (find-it dr-plain {:tag :input, :type "radio", :value "male"}))))
-  (-> dr-plain
-      (find-it {:tag :input, :type "radio", :value "female"})
-      select)
-  (is (= true
-         (selected? (find-it dr-plain {:tag :input, :type "radio", :value "female"}))))
-  (-> dr-plain
-      (find-it {:tag :radio, :value "male"})
-      select)
-  (is (= true
-         (selected? (find-it dr-plain {:tag :input, :type "radio", :value "male"}))))
-  ;; Checkboxes
-  (is (= false
-         (selected? (find-it dr-plain {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
-  (-> dr-plain
-      (find-it {:tag :input, :type "checkbox", :name #"(?i)clojure"})
-      toggle)
-  (is (= true
-         (selected? (find-it dr-plain {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
-  (-> dr-plain
-      (find-it {:tag :checkbox, :name #"(?i)clojure"})
-      click)
-  (is (= false
-         (selected? (find-it dr-plain {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
-  (-> dr-plain
-      (find-it {:tag :checkbox, :type "checkbox", :name #"(?i)clojure"})
-      select)
-  (is (= true
-         (selected? (find-it dr-plain {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
-  ;; Text fields
-  (-> dr-plain
-      (find-it {:tag :input, :id "first_name"})
-      (input-text "foobar"))
-  (is (= "foobar"
-         (value (find-it dr-plain {:tag :input, :id "first_name"}))))
-  (-> dr-plain
-      (find-it {:tag :textfield, :id "first_name"})
-      clear
-      (input-text "clojurian"))
-  (is (= "clojurian"
-         (value (find-it dr-plain {:tag :textfield, :id "first_name"}))))
-  ;; Boolean attributes (disabled, readonly, etc.)
-  (is (= "disabled"
-         (attribute (find-it dr-plain {:id "disabled_field"}) :disabled)))
-  (is (= "readonly"
-         (attribute (find-it dr-plain {:id "purpose_here"}) :readonly)))
-  (is (nil?
-       (attribute (find-it dr-plain {:id "disabled_field"}) :readonly)))
-  (is (nil?
-       (attribute (find-it dr-plain {:id "purpose_here"}) :disabled))))
-
-(deftest plain-test-form-helpers
-  (to dr-plain (str test-base-url "example-form"))
-  (quick-fill dr-plain
-              [{"first_name" clear}
-               {"first_name" "Richard"}
-               {{:id "last_name"} clear}
-               {{:id "last_name"} "Hickey"}
-               {{:name "bio"} clear}
-               {{:name "bio"} #(input-text % "Creator of Clojure")}
-               {{:tag "input", :type "radio", :value "female"} click}
-               {{:css "select#countries"} #(select-by-value % "france")}])
-  (is (= "Richard"
-         (value (find-it dr-plain {:tag :input, :id "first_name"}))))
-  (is (= "Hickey"
-         (value (find-it dr-plain {:tag :input, :id "last_name"}))))
-  (is (= "Creator of Clojure"
-         (value (find-it dr-plain {:tag :textarea, :name "bio"}))))
-  (is (selected?
-       (find-it dr-plain {:tag :input, :type "radio", :value "female"})))
-  (is (selected?
-       (find-it dr-plain {:tag :option, :value "france"}))))
-
-(deftest plain-test-window-handling
-  (is (= 1
-         (count (window-handles dr-plain))))
-  (is (= "Ministache"
-         (:title (window-handle dr-plain))))
-  (-> dr-plain
-      (find-it {:tag :a, :text "is amazing!"})
-      click)
-  (is (= "Ministache"
-         (:title (window-handle dr-plain))))
-  (is (= 2
-         (count (window-handles dr-plain))))
-  (switch-to-window dr-plain (second (window-handles dr-plain)))
-  (is (= (str test-base-url "clojure")
-         (:url (window-handle dr-plain))))
-  (switch-to-other-window dr-plain)
-  (is (= test-base-url
-         (:url (window-handle dr-plain))))
-  (-> dr-plain
-      (switch-to-window (find-window dr-plain {:url (str test-base-url "clojure")})))
-  (close dr-plain)
-  (is (= test-base-url
-         (:url (window-handle dr-plain)))))
-
-(deftest plain-wait-until-should-wait-for-condition
-  (is (= "Ministache" (title dr-plain)))
-  (execute-script dr-plain "setTimeout(function () { window.document.title = \"asdf\"}, 3000)")
-  (wait-until dr-plain (fn [d] (= "asdf" (title d))))
-  (is (= "asdf" (title dr-plain))))
-
-(deftest plain-wait-until-should-throw-on-timeout
-  (is (thrown? TimeoutException
-               (do
-                 (execute-script dr-plain "setTimeout(function () { window.document.title = \"test\"}, 6000)")
-                 (wait-until dr-plain (fn [d] (= "test" (title d))))))))
-
-(deftest plain-wait-until-should-allow-timeout-argument
-  (is (thrown? TimeoutException
-               (do
-                   (execute-script dr-plain "setTimeout(function () { window.document.title = \"test\"}, 10000)")
-                   (wait-until dr-plain (fn [d] (= "test" (title d))) 1000)))))
-
-(deftest plain-implicit-wait-should-cause-find-to-wait
-  (implicit-wait dr-plain 3000)
-  (execute-script dr-plain "setTimeout(function () { window.document.body.innerHTML = \"<div id='test'>hi!</div>\"}, 1000)")
-  (is (= "test"
-         (attribute (find-element dr-plain (by-id "test")) :id))))
-
-;; Not sure how we'll test that flash in fact flashes,
-;; but at least this will catch changing API's
-(deftest plain-test-flash-helper
-  (-> dr-plain
-      (find-it {:tag :a, :text "Moustache"})
-      flash))
-
 ;; Firefox-specific Functionality
 
 (deftest firefox-should-support-custom-profiles
@@ -729,4 +555,3 @@
                                 test-base-url)]
         (log/info "[x] Starting Firefox with extensions.")
         (driver? tmp-dr))))
-
