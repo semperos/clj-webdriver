@@ -24,7 +24,7 @@
             test-base-url))
 
 (def firefox-driver-no-cache (to (new-driver {:browser :firefox}) test-base-url))
-;; (def opera-driver (start {:browser :opera} test-base-url))
+(def opera-driver (start {:browser :opera} test-base-url))
 
 (defn start-server [f]
   (loop [server (run-jetty #'web-app/routes {:port test-port, :join? false})]
@@ -38,7 +38,7 @@
   [f]
   (to firefox-driver test-base-url)
   (to firefox-driver-no-cache test-base-url)
-;  (to opera-driver test-base-url)
+  (to opera-driver test-base-url)
   (f))
 
 (defn quit-browser-fixture
@@ -46,8 +46,7 @@
   (f)
   (quit firefox-driver)
   (quit firefox-driver-no-cache)
-;  (quit opera-driver)
-  )
+  (quit opera-driver))
 
 (defn seed-driver-cache-fixture
   [f]
@@ -76,7 +75,7 @@
   (is (= clj_webdriver.driver.Driver (class driver)))
   (is (= test-base-url (current-url driver)))
   (is (= "Ministache" (title driver)))
-  (is (boolean (re-find #"(?i)<!DOCTYPE html>" (page-source driver)))))
+  (is (boolean (re-find #"(?i)html>" (page-source driver)))))
 
 (defn back-forward-should-traverse-browser-history
   [driver]
@@ -237,27 +236,27 @@
 
 (defn html-function-should-return-string-html-of-element
   [driver]
-  (is (= (html (find-it driver {:tag :a, :text "Moustache"})) "<a xmlns=\"http://www.w3.org/1999/xhtml\" class=\"external\" href=\"https://github.com/cgrand/moustache\">Moustache</a>")))
+  (is (re-find #"href=\"https://github\.com/cgrand/moustache\"" (html (find-it driver {:tag :a, :text "Moustache"})))))
 
 (defn find-table-cell-should-find-cell-with-coords
   [driver]
   (is (= "th"
-         (tag (find-table-cell driver {:id "pages-table"} [0 0]))))
+         (.toLowerCase (tag (find-table-cell driver {:id "pages-table"} [0 0])))))
   (is (= "th"
-         (tag (find-table-cell driver {:id "pages-table"} [0 1]))))
+         (.toLowerCase (tag (find-table-cell driver {:id "pages-table"} [0 1])))))
   (is (= "td"
-         (tag (find-table-cell driver {:id "pages-table"} [1 0]))))
+         (.toLowerCase (tag (find-table-cell driver {:id "pages-table"} [1 0])))))
   (is (= "td"
-         (tag (find-table-cell driver {:id "pages-table"} [1 1])))))
+         (.toLowerCase (tag (find-table-cell driver {:id "pages-table"} [1 1]))))))
 
 (defn find-table-row-should-find-all-cells-for-row
   [driver]
   (is (= 2
          (count (find-table-row driver {:id "pages-table"} 0))))
   (is (= "th"
-         (tag (first (find-table-row driver {:id "pages-table"} 0)))))
+         (.toLowerCase (tag (first (find-table-row driver {:id "pages-table"} 0))))))
   (is (= "td"
-         (tag (first (find-table-row driver {:id "pages-table"} 1))))))
+         (.toLowerCase (tag (first (find-table-row driver {:id "pages-table"} 1)))))))
 
 (defn test-form-elements
   [driver]
@@ -466,8 +465,7 @@
 (deftest test-common-features-across-browsers
   (doseq [driver [firefox-driver
                   firefox-driver-no-cache
-                  ;;opera-driver
-                  ]]
+                  opera-driver]]
     (run-common-tests driver)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
