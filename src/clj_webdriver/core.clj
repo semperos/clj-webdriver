@@ -1,4 +1,4 @@
-;; # Clojure Wrapper for Selenium-WebDriver #
+;; # Clojure API for Selenium-WebDriver #
 ;;
 ;; WebDriver is a library that allows for easy manipulation of the Firefox,
 ;; Chrome, Safari and  Internet Explorer graphical browsers, as well as the
@@ -220,7 +220,6 @@
   (remove #(= % (window-handle* driver))
           (doall (window-handles* driver))))
 
-;; ## By* Functions ##
 (load "core_by")
 
 ;; ##  Actions on WebElements ##
@@ -248,5 +247,4 @@
   [driver js & js-args]
   (.executeScript driver js (to-array js-args)))
 
-;; API with clj-webdriver's Driver implementation
 (load "core_driver")

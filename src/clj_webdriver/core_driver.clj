@@ -1,3 +1,12 @@
+;; ## Core Driver-related Functions ##
+
+;; This namespace provides the implementations for the following
+;; protocols:
+
+;;  * IDriver
+;;  * ITargetLocator
+;;  * IOptions
+;;  * IFind
 (in-ns 'clj-webdriver.core)
 
 ;; Utility used below
@@ -22,15 +31,15 @@
                                           elements))]
           (recur matching-elements (dissoc attr-vals-with-regex attr)))))))
 
-(extend-type Driver 
+(extend-type Driver
 
-  ;;; Basic Functions ;;;
+  ;; Basic Functions
   IDriver
   (back [driver]
     (.back (.navigate (:webdriver driver)))
     (cache/seed driver)
     driver)
-  
+
   (close [driver]
     (let [handles (window-handles* (:webdriver driver))]
       (if (> (count handles) 1) ; get back to a window that is open before proceeding
@@ -55,7 +64,7 @@
     (.forward (.navigate (:webdriver driver)))
     (cache/seed driver)
     driver)
-  
+
   (get-url [driver url]
     (.get (:webdriver driver) url)
     (cache/seed driver)
@@ -101,7 +110,7 @@
     driver)
 
 
-  ;;; Window and Frame Handling ;;;
+  ;; Window and Frame Handling
   ITargetLocator
   (window-handle [driver]
     (init-window-handle (:webdriver driver)
@@ -158,7 +167,7 @@
     (.activeElement (.switchTo (:webdriver driver))))
 
 
-  ;;; Options Interface (cookies) ;;;
+  ;; Options Interface (cookies)
   IOptions
   (add-cookie [driver cookie]
     (.addCookie (.manage (:webdriver driver)) cookie))
@@ -174,17 +183,17 @@
     (.getCookieNamed (.manage (:webdriver driver)) name))
 
 
-  ;;; Find Functions ;;;
+  ;; Find Functions
   IFind
   (find-element [driver by]
     (init-element (.findElement (:webdriver driver) by)))
-  
+
   (find-elements [driver by]
     (let [els (.findElements (:webdriver driver) by)]
       (if (seq els)
         (lazy-seq (map init-element els))
         (lazy-seq (map init-element [nil])))))
-  
+
   (find-elements-by-regex-alone [driver tag attr-val]
     (let [entry (first attr-val)
           attr (key entry)
@@ -258,7 +267,6 @@
             text-xpath (str non-text-xpath "[contains(..,'" (text-kw attr-val) "')]")]
         (find-elements driver (by-xpath text-xpath)))))
 
-  ;; TODO: needs test coverage
   (find-table-cell [driver table coords]
     (when (not= (count coords) 2)
       (throw (IllegalArgumentException.
@@ -273,7 +281,6 @@
           complete-xpath (str table-xpath row-xpath col-xpath)]
       (find-element driver (by-xpath complete-xpath))))
 
-  ;; TODO: needs test coverage
   (find-table-row [driver table row]
     (let [table-xpath (build-xpath :table table)
           row-xpath (str table-xpath "//tr[" (inc row) "]")
@@ -283,7 +290,7 @@
                            (str row-xpath "//td"))]
       (find-elements driver (by-xpath complete-xpath))))
 
-  ;; There is no find-table-col due to XPath irregularity regarding tr counts
+  ;; NOTE: There is no find-table-col due to XPath irregularity regarding tr counts
 
   (find-by-hierarchy [driver hierarchy-vec]
     (if (query-with-ancestry-has-regex? hierarchy-vec)
@@ -295,8 +302,8 @@
          (find-elements driver (by-xpath (str (build-xpath-with-ancestry hierarchy-vec) "//*")))
          (last hierarchy-vec)))
       (find-elements driver (by-xpath (build-xpath-with-ancestry hierarchy-vec)))))
-  
-  ;; NoSuchElementException caught so that `exists?` will behave as expected
+
+
   (find-them
     ([driver attr-val]
        (when (keyword? driver) ; I keep forgetting to pass in the WebDriver instance while testing
@@ -347,8 +354,9 @@
           (contains-regex? attr-val)                 (find-elements-by-regex driver (:tag attr-val) attr-val)
           :else                                      (find-elements driver (by-xpath (build-xpath (:tag attr-val) attr-val))))
            (catch org.openqa.selenium.NoSuchElementException e
+             ;; NoSuchElementException caught here, so we can have functions like `exist?`
              (lazy-seq (init-element nil)))))))
-  
+
   (find-it
     ([driver attr-val]
        (if (and (cache/cache-enabled? driver) (cache/in-cache? driver attr-val))
@@ -362,5 +370,3 @@
                (cache/insert driver attr-val el)
                el)
              el))))))
-
-

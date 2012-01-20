@@ -5,7 +5,7 @@
            [org.openqa.selenium.support.ui ExpectedCondition WebDriverWait]
            [java.util.concurrent TimeUnit]))
 
-;;; ## Wait Functionality ##
+;; ## Wait Functionality ##
 (defprotocol IWait
   "Implicit and explicit waiting"
   (implicit-wait [driver timeout] "Specify the amount of time the `driver` should wait when searching for an element if it is not immediately present. This setting holds for the lifetime of the driver across all requests. Units in milliseconds.")

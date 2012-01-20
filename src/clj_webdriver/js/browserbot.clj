@@ -1,6 +1,14 @@
+;; ## Browserbot ##
+;;
+;; WARNING: Any functions based on JavaScript execution
+;; have no guaranteed behavior across browsers.
+;;
+;; This bit of JavaScript was borred from Watir-WebDriver, which
+;; borrowed it from injectableSelenium.js within Selenium-WebDriver's
+;; own codebase. The `getXpath` function was borrowed from
+;; http://208.91.135.51/posts/show/3754
 (ns clj-webdriver.js.browserbot)
 
-;; Borrowed from Watir-WebDriver, borrowed from injectableSelenium.js in WebDriver, additional getXpath borrowed from http://208.91.135.51/posts/show/3754
 (def script
   "
 var browserbot = {

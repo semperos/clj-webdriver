@@ -1,3 +1,9 @@
+;; ## Core by-* Functions ##
+;;
+;; These functions are low-level equivalents for the
+;; `ByFoo` classes that make up the Java API, with a few
+;; notable exceptions that provide more flexible matching
+;; (see the `by-attr*` functions at the bottom)
 (in-ns 'clj-webdriver.core)
 
 (defn by-id

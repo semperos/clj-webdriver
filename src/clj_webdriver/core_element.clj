@@ -1,3 +1,10 @@
+;; ## Core Element-related Functions ##
+;;
+;; This namespace implements the following protocols:
+;;
+;;  * IElement
+;;  * IFormElement
+;;  * ISelectElement
 (in-ns 'clj-webdriver.core)
 
 (extend-type Element
