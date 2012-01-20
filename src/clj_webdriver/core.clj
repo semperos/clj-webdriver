@@ -248,8 +248,5 @@
   [driver js & js-args]
   (.executeScript driver js (to-array js-args)))
 
-;; ## Select Helpers ##
-;;(load "core_select")
-
 ;; API with clj-webdriver's Driver implementation
 (load "core_driver")
