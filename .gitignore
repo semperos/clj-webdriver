@@ -12,3 +12,4 @@ test-output.txt
 chromedriver.log
 /autodoc
 /doc
+*.tar.gz
