@@ -24,8 +24,11 @@
             test-base-url))
 
 (def firefox-driver-no-cache (to (new-driver {:browser :firefox}) test-base-url))
+(log/debug "WARNING: The Chrome driver requires a separate download. See the Selenium-WebDriver wiki for more information if Chrome fails to start.")
+(def chrome-driver (start {:browser :chrome} test-base-url))
 (def opera-driver (start {:browser :opera} test-base-url))
 
+;; clojure.test fixtures
 (defn start-server [f]
   (loop [server (run-jetty #'web-app/routes {:port test-port, :join? false})]
     (if (.isStarted server)
@@ -38,6 +41,7 @@
   [f]
   (to firefox-driver test-base-url)
   (to firefox-driver-no-cache test-base-url)
+  (to chrome-driver test-base-url)
   (to opera-driver test-base-url)
   (f))
 
@@ -46,6 +50,7 @@
   (f)
   (quit firefox-driver)
   (quit firefox-driver-no-cache)
+  (quit chrome-driver)
   (quit opera-driver))
 
 (defn seed-driver-cache-fixture
@@ -465,6 +470,7 @@
 (deftest test-common-features-across-browsers
   (doseq [driver [firefox-driver
                   firefox-driver-no-cache
+                  chrome-driver
                   opera-driver]]
     (run-common-tests driver)))
 
