@@ -33,12 +33,13 @@
    For example: `[{:tag :div, :id \"content\"}, {:tag :a, :class \"external\"}]` would
    produce the XPath \"//div[@id='content']//a[@class='external']"
   [v-of-attr-vals]
-  (apply str 
+  (apply str
          (for [attr-val v-of-attr-vals]
-           (if (not (contains? attr-val :tag))
-             ;; use :* for "*" if no tag specified
-             (build-xpath :* attr-val)
-             (build-xpath (:tag attr-val) (dissoc attr-val :tag))))))
+           (cond
+            (or (contains? attr-val :css)
+                (contains? attr-val :xpath)) (throw (IllegalArgumentException. "Hierarhical queries do not support the use of :css or :xpath entries."))
+            (not (contains? attr-val :tag)) (build-xpath :* attr-val)
+            :else (build-xpath (:tag attr-val) (dissoc attr-val :tag))))))
 
 (defn contains-regex?
   "Checks if the values of a map contain a regex"
@@ -135,7 +136,7 @@
 
 ;; from Clojure core_print.clj
 (defn- print-map [m print-one w]
-  (print-sequential 
+  (print-sequential
    "{"
    (fn [e  ^Writer w]
      (do (print-one (key e) w) (.append w \space) (print-one (val e) w)))
