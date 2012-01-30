@@ -26,7 +26,7 @@
   (-> driver
       (find-it {:tag :a, :text "example form"})
       click)
-  (Thread/sleep 500)
+  (Thread/sleep 500) ;; race condition issue with OperaDriver (on my machine, at least)
   (is (= (str test-base-url "example-form") (current-url driver)))
   (back driver)
   (is (= test-base-url (current-url driver)))
@@ -132,6 +132,13 @@
          (count (find-them driver [{:tag :*, :id "footer"}, {:tag :a}]))))
   (is (= 2
          (count (find-them driver [{:tag :div, :id "content"}, {:tag :a, :class #"exter"}])))))
+
+(defn hierarchical-querying-should-not-support-css-or-xpath-attrs
+  [driver]
+  (is (thrown? IllegalArgumentException
+               (find-it driver [{:tag :div, :id "content", :css "div#content"}, {:tag :a, :class "external"}])))
+  (is (thrown? IllegalArgumentException
+               (find-it driver [{:tag :div, :id "content", :xpath "//div[@id='content']"}, {:tag :a, :class "external"}]))))
 
 (defn exists-should-return-truthy-falsey-and-should-not-throw-an-exception
   [driver]
@@ -386,6 +393,7 @@
                        find-it-should-support-basic-attr-val-map
                        find-it-should-support-regexes-in-attr-val-map
                        find-it-should-support-hierarchical-querying
+                       hierarchical-querying-should-not-support-css-or-xpath-attrs
                        exists-should-return-truthy-falsey-and-should-not-throw-an-exception
                        visible-should-return-truthy-falsey-when-visible
                        present-should-return-truthy-falsey-when-exists-and-visible
