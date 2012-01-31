@@ -202,6 +202,12 @@ The namespace `clj-webdriver.test.example-app.core` contains a [Ring][ring-githu
 
 Use `lein test` to run this library's test suite. Ensure port 5744 is free, or edit `test/clj_webdriver/test/core.clj` before running the tests.
 
+It is **highly** recommended that you run the test suite for each browser separately, as otherwise you will see strange errors. Each supported browser has its own namespace, for example:
+
+```
+lein test clj-webdriver.test.firefox
+```
+
 *Note:* If you just want to run the example app that clj-webdriver uses for its testing purposes, do the following:
 
  * Open a terminal and run `lein repl` or `lein swank` at the root of this project
