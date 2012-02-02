@@ -10,6 +10,6 @@
   :dev-dependencies [[criterium "0.2.0"]
                      [codox "0.3.3"]
                      [marginalia "0.3.2"]
-                     [ring "0.3.7"]
+                     [ring "1.0.2"]
                      [enlive "1.0.0"]
                      [net.cgrand/moustache "1.0.0"]])
