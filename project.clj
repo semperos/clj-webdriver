@@ -2,6 +2,7 @@
   :description "Clojure wrapper around Selenium-WebDriver library"
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [clj-http "0.3.0"]
+                 [cheshire "2.1.0"]
                  [org.mortbay.jetty/jetty "6.1.25"]
                  [org.seleniumhq.selenium/selenium-server "2.16.0"]
                  [com.opera/operadriver "0.9"]
