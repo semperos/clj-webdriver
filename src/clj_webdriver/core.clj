@@ -21,7 +21,7 @@
   (:import [clj_webdriver.driver Driver]
            [clj_webdriver.element Element]
            [org.openqa.selenium By WebDriver WebElement Cookie
-                                OutputType NoSuchElementException]
+                                OutputType NoSuchElementException Keys]
            [org.openqa.selenium.firefox FirefoxDriver]
            [org.openqa.selenium.ie InternetExplorerDriver]
            [org.openqa.selenium.chrome ChromeDriver]
@@ -236,6 +236,12 @@
 
 ;; Implementations of the above IElement and IFormElement protocols
 (load "core_element")
+
+;; Key codes for non-representable keys
+(defn key-code
+  "Representations of pressable keys that aren't text. These are stored in the Unicode PUA (Private Use Area) code points, 0xE000-0xF8FF. Refer to http://www.google.com.au/search?&q=unicode+pua&btnG=Search"
+  [k]
+  (Keys/valueOf (.toUpperCase (name k))))
 
 ;; ## JavaScript Execution ##
 (defn execute-script
