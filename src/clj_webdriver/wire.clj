@@ -1,9 +1,15 @@
 ;; JsonWireProtocol work
 (ns clj-webdriver.wire
   (:use [cheshire.core :only [parse-string]])
-  (:require [clj-http.client :as client]))
+  (:require [clj-http.client :as client])
+  (:import [clj_webdriver.remote_server.RemoteServer]))
 
 (def default-wd-url "http://localhost:3001/wd/")
+
+(defn parse-body
+  "Body comes back as JSON per protocol. Parse it."
+  [resp]
+  (parse-string (:body resp)))
 
 (defprotocol IWire
   "JsonWireProtocol implemented in Clojure"
@@ -13,7 +19,7 @@
 ;; this should probably be initially defined in remote.clj
 ;; with a protocol for functions relating to starting/stopping,
 ;; in addition to IWire protocol here.
-(defrecord RemoteServer [address]
+(extend-type RemoteServer
   
   IWire
   (execute [server commands]
@@ -27,14 +33,4 @@
 
   (status [server]
     (execute server ["status"])))
-
-(defn init-remote-server
-  ([] (RemoteServer. default-wd-url))
-  ([address]
-     (RemoteServer. address)))
-
-(defn parse-body
-  "Body comes back as JSON per protocol. Parse it."
-  [resp]
-  (parse-string (:body resp)))
 
