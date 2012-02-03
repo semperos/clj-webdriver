@@ -1,6 +1,7 @@
 ;; JsonWireProtocol work
 (ns clj-webdriver.wire
-  (:use [cheshire.core :only [parse-string]])
+  (:use [cheshire.core :only [parse-string]]
+        [clojure.walk :only [keywordize-keys]])
   (:require [clj-http.client :as client]
             [clj-webdriver.remote-server :as rs])
   (:import clj_webdriver.remote_server.RemoteServer))
@@ -27,7 +28,7 @@
           resp (client/get (str (rs/address server)
                                 (apply str (interpose "/" commands))))
           body (parse-body resp)]
-      (assoc resp :body body)))
+      (keywordize-keys (assoc resp :body body))))
 
   (status [server]
     (execute server ["status"])))
