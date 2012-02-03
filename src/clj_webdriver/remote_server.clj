@@ -95,3 +95,11 @@
                                      connection-params)
                               nil)]
        (assoc server-record :webdriver-server (start server-record)))))
+
+(defn new-remote-session
+  "Start up a server, start up a driver, return both in that order"
+  ([] (new-remote-session {:browser :firefox}))
+  ([browser-spec]
+     (let [new-server (init-remote-server)
+           new-driver (new-remote-driver new-server browser-spec)]
+       [new-server new-driver])))
