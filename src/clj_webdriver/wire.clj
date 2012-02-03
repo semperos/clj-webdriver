@@ -33,10 +33,14 @@
     (execute server ["status"])))
 
 (comment
+  ;; The following shows an example of using the JsonWireProtocol directly,
+  ;; as well as a "traditional" example using the clj-webdriver core API.
+  ;;
   ;; The following would execute /session/:sessionId/url to get the
   ;; current URL of the driver. The response is a JSON object
   ;; that conforms to the JsonWireProtocol spec detailed here:
   ;; http://code.google.com/p/selenium/wiki/JsonWireProtocol
   (let [[server driver] (rs/new-remote-session)
-        session-id (clj-webdriver.remote-driver/session-id driver)]
-    (execute server ["session" session-id "url"])))
+        session-id (clj-webdriver.remote-driver/session-id driver)
+        url (execute server ["session" session-id "url"])]
+    (clj-webdriver.core/to driver "https://github.com")))
