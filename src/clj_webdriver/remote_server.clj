@@ -102,4 +102,8 @@
   ([browser-spec]
      (let [new-server (init-remote-server)
            new-driver (new-remote-driver new-server browser-spec)]
+       [new-server new-driver]))
+  ([connection-params browser-spec]
+     (let [new-server (init-remote-server connection-params)
+           new-driver (new-remote-driver new-server browser-spec)]
        [new-server new-driver])))
