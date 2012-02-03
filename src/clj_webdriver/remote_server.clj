@@ -98,12 +98,10 @@
 
 (defn new-remote-session
   "Start up a server, start up a driver, return both in that order"
-  ([] (new-remote-session {:browser :firefox}))
-  ([browser-spec]
-     (let [new-server (init-remote-server)
-           new-driver (new-remote-driver new-server browser-spec)]
-       [new-server new-driver]))
+  ([] (new-remote-session {} {:browser :firefox}))
+  ([connection-params] (new-remote-session connection-params {:browser :firefox}))
   ([connection-params browser-spec]
-     (let [new-server (init-remote-server connection-params)
+     (let [connection-params (merge {:port 3001, :path-spec "/wd/*"} connection-params)
+           new-server (init-remote-server connection-params)
            new-driver (new-remote-driver new-server browser-spec)]
        [new-server new-driver])))
