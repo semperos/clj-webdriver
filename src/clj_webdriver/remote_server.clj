@@ -19,8 +19,7 @@
   (address [server] "Get address of the server")
   (new-remote-webdriver* [server browser-spec] "Internal: start a new instance of RemoteWebDriver, used by `new-remote-driver`.")
   (new-remote-driver [server browser-spec] "Instantiate a new RemoteDriver record.")
-  (start-remote-driver [server browser-spec target-url] "Start a new RemoteDriver record and go to `target-url`.")
-)
+  (start-remote-driver [server browser-spec target-url] "Start a new RemoteDriver record and go to `target-url`."))
 
 (defrecord RemoteServer [connection-params webdriver-server]
   IRemoteServer
