@@ -5,13 +5,13 @@
         [clj-webdriver.test.config :only [test-base-url]]
         [clj-webdriver.test.util :only [start-server]]
         [clj-webdriver.test.common :only [run-common-tests]]
-        [clj-webdriver.remote-server :only [init-remote-server stop new-remote-driver]])
+        [clj-webdriver.remote-server :only [new-remote-session stop]])
   (:require 
             [clj-webdriver.remote-driver :as rd]))
 
-(def server (init-remote-server {:port 3003, :path-spec "/wd/*"}))
-
-(def driver (new-remote-driver server {:browser :firefox}))
+(let [[this-server this-driver] (new-remote-session {:browser :firefox})]
+  (def server this-server)
+  (def driver this-driver))
 
 ;; Fixtures
 (defn reset-browser-fixture
