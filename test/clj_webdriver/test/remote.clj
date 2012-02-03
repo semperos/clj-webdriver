@@ -9,7 +9,7 @@
   (:require 
             [clj-webdriver.remote-driver :as rd]))
 
-(let [[this-server this-driver] (new-remote-session {:browser :firefox})]
+(let [[this-server this-driver] (new-remote-session {:port 3003} {:browser :firefox})]
   (def server this-server)
   (def driver this-driver))
 
