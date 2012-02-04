@@ -84,7 +84,7 @@
                       :bytes (.getScreenshotAs wd OutputType/BYTES))]
          (if destination
            (do
-             (jio/copy output (jio/file destination))
+             (io/copy output (io/file destination))
              (log/info "Screenshot written to destination")
              output)
            output))))
