@@ -36,21 +36,23 @@
   [expr]
   (By/xpath expr))
 
+(defn by-css-selector
+  "Used when finding elements. Returns `By/cssSelector` of `expr`"
+  [expr]
+  (By/cssSelector expr))
+
+(def by-css by-css-selector)
+
 (defn by-class-name
   "Used when finding elements. Returns `By/className` of `expr`"
   [expr]
   (let [expr (str expr)]
     (if (re-find #"\s" expr)
-      (by-xpath (str "//*"
-                     "[@class='"
-                     expr
-                     "']"))
+      (let [classes (string/split expr #"\s+")
+            class-query (apply str (interpose "." classes))]
+        (log/debug class-query)
+        (by-css (str "*." class-query)))
       (By/className (name expr)))))
-
-(defn by-css-selector
-  "Used when finding elements. Returns `By/cssSelector` of `expr`"
-  [expr]
-  (By/cssSelector expr))
 
 ;; Inspired by the `attr=`, `attr-contains` in Christophe Grand's enlive
 (defn by-attr=
