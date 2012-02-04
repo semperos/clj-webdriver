@@ -5,6 +5,40 @@
            [org.openqa.selenium WebDriver WebElement]
            java.io.Writer))
 
+(defn build-css-attrs
+  "Given a map of attribute-value pairs, build the latter portion of a CSS query that follows the tag."
+  [attr-val]
+  (apply str (for [[attr value] attr-val]
+               (cond
+                 (= :text attr) (throw (IllegalArgumentException. "CSS queries do not support checking against the text of an element."))
+                 (= :index attr) (str ":nth-child(" (inc value) ")") ;; CSS is 1-based
+                 :else (str "[" (name attr) "='" value "']")))))
+
+(declare contains-regex?)
+(defn build-css
+  "Given a tag and attr-val map, generate a complete CSS query."
+  [tag attr-val]
+  (when-not (contains-regex? attr-val)
+    (let [attr-val (dissoc attr-val :tag)]
+      (str (name tag)
+           (when-not (empty? attr-val)
+             (build-css-attrs attr-val))))))
+
+(defn build-css-with-ancestry
+  "Given a vector of queries in hierarchical order, create a CSS query.
+   For example: `[{:tag :div, :id \"content\"}, {:tag :a, :class \"external\"}]` would
+   produce the CSS query \"div[id='content'] a[class='external']\""
+  [v-of-attr-vals]
+  (apply str
+         (interpose " "
+                    (for [attr-val v-of-attr-vals]
+                      (cond
+                        (or (contains? attr-val :css)
+                            (contains? attr-val :xpath)) (throw (IllegalArgumentException. "Hierarhical queries do not support the use of :css or :css entries."))
+                        (not (contains? attr-val :tag)) (build-css :* attr-val)
+                        :else (build-css (:tag attr-val) (dissoc attr-val :tag)))))))
+
+
 (defn build-xpath-attrs
   "Given a map of attribute-value pairs, build the bracketed portion of an XPath query that follows the tag"
   [attr-val]
@@ -17,7 +51,6 @@
                            "="
                            "'" value "']")))))
 
-(declare contains-regex?)
 (defn build-xpath
   "Given a tag and a map of attribute-value pairs, generate XPath"
   [tag attr-val]

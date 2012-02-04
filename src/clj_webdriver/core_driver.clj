@@ -198,7 +198,7 @@
     (let [entry (first attr-val)
           attr (key entry)
           value (val entry)
-          all-elements (find-elements driver (by-xpath (str "//" (name tag))))] ; get all elements
+          all-elements (find-elements driver (by-css (name tag)))] ; get all elements
       (if (= :text attr)
         (filter #(re-find value (text %)) all-elements)
         (filter (fn [el]
@@ -208,7 +208,7 @@
 
   (find-elements-by-regex [driver tag attr-val]
     (if (all-regex? attr-val)
-      (let [elements (find-elements driver (by-xpath "//*"))]
+      (let [elements (find-elements driver (by-css "*"))]
         (filter-elements-by-regex elements attr-val))
       (let [attr-vals-without-regex (into {}
                                           (remove
@@ -245,6 +245,20 @@
            by-xpath
            (find-elements driver))))
 
+  ;; (find-semantic-buttons [driver attr-val]
+  ;;   (let [ending (if (or (nil? attr-val) (empty? attr-val))
+  ;;                  ""
+  ;;                  (build-css-attrs (dissoc :tag attr-val)))
+  ;;         css-full-queries (for [beginning ["input[type='submit']"
+  ;;                                           "input[type='reset']"
+  ;;                                           "input[type='image']"
+  ;;                                           "input[type='button']"
+  ;;                                           "button"]]
+  ;;                            (str beginning ending))]
+  ;;     (remove #(nil? (:webelement %))
+  ;;             (flatten (for [query css-full-queries]
+  ;;                        (find-elements driver (by-css query)))))))
+
   (find-semantic-buttons-by-regex [driver attr-val]
     (let [attr-vals-without-regex (into {}
                                         (remove
@@ -266,31 +280,44 @@
             non-text-xpath (build-xpath :input other-attr-vals)
             text-xpath (str non-text-xpath "[contains(..,'" (text-kw attr-val) "')]")]
         (find-elements driver (by-xpath text-xpath)))))
+  ;; (find-checkables-by-text [driver attr-val]
+  ;;   (if (contains-regex? attr-val)
+  ;;     (throw (IllegalArgumentException.
+  ;;             (str "Combining regular expressions and the 'text' attribute "
+  ;;                  "for finding radio buttons and checkboxes "
+  ;;                  "is not supported at this time.")))
+  ;;     (let [text-kw (if (contains? attr-val :text)
+  ;;                     :text
+  ;;                     :label)
+  ;;           other-attr-vals (dissoc attr-val text-kw)
+  ;;           non-text-css (build-css :input other-attr-vals)
+  ;;           text-css (str non-text-css ":contains(\"^" (text-kw attr-val) "$\")")]
+  ;;       (find-elements driver (by-css text-css)))))
 
   (find-table-cell [driver table coords]
     (when (not= (count coords) 2)
       (throw (IllegalArgumentException.
               (str "The `coordinates` parameter must be a seq with two items."))))
     (let [[row col] coords
-          table-xpath (build-xpath :table table)
-          row-xpath (str "//tr[" (inc row) "]")
-          col-xpath (if (and (find-element driver (by-xpath (str table-xpath "//th")))
+          table-css (build-css :table table)
+          row-css (str " tr:nth-child(" (inc row) ")")
+          col-css (if (and (find-element driver (by-css (str table-css " th")))
                              (zero? row))
-                      (str "/th[" (inc col) "]")
-                      (str "/td[" (inc col) "]"))
-          complete-xpath (str table-xpath row-xpath col-xpath)]
-      (find-element driver (by-xpath complete-xpath))))
+                      (str " > th:nth-child(" (inc col) ")")
+                      (str " > td:nth-child(" (inc col) ")"))
+          complete-css (str table-css row-css col-css)]
+      (find-element driver (by-css complete-css))))
 
   (find-table-row [driver table row]
-    (let [table-xpath (build-xpath :table table)
-          row-xpath (str table-xpath "//tr[" (inc row) "]")
-          complete-xpath (if (and (find-element driver (by-xpath (str table-xpath "//th")))
+    (let [table-css (build-css :table table)
+          row-css (str table-css " tr:nth-child(" (inc row) ")")
+          complete-css (if (and (find-element driver (by-css (str table-css " th")))
                                   (zero? row))
-                           (str row-xpath "//th")
-                           (str row-xpath "//td"))]
-      (find-elements driver (by-xpath complete-xpath))))
+                           (str row-css " th")
+                           (str row-css " td"))]
+      (find-elements driver (by-css complete-css))))
 
-  ;; NOTE: There is no find-table-col due to XPath irregularity regarding tr counts
+  ;; TODO: reconsider find-table-col with CSS support
 
   (find-by-hierarchy [driver hierarchy-vec]
     (if (query-with-ancestry-has-regex? hierarchy-vec)
@@ -348,7 +375,7 @@
                                                            value (val entry)]
                                                        (cond
                                                         (= :xpath attr) (find-elements driver (by-xpath value))
-                                                        (= :css attr)   (find-elements driver (by-css-selector value))
+                                                        (= :css attr)   (find-elements driver (by-css value))
                                                         (= java.util.regex.Pattern (class value)) (find-elements-by-regex-alone driver (:tag attr-val) attr-val)
                                                         :else           (find-elements driver (by-attr= (:tag attr-val) attr value))))
           (contains-regex? attr-val)                 (find-elements-by-regex driver (:tag attr-val) attr-val)

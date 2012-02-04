@@ -36,12 +36,12 @@
   [expr]
   (By/xpath expr))
 
-(defn by-css-selector
+(defn by-css
   "Used when finding elements. Returns `By/cssSelector` of `expr`"
   [expr]
   (By/cssSelector expr))
 
-(def by-css by-css-selector)
+(def by-css-selector by-css)
 
 (defn by-class-name
   "Used when finding elements. Returns `By/className` of `expr`"
@@ -50,7 +50,6 @@
     (if (re-find #"\s" expr)
       (let [classes (string/split expr #"\s+")
             class-query (apply str (interpose "." classes))]
-        (log/debug class-query)
         (by-css (str "*." class-query)))
       (By/className (name expr)))))
 
@@ -62,46 +61,53 @@
   ([attr value] (by-attr= :* attr value)) ; default to * any tag
   ([tag attr value]
      (cond
-         (= :class attr)  (if-not (re-find #"\s" value)
-                            (by-class-name value)
-                            (by-xpath (str "//"
-                                           (name tag)
-                                           "[@class='"
-                                           value
-                                           "']")))
+         (= :class attr)  (if (re-find #"\s" value)
+                            (let [classes (string/split value #"\s+")
+                                  class-query (apply str (interpose "." classes))]
+                              (by-css (str (name tag) class-query)))
+                            (by-class-name value))
          (= :id attr)     (by-id value)
          (= :name attr)   (by-name value)
          (= :tag attr)    (by-tag value)
-         (= :text attr)   (by-xpath (str "//"
-                                         (name tag)
-                                         "[text()"
-                                         "=\"" value "\"]"))
-         :else   (by-xpath (str "//"                  ; anywhere in DOM
-                                (name tag)            ; tag from kw
-                                "[@" (name attr)      ; attr from kw
-                                "='" value "']")))))  ; ="value"
+         (= :text attr)   (if (= tag :a)
+                            (by-link-text value)
+                            (by-xpath (str "//"
+                                           (name tag)
+                                           "[text()"
+                                           "=\"" value "\"]")))
+         :else   (by-css (str (name tag)
+                              "[" (name attr) "='" value "']")))))
 
+;; TODO: test coverage
 (defn by-attr-contains
   "Match if `value` is contained in the value of `attr`. You can optionally specify the tag.
    For example: `(by-attr-contains :class \"navigation\")`
                 `(by-attr-contains :ul :class \"tags\")`"
   ([attr value] (by-attr-contains :* attr value)) ; default to * any tag
   ([tag attr value]
-     (by-xpath (str "//"                 ; anywhere in DOM
-                    (name tag)           ; tag from kw
-                    "[contains(@"        ; xpath "contains" function
-                    (name attr)          ; attr from kw
-                    ",'" value "')]")))) ; ,'value')]
+     (by-css (str (name tag)
+                    "[" (name attr) "*='" value "')]"))))
 
+;; TODO: test coverage
 (defn by-attr-starts
   "Match if `value` is at the beginning of the value of `attr`. You can optionally specify the tag."
   ([attr value] (by-attr-starts :* attr value))
   ([tag attr value]
-     (by-xpath (str "//"                 ; anywhere in DOM
-                    (name tag)           ; tag from kw
-                    "[starts-with(@"     ; xpath "starts-with" function
-                    (name attr)          ; attr from kw
-                    ",'" value "')]")))) ; ,'value')]
+     (by-css (str (name tag)
+                    "[" (name attr) "^='" value "')]"))))
 
-;; I can't add more functions like `by-attr-ends` or `by-attr-matches` (regex) due
-;; to lack of uniform XPath support in WebDriver
+;; TODO: test coverage
+(defn by-attr-ends
+  "Match if `value` is at the end of the value of `attr`. You can optionally specify the tag."
+  ([attr value] (by-attr-ends :* attr value))
+  ([tag attr value]
+     (by-css (str (name tag)
+                    "[" (name attr) "$='" value "')]"))))
+
+;; TODO: test coverage
+(defn by-has-attr
+  "Match if the element has the attribute `attr`, regardless of its value. You can optionally specify the tag."
+  ([attr] (by-has-attr :* attr))
+  ([tag attr]
+     (by-css (str (name tag)
+                  "[" (name attr) "]"))))
