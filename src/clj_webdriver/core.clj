@@ -16,7 +16,8 @@
   (:use [clj-webdriver driver element util window-handle options])
   (:require [clj-webdriver.js.browserbot :as browserbot-js]
             [clj-webdriver.cache :as cache]
-            [clojure.java.io :as jio]
+            [clojure.java.io :as io]
+            [clojure.string :as string]
             [clojure.tools.logging :as log])
   (:import [clj_webdriver.driver Driver]
            [clj_webdriver.element Element]
