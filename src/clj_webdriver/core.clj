@@ -84,6 +84,7 @@
   "Basic actions on elements"
   (attribute [element attr] "Retrieve the value of the attribute of the given element object")
   (click [element] "Click a particular HTML element")
+	(css-value [element property] "Return the value of the given CSS property")
   (displayed? [element] "Returns true if the given element object is visible/displayed")
   (drag-and-drop-by [element x y] "Drag an element by `x` pixels to the right and `y` pixels down. Use negative numbers for opposite directions.")
   (drag-and-drop-on [element-a element-b] "Drag `element-a` onto `element-b`. The (0,0) coordinates (top-left corners) of each element are aligned.")
