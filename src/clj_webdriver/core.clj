@@ -84,7 +84,7 @@
   "Basic actions on elements"
   (attribute [element attr] "Retrieve the value of the attribute of the given element object")
   (click [element] "Click a particular HTML element")
-	(css-value [element property] "Return the value of the given CSS property")
+  (css-value [element property] "Return the value of the given CSS property")
   (displayed? [element] "Returns true if the given element object is visible/displayed")
   (drag-and-drop-by [element x y] "Drag an element by `x` pixels to the right and `y` pixels down. Use negative numbers for opposite directions.")
   (drag-and-drop-on [element-a element-b] "Drag `element-a` onto `element-b`. The (0,0) coordinates (top-left corners) of each element are aligned.")
@@ -92,9 +92,12 @@
   (flash [element] "Flash the element in question, to verify you're looking at the correct element")
   (focus [element] "Apply focus to the given element")
   (html [element] "Retrieve the outer HTML of an element")
+  (intersects? [& elements] "Given two or more elements, return true if any of them intersect, nil if none of them intersect")
   (location [element] "Given an element object, return its location as a map of its x/y coordinates")
   (location-once-visible [element] "Given an element object, return its location on the screen once it is scrolled into view as a map of its x/y coordinates. The window will scroll as much as possible until the element hits the top of the page; thus even visible elements will be scrolled until they reach that point.")
   (present? [element] "Returns true if the element exists and is visible")
+  (rectangle [element] "Given an element, return a java.awt.Rectangle"
+  (size [element] "Given an element object, return its size as a map of w/h keys")
   (tag [element] "Retrieve the name of the HTML tag of the given element object (returned as a keyword)")
   (text [element] "Retrieve the content, or inner HTML, of a given element object")
   (value [element] "Retrieve the `value` attribute of the given element object")

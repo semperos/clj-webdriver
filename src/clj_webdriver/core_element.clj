@@ -7,6 +7,8 @@
 ;;  * ISelectElement
 (in-ns 'clj-webdriver.core)
 
+(declare css-value location size rectangle)
+
 (extend-type Element
 
   ;; Element action basics
@@ -33,8 +35,8 @@
     (cache/set-status :check)
     nil)
 
-	(css-value [element property]
-		(.getCssValue (:webelement element) property))
+  (css-value [element property]
+    (.getCssValue (:webelement element) property))
 
   (displayed? [element]
     (.isDisplayed (:webelement element)))
@@ -71,6 +73,14 @@
   (html [element]
     (browserbot (.getWrappedDriver (:webelement element)) "getOuterHTML" (:webelement element)))
 
+  (intersects? [& elements]
+    (loop [ele (first elements) others (rest elements) result nil]
+      (if (or result (empty? others))
+        result
+        (recur (first others)
+               (rest others)
+               (some #(.intersects (rectangle ele) (rectangle %)) others)))))
+
   (location [element]
     (let [loc (.getLocation (:webelement element))
           x   (.x loc)
@@ -85,6 +95,18 @@
 
   (present? [element]
     (and (exists? element) (visible? element)))
+
+  (rectangle [element]
+    (let [location (location element)
+          size (size element)]
+      (java.awt.Rectangle. (location :x) (location :y)
+                           (size :w) (size :h))))  
+
+  (size [element]
+    (let [size (.getSize (:webelement Element))
+          w (.width size)
+          h (.height size)]
+      {:w w :h h}))
   
   (tag [element]
     (.getTagName (:webelement element)))
