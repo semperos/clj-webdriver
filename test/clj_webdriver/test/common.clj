@@ -60,6 +60,14 @@
          (text (find-element driver (by-class-name "menu-item")))))
   (is (= "home"
          (text (find-element driver (by-css-selector "#footer a.menu-item")))))
+  (is (= "social_media"
+         (attribute (find-element driver (by-attr-contains :option :value "cial_")) :value)))
+  (is (= "social_media"
+         (attribute (find-element driver (by-attr-starts :option :value "social_")) :value)))
+  (is (= "social_media"
+         (attribute (find-element driver (by-attr-ends :option :value "_media")) :value)))
+  (is (= "france"
+         (attribute (find-element driver (by-has-attr :option :value)) :value)))
   (to driver test-base-url)
   (is (= "first odd"
          (attribute (find-element driver (by-class-name "first odd")) :class))))
