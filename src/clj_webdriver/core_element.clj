@@ -149,7 +149,6 @@
     (let [select-list (Select. (:webelement element))]
       (lazy-seq (init-elements (.getAllSelectedOptions select-list)))))
 
-  ;; TODO: test coverage
   (deselect-option [element attr-val]
     {:pre [(or (= (first (keys attr-val)) :index)
                (= (first (keys attr-val)) :value)
@@ -159,7 +158,6 @@
       :value (deselect-by-value element (:value attr-val))
       :text  (deselect-by-text element (:text attr-val))))
 
-  ;; TODO: test coverage
   (deselect-all [element]
     (let [cnt-range (->> (all-options element)
                          count
@@ -168,19 +166,16 @@
         (deselect-by-index element idx))
       element))
 
-  ;; TODO: test coverage
   (deselect-by-index [element idx]
     (let [select-list (Select. (:webelement element))]
       (.deselectByIndex select-list idx)
       element))
 
-  ;; TODO: test coverage
   (deselect-by-text [element text]
     (let [select-list (Select. (:webelement element))]
       (.deselectByVisibleText select-list text)
       element))
 
-  ;; TODO: test coverage
   (deselect-by-value [element value]
     (let [select-list (Select. (:webelement element))]
       (.deselectByValue select-list value)
@@ -204,7 +199,6 @@
       :value (select-by-value element (:value attr-val))
       :text  (select-by-text element (:text attr-val))))
 
-  ;; TODO: test coverage
   (select-all [element]
     (let [cnt-range (->> (all-options element)
                          count
