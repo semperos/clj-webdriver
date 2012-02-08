@@ -86,7 +86,7 @@
   ([attr value] (by-attr-contains :* attr value)) ; default to * any tag
   ([tag attr value]
      (by-css (str (name tag)
-                    "[" (name attr) "*='" value "')]"))))
+                  "[" (name attr) "*='" value "']"))))
 
 ;; TODO: test coverage
 (defn by-attr-starts
@@ -94,7 +94,7 @@
   ([attr value] (by-attr-starts :* attr value))
   ([tag attr value]
      (by-css (str (name tag)
-                    "[" (name attr) "^='" value "')]"))))
+                  "[" (name attr) "^='" value "']"))))
 
 ;; TODO: test coverage
 (defn by-attr-ends
@@ -102,7 +102,7 @@
   ([attr value] (by-attr-ends :* attr value))
   ([tag attr value]
      (by-css (str (name tag)
-                    "[" (name attr) "$='" value "')]"))))
+                  "[" (name attr) "$='" value "']"))))
 
 ;; TODO: test coverage
 (defn by-has-attr
