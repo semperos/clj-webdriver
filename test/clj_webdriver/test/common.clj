@@ -275,48 +275,103 @@
 (defn select-element-functions-should-behave-as-expected
   [driver]
   (to driver (str test-base-url "example-form"))
-  (is (= 4
-         (count (all-options (find-it driver {:tag "select"})))))
-  (is (= 1
-         (count (all-selected-options (find-it driver {:tag "select"})))))
-  (is (= "bharat"
-         (attribute (first-selected-option (find-it driver {:tag "select"})) :value)))
-  (is (= "bharat"
-         (attribute (first (all-selected-options (find-it driver {:tag "select"}))) :value)))
-  (is (false?
-       (multiple? (find-it driver {:tag "select"}))))
-  (select-option (find-it driver {:tag "select"})
-                 {:value "deutschland"})
-  (is (= 1
-         (count (all-selected-options (find-it driver {:tag "select"})))))
-  (is (= "deutschland"
-         (attribute (first-selected-option (find-it driver {:tag "select"})) :value)))
-  (is (= "deutschland"
-         (attribute (first (all-selected-options (find-it driver {:tag "select"}))) :value)))
-  (select-by-index (find-it driver {:tag "select"})
-                   0)
-  (is (= 1
-         (count (all-selected-options (find-it driver {:tag "select"})))))
-  (is (= "france"
-         (attribute (first-selected-option (find-it driver {:tag "select"})) :value)))
-  (is (= "france"
-         (attribute (first (all-selected-options (find-it driver {:tag "select"}))) :value)))
-  (select-by-text (find-it driver {:tag "select"})
-                  "Haiti")
-  (is (= 1
-         (count (all-selected-options (find-it driver {:tag "select"})))))
-  (is (= "ayiti"
-         (attribute (first-selected-option (find-it driver {:tag "select"})) :value)))
-  (is (= "ayiti"
-         (attribute (first (all-selected-options (find-it driver {:tag "select"}))) :value)))
-  (select-by-value (find-it driver {:tag "select"})
-                   "bharat")
-  (is (= 1
-         (count (all-selected-options (find-it driver {:tag "select"})))))
-  (is (= "bharat"
-         (attribute (first-selected-option (find-it driver {:tag "select"})) :value)))
-  (is (= "bharat"
-         (attribute (first (all-selected-options (find-it driver {:tag "select"}))) :value))))
+  (let [select-el (find-it driver {:tag "select", :id "countries"})]
+    (is (= 4
+           (count (all-options select-el))))
+    (is (= 1
+           (count (all-selected-options select-el))))
+    (is (= "bharat"
+           (attribute (first-selected-option select-el) :value)))
+    (is (= "bharat"
+           (attribute (first (all-selected-options select-el)) :value)))
+    (is (false?
+         (multiple? select-el)))
+    (select-option select-el
+                   {:value "deutschland"})
+    (is (= 1
+           (count (all-selected-options select-el))))
+    (is (= "deutschland"
+           (attribute (first-selected-option select-el) :value)))
+    (is (= "deutschland"
+           (attribute (first (all-selected-options select-el)) :value)))
+    (select-by-index select-el
+                     0)
+    (is (= 1
+           (count (all-selected-options select-el))))
+    (is (= "france"
+           (attribute (first-selected-option select-el) :value)))
+    (is (= "france"
+           (attribute (first (all-selected-options select-el)) :value)))
+    (select-by-text select-el
+                    "Haiti")
+    (is (= 1
+           (count (all-selected-options select-el))))
+    (is (= "ayiti"
+           (attribute (first-selected-option select-el) :value)))
+    (is (= "ayiti"
+           (attribute (first (all-selected-options select-el)) :value)))
+    (select-by-value select-el
+                     "bharat")
+    (is (= 1
+           (count (all-selected-options select-el))))
+    (is (= "bharat"
+           (attribute (first-selected-option select-el) :value)))
+    (is (= "bharat"
+           (attribute (first (all-selected-options select-el)) :value))))
+  (let [select-el (find-it driver {:tag "select", :id "site_types"})]
+    (is (true?
+         (multiple? select-el)))
+    (is (= 4
+           (count (all-options select-el))))
+    (is (zero?
+         (count (all-selected-options select-el))))
+    (select-option select-el {:index 0})
+    (is (= 1
+           (count (all-selected-options select-el))))
+    (is (= "blog"
+           (attribute (first-selected-option select-el) :value)))
+    (is (= "blog"
+           (attribute (first (all-selected-options select-el)) :value)))
+    (select-option select-el {:value "social_media"})
+    (is (= 2
+           (count (all-selected-options select-el))))
+    (is (= "social_media"
+           (attribute (second (all-selected-options select-el)) :value)))
+    (deselect-option select-el {:index 0})
+    (is (= 1
+           (count (all-selected-options select-el))))
+    (is (= "social_media"
+           (attribute (first-selected-option select-el) :value)))
+    (is (= "social_media"
+           (attribute (first (all-selected-options select-el)) :value)))
+    (select-option select-el {:value "search_engine"})
+    (is (= 2
+           (count (all-selected-options select-el))))
+    (is (= "search_engine"
+           (attribute (second (all-selected-options select-el)) :value)))
+    (deselect-by-index select-el 1)
+    (is (= 1
+           (count (all-selected-options select-el))))
+    (is (= "search_engine"
+           (attribute (first-selected-option select-el) :value)))
+    (is (= "search_engine"
+           (attribute (first (all-selected-options select-el)) :value)))
+    (select-option select-el {:value "code"})
+    (is (= 2
+           (count (all-selected-options select-el))))
+    (is (= "code"
+           (attribute (last (all-selected-options select-el)) :value)))
+    (deselect-by-text select-el "Search Engine")
+    (is (= 1
+           (count (all-selected-options select-el))))
+    (is (= "code"
+           (attribute (first-selected-option select-el) :value)))
+    (select-all select-el)
+    (is (= 4
+           (count (all-selected-options select-el))))
+    (deselect-all select-el)
+    (is (zero?
+         (count (all-selected-options select-el))))))
 
 (defn quick-fill-should-accept-special-seq-and-perform-batch-actions-on-form
   [driver]
