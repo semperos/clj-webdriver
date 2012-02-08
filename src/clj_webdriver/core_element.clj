@@ -33,6 +33,9 @@
     (cache/set-status :check)
     nil)
 
+	(css-value [element property]
+		(.getCssValue (:webelement element) property))
+
   (displayed? [element]
     (.isDisplayed (:webelement element)))
 
@@ -48,8 +51,8 @@
     (not (nil? (:webelement element))))
 
   (flash [element]
-    (let [original-color (if (.getCssValue (:webelement element) "background-color")
-                           (.getCssValue (:webelement element) "background-color")
+    (let [original-color (if (css-value element "background-color")
+                           (css-value element "background-color")
                            "transparent")
           orig-colors (repeat original-color)
           change-colors (interleave (repeat "red") (repeat "blue"))]
