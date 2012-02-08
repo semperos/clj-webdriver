@@ -7,6 +7,12 @@
   ([] (Element. nil))
   ([webelement] (Element. webelement)))
 
+(defn init-elements
+  "Given WebElement objects, batch initialize elements (for things like returning all options for select lists)"
+  [webelements]
+  (for [webel webelements]
+    (init-element webel)))
+
 (defn is-element?
   "Return true if parameter is an Element record"
   [element]

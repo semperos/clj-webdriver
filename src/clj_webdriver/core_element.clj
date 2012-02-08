@@ -141,12 +141,12 @@
   ;; TODO: test coverage
   (all-options [element]
     (let [select-list (Select. (:webelement element))]
-      (lazy-seq (.getOptions select-list))))
+      (lazy-seq (init-elements (.getOptions select-list)))))
 
   ;; TODO: test coverage
   (all-selected-options [element]
     (let [select-list (Select. (:webelement element))]
-      (lazy-seq (.getAllSelectedOptions select-list))))
+      (lazy-seq (init-elements (.getAllSelectedOptions select-list)))))
 
   ;; TODO: test coverage
   (deselect-option [element attr-val]
@@ -188,7 +188,7 @@
   ;; TODO: test coverage
   (first-selected-option [element]
     (let [select-list (Select. (:webelement element))]
-      (.getFirstSelectedOption select-list)))
+      (init-element (.getFirstSelectedOption select-list))))
 
   ;; TODO: test coverage
   (multiple? [element]
