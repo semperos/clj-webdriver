@@ -190,13 +190,11 @@
     (let [select-list (Select. (:webelement element))]
       (init-element (.getFirstSelectedOption select-list))))
 
-  ;; TODO: test coverage
   (multiple? [element]
     (let [value (attribute element "multiple")]
       (or (= value "true")
           (= value "multiple"))))
 
-  ;; TODO: test coverage
   (select-option [element attr-val]
     {:pre [(or (= (first (keys attr-val)) :index)
                (= (first (keys attr-val)) :value)
@@ -215,19 +213,16 @@
         (select-by-index element idx))
       element))
 
-  ;; TODO: test coverage
   (select-by-index [element idx]
     (let [select-list (Select. (:webelement element))]
       (.selectByIndex select-list idx)
       element))
 
-  ;; TODO: test coverage
   (select-by-text [element text]
     (let [select-list (Select. (:webelement element))]
       (.selectByVisibleText select-list text)
       element))
 
-  ;; TODO: test coverage
   (select-by-value [element value]
     (let [select-list (Select. (:webelement element))]
       (.selectByValue select-list value)
