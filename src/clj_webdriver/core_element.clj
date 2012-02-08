@@ -102,8 +102,8 @@
   IFormElement
   (deselect [element]
     (if (.isSelected (:webelement element))
-    (toggle (:webelement element))
-    element))
+      (toggle (:webelement element))
+      element))
   
   (enabled? [element]
     (.isEnabled (:webelement element)))
@@ -138,83 +138,97 @@
 
 
   ISelectElement
-    (all-options [element]
-      (let [select-list (Select. (:webelement element))]
-        (lazy-seq (.getOptions select-list))))
-    
-    (all-selected-options [element]
-      (let [select-list (Select. (:webelement element))]
-        (lazy-seq (.getAllSelectedOptions select-list))))
-    
-    (deselect-option [element attr-val]
-      {:pre [(or (= (first (keys attr-val)) :index)
-                 (= (first (keys attr-val)) :value)
-                 (= (first (keys attr-val)) :text))]}
-      (case (first (keys attr-val))
-        :index (deselect-by-index element (:index attr-val))
-        :value (deselect-by-value element (:value attr-val))
-        :text  (deselect-by-text element (:text attr-val))))
-    
-    (deselect-all [element]
-      (let [cnt-range (->> (all-options element)
-                           count
-                           (range 0))]
-        (doseq [idx cnt-range]
-          (deselect-by-index element idx))
-        element))
-    
-    (deselect-by-index [element idx]
-      (let [select-list (Select. (:webelement element))]
-        (.deselectByIndex select-list idx)
-        element))
-    
-    (deselect-by-text [element text]
-      (let [select-list (Select. (:webelement element))]
-        (.deselectByVisibleText select-list text)
-        element))
-    
-    (deselect-by-value [element value]
-      (let [select-list (Select. (:webelement element))]
-        (.deselectByValue select-list value)
-        element))
-    
-    (first-selected-option [element]
-      (let [select-list (Select. (:webelement element))]
-        (.getFirstSelectedOption select-list)))
-    
-    (multiple? [element]
-      (let [value (attribute element "multiple")]
-        (or (= value "true")
-            (= value "multiple"))))
-    
-    (select-option [element attr-val]
-      {:pre [(or (= (first (keys attr-val)) :index)
-                (= (first (keys attr-val)) :value)
-                (= (first (keys attr-val)) :text))]}
-      (case (first (keys attr-val))
-        :index (select-by-index element (:index attr-val))
-        :value (select-by-value element (:value attr-val))
-        :text  (select-by-text element (:text attr-val))))
-    
-    (select-all [element]
-      (let [cnt-range (->> (all-options element)
-                           count
-                           (range 0))]
-        (doseq [idx cnt-range]
-          (select-by-index element idx))
-        element))
-    
-    (select-by-index [element idx]
-      (let [select-list (Select. (:webelement element))]
-        (.selectByIndex select-list idx)
-        element))
-    
-    (select-by-text [element text]
-      (let [select-list (Select. (:webelement element))]
-        (.selectByVisibleText select-list text)
-        element))
-    
-    (select-by-value [element value]
-      (let [select-list (Select. (:webelement element))]
-        (.selectByValue select-list value)
-        element)))
+  ;; TODO: test coverage
+  (all-options [element]
+    (let [select-list (Select. (:webelement element))]
+      (lazy-seq (.getOptions select-list))))
+
+  ;; TODO: test coverage
+  (all-selected-options [element]
+    (let [select-list (Select. (:webelement element))]
+      (lazy-seq (.getAllSelectedOptions select-list))))
+
+  ;; TODO: test coverage
+  (deselect-option [element attr-val]
+    {:pre [(or (= (first (keys attr-val)) :index)
+               (= (first (keys attr-val)) :value)
+               (= (first (keys attr-val)) :text))]}
+    (case (first (keys attr-val))
+      :index (deselect-by-index element (:index attr-val))
+      :value (deselect-by-value element (:value attr-val))
+      :text  (deselect-by-text element (:text attr-val))))
+
+  ;; TODO: test coverage
+  (deselect-all [element]
+    (let [cnt-range (->> (all-options element)
+                         count
+                         (range 0))]
+      (doseq [idx cnt-range]
+        (deselect-by-index element idx))
+      element))
+
+  ;; TODO: test coverage
+  (deselect-by-index [element idx]
+    (let [select-list (Select. (:webelement element))]
+      (.deselectByIndex select-list idx)
+      element))
+
+  ;; TODO: test coverage
+  (deselect-by-text [element text]
+    (let [select-list (Select. (:webelement element))]
+      (.deselectByVisibleText select-list text)
+      element))
+
+  ;; TODO: test coverage
+  (deselect-by-value [element value]
+    (let [select-list (Select. (:webelement element))]
+      (.deselectByValue select-list value)
+      element))
+
+  ;; TODO: test coverage
+  (first-selected-option [element]
+    (let [select-list (Select. (:webelement element))]
+      (.getFirstSelectedOption select-list)))
+
+  ;; TODO: test coverage
+  (multiple? [element]
+    (let [value (attribute element "multiple")]
+      (or (= value "true")
+          (= value "multiple"))))
+
+  ;; TODO: test coverage
+  (select-option [element attr-val]
+    {:pre [(or (= (first (keys attr-val)) :index)
+               (= (first (keys attr-val)) :value)
+               (= (first (keys attr-val)) :text))]}
+    (case (first (keys attr-val))
+      :index (select-by-index element (:index attr-val))
+      :value (select-by-value element (:value attr-val))
+      :text  (select-by-text element (:text attr-val))))
+
+  ;; TODO: test coverage
+  (select-all [element]
+    (let [cnt-range (->> (all-options element)
+                         count
+                         (range 0))]
+      (doseq [idx cnt-range]
+        (select-by-index element idx))
+      element))
+
+  ;; TODO: test coverage
+  (select-by-index [element idx]
+    (let [select-list (Select. (:webelement element))]
+      (.selectByIndex select-list idx)
+      element))
+
+  ;; TODO: test coverage
+  (select-by-text [element text]
+    (let [select-list (Select. (:webelement element))]
+      (.selectByVisibleText select-list text)
+      element))
+
+  ;; TODO: test coverage
+  (select-by-value [element value]
+    (let [select-list (Select. (:webelement element))]
+      (.selectByValue select-list value)
+      element)))
