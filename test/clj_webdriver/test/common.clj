@@ -282,6 +282,40 @@
   (is (= "bharat"
          (attribute (first-selected-option (find-it driver {:tag "select"})) :value)))
   (is (= "bharat"
+         (attribute (first (all-selected-options (find-it driver {:tag "select"}))) :value)))
+  (is (false?
+       (multiple? (find-it driver {:tag "select"}))))
+  (select-option (find-it driver {:tag "select"})
+                 {:value "deutschland"})
+  (is (= 1
+         (count (all-selected-options (find-it driver {:tag "select"})))))
+  (is (= "deutschland"
+         (attribute (first-selected-option (find-it driver {:tag "select"})) :value)))
+  (is (= "deutschland"
+         (attribute (first (all-selected-options (find-it driver {:tag "select"}))) :value)))
+  (select-by-index (find-it driver {:tag "select"})
+                   0)
+  (is (= 1
+         (count (all-selected-options (find-it driver {:tag "select"})))))
+  (is (= "france"
+         (attribute (first-selected-option (find-it driver {:tag "select"})) :value)))
+  (is (= "france"
+         (attribute (first (all-selected-options (find-it driver {:tag "select"}))) :value)))
+  (select-by-text (find-it driver {:tag "select"})
+                  "Haiti")
+  (is (= 1
+         (count (all-selected-options (find-it driver {:tag "select"})))))
+  (is (= "ayiti"
+         (attribute (first-selected-option (find-it driver {:tag "select"})) :value)))
+  (is (= "ayiti"
+         (attribute (first (all-selected-options (find-it driver {:tag "select"}))) :value)))
+  (select-by-value (find-it driver {:tag "select"})
+                   "bharat")
+  (is (= 1
+         (count (all-selected-options (find-it driver {:tag "select"})))))
+  (is (= "bharat"
+         (attribute (first-selected-option (find-it driver {:tag "select"})) :value)))
+  (is (= "bharat"
          (attribute (first (all-selected-options (find-it driver {:tag "select"}))) :value))))
 
 (defn quick-fill-should-accept-special-seq-and-perform-batch-actions-on-form
