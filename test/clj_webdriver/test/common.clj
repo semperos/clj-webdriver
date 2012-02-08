@@ -272,6 +272,18 @@
   (is (nil?
        (attribute (find-it driver {:id "purpose_here"}) :disabled))))
 
+(defn select-element-functions-should-behave-as-expected
+  [driver]
+  (to driver (str test-base-url "example-form"))
+  (is (= 4
+         (count (all-options (find-it driver {:tag "select"})))))
+  (is (= 1
+         (count (all-selected-options (find-it driver {:tag "select"})))))
+  (is (= "bharat"
+         (attribute (first-selected-option (find-it driver {:tag "select"})) :value)))
+  (is (= "bharat"
+         (attribute (first (all-selected-options (find-it driver {:tag "select"}))) :value))))
+
 (defn quick-fill-should-accept-special-seq-and-perform-batch-actions-on-form
   [driver]
   (to driver (str test-base-url "example-form"))
@@ -403,6 +415,7 @@
                        find-table-cell-should-find-cell-with-coords
                        find-table-row-should-find-all-cells-for-row
                        test-form-elements
+                       select-element-functions-should-behave-as-expected
                        quick-fill-should-accept-special-seq-and-perform-batch-actions-on-form
                        quick-fill-submit-should-always-return-nil
                        should-be-able-to-toggle-between-open-windows
