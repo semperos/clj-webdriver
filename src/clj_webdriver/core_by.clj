@@ -78,7 +78,6 @@
          :else   (by-css (str (name tag)
                               "[" (name attr) "='" value "']")))))
 
-;; TODO: test coverage
 (defn by-attr-contains
   "Match if `value` is contained in the value of `attr`. You can optionally specify the tag.
    For example: `(by-attr-contains :class \"navigation\")`
@@ -88,7 +87,6 @@
      (by-css (str (name tag)
                   "[" (name attr) "*='" value "']"))))
 
-;; TODO: test coverage
 (defn by-attr-starts
   "Match if `value` is at the beginning of the value of `attr`. You can optionally specify the tag."
   ([attr value] (by-attr-starts :* attr value))
@@ -96,7 +94,6 @@
      (by-css (str (name tag)
                   "[" (name attr) "^='" value "']"))))
 
-;; TODO: test coverage
 (defn by-attr-ends
   "Match if `value` is at the end of the value of `attr`. You can optionally specify the tag."
   ([attr value] (by-attr-ends :* attr value))
@@ -104,7 +101,6 @@
      (by-css (str (name tag)
                   "[" (name attr) "$='" value "']"))))
 
-;; TODO: test coverage
 (defn by-has-attr
   "Match if the element has the attribute `attr`, regardless of its value. You can optionally specify the tag."
   ([attr] (by-has-attr :* attr))
