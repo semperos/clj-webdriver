@@ -13,4 +13,5 @@
                      [marginalia "0.3.2"]
                      [ring "1.0.2"]
                      [enlive "1.0.0"]
-                     [net.cgrand/moustache "1.0.0"]])
+                     [net.cgrand/moustache "1.0.0"]]
+	:jvm-opts ["-Dwebdriver.chrome.driver=chromedriver"])
