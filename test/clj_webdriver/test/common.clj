@@ -189,6 +189,15 @@
            (find-element {:tag :a, :href "#pages"})
            present?))))
 
+(defn should-be-able-to-determine-if-elements-intersect-each-other
+  [driver]
+  (click (find-element driver {:tag :a, :text "example form"}))
+  (is (intersect? (find-element driver {:id "first_name"})
+                  (find-element driver {:id "personal-info-wrapper"})))
+  (is (not
+       (intersect? (find-element driver {:id "first_name"})
+                   (find-element driver {:id "last_name"})))))
+
 ;; Default wrap for strings is double quotes
 (defn generated-xpath-should-wrap-strings-in-double-quotes
   [driver]
@@ -521,6 +530,7 @@
                        exists-should-return-truthy-falsey-and-should-not-throw-an-exception
                        visible-should-return-truthy-falsey-when-visible
                        present-should-return-truthy-falsey-when-exists-and-visible
+                       should-be-able-to-determine-if-elements-intersect-each-other
                        generated-xpath-should-wrap-strings-in-double-quotes
                        xpath-function-should-return-string-xpath-of-element
                        html-function-should-return-string-html-of-element
