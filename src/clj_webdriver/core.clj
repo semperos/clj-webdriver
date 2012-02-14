@@ -64,8 +64,8 @@
 ;; ### Finding Elements on Page ###
 (defprotocol IFind
   "Functions used to locate elements on a given page"
-  (find-element [driver by] "Retrieve the element object of an element described by `by`")
-  (find-elements [driver by] "Retrieve a seq of element objects described by `by`")
+  (find-element [this by] "Retrieve the element object of an element described by `by`, optionally limited to elements beneath a parent element (depends on dispatch).")
+  (find-elements [this by] "Retrieve a seq of element objects described by `by`, optionally limited to elements beneath a parent element (depends on dispatch).")
   (find-elements-by-regex-alone [driver tag attr-val] "Given an `attr-val` pair with a regex value, find the elements that match")
   (find-elements-by-regex [driver tag attr-val])
   (find-windows [driver attr-val] "Given a browser `driver` and a map of attributes, return the WindowHandles that match")

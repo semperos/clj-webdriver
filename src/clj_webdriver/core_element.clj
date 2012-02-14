@@ -220,4 +220,14 @@
   (select-by-value [element value]
     (let [select-list (Select. (:webelement element))]
       (.selectByValue select-list value)
-      element)))
+      element))
+
+  IFind
+  (find-element [element by]
+    (init-element (.findElement (:webelement element) by)))
+  
+  (find-elements [element by]
+    (let [els (.findElements (:webelement element) by)]
+      (if (seq els)
+        (lazy-seq (map init-element els))
+        (lazy-seq (map init-element [nil]))))))
