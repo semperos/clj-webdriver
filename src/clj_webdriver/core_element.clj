@@ -85,6 +85,25 @@
 
   (present? [element]
     (and (exists? element) (visible? element)))
+
+  (size [element]
+    (let [size-obj (.getSize (:webelement element))
+          w (.width size-obj)
+          h (.height size-obj)]
+      {:width w, :height h}))
+
+  (rectangle [element]
+    (let [loc (location element)
+          el-size (size element)]
+      (java.awt.Rectangle. (:x loc)
+                           (:y loc)
+                           (:width el-size)
+                           (:height el-size))))
+
+  (intersect*? [element-a element-b]
+    (let [rect-a (rectangle element-a)
+          rect-b (rectangle element-b)]
+      (.intersects rect-a rect-b)))
   
   (tag [element]
     (.getTagName (:webelement element)))
