@@ -1,6 +1,6 @@
 (ns clj-webdriver.test.firefox
   (:use clojure.test
-        [clj-webdriver.core :only [start current-url find-it quit get-screenshot with-browser attribute to]]
+        [clj-webdriver.core :only [start current-url find-element quit get-screenshot with-browser attribute to]]
         [clj-webdriver.driver :only [get-cache driver?]]
         [clj-webdriver.test.common :only [run-common-tests]]
         [clj-webdriver.test.util :only [start-server]]
@@ -87,7 +87,7 @@
 
 (deftest test-cacheable?
   ;; assume at test-base-url
-  (is (cache/cacheable? firefox-driver (find-it firefox-driver {:tag :a, :class "external"})))
+  (is (cache/cacheable? firefox-driver (find-element firefox-driver {:tag :a, :class "external"})))
   (is (not (cache/cacheable? firefox-driver {:class "external"})))
   (is (cache/cacheable? firefox-driver {:css "ol#pages"}))
   (is (not (cache/cacheable? firefox-driver :table)))
@@ -101,9 +101,9 @@
                                      :exclude [ (fn [element] (= (attribute element :class) "external")),
                                                 {:css "ol#pages"}]}}
                        test-base-url)]
-    (is (cache/cacheable? temp-dr (find-it temp-dr {:tag :table})))
-    (is (cache/cacheable? temp-dr (find-it temp-dr {:css "#pages"})))
-    (is (not (cache/cacheable? temp-dr (find-it temp-dr {:tag :a, :class "external"}))))
+    (is (cache/cacheable? temp-dr (find-element temp-dr {:tag :table})))
+    (is (cache/cacheable? temp-dr (find-element temp-dr {:css "#pages"})))
+    (is (not (cache/cacheable? temp-dr (find-element temp-dr {:tag :a, :class "external"}))))
     (is (not (cache/cacheable? temp-dr {:css "ol#pages"})))
     (quit temp-dr)))
 

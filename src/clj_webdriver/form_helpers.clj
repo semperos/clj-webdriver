@@ -4,7 +4,7 @@
 ;; faster and more intuitive for "common" use-cases.
 ;;
 (ns clj-webdriver.form-helpers
-  (:use [clj-webdriver.core :only [input-text find-them]])
+  (:use [clj-webdriver.core :only [input-text find-elements]])
   (:import clj_webdriver.driver.Driver)
   (:import org.openqa.selenium.WebDriver))
 
@@ -20,7 +20,7 @@
            action (if (string? v)
                     #(input-text % v)
                     v)
-           target-els (find-them driver query-map)]
+           target-els (find-elements driver query-map)]
        (if submit?
          (doseq [el target-els]
            (action el))

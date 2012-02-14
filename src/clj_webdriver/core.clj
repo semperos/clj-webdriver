@@ -64,8 +64,8 @@
 ;; ### Finding Elements on Page ###
 (defprotocol IFind
   "Functions used to locate elements on a given page"
-  (find-element [this by] "Retrieve the element object of an element described by `by`, optionally limited to elements beneath a parent element (depends on dispatch).")
-  (find-elements [this by] "Retrieve a seq of element objects described by `by`, optionally limited to elements beneath a parent element (depends on dispatch).")
+  (find-element-by [this by] "Retrieve the element object of an element described by `by`, optionally limited to elements beneath a parent element (depends on dispatch).")
+  (find-elements-by [this by] "Retrieve a seq of element objects described by `by`, optionally limited to elements beneath a parent element (depends on dispatch).")
   (find-elements-by-regex-alone [driver tag attr-val] "Given an `attr-val` pair with a regex value, find the elements that match")
   (find-elements-by-regex [driver tag attr-val])
   (find-windows [driver attr-val] "Given a browser `driver` and a map of attributes, return the WindowHandles that match")
@@ -73,11 +73,11 @@
   (find-semantic-buttons [driver attr-val] "Find HTML element that is either a `<button>` or an `<input>` of type submit, reset, image or button")
   (find-semantic-buttons-by-regex [driver attr-val] "Semantic buttons are things that look or behave like buttons but do not necessarily consist of a `<button>` tag")
   (find-checkables-by-text [driver attr-val] "Finding the 'text' of a radio or checkbox is complex. Handle it here.")
-  (find-table-cell [driver table coordinates] "Given a `driver`, a `table` find-it-style spec (e.g. `{:id \"my-table\"}` and a zero-based set of coordinates for row and column, return the table cell at those coordinates for the given table.")
-  (find-table-row [driver table row-index] "Return all cells in the row of the given table. The `table` is a find-it-style map to identify the table uniquely (e.g., `{:id \"my-table\"}`), and `row-index` is a zero-based index of the target row.")
+  (find-table-cell [driver table coordinates] "Given a `driver`, a `table` find-element-style spec (e.g. `{:id \"my-table\"}` and a zero-based set of coordinates for row and column, return the table cell at those coordinates for the given table.")
+  (find-table-row [driver table row-index] "Return all cells in the row of the given table. The `table` is a find-element-style map to identify the table uniquely (e.g., `{:id \"my-table\"}`), and `row-index` is a zero-based index of the target row.")
   (find-by-hierarchy [driver hierarchy-vector] "Given a Webdriver `driver` and a vector `hierarchy-vector`, return a lazy seq of the described elements in the hierarchy dictated by the order of elements in the `hierarchy-vector`.")
-  (find-them [driver attr-val] "Find all elements that match the parameters supplied in the `attr-val` map. Also provides a shortcut to `find-by-hierarchy` if a vector is supplied instead of a map.")
-  (find-it [driver attr-val] "Call (first (find-them args))"))
+  (find-elements [driver attr-val] "Find all elements that match the parameters supplied in the `attr-val` map. Also provides a shortcut to `find-by-hierarchy` if a vector is supplied instead of a map.")
+  (find-element [driver attr-val] "Call (first (find-elements args))"))
 
 ;; ### Acting on Elements ###
 (defprotocol IElement

@@ -223,10 +223,10 @@
       element))
 
   IFind
-  (find-element [element by]
+  (find-element-by [element by]
     (init-element (.findElement (:webelement element) by)))
   
-  (find-elements [element by]
+  (find-elements-by [element by]
     (let [els (.findElements (:webelement element) by)]
       (if (seq els)
         (lazy-seq (map init-element els))

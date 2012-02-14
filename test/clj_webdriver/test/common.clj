@@ -24,7 +24,7 @@
 (defn back-forward-should-traverse-browser-history
   [driver]
   (-> driver
-      (find-it {:tag :a, :text "example form"})
+      (find-element {:tag :a, :text "example form"})
       click)
   (Thread/sleep 500) ;; race condition issue with OperaDriver (on my machine, at least)
   (is (= (str test-base-url "example-form") (current-url driver)))
@@ -39,166 +39,166 @@
   (is (= (str test-base-url "example-form") (current-url driver)))
   (is (= "Ministache" (title driver))))
 
-(defn should-be-able-to-find-elements-using-low-level-by-wrappers
+(defn should-be-able-to-find-element-bys-using-low-level-by-wrappers
   [driver]
   (-> driver
-      (find-it {:tag :a, :text "example form"})
+      (find-element {:tag :a, :text "example form"})
       click)
   (is (= "first_name"
-         (attribute (find-element driver (by-id "first_name")) :id)))
+         (attribute (find-element-by driver (by-id "first_name")) :id)))
   (is (= "home"
-         (text (find-element driver (by-link-text "home")))))
+         (text (find-element-by driver (by-link-text "home")))))
   (is (= "example form"
-         (text (find-element driver (by-partial-link-text "example")))))
+         (text (find-element-by driver (by-partial-link-text "example")))))
   (is (= "first_name"
-         (attribute (find-element driver (by-name "first_name")) :id)))
+         (attribute (find-element-by driver (by-name "first_name")) :id)))
   (is (= "home"
-         (text (find-element driver (by-tag "a")))))
+         (text (find-element-by driver (by-tag "a")))))
   (is (= "home"
-         (text (find-element driver (by-xpath "//a[text()='home']")))))
+         (text (find-element-by driver (by-xpath "//a[text()='home']")))))
   (is (= "home"
-         (text (find-element driver (by-class-name "menu-item")))))
+         (text (find-element-by driver (by-class-name "menu-item")))))
   (is (= "home"
-         (text (find-element driver (by-css-selector "#footer a.menu-item")))))
+         (text (find-element-by driver (by-css-selector "#footer a.menu-item")))))
   (is (= "social_media"
-         (attribute (find-element driver (by-attr-contains :option :value "cial_")) :value)))
+         (attribute (find-element-by driver (by-attr-contains :option :value "cial_")) :value)))
   (is (= "social_media"
-         (attribute (find-element driver (by-attr-starts :option :value "social_")) :value)))
+         (attribute (find-element-by driver (by-attr-starts :option :value "social_")) :value)))
   (is (= "social_media"
-         (attribute (find-element driver (by-attr-ends :option :value "_media")) :value)))
+         (attribute (find-element-by driver (by-attr-ends :option :value "_media")) :value)))
   (is (= "france"
-         (attribute (find-element driver (by-has-attr :option :value)) :value)))
+         (attribute (find-element-by driver (by-has-attr :option :value)) :value)))
   (to driver test-base-url)
   (is (= "first odd"
-         (attribute (find-element driver (by-class-name "first odd")) :class)))
+         (attribute (find-element-by driver (by-class-name "first odd")) :class)))
   (is (= "http://clojure.blip.tv/file/4824610/"
-         (attribute (find-element (find-it driver {:tag :li, :text #"simple"}) (by-tag :a)) :href))))
+         (attribute (find-element-by (find-element driver {:tag :li, :text #"simple"}) (by-tag :a)) :href))))
 
-(defn find-it-should-support-basic-attr-val-map
+(defn find-element-should-support-basic-attr-val-map
   [driver]
   (is (= "Moustache"
-         (text (nth (find-them driver {:tag :a}) 1))))
+         (text (nth (find-elements driver {:tag :a}) 1))))
   (is (= "Moustache"
-         (text (find-it driver {:class "external"}))))
+         (text (find-element driver {:class "external"}))))
   (is (= "first odd"
-         (attribute (find-it driver {:class "first odd"}) :class)))
+         (attribute (find-element driver {:class "first odd"}) :class)))
   (is (= "first odd"
-         (attribute (find-it driver {:tag :li, :class "first odd"}) :class)))
+         (attribute (find-element driver {:tag :li, :class "first odd"}) :class)))
   (is (= "https://github.com/cgrand/moustache"
-         (attribute (find-it driver {:text "Moustache"}) "href")))
+         (attribute (find-element driver {:text "Moustache"}) "href")))
   (is (= 8
-         (count (find-them driver {:tag :a}))))
+         (count (find-elements driver {:tag :a}))))
   (-> driver
-      (find-it {:tag :a, :text "example form"})
+      (find-element {:tag :a, :text "example form"})
       click)
   (is (= "first_name"
-         (attribute (find-it driver {:type "text"}) "id")))
+         (attribute (find-element driver {:type "text"}) "id")))
   (is (= "first_name"
-         (attribute (find-it driver {:tag :input, :type "text"}) "id")))
+         (attribute (find-element driver {:tag :input, :type "text"}) "id")))
   (is (= "first_name"
-         (attribute (find-it driver {:tag :input, :type "text", :name "first_name"}) "id")))
+         (attribute (find-element driver {:tag :input, :type "text", :name "first_name"}) "id")))
   (is (= "first_name"
-         (attribute (find-it driver {:tag :input, :type "text", :name #"first_"}) "id")))
+         (attribute (find-element driver {:tag :input, :type "text", :name #"first_"}) "id")))
   (is (= "last_name"
-         (attribute (find-it driver {:tag :input, :type "text", :name #"last_"}) "id")))
+         (attribute (find-element driver {:tag :input, :type "text", :name #"last_"}) "id")))
   (is (= "Smith"
-         (attribute (find-it driver {:tag :input, :type "text", :name #"last_"}) "value")))
+         (attribute (find-element driver {:tag :input, :type "text", :name #"last_"}) "value")))
   (is (= "Smith"
-         (attribute (find-it driver {:tag :input, :type "text", :name #"last_"}) "value"))))
+         (attribute (find-element driver {:tag :input, :type "text", :name #"last_"}) "value"))))
 
-(defn find-it-should-support-regexes-in-attr-val-map
+(defn find-element-should-support-regexes-in-attr-val-map
   [driver]
   (is (= "Moustache"
-         (text (find-it driver {:tag :a, :class #"exter"}))))
+         (text (find-element driver {:tag :a, :class #"exter"}))))
   (is (= "Moustache"
-         (text (find-it driver {:tag :a, :text #"Mous"}))))
+         (text (find-element driver {:tag :a, :text #"Mous"}))))
   (is (= "Moustache"
-         (text (find-it driver {:tag :a, :class "external", :href #"github"}))))
+         (text (find-element driver {:tag :a, :class "external", :href #"github"}))))
   (is (= "Moustache"
-         (text (find-it driver {:tag :a, :class #"exter", :href #"github"}))))
+         (text (find-element driver {:tag :a, :class #"exter", :href #"github"}))))
   (is (= 3
-         (count (find-them driver {:class #"-item"}))))
+         (count (find-elements driver {:class #"-item"}))))
   (is (= 3
-         (count (find-them driver {:tag :a, :class #"-item"}))))
+         (count (find-elements driver {:tag :a, :class #"-item"}))))
   (is (= 1
-         (count (find-them driver {:tag :a, :text #"hom"}))))
+         (count (find-elements driver {:tag :a, :text #"hom"}))))
   (is (= 1
-         (count (find-them driver {:tag :a, :text #"(?i)HOM"}))))
+         (count (find-elements driver {:tag :a, :text #"(?i)HOM"}))))
   (is (= 2
-         (count (find-them driver {:tag :a, :class #"exter", :href #"github"})))))
+         (count (find-elements driver {:tag :a, :class #"exter", :href #"github"})))))
 
 
-(defn find-it-should-support-hierarchical-querying
+(defn find-element-should-support-hierarchical-querying
   [driver]
   (is (= "Moustache"
-         (text (find-it driver [{:tag :div, :id "content"}, {:tag :a, :class "external"}]))))
+         (text (find-element driver [{:tag :div, :id "content"}, {:tag :a, :class "external"}]))))
   (is (= "Moustache"
-         (text (find-it driver [{:tag :div, :id "content"}, {:tag :a, :class #"exter"}]))))
+         (text (find-element driver [{:tag :div, :id "content"}, {:tag :a, :class #"exter"}]))))
   (is (= "Moustache"
-         (text (find-it driver [{:tag :div, :id "content"}, {:tag :a, :href #"github"}]))))
+         (text (find-element driver [{:tag :div, :id "content"}, {:tag :a, :href #"github"}]))))
   (is (= "home"
-         (text (find-it driver [{:tag :*, :id "footer"}, {:tag :a}]))))
+         (text (find-element driver [{:tag :*, :id "footer"}, {:tag :a}]))))
   (is (= 3
-         (count (find-them driver [{:tag :*, :id "footer"}, {:tag :a}]))))
+         (count (find-elements driver [{:tag :*, :id "footer"}, {:tag :a}]))))
   (is (= 2
-         (count (find-them driver [{:tag :div, :id "content"}, {:tag :a, :class #"exter"}])))))
+         (count (find-elements driver [{:tag :div, :id "content"}, {:tag :a, :class #"exter"}])))))
 
 (defn hierarchical-querying-should-not-support-css-or-xpath-attrs
   [driver]
   (is (thrown? IllegalArgumentException
-               (find-it driver [{:tag :div, :id "content", :css "div#content"}, {:tag :a, :class "external"}])))
+               (find-element driver [{:tag :div, :id "content", :css "div#content"}, {:tag :a, :class "external"}])))
   (is (thrown? IllegalArgumentException
-               (find-it driver [{:tag :div, :id "content", :xpath "//div[@id='content']"}, {:tag :a, :class "external"}]))))
+               (find-element driver [{:tag :div, :id "content", :xpath "//div[@id='content']"}, {:tag :a, :class "external"}]))))
 
 (defn exists-should-return-truthy-falsey-and-should-not-throw-an-exception
   [driver]
   (is (-> driver
-          (find-it {:tag :a})
+          (find-element {:tag :a})
           exists?))
   (is (not
        (-> driver
-           (find-it {:tag :area})
+           (find-element {:tag :area})
            exists?))))
 
 (defn visible-should-return-truthy-falsey-when-visible
   [driver]
   (is (-> driver
-          (find-it {:tag :a, :text "Moustache"})
+          (find-element {:tag :a, :text "Moustache"})
           visible?))
   (is (not
        (-> driver
-           (find-it {:tag :a, :href "#pages"})
+           (find-element {:tag :a, :href "#pages"})
            visible?)))
   (is (-> driver
-          (find-it {:tag :a, :text "Moustache"})
+          (find-element {:tag :a, :text "Moustache"})
           displayed?))
   (is (not
        (-> driver
-           (find-it {:tag :a, :href "#pages"})
+           (find-element {:tag :a, :href "#pages"})
            displayed?))))
 
 (defn present-should-return-truthy-falsey-when-exists-and-visible
   [driver]
   (is (-> driver
-          (find-it {:tag :a, :text "Moustache"})
+          (find-element {:tag :a, :text "Moustache"})
           present?))
   (is (not
        (-> driver
-           (find-it {:tag :a, :href "#pages"})
+           (find-element {:tag :a, :href "#pages"})
            present?))))
 
 ;; Default wrap for strings is double quotes
 (defn generated-xpath-should-wrap-strings-in-double-quotes
   [driver]
-  (is (find-it driver {:text "File's Name"})))
+  (is (find-element driver {:text "File's Name"})))
 
 (defn xpath-function-should-return-string-xpath-of-element
   [driver]
-  (is (= (xpath (find-it driver {:tag :a, :text "Moustache"})) "/html/body/div[2]/div/p/a")))
+  (is (= (xpath (find-element driver {:tag :a, :text "Moustache"})) "/html/body/div[2]/div/p/a")))
 
 (defn html-function-should-return-string-html-of-element
   [driver]
-  (is (re-find #"href=\"https://github\.com/cgrand/moustache\"" (html (find-it driver {:tag :a, :text "Moustache"})))))
+  (is (re-find #"href=\"https://github\.com/cgrand/moustache\"" (html (find-element driver {:tag :a, :text "Moustache"})))))
 
 (defn find-table-cell-should-find-cell-with-coords
   [driver]
@@ -225,78 +225,78 @@
   (to driver (str test-base-url "example-form"))
   ;; Clear element
   (-> driver
-      (find-it [{:tag :form, :id "example_form"}, {:tag :input, :name #"last_"}])
+      (find-element [{:tag :form, :id "example_form"}, {:tag :input, :name #"last_"}])
       clear)
   (is (= ""
-         (value (find-it driver [{:tag :form, :id "example_form"}, {:tag :input, :name #"last_"}]))))
+         (value (find-element driver [{:tag :form, :id "example_form"}, {:tag :input, :name #"last_"}]))))
   ;; Radio buttons
   (is (= true
-         (selected? (find-it driver {:tag :input, :type "radio", :value "male"}))))
+         (selected? (find-element driver {:tag :input, :type "radio", :value "male"}))))
   (-> driver
-      (find-it {:tag :input, :type "radio", :value "female"})
+      (find-element {:tag :input, :type "radio", :value "female"})
       select)
   (is (= true
-         (selected? (find-it driver {:tag :input, :type "radio", :value "female"}))))
+         (selected? (find-element driver {:tag :input, :type "radio", :value "female"}))))
   (-> driver
-      (find-it {:tag :radio, :value "male"})
+      (find-element {:tag :radio, :value "male"})
       select)
   (is (= true
-         (selected? (find-it driver {:tag :input, :type "radio", :value "male"}))))
+         (selected? (find-element driver {:tag :input, :type "radio", :value "male"}))))
   ;; Checkboxes
   (is (= false
-         (selected? (find-it driver {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
+         (selected? (find-element driver {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
   (-> driver
-      (find-it {:tag :input, :type "checkbox", :name #"(?i)clojure"})
+      (find-element {:tag :input, :type "checkbox", :name #"(?i)clojure"})
       toggle)
   (is (= true
-         (selected? (find-it driver {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
+         (selected? (find-element driver {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
   (-> driver
-      (find-it {:tag :checkbox, :name #"(?i)clojure"})
+      (find-element {:tag :checkbox, :name #"(?i)clojure"})
       click)
   (is (= false
-         (selected? (find-it driver {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
+         (selected? (find-element driver {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
   (-> driver
-      (find-it {:tag :checkbox, :type "checkbox", :name #"(?i)clojure"})
+      (find-element {:tag :checkbox, :type "checkbox", :name #"(?i)clojure"})
       select)
   (is (= true
-         (selected? (find-it driver {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
+         (selected? (find-element driver {:tag :input, :type "checkbox", :name #"(?i)clojure"}))))
   ;; Text fields
   (-> driver
-      (find-it {:tag :input, :id "first_name"})
+      (find-element {:tag :input, :id "first_name"})
       (input-text "foobar"))
   (is (= "foobar"
-         (value (find-it driver {:tag :input, :id "first_name"}))))
+         (value (find-element driver {:tag :input, :id "first_name"}))))
   (-> driver
-      (find-it {:tag :textfield, :id "first_name"})
+      (find-element {:tag :textfield, :id "first_name"})
       clear
       (input-text "clojurian"))
   (is (= "clojurian"
-         (value (find-it driver {:tag :textfield, :id "first_name"}))))
+         (value (find-element driver {:tag :textfield, :id "first_name"}))))
   ;; Boolean attributes (disabled, readonly, etc)
   (is (= "disabled"
-         (attribute (find-it driver {:id "disabled_field"}) :disabled)))
+         (attribute (find-element driver {:id "disabled_field"}) :disabled)))
   (is (= "readonly"
-         (attribute (find-it driver {:id "purpose_here"}) :readonly)))
+         (attribute (find-element driver {:id "purpose_here"}) :readonly)))
   (is (nil?
-       (attribute (find-it driver {:id "disabled_field"}) :readonly)))
+       (attribute (find-element driver {:id "disabled_field"}) :readonly)))
   (is (nil?
-       (attribute (find-it driver {:id "purpose_here"}) :disabled)))
+       (attribute (find-element driver {:id "purpose_here"}) :disabled)))
   ;; Buttons
   (is (= 4
-         (count (find-them driver {:tag :button*}))))
+         (count (find-elements driver {:tag :button*}))))
   (is (= 1
-         (count (find-them driver {:tag :button*, :class "button-button"}))))
+         (count (find-elements driver {:tag :button*, :class "button-button"}))))
   (is (= 1
-         (count (find-them driver {:tag :button*, :id "input-input-button"}))))
+         (count (find-elements driver {:tag :button*, :id "input-input-button"}))))
   (is (= 1
-         (count (find-them driver {:tag :button*, :class "input-submit-button"}))))
+         (count (find-elements driver {:tag :button*, :class "input-submit-button"}))))
   (is (= 1
-         (count (find-them driver {:tag :button*, :class "input-reset-button"})))))
+         (count (find-elements driver {:tag :button*, :class "input-reset-button"})))))
 
 (defn select-element-functions-should-behave-as-expected
   [driver]
   (to driver (str test-base-url "example-form"))
-  (let [select-el (find-it driver {:tag "select", :id "countries"})]
+  (let [select-el (find-element driver {:tag "select", :id "countries"})]
     (is (= 4
            (count (all-options select-el))))
     (is (= 1
@@ -339,7 +339,7 @@
            (attribute (first-selected-option select-el) :value)))
     (is (= "bharat"
            (attribute (first (all-selected-options select-el)) :value))))
-  (let [select-el (find-it driver {:tag "select", :id "site_types"})]
+  (let [select-el (find-element driver {:tag "select", :id "site_types"})]
     (is (true?
          (multiple? select-el)))
     (is (= 4
@@ -407,15 +407,15 @@
                {{:tag "input", :type "radio", :value "female"} click}
                {{:css "select#countries"} #(select-by-value % "france")}])
   (is (= "Richard"
-         (value (find-it driver {:tag :input, :id "first_name"}))))
+         (value (find-element driver {:tag :input, :id "first_name"}))))
   (is (= "Hickey"
-         (value (find-it driver {:tag :input, :id "last_name"}))))
+         (value (find-element driver {:tag :input, :id "last_name"}))))
   (is (= "Creator of Clojure"
-         (value (find-it driver {:tag :textarea, :name "bio"}))))
+         (value (find-element driver {:tag :textarea, :name "bio"}))))
   (is (selected?
-       (find-it driver {:tag :input, :type "radio", :value "female"})))
+       (find-element driver {:tag :input, :type "radio", :value "female"})))
   (is (selected?
-       (find-it driver {:tag :option, :value "france"}))))
+       (find-element driver {:tag :option, :value "france"}))))
 
 (defn quick-fill-submit-should-always-return-nil
   [driver]
@@ -438,7 +438,7 @@
   (is (= "Ministache"
          (:title (window-handle driver))))
   (-> driver
-      (find-it {:tag :a, :text "is amazing!"})
+      (find-element {:tag :a, :text "is amazing!"})
       click)
   (is (= "Ministache"
          (:title (window-handle driver))))
@@ -482,14 +482,14 @@
   (implicit-wait driver 3000)
   (execute-script driver "setTimeout(function () { window.document.body.innerHTML = \"<div id='test'>hi!</div>\"}, 1000)")
   (is (= "test"
-         (attribute (find-element driver (by-id "test")) :id))))
+         (attribute (find-element-by driver (by-id "test")) :id))))
 
 ;; Not sure how we'll test that flash in fact flashes,
 ;; but at least this will catch changing API's
 (defn test-flash-helper
   [driver]
   (-> driver
-      (find-it {:tag :a, :text "Moustache"})
+      (find-element {:tag :a, :text "Moustache"})
       flash))
 
 ;;; Fixture fn's ;;;
@@ -511,10 +511,10 @@
   (doseq [common-test [test-browser-basics
                        back-forward-should-traverse-browser-history
                        to-should-open-given-url-in-browser
-                       should-be-able-to-find-elements-using-low-level-by-wrappers
-                       find-it-should-support-basic-attr-val-map
-                       find-it-should-support-regexes-in-attr-val-map
-                       find-it-should-support-hierarchical-querying
+                       should-be-able-to-find-element-bys-using-low-level-by-wrappers
+                       find-element-should-support-basic-attr-val-map
+                       find-element-should-support-regexes-in-attr-val-map
+                       find-element-should-support-hierarchical-querying
                        hierarchical-querying-should-not-support-css-or-xpath-attrs
                        exists-should-return-truthy-falsey-and-should-not-throw-an-exception
                        visible-should-return-truthy-falsey-when-visible

@@ -185,10 +185,10 @@
 
   ;; Find Functions
   IFind
-  (find-element [driver by]
+  (find-element-by [driver by]
     (init-element (.findElement (:webdriver driver) by)))
 
-  (find-elements [driver by]
+  (find-elements-by [driver by]
     (let [els (.findElements (:webdriver driver) by)]
       (if (seq els)
         (lazy-seq (map init-element els))
@@ -208,13 +208,13 @@
 
   (find-elements-by-regex [driver tag attr-val]
     (if (all-regex? attr-val)
-      (let [elements (find-elements driver (by-css "*"))]
+      (let [elements (find-elements-by driver (by-css "*"))]
         (filter-elements-by-regex elements attr-val))
       (let [attr-vals-without-regex (into {}
                                           (remove
                                            #(let [[k v] %] (= java.util.regex.Pattern (class v)))
                                            attr-val))
-            elements (find-them driver (assoc attr-vals-without-regex :tag tag))]
+            elements (find-elements driver (assoc attr-vals-without-regex :tag tag))]
         (filter-elements-by-regex elements attr-val))))
 
   (find-windows [driver attr-val]
@@ -244,7 +244,7 @@
                         (str "//button" (build-xpath-attrs attr-val))))]
       (->> (apply str xpath-full)
            by-xpath
-           (find-elements driver))))
+           (find-elements-by driver))))
 
   ;; (find-semantic-buttons [driver attr-val]
   ;;   (let [ending (if (or (nil? attr-val) (empty? attr-val))
@@ -280,7 +280,7 @@
             other-attr-vals (dissoc attr-val text-kw)
             non-text-xpath (build-xpath :input other-attr-vals)
             text-xpath (str non-text-xpath "[contains(..,'" (text-kw attr-val) "')]")]
-        (find-elements driver (by-xpath text-xpath)))))
+        (find-elements-by driver (by-xpath text-xpath)))))
   ;; (find-checkables-by-text [driver attr-val]
   ;;   (if (contains-regex? attr-val)
   ;;     (throw (IllegalArgumentException.
@@ -293,7 +293,7 @@
   ;;           other-attr-vals (dissoc attr-val text-kw)
   ;;           non-text-css (build-css :input other-attr-vals)
   ;;           text-css (str non-text-css ":contains(\"^" (text-kw attr-val) "$\")")]
-  ;;       (find-elements driver (by-css text-css)))))
+  ;;       (find-elements-by driver (by-css text-css)))))
 
   (find-table-cell [driver table coords]
     (when (not= (count coords) 2)
@@ -302,21 +302,21 @@
     (let [[row col] coords
           table-css (build-css :table table)
           row-css (str " tr:nth-child(" (inc row) ")")
-          col-css (if (and (find-element driver (by-css (str table-css " th")))
+          col-css (if (and (find-element-by driver (by-css (str table-css " th")))
                              (zero? row))
                       (str " > th:nth-child(" (inc col) ")")
                       (str " > td:nth-child(" (inc col) ")"))
           complete-css (str table-css row-css col-css)]
-      (find-element driver (by-css complete-css))))
+      (find-element-by driver (by-css complete-css))))
 
   (find-table-row [driver table row]
     (let [table-css (build-css :table table)
           row-css (str table-css " tr:nth-child(" (inc row) ")")
-          complete-css (if (and (find-element driver (by-css (str table-css " th")))
+          complete-css (if (and (find-element-by driver (by-css (str table-css " th")))
                                   (zero? row))
                            (str row-css " th")
                            (str row-css " td"))]
-      (find-elements driver (by-css complete-css))))
+      (find-elements-by driver (by-css complete-css))))
 
   ;; TODO: reconsider find-table-col with CSS support
 
@@ -327,21 +327,21 @@
                 (str "You may not pass in a regex until "
                      "the last attr-val map")))
         (filter-elements-by-regex
-         (find-elements driver (by-xpath (str (build-xpath-with-ancestry hierarchy-vec) "//*")))
+         (find-elements-by driver (by-xpath (str (build-xpath-with-ancestry hierarchy-vec) "//*")))
          (last hierarchy-vec)))
-      (find-elements driver (by-xpath (build-xpath-with-ancestry hierarchy-vec)))))
+      (find-elements-by driver (by-xpath (build-xpath-with-ancestry hierarchy-vec)))))
 
 
-  (find-them
+  (find-elements
     ([driver attr-val]
        (when (keyword? driver) ; I keep forgetting to pass in the WebDriver instance while testing
          (throw (IllegalArgumentException.
-                 (str "The first parameter to find-them must be an instance of WebDriver."))))
+                 (str "The first parameter to find-elements must be an instance of WebDriver."))))
        (if (and (or
                  (map? attr-val)
                  (vector? attr-val))
                 (empty? attr-val))
-         nil ; return nil if {} or [] is passed to find-it
+         nil
          (try
            (cond
             (vector? attr-val)       (find-by-hierarchy driver attr-val); supplied vector of queries in hierarchy
@@ -351,23 +351,23 @@
                                                 :checkbox
                                                 :textfield
                                                 :password
-                                                :filefield])))            (find-elements
+                                                :filefield])))            (find-elements-by
                                                                            driver
                                                                            (by-tag (:tag attr-val)))
             (and (not (contains? attr-val :tag))
                  (not (contains? attr-val :xpath))
-                 (not (contains? attr-val :css)))     (find-them driver (assoc attr-val :tag :*))
+                 (not (contains? attr-val :css)))     (find-elements driver (assoc attr-val :tag :*))
             (and (> (count attr-val) 1)
-                 (contains? attr-val :xpath))          (find-them driver {:xpath (:xpath attr-val)})
+                 (contains? attr-val :xpath))          (find-elements driver {:xpath (:xpath attr-val)})
             (and (> (count attr-val) 1)
-                 (contains? attr-val :css))            (find-them driver {:css (:css attr-val)})
+                 (contains? attr-val :css))            (find-elements driver {:css (:css attr-val)})
 
-          (contains? attr-val :index)                (find-elements driver (by-xpath (build-xpath (:tag attr-val) attr-val)))
-          (= (:tag attr-val) :radio)                             (find-them driver (assoc attr-val :tag :input :type "radio"))
-          (= (:tag attr-val) :checkbox)                          (find-them driver (assoc attr-val :tag :input :type "checkbox"))
-          (= (:tag attr-val) :textfield)                         (find-them driver (assoc attr-val :tag :input :type "text"))
-          (= (:tag attr-val) :password)                          (find-them driver (assoc attr-val :tag :input :type "password"))
-          (= (:tag attr-val) :filefield)                         (find-them driver (assoc attr-val :tag :input :type "file"))
+          (contains? attr-val :index)                (find-elements-by driver (by-xpath (build-xpath (:tag attr-val) attr-val)))
+          (= (:tag attr-val) :radio)                             (find-elements driver (assoc attr-val :tag :input :type "radio"))
+          (= (:tag attr-val) :checkbox)                          (find-elements driver (assoc attr-val :tag :input :type "checkbox"))
+          (= (:tag attr-val) :textfield)                         (find-elements driver (assoc attr-val :tag :input :type "text"))
+          (= (:tag attr-val) :password)                          (find-elements driver (assoc attr-val :tag :input :type "password"))
+          (= (:tag attr-val) :filefield)                         (find-elements driver (assoc attr-val :tag :input :type "file"))
           (and (= (:tag attr-val) :input)
                (contains? attr-val :type)
                (or (= "radio" (:type attr-val))
@@ -381,21 +381,21 @@
                                                            attr  (key entry)
                                                            value (val entry)]
                                                        (cond
-                                                         (= :xpath attr) (find-elements driver (by-xpath value))
-                                                         (= :css attr)   (find-elements driver (by-css value))
+                                                         (= :xpath attr) (find-elements-by driver (by-xpath value))
+                                                         (= :css attr)   (find-elements-by driver (by-css value))
                                                          (= java.util.regex.Pattern (class value)) (find-elements-by-regex-alone driver (:tag attr-val) attr-val)
-                                                         :else           (find-elements driver (by-attr= (:tag attr-val) attr value))))
+                                                         :else           (find-elements-by driver (by-attr= (:tag attr-val) attr value))))
           (contains-regex? attr-val)                 (find-elements-by-regex driver (:tag attr-val) attr-val)
-          :else                                      (find-elements driver (by-xpath (build-xpath (:tag attr-val) attr-val))))
+          :else                                      (find-elements-by driver (by-xpath (build-xpath (:tag attr-val) attr-val))))
            (catch org.openqa.selenium.NoSuchElementException e
              ;; NoSuchElementException caught here, so we can have functions like `exist?`
              (lazy-seq (init-element nil)))))))
 
-  (find-it
+  (find-element
     ([driver attr-val]
        (if (and (cache/cache-enabled? driver) (cache/in-cache? driver attr-val))
          (cache/retrieve driver attr-val)
-         (let [el (first (find-them driver attr-val))]
+         (let [el (first (find-elements driver attr-val))]
            (if (and (cache/cache-enabled? driver)
                     (and (not (nil? el))
                          (exists? el))
