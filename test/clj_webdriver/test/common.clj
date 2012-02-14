@@ -278,7 +278,18 @@
   (is (nil?
        (attribute (find-it driver {:id "disabled_field"}) :readonly)))
   (is (nil?
-       (attribute (find-it driver {:id "purpose_here"}) :disabled))))
+       (attribute (find-it driver {:id "purpose_here"}) :disabled)))
+  ;; Buttons
+  (is (= 4
+         (count (find-them driver {:tag :button*}))))
+  (is (= 1
+         (count (find-them driver {:tag :button*, :class "button-button"}))))
+  (is (= 1
+         (count (find-them driver {:tag :button*, :id "input-input-button"}))))
+  (is (= 1
+         (count (find-them driver {:tag :button*, :class "input-submit-button"}))))
+  (is (= 1
+         (count (find-them driver {:tag :button*, :class "input-reset-button"})))))
 
 (defn select-element-functions-should-behave-as-expected
   [driver]
