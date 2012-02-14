@@ -8,12 +8,12 @@
   ([cache-spec]
      (when (and (map? cache-spec)
                 (not (empty? cache-spec)))
-       (let [strategy-legend {:basic cache/->BasicCache,
-                              :fifo cache/->FIFOCache,
-                              :lru cache/->LRUCache,
-                              :lirs cache/->LIRSCache,
-                              :ttl cache/->TTLCache,
-                              :lu cache/->LUCache}]
+       (let [strategy-legend {:basic cache/basic-cache-factory,
+                              :fifo cache/fifo-cache-factory,
+                              :lru cache/lru-cache-factory,
+                              :lirs cache/lirs-cache-factory,
+                              :ttl cache/ttl-cache-factory,
+                              :lu cache/lu-cache-factory}]
          (atom (apply
                 (get strategy-legend (:strategy cache-spec))
                 (into [{}] (:args cache-spec))))))))
