@@ -72,7 +72,9 @@
   (is (= "first odd"
          (attribute (find-element-by driver (by-class-name "first odd")) :class)))
   (is (= "http://clojure.blip.tv/file/4824610/"
-         (attribute (find-element-by (find-element driver {:tag :li, :text #"simple"}) (by-tag :a)) :href))))
+         (attribute (find-element-by (find-element driver {:tag :li, :text #"simple"}) (by-tag :a)) :href)))
+  (is (= "http://clojure.blip.tv/file/4824610/"
+         (attribute (find-element-by (find-element driver {:tag :li, :text #"simple"}) {:tag :a}) :href))))
 
 (defn find-element-should-support-basic-attr-val-map
   [driver]
