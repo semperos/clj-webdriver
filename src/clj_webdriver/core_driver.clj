@@ -171,16 +171,16 @@
   IOptions
   (add-cookie [driver cookie]
     (.addCookie (.manage (:webdriver driver)) cookie))
-  (delete-cookie-named [driver cookie]
-    (.deleteCookieNamed (.manage (:webdriver driver)) name))
+  (delete-cookie-named [driver cookie-name]
+    (.deleteCookieNamed (.manage (:webdriver driver)) cookie-name))
   (delete-cookie [driver cookie]
     (.deleteCookie (.manage (:webdriver driver)) cookie))
   (delete-all-cookies [driver]
     (.deleteAllCookies (.manage (:webdriver driver))))
   (cookies [driver]
     (into #{} (.getCookies (.manage (:webdriver driver)))))
-  (cookie-named [driver name]
-    (.getCookieNamed (.manage (:webdriver driver)) name))
+  (cookie-named [driver cookie-name]
+    (.getCookieNamed (.manage (:webdriver driver)) cookie-name))
 
 
   ;; Find Functions
