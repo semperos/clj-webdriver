@@ -1,42 +1,44 @@
 <h1>Example Form</h1>
 <form action="/foobar" method="post" id="example_form">
-  <div class="element-wrapper">
-    <label for="first_name">First Name: </label>
-    <input type="text" name="first_name" id="first_name" size="30" />
+  <div id="personal-info-wrapper">
+    <div class="element-wrapper">
+      <label for="first_name">First Name: </label>
+      <input type="text" name="first_name" id="first_name" size="30" />
+    </div>
+    
+    <div class="element-wrapper">
+      <label for="last_name">Last Name: </label>
+      <input type="text" name="last_name" id="last_name" size="30" value="Smith" />
+    </div>
+    
+    <div class="element-wrapper">
+      <label for="purpose_here">Purpose Here: </label>
+      <input type="text" name="purpose_here" id="purpose_here" size="30" value="Testing!" readonly="readonly" />
+    </div>
+    
+    <div class="element-wrapper">
+      <label for="disabled_field">Disabled Field: </label>
+      <input type="text" name="disabled_field" id="disabled_field" size="30" value="Disabled!" disabled="disabled" />
+    </div>
+    
+    <div class="element-wrapper">
+      <div><label for="bio">Biography: </label></div>
+      <textarea name="bio" id="bio" cols="60" rows="6">Please write a short biography.</textarea>
+    </div>
+    
+    <div class="element-wrapper">
+      <label>Gender: </label>
+      <label class="choice" for="male">
+        <input type="radio" name="gender" value="male" id="male" checked="checked" />
+        Male
+      </label>
+      <label class="choice" for="female">
+        <input type="radio" name="gender" value="female" id="female" />
+        Female
+      </label>
+    </div>
   </div>
-
-  <div class="element-wrapper">
-    <label for="last_name">Last Name: </label>
-    <input type="text" name="last_name" id="last_name" size="30" value="Smith" />
-  </div>
-
-  <div class="element-wrapper">
-    <label for="purpose_here">Purpose Here: </label>
-    <input type="text" name="purpose_here" id="purpose_here" size="30" value="Testing!" readonly="readonly" />
-  </div>
-
-  <div class="element-wrapper">
-    <label for="disabled_field">Disabled Field: </label>
-    <input type="text" name="disabled_field" id="disabled_field" size="30" value="Disabled!" disabled="disabled" />
-  </div>
-
-  <div class="element-wrapper">
-    <div><label for="bio">Biography: </label></div>
-    <textarea name="bio" id="bio" cols="60" rows="6">Please write a short biography.</textarea>
-  </div>
-
-  <div class="element-wrapper">
-    <label>Gender: </label>
-    <label class="choice" for="male">
-      <input type="radio" name="gender" value="male" id="male" checked="checked" />
-      Male
-    </label>
-    <label class="choice" for="female">
-      <input type="radio" name="gender" value="female" id="female" />
-      Female
-    </label>
-  </div>
-  
+    
   <div class="element-wrapper">
     <div>
       <label>Programming Languages You Know: </label>
