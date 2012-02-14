@@ -46,10 +46,10 @@
                (cond
                 (= :text attr) (str "[text()=\"" value "\"]")
                 (= :index attr) (str "[" (inc value) "]") ; in clj-webdriver,
-                :else (str "[@"                           ; all indeces 0-based
+                :else (str "[@"                           ; all indices 0-based
                            (name attr)
                            "="
-                           "'" value "']")))))
+                           "'" (name value) "']")))))
 
 (defn build-xpath
   "Given a tag and a map of attribute-value pairs, generate XPath"
@@ -69,10 +69,16 @@
   (apply str
          (for [attr-val v-of-attr-vals]
            (cond
-            (or (contains? attr-val :css)
-                (contains? attr-val :xpath)) (throw (IllegalArgumentException. "Hierarhical queries do not support the use of :css or :xpath entries."))
-            (not (contains? attr-val :tag)) (build-xpath :* attr-val)
-            :else (build-xpath (:tag attr-val) (dissoc attr-val :tag))))))
+             (or (contains? attr-val :css)
+                 (contains? attr-val :xpath)) (throw (IllegalArgumentException. "Hierarhical queries do not support the use of :css or :xpath entries."))
+                 (some #{(:tag attr-val)} [:button*
+                                           :radio
+                                           :checkbox
+                                           :textfield
+                                           :password
+                                           :filefield]) (throw (IllegalArgumentException. "Hierarchical queries do not support the use of \"meta\" tags such as :button*, :radio, :checkbox, :textfield, :password or :filefield. "))
+                                           (not (contains? attr-val :tag)) (build-xpath :* attr-val)
+                                           :else (build-xpath (:tag attr-val) (dissoc attr-val :tag))))))
 
 (defn contains-regex?
   "Checks if the values of a map contain a regex"
