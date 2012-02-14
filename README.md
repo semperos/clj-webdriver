@@ -93,9 +93,19 @@ The attribute-value map (`attr-val`) can consist of HTML attributes, or can desi
 
 If the `:xpath` or `:css` options are used, everything else in the `attr-val` map is ignored.
 
+#### Hierarchical Queries ####
+
+If you want to build XPath or CSS-like hierarchical queries in pure Clojure, you can use the following type of forms with `find-it`:
+
+```clj
+(find-it driver [{:tag :form}, {:tag :input, :type :radio, :id "foo"}])
+```
+
+Note that the usual attribute-value maps are within a vector, which is what lends the ordering to the hierarchical query. On the backend, this is simply converted to XPath.
+
 ##### Special Tags #####
 
-By default, the `:tag` option represents a standard HTML tag like `<a>` or `<div>`. Clj-webdriver, however, supports a number of "special" tags to make using `find-it` more intuitive or concise.
+By default, the `:tag` option represents a standard HTML tag like `<a>` or `<div>`. Clj-webdriver, however, supports a number of "special" tags to make using `find-it` more intuitive or concise. *(Note that these are not available inside hierarhical queries.)*
 
 Here are all the special tags in action:
 
@@ -119,6 +129,8 @@ Here are all the special tags in action:
 ```
 
 The `:button*` option, unlike the others, conflates all button-like elements (form submit buttons, actual `<button>` tags, etc.).
+
+#### Find-it Summary ####
 
 To demonstrate how to use arguments in different ways, consider the following example. If I wanted to find `<a href="/contact" id="contact-link" class="menu-item" name="contact">Contact Us</a>` in a page and click on it I could perform any of the following:
 
@@ -166,7 +178,7 @@ So, to describe the general pattern of interacting with the page:
 
 ### Firefox Functionality
 
-Support for Firefox currently exceeds that for all other browsers, most notably via support for customizable Firefox profiles. I've included support for several of these advanced featues in the `clj-webdriver.firefox` namespace. Here are a few examples (borrowed from [here][wd-ruby-bindings]:
+Support for Firefox currently exceeds that for all other browsers, most notably via support for customizable Firefox profiles. I've included support for several of these advanced featues in the `clj-webdriver.firefox` namespace. Here are a few examples (borrowed from [here](http://code.google.com/p/selenium/wiki/RubyBindings):
 
 ```clj
 (use 'clj-webdriver.core)
@@ -197,7 +209,7 @@ If you want to fix a bug in the **current release**, please pull against the app
 
 ## Running Tests
 
-The namespace `clj-webdriver.test.example-app.core` contains a [Ring][ring-github] app (routing by [Moustache][moustache-github]) that acts as the "control application" for this project's test suite.
+The namespace `clj-webdriver.test.example-app.core` contains a [Ring](https://github.com/mmcgrana/ring) app (routing by [Moustache](https://github.com/cgrand/moustache)) that acts as the "control application" for this project's test suite.
 
 Use `lein test` to run this library's test suite. Ensure port 5744 is free, or edit `test/clj_webdriver/test/core.clj` before running the tests.
 
@@ -215,7 +227,7 @@ lein test clj-webdriver.test.firefox
 
 ## Acknowledgements
 
-Credits to [mikitebeka/webdriver-clj][webdriver-orig] for the initial code for this project and many of the low-level wrappers around the Selenium-WebDriver API.
+Credits to [mikitebeka/webdriver-clj](https://github.com/mikitebeka/webdriver-clj) for the initial code for this project and many of the low-level wrappers around the Selenium-WebDriver API.
 
 Many thanks to those who have contributed so far (in nick-alphabetical order):
 
@@ -229,8 +241,3 @@ See Github for an [up-to-date list of contributors](https://github.com/semperos/
 ## License
 
 Distributed under the [Eclipse Public License](http://opensource.org/licenses/eclipse-1.0.php), the same as Clojure.
-
-[webdriver-orig]: https://github.com/mikitebeka/webdriver-clj
-[ring-github]: https://github.com/mmcgrana/ring
-[moustache-github]: https://github.com/cgrand/moustache
-[wd-ruby-bindings]: http://code.google.com/p/selenium/wiki/RubyBindings
