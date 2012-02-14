@@ -186,10 +186,16 @@
   ;; Find Functions
   IFind
   (find-element-by [driver by]
-    (init-element (.findElement (:webdriver driver) by)))
+    (let [by (if (map? by)
+               (by-xpath (build-xpath (:tag by) by))
+               by)]
+      (init-element (.findElement (:webdriver driver) by))))
 
   (find-elements-by [driver by]
-    (let [els (.findElements (:webdriver driver) by)]
+    (let [by (if (map? by)
+               (by-xpath (build-xpath (:tag by) by))
+               by)
+          els (.findElements (:webdriver driver) by)]
       (if (seq els)
         (lazy-seq (map init-element els))
         (lazy-seq (map init-element [nil])))))
@@ -344,6 +350,8 @@
          nil
          (try
            (cond
+            (not (or (vector? attr-val)
+                     (map? attr-val)))   (find-elements-by driver attr-val)
             (vector? attr-val)       (find-by-hierarchy driver attr-val); supplied vector of queries in hierarchy
             (and (= (keys attr-val) '(:tag))
                  (not (some #{(:tag attr-val)} [:button*

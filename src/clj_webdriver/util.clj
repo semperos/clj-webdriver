@@ -53,13 +53,18 @@
 
 (defn build-xpath
   "Given a tag and a map of attribute-value pairs, generate XPath"
-  [tag attr-val]
-  (when-not (contains-regex? attr-val)
-    (let [attr-val (dissoc attr-val :tag)]
-      (str "//"
-           (name tag)
-           (when-not (empty? attr-val)
-             (build-xpath-attrs attr-val))))))
+  ([tag attr-val] (build-xpath tag attr-val :global))
+  ([tag attr-val prefix]
+     (when-not (contains-regex? attr-val)
+       (if (nil? tag)
+         (build-xpath :* attr-val)
+         (let [attr-val (dissoc attr-val :tag)
+               prefix-legend {:local "."
+                              :global ""}]
+           (str (get prefix-legend prefix) "//"
+                (name tag)
+                (when-not (empty? attr-val)
+                  (build-xpath-attrs attr-val))))))))
 
 (defn build-xpath-with-ancestry
   "Given a vector of queries in hierarchical order, create XPath.

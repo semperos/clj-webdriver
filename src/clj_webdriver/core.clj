@@ -76,8 +76,8 @@
   (find-table-cell [driver table coordinates] "Given a `driver`, a `table` find-element-style spec (e.g. `{:id \"my-table\"}` and a zero-based set of coordinates for row and column, return the table cell at those coordinates for the given table.")
   (find-table-row [driver table row-index] "Return all cells in the row of the given table. The `table` is a find-element-style map to identify the table uniquely (e.g., `{:id \"my-table\"}`), and `row-index` is a zero-based index of the target row.")
   (find-by-hierarchy [driver hierarchy-vector] "Given a Webdriver `driver` and a vector `hierarchy-vector`, return a lazy seq of the described elements in the hierarchy dictated by the order of elements in the `hierarchy-vector`.")
-  (find-elements [driver attr-val] "Find all elements that match the parameters supplied in the `attr-val` map. Also provides a shortcut to `find-by-hierarchy` if a vector is supplied instead of a map.")
-  (find-element [driver attr-val] "Call (first (find-elements args))"))
+  (find-elements [this locator] "Find all elements that match the parameters supplied in the `attr-val` map. Also provides a shortcut to `find-by-hierarchy` if a vector is supplied instead of a map.")
+  (find-element [this locator] "Call (first (find-elements args))"))
 
 ;; ### Acting on Elements ###
 (defprotocol IElement
