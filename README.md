@@ -1,12 +1,10 @@
 # Clojure API for Selenium-WebDriver #
 
-This is a Clojure library for driving a web browser using Selenium-WebDriver as the backend. For more comprehensive documentation on all of clj-webdriver's features, read the [Github wiki](https://github.com/semperos/clj-webdriver/wiki). You can generate documentation locally with `lein doc`.
+This is a Clojure library for driving a web browser using Selenium-WebDriver as the backend. For more comprehensive documentation on all of clj-webdriver's features, read the [Github wiki](https://github.com/semperos/clj-webdriver/wiki). You can generate documentation locally with `lein doc` (API docs) or `lein marg` (annotated source).
 
 **clj-webdriver Resources**
 
  * [Project Wiki](https://github.com/semperos/clj-webdriver/wiki)
- * [API Documentation](http://techylinguist.com/static/clj-webdriver/index.html)
- * [Marginalia Documentation (v0.5.0-SNAPSHOT)](http://techylinguist.com/static/clj-webdriver/uberdoc.html)
  * [Google Group](https://groups.google.com/forum/#!forum/clj-webdriver)
  * [Issue Queue](https://github.com/semperos/clj-webdriver/issues)
 
@@ -200,6 +198,10 @@ Support for Firefox currently exceeds that for all other browsers, most notably 
 From a "user" perspective, working with Selenium-WebDriver's Grid 2 support behaves exactly like interacting with a locally-run RemoteWebDriver instance. See the `clj-webdriver.remote-server` and `clj-webdriver.remote-driver` namespaces for details on using this functionality.
 
 For information about configuring your Grid hub and nodes (which is handled at the command-line using the server-standalone jars), read [the Selenium-WebDriver wiki documentation on Grid 2](http://code.google.com/p/selenium/wiki/Grid2).
+
+## Documentation ##
+
+For reference documentation, run `lein doc` at the root of this repo. For annotated source documentation, run `lein marg`.
 
 ## Contributing ##
 
