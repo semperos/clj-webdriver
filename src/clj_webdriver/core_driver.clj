@@ -229,7 +229,8 @@
     (first (find-windows driver attr-val)))
 
   (find-semantic-buttons [driver attr-val]
-    (let [xpath-parts ["//input[@type='submit']"
+    (let [attr-val (dissoc attr-val :tag)
+          xpath-parts ["//input[@type='submit']"
                        "//input[@type='reset']"
                        "//input[@type='image']"
                        "//input[@type='button']"
@@ -344,9 +345,15 @@
          (try
            (cond
             (vector? attr-val)       (find-by-hierarchy driver attr-val); supplied vector of queries in hierarchy
-            (= (keys attr-val) '(:tag))     (find-elements
-                                             driver
-                                             (by-tag (:tag attr-val)))
+            (and (= (keys attr-val) '(:tag))
+                 (not (some #{(:tag attr-val)} [:button*
+                                                :radio
+                                                :checkbox
+                                                :textfield
+                                                :password
+                                                :filefield])))            (find-elements
+                                                                           driver
+                                                                           (by-tag (:tag attr-val)))
             (and (not (contains? attr-val :tag))
                  (not (contains? attr-val :xpath))
                  (not (contains? attr-val :css)))     (find-them driver (assoc attr-val :tag :*))
@@ -366,18 +373,18 @@
                (or (= "radio" (:type attr-val))
                    (= "checkbox" (:type attr-val)))
                (or (contains? attr-val :text)
-                   (contains? attr-val :label)))     (find-checkables-by-text driver attr-val)
-          (= (:tag attr-val) :button*)                           (if (contains-regex? attr-val)
-                                                       (find-semantic-buttons-by-regex driver attr-val)
-                                                       (find-semantic-buttons driver attr-val))
+                   (contains? attr-val :label)))       (find-checkables-by-text driver attr-val)
+          (= (:tag attr-val) :button*)                 (if (contains-regex? attr-val)
+                                                         (find-semantic-buttons-by-regex driver attr-val)
+                                                         (find-semantic-buttons driver attr-val))
           (= 1 (count attr-val))                     (let [entry (first attr-val)
                                                            attr  (key entry)
                                                            value (val entry)]
                                                        (cond
-                                                        (= :xpath attr) (find-elements driver (by-xpath value))
-                                                        (= :css attr)   (find-elements driver (by-css value))
-                                                        (= java.util.regex.Pattern (class value)) (find-elements-by-regex-alone driver (:tag attr-val) attr-val)
-                                                        :else           (find-elements driver (by-attr= (:tag attr-val) attr value))))
+                                                         (= :xpath attr) (find-elements driver (by-xpath value))
+                                                         (= :css attr)   (find-elements driver (by-css value))
+                                                         (= java.util.regex.Pattern (class value)) (find-elements-by-regex-alone driver (:tag attr-val) attr-val)
+                                                         :else           (find-elements driver (by-attr= (:tag attr-val) attr value))))
           (contains-regex? attr-val)                 (find-elements-by-regex driver (:tag attr-val) attr-val)
           :else                                      (find-elements driver (by-xpath (build-xpath (:tag attr-val) attr-val))))
            (catch org.openqa.selenium.NoSuchElementException e
