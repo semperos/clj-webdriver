@@ -233,11 +233,17 @@
 (defn find-table-row-should-find-all-cells-for-row
   [driver]
   (is (= 2
-         (count (find-table-row driver {:id "pages-table"} 0))))
+         (count (find-table-row driver
+                                (find-element driver {:id "pages-table"})
+                                0))))
   (is (= "th"
-         (.toLowerCase (tag (first (find-table-row driver {:id "pages-table"} 0))))))
+         (.toLowerCase (tag (first (find-table-row driver
+                                                   (find-element driver {:id "pages-table"})
+                                                   0))))))
   (is (= "td"
-         (.toLowerCase (tag (first (find-table-row driver {:id "pages-table"} 1)))))))
+         (.toLowerCase (tag (first (find-table-row driver
+                                                   (find-element driver {:id "pages-table"})
+                                                   1)))))))
 
 (defn test-form-elements
   [driver]
