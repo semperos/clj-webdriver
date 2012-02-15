@@ -8,21 +8,26 @@
 (def ^:dynamic *driver*)
 (def ^:dynamic *finder-fn* css-finder-fn)
 
-(defn set-driver!
-  "Set a default `Driver` for this thread."
+(defn- set-driver*
   [browser-spec]
-  (alter-var-root (var *driver*)
-                  (fn [_]
-                    (core/new-driver browser-spec))))
+  (let [new-driver (core/new-driver browser-spec)]
+       (alter-var-root (var *driver*)
+                       (constantly new-driver)
+                       (when (thread-bound? (var *driver*))
+                         (set! *driver* new-driver)))))
+
+(declare to)
+(defn set-driver!
+  "Set a default `Driver` for this thread, optionally sending it to a starting `url`."
+  ([browser-spec] (set-driver* browser-spec))
+  ([browser-spec url] (to (set-driver* browser-spec) url)))
 
 (defn set-finder-fn!
-  "Set a default `finder-fn` for this thread. A `finder-fn` accepts one argument and returns a single `Element` when executed against an appropriate web page.
-
-   Built-in finder-fn's include: `css-finder-fn`, `xpath-finder-fn`"
   [finder-fn]
   (alter-var-root (var *finder-fn*)
-                  (fn [_]
-                    finder-fn)))
+                  (constantly finder-fn)
+                  (when (thread-bound? (var *finder-fn*))
+                    (set! *finder-fn* finder-fn))))
 
 (declare quit)
 (defmacro with-driver
