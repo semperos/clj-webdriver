@@ -16,7 +16,7 @@
                               :lu cache/lu-cache-factory}]
          (atom (apply
                 (get strategy-legend (:strategy cache-spec))
-                (into [{}] (:args cache-spec))))))))
+                (:args cache-spec)))))))
 
 (defn init-driver
   "Constructor for Driver records.
