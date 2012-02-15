@@ -13,7 +13,7 @@
 ;; Driver definitions
 (def firefox-driver (start {:browser :firefox
                             :cache-spec {:strategy :basic,
-                                         :args [],
+                                         :args [{}],
                                          :include [ (fn [element] (= (attribute element :class) "external"))
                                                     {:css "ol#pages"}]}}
                            test-base-url))
@@ -97,7 +97,7 @@
   ;; includes are tested by default
   (let [temp-dr (start {:browser :firefox
                         :cache-spec {:strategy :basic,
-                                     :args [],
+                                     :args [{}],
                                      :exclude [ (fn [element] (= (attribute element :class) "external")),
                                                 {:css "ol#pages"}]}}
                        test-base-url)]
