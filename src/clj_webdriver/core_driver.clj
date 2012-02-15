@@ -315,13 +315,12 @@
       (find-element-by table (by-css complete-css))))
 
   (find-table-row [driver table row]
-    (let [table-css (build-css :table table)
-          row-css (str table-css " tr:nth-child(" (inc row) ")")
-          complete-css (if (and (find-element-by driver (by-css (str table-css " th")))
+    (let [row-css (str  "tr:nth-child(" (inc row) ")")
+          complete-css (if (and (find-element-by table (by-tag "th"))
                                   (zero? row))
-                           (str row-css " th")
-                           (str row-css " td"))]
-      (find-elements-by driver (by-css complete-css))))
+                           (str row-css " " "th")
+                           (str row-css " " "td"))]
+      (find-elements-by table (by-css complete-css))))
 
   ;; TODO: reconsider find-table-col with CSS support
 
