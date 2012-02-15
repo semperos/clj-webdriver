@@ -214,13 +214,21 @@
 (defn find-table-cell-should-find-cell-with-coords
   [driver]
   (is (= "th"
-         (.toLowerCase (tag (find-table-cell driver {:id "pages-table"} [0 0])))))
+         (.toLowerCase (tag (find-table-cell driver
+                                             (find-element driver {:id "pages-table"})
+                                             [0 0])))))
   (is (= "th"
-         (.toLowerCase (tag (find-table-cell driver {:id "pages-table"} [0 1])))))
+         (.toLowerCase (tag (find-table-cell driver
+                                             (find-element driver {:id "pages-table"})
+                                             [0 1])))))
   (is (= "td"
-         (.toLowerCase (tag (find-table-cell driver {:id "pages-table"} [1 0])))))
+         (.toLowerCase (tag (find-table-cell driver
+                                             (find-element driver {:id "pages-table"})
+                                             [1 0])))))
   (is (= "td"
-         (.toLowerCase (tag (find-table-cell driver {:id "pages-table"} [1 1]))))))
+         (.toLowerCase (tag (find-table-cell driver
+                                             (find-element driver {:id "pages-table"})
+                                             [1 1]))))))
 
 (defn find-table-row-should-find-all-cells-for-row
   [driver]
