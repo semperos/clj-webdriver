@@ -306,14 +306,13 @@
       (throw (IllegalArgumentException.
               (str "The `coordinates` parameter must be a seq with two items."))))
     (let [[row col] coords
-          table-css (build-css :table table)
-          row-css (str " tr:nth-child(" (inc row) ")")
-          col-css (if (and (find-element-by driver (by-css (str table-css " th")))
+          row-css (str "tr:nth-child(" (inc row) ")")
+          col-css (if (and (find-element-by table (by-tag "th"))
                              (zero? row))
-                      (str " > th:nth-child(" (inc col) ")")
-                      (str " > td:nth-child(" (inc col) ")"))
-          complete-css (str table-css row-css col-css)]
-      (find-element-by driver (by-css complete-css))))
+                      (str "th:nth-child(" (inc col) ")")
+                      (str "td:nth-child(" (inc col) ")"))
+          complete-css (str row-css " " col-css)]
+      (find-element-by table (by-css complete-css))))
 
   (find-table-row [driver table row]
     (let [table-css (build-css :table table)
