@@ -23,7 +23,7 @@
   ([browser-spec] (set-driver* browser-spec))
   ([browser-spec url] (to (set-driver* browser-spec) url)))
 
-(defn set-finder-fn!
+(defn set-finder!
   [finder-fn]
   (alter-var-root (var *finder-fn*)
                   (constantly finder-fn)
@@ -53,29 +53,29 @@
 (defn css-finder
   "Given a CSS query `q`, return a lazy seq of the elements found. If `q` is not a string, it's assumed to be an Element record and is returned unchanged."
   [q]
-  (if-not (string? q)
+  (if (is-element? q)
     q
     (core/find-elements *driver* {:css q})))
 
-(set-finder-fn! css-finder)
+(set-finder! css-finder)
 
 (defn xpath-finder
   "Given a `driver` and a XPath query `q`, return a lazy seq of the elements found. If `q` is not a string, it's assumed to be an Element record and is returned unchanged."
   [q]
-  (if-not (string? q)
+  (if (is-element? q)
     q
     (core/find-elements *driver* {:xpath q})))
 
 ;; Be able to get actual element/elements when needed
 (defn element
   [q]
-  (if-not (string? q)
+  (if (is-element? q)
     q
     (first (*finder-fn* q))))
 
 (defn elements
   [q]
-  (if-not (string? q)
+  (if (is-element? q)
     q
     (*finder-fn* q)))
 
@@ -130,14 +130,14 @@
 (defn find-element-under
   "If q-parent isn't a string, it's assumed to be an Element"
   [q-parent by-clause]
-  (if-not (string? q-parent)
+  (if (is-element? q-parent)
     (core/find-element q-parent by-clause)
     (core/find-element (element q-parent) by-clause)))
 
 (defn find-elements-under
   "If q-parent isn't a string, it's assumed to be an Element"
   [q-parent by-clause]
-  (if-not (string? q-parent)
+  (if (is-element? q-parent)
     (core/find-elements q-parent by-clause)
     (core/find-elements (element q-parent) by-clause)))
 
