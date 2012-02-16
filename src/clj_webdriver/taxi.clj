@@ -202,3 +202,31 @@
 (defn select-by-index [q idx] (core/select-by-index (element q) idx))
 (defn select-by-text [q text] (core/select-by-text (element q) text))
 (defn select-by-value [q value] (core/select-by-value (element q) value))
+
+;; Helpers
+(defn- quick-fill*
+  ([k v] (quick-fill* k v false))
+  ([k v submit?]
+     ;; shortcuts:
+     ;; v as string => text to input
+     (let [q k
+           action (if (string? v)
+                    #(input-text % v)
+                    v)
+           target-els (elements q)]
+       (if submit?
+         (doseq [el target-els]
+           (action el))
+         (map action target-els)))))
+
+(defn quick-fill
+  [& query-action-maps]
+  (flatten (map (fn [a-map]
+                  (let [[k v] (first a-map)] (quick-fill* k v)))
+                query-action-maps)))
+
+(defn quick-fill-submit
+  [& query-action-maps]
+  (doseq [entry query-action-maps
+          [k v] entry]
+    (quick-fill* k v true)))
