@@ -61,7 +61,22 @@
    (attribute (find-element-under (find-element {:tag :li, :text #"simple"})
                                   {:tag :a})
               :href) => "http://clojure.blip.tv/file/4824610/"
-   
+   (text (nth (elements "a") 1)) => "Moustache"
+   (text "*.external") => "Moustache"
+   (attribute "*.first.odd" :class) => "first odd"
+   (attribute "li.first.odd" :class) => "first odd"
+   (count (elements "a")) => 8)
+  (go "example-form")
+  (facts
+   (attribute "*[type='text']" :id) => "first_name"
+   (attribute "input[type='text']" :id) => "first_name"
+   (attribute "input[type='text'][name='first_name']" :id) => "first_name"
+   (attribute "input[type='text'][name^='first_']" :id) => "first_name"
+   (attribute (find-element {:tag :input, :type "text", :name #"first_"}) :id) => "first_name"
+   (attribute (find-element {:tag :input, :type "text", :name #"last_"}) :id) => "last_name"
+   (attribute (find-element {:tag :input, :type "text", :name #"last_"}) :value) => "Smith"
+
+   ;; Stopped at find-element-should-support-regexes-in-attr-val-map
    ))
 
 
@@ -72,8 +87,11 @@
   (facts
    (text "//a[text()='home']") => "home"
    (text "//a[text()='example form']") => "example form"
-   (text "//a[text()='home']") => "home"
-   
+   (text "//a[text()='home']") => "home")
+  (go)
+  (facts
+   (attribute "//*[text()='Moustache']" :href) => "https://github.com/cgrand/moustache"
+
    ))
 
 (.stop test-server)

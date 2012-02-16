@@ -104,8 +104,6 @@
   (is (= "last_name"
          (attribute (find-element driver {:tag :input, :type "text", :name #"last_"}) "id")))
   (is (= "Smith"
-         (attribute (find-element driver {:tag :input, :type "text", :name #"last_"}) "value")))
-  (is (= "Smith"
          (attribute (find-element driver {:tag :input, :type "text", :name #"last_"}) "value"))))
 
 (defn find-element-should-support-regexes-in-attr-val-map
