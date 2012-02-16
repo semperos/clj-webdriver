@@ -126,7 +126,14 @@
 (defn find-element [attr-val] (core/find-element *driver* attr-val))
 
 ;; Element versions of find-element-by and find-elements-by
-;; These will be regularized once #42 (decoupling by-* functionality) is fixed
+
+;; Querying "under" elements
+;; This is the part that will see more love once #42 is fixed (decouple by-* determination)
+;;
+;; You can either use a by-foo function (in clj-webdriver.core), or a map.
+;; The map will currently generate a (by-xpath ...) form for you based on the map,
+;; but it's not as powerful as the core/find-element map syntax (which handles things
+;; like button*, radio, checkbox, etc.).
 (defn find-element-under
   "If q-parent isn't a string, it's assumed to be an Element"
   [q-parent by-clause]
