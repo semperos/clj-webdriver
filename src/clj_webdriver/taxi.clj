@@ -133,7 +133,8 @@
 (defn present? [q] (core/present? (*finder-fn* q)))
 (defn size [q] (core/size (*finder-fn* q)))
 (defn rectangle [q] (core/rectangle (*finder-fn* q)))
-(defn intersect? [q & qs] "Needs custom work.")
+(defn intersect? [q & qs] (let [part (partial core/intersect? (*finder-fn* q))]
+                            (apply part (map *finder-fn* qs))))
 (defn tag [q] (core/tag (*finder-fn* q)))
 (defn text [q] (core/text (*finder-fn* q)))
 (defn value [q] (core/value (*finder-fn* q)))
