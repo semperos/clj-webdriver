@@ -261,6 +261,43 @@
     (fact (count (all-selected-options q)) => 4)
     (deselect-all q)
     (fact (count (all-selected-options q)) => zero?))
+
+  ;; Quick-fill ;;
+  (go "example-form")
+  (facts
+   (count (quick-fill {"#first_name" clear}
+                      {"#first_name" "Richard"}
+                      {"#last_name" clear}
+                      {"#last_name" "Hickey"}
+                      {"*[name='bio']" clear}
+                      {"*[name='bio']" #(input-text % "Creator of Clojure")}
+                      {"input[type='radio'][value='female']" click}
+                      {"select#countries" #(select-by-value % "france")})) => 8
+   (count (distinct
+           (quick-fill {"#first_name" clear}
+                       {"#first_name" "Richard"}
+                       {"#last_name" clear}
+                       {"#last_name" "Hickey"}
+                       {"*[name='bio']" clear}
+                       {"*[name='bio']" #(input-text % "Creator of Clojure")}
+                       {"input[type='radio'][value='female']" click}
+                       {"select#countries" #(select-by-value % "france")}))) => 5
+   (value "input#first_name") => "Richard"
+   (value "input#last_name") => "Hickey"
+   (value "textarea[name='bio']") => "Creator of Clojure"
+   (selected? "input[type='radio'][value='female']") => truthy
+   (selected? "option[value='france']") => truthy
+   (quick-fill-submit {"#first_name" clear}
+                      {"#first_name" "Richard"}
+                      {"#last_name" clear}
+                      {"#last_name" "Hickey"}
+                      {"*[name='bio']" clear}
+                      {"*[name='bio']" #(input-text % "Creator of Clojure")}
+                      {"input[type='radio'][value='female']" click}
+                      {"select#countries" #(select-by-value % "france")}) => nil?)
+
+  ;; Window Handling ;;
+  
   )
 
 
