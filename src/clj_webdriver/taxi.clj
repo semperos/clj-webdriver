@@ -2,7 +2,8 @@
 (ns clj-webdriver.taxi
   (:use [clj-webdriver.element :only [is-element?]])
   (:require [clj-webdriver.core :as core]
-            [clj-webdriver.options :as options])
+            [clj-webdriver.options :as options]
+            [clj-webdriver.wait :as wait])
   (:import clj_webdriver.element.Element))
 
 (declare css-finder)
@@ -108,6 +109,12 @@
 (defn delete-all-cookies [] (options/delete-all-cookies *driver*))
 (defn cookies [] (options/cookies *driver*))
 (defn cookie-named [cookie-name] (options/cookie-named *driver* cookie-name))
+(defn execute-script [js & js-args] (apply (partial core/execute-script *driver* js) js-args))
+(defn wait-until
+  ([pred] (wait/wait-until *driver* pred))
+  ([pred timeout] (wait/wait-until *driver* pred timeout))
+  ([pred timeout interval] (wait/wait-until *driver* pred timeout interval)))
+(defn implicit-wait [timeout] (wait/implicit-wait *driver* timeout))
 (defn find-element-by [by-clause] (core/find-element-by *driver* by-clause))
 (defn find-elements-by [by-clause] (core/find-elements-by *driver* by-clause))
 (defn find-elements-by-regex-alone [tag attr-val] (core/find-elements-by-regex-alone *driver* tag attr-val))
@@ -121,9 +128,10 @@
 (defn find-table-row [table-q row] (core/find-table-row *driver* (element table-q) row))
 (defn find-by-hierarchy [hierarchy-vec] (core/find-by-hierarchy *driver* hierarchy-vec))
 
-;; Think hard on these ones
+;; Need to explain difference between element and find-element fn's
 (defn find-elements [attr-val] (core/find-elements *driver* attr-val))
 (defn find-element [attr-val] (core/find-element *driver* attr-val))
+
 
 ;; Element versions of find-element-by and find-elements-by
 
@@ -172,8 +180,8 @@
 (defn present? [q] (core/present? (element q)))
 (defn size [q] (core/size (element q)))
 (defn rectangle [q] (core/rectangle (element q)))
-(defn intersect? [q & qs] (let [part (partial core/intersect? (element q))]
-                            (apply part (map element qs))))
+(defn intersect? [q & qs] (apply (partial core/intersect? (element q))
+                                 (map element qs)))
 (defn tag [q] (core/tag (element q)))
 (defn text [q] (core/text (element q)))
 (defn value [q] (core/value (element q)))
