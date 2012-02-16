@@ -1,11 +1,13 @@
 (ns clj-webdriver.test.taxi
   (:use clj-webdriver.taxi
         clj-webdriver.test.config
+        [clj-webdriver.test.util :only [thrown?]]
         [ring.adapter.jetty :only [run-jetty]]
         [clojure.string :only [lower-case]]
         midje.sweet)
   (:require [clj-webdriver.core :as core]
-            [clj-webdriver.test.example-app.core :as web-app]))
+            [clj-webdriver.test.example-app.core :as web-app])
+  (:import [org.openqa.selenium TimeoutException]))
 
 (defonce test-server (run-jetty #'web-app/routes {:port test-port, :join? false}))
 (def driver {:browser :firefox})
@@ -297,10 +299,45 @@
                       {"select#countries" #(select-by-value % "france")}) => nil?)
 
   ;; Window Handling ;;
-  
-  )
+  (go)
+  (facts
+   (count (window-handles)) => 1
+   (:title (window-handle)) => "Ministache")
+  (click "a[target='_blank'][href*='clojure']")
+  (facts
+   (:title (window-handle)) => "Ministache"
+   (count (window-handles)) => 2)
+  (switch-to-window (second (window-handles)))
+  (fact (:url (window-handle)) => (str test-base-url "clojure"))
+  (switch-to-other-window)
+  (fact (:url (window-handle)) => test-base-url)
+  (switch-to-window (find-window {:url (str test-base-url "clojure")}))
+  (close)
+  (fact (:url (window-handle)) => test-base-url)
 
+  ;; Wait functionality ;;
+  (fact (title) => "Ministache")
+  (execute-script "setTimeout(function () { window.document.title = \"asdf\"}, 3000)")
+  (wait-until (fn [d] (= "asdf" (core/title d))))
 
+  (fact (thrown? TimeoutException
+                 (do
+                   (execute-script "setTimeout(function () { window.document.title = \"test\"}, 6000)")
+                   (wait-until (fn [d] (= "test" (core/title d)))))))
+  (fact (thrown? TimeoutException
+                 (do
+                   (execute-script "setTimeout(function () { window.document.title = \"test\"}, 6000)")
+                   (wait-until (fn [d] (= "test" (core/title d))) 1000))))
+
+  ;; Implicit Wait ;;
+  (go)
+  (implicit-wait 3000)
+  (execute-script "setTimeout(function () { window.document.body.innerHTML = \"<div id='test'>hi!</div>\"}, 1000)")
+  (fact (attribute "#test" :id) => "test")
+
+  ;; Flash ;;
+  (go)
+  (fact (attribute (flash "a.external") :class) => "external"))
 
 ;; Find capabilitiy, XPath default
 (with-driver-fn driver xpath-finder
@@ -314,7 +351,6 @@
 
   ;; XPath wrap strings in double quotes
   (go)
-  (fact (exists? (find-element {:text "File's Name"})) => truthy)
-  )
+  (fact (exists? (find-element {:text "File's Name"})) => truthy))
 
 (.stop test-server)
