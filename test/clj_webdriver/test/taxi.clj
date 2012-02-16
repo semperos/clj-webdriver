@@ -171,6 +171,96 @@
   (fact (selected? "input[type='checkbox'][name*='clojure']") => truthy)
 
   ;; Text fields
+  (input-text "input#first_name" "foobar")
+  (fact (value "input#first_name") => "foobar")
+  (-> "input#first_name"
+      clear
+      (input-text "clojurian"))
+  (fact (value "input#first_name") => "clojurian")
+
+  ;; "Boolean" attributes (e.g., readonly="readonly")
+  (facts
+   (attribute "#disabled_field" :disabled) => "disabled"
+   (attribute "#purpose_here" :readonly) => "readonly"
+   (attribute "#disabled_field" :readonly) => nil?
+   (attribute "#purpose_here" :disabled) => nil?)
+
+  ;; Buttons
+  (facts
+   (count (find-elements {:tag :button*})) => 4
+   (count (find-elements {:tag :button*, :class "button-button"}))  => 1
+   (count (find-elements {:tag :button*, :id "input-input-button"}))  => 1
+   (count (find-elements {:tag :button*, :class "input-submit-button"}))  => 1
+   (count (find-elements {:tag :button*, :class "input-reset-button"}))  => 1)
+
+  ;; Select Lists
+  (let [q "select#countries"]
+    (facts
+     (count (all-options q)) => 4
+     (count (all-selected-options q)) => 1
+     (attribute (first-selected-option q) :value) => "bharat"
+     (attribute (first (all-selected-options q)) :value) => "bharat"
+     (multiple? q) => falsey)
+    (select-option q {:value "deutschland"})
+    (facts
+     (count (all-selected-options q)) => 1
+     (attribute (first-selected-option q) :value) => "deutschland"
+     (attribute (first (all-selected-options q)) :value) => "deutschland")
+    (select-by-index q 0)
+    (facts
+     (count (all-selected-options q)) => 1
+     (attribute (first-selected-option q) :value) => "france"
+     (attribute (first (all-selected-options q)) :value) => "france")
+    (select-by-text q "Haiti")
+    (facts
+     (count (all-selected-options q)) => 1
+     (attribute (first-selected-option q) :value) => "ayiti"
+     (attribute (first (all-selected-options q)) :value) => "ayiti")
+    (select-by-value q "bharat")
+    (facts
+     (count (all-selected-options q)) => 1
+     (attribute (first-selected-option q) :value) => "bharat"
+     (attribute (first (all-selected-options q)) :value) => "bharat"))
+  (let [q "select#site_types"]
+    (facts
+     (multiple? q) => truthy
+     (count (all-options q)) => 4
+     (count (all-selected-options q)) => zero?)
+    (select-option q {:index 0})
+    (facts
+     (count (all-selected-options q)) => 1
+     (attribute (first-selected-option q) :value) => "blog"
+     (attribute (first (all-selected-options q)) :value) => "blog")
+    (select-option q {:value "social_media"})
+    (facts
+     (count (all-selected-options q)) => 2
+     (attribute (second (all-selected-options q)) :value) => "social_media")
+    (deselect-option q {:index 0})
+    (facts
+     (count (all-selected-options q)) => 1
+     (attribute (first-selected-option q) :value) => "social_media"
+     (attribute (first (all-selected-options q)) :value) => "social_media")
+    (select-option q {:value "search_engine"})
+    (facts
+     (count (all-selected-options q)) => 2
+     (attribute (second (all-selected-options q)) :value) => "search_engine")
+    (deselect-by-index q 1)
+    (facts
+     (count (all-selected-options q)) => 1
+     (attribute (first-selected-option q) :value) => "search_engine"
+     (attribute (first (all-selected-options q)) :value) => "search_engine")
+    (select-option q {:value "code"})
+    (facts
+     (count (all-selected-options q)) => 2
+     (attribute (last (all-selected-options q)) :value) => "code")
+    (deselect-by-text q "Search Engine")
+    (facts
+     (count (all-selected-options q)) => 1
+     (attribute (first-selected-option q) :value) => "code")
+    (select-all q)
+    (fact (count (all-selected-options q)) => 4)
+    (deselect-all q)
+    (fact (count (all-selected-options q)) => zero?))
   )
 
 
@@ -180,8 +270,7 @@
   (go "example-form")
   (facts
    (text "//a[text()='home']") => "home"
-   (text "//a[text()='example form']") => "example form"
-   (text "//a[text()='home']") => "home")
+   (text "//a[text()='example form']") => "example form")
   (go)
   (facts
    (attribute "//*[text()='Moustache']" :href) => "https://github.com/cgrand/moustache")
