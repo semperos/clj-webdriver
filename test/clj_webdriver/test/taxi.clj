@@ -36,13 +36,24 @@
   (forward)
   (fact (current-url) => (str test-base-url "example-form"))
   
-  ;; To function (navigation)
+  ;; To function (navigation) ;;
   (to (str test-base-url "example-form"))
   (facts
    (current-url) => (str test-base-url "example-form")
    (title) => "Ministache")
 
-  ;; Find capability, CSS default
+  ;; Cookie handling ;;
+  (go)
+  (add-cookie {:name "my_cookie" :value "my_cookie_value"})
+  (facts
+   (count (cookies)) => #(> % 0)
+   (:value (cookie "my_cookie")) => "my_cookie_value")
+  (delete-cookie "my_cookie")
+  (fact (some (fn [c] (= (:name c) "my_cookie")) (cookies)) => falsey)
+  (delete-all-cookies)
+  (fact (count (cookies)) => zero?)
+
+  ;; Find capability, CSS default ;;
   (go "example-form")
   (facts
    (attribute "#first_name" :id) => "first_name"
