@@ -29,12 +29,17 @@
   ;; Back, forward ;;
   (go)
   (click (find-element {:tag :a, :text "example form"}))
-  (Thread/sleep 500)
+  (Thread/sleep 500) ;; cross-browser race condition
   (fact (current-url) => (str test-base-url "example-form"))
   (back)
   (fact (current-url) => test-base-url)
   (forward)
   (fact (current-url) => (str test-base-url "example-form"))
+  (go "clojure")
+  (back 2)
+  (fact (current-url) => test-base-url)
+  (forward 2)
+  (fact (current-url) => (str test-base-url "clojure"))
   
   ;; To function (navigation) ;;
   (to (str test-base-url "example-form"))
