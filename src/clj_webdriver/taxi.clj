@@ -590,6 +590,3 @@
   (doseq [entry query-action-maps
           [k v] entry]
     (quick-fill* k v true)))
-
-
-;; IDEA: Go 2 pages back/forward
