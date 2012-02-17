@@ -144,8 +144,9 @@
     element)
   
   (select [element]
-    (.click (:webelement element))
-    element)
+    (if-not (.isSelected (:webelement element))
+      (.click (:webelement element))
+      element))
   
   (selected? [element]
     (.isSelected (:webelement element)))
