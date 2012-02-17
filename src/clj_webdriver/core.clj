@@ -13,7 +13,7 @@
 ;; WebDriver API.
 ;;
 (ns clj-webdriver.core
-  (:use [clj-webdriver driver element util window-handle options])
+  (:use [clj-webdriver driver element util window-handle options cookie])
   (:require [clj-webdriver.js.browserbot :as browserbot-js]
             [clj-webdriver.cache :as cache]
             [clojure.java.io :as io]
@@ -21,7 +21,7 @@
             [clojure.tools.logging :as log])
   (:import [clj_webdriver.driver Driver]
            [clj_webdriver.element Element]
-           [org.openqa.selenium By WebDriver WebElement Cookie
+           [org.openqa.selenium By WebDriver WebElement
                                 OutputType NoSuchElementException Keys]
            [org.openqa.selenium.firefox FirefoxDriver]
            [org.openqa.selenium.ie InternetExplorerDriver]

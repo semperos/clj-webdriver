@@ -147,7 +147,8 @@
                                    (.window (.switchTo (:driver handle)) (:handle handle))
                                    driver)
      (number? handle)            (do
-                                   driver(switch-to-window driver (nth (window-handles driver) handle)))
+                                   (switch-to-window driver (nth (window-handles driver) handle))
+                                   driver)
      (nil? handle)               (throw (RuntimeException. "No window can be found"))
      :else                       (do
                                    (.window (.switchTo (:webdriver driver)) handle)
@@ -169,18 +170,29 @@
 
   ;; Options Interface (cookies)
   IOptions
-  (add-cookie [driver cookie]
-    (.addCookie (.manage (:webdriver driver)) cookie))
+  (add-cookie [driver cookie-spec]
+    (.addCookie (.manage (:webdriver driver)) (:cookie (init-cookie cookie-spec)))
+    driver)
+  
   (delete-cookie-named [driver cookie-name]
-    (.deleteCookieNamed (.manage (:webdriver driver)) cookie-name))
-  (delete-cookie [driver cookie]
-    (.deleteCookie (.manage (:webdriver driver)) cookie))
+    (.deleteCookieNamed (.manage (:webdriver driver)) cookie-name)
+    driver)
+  
+  (delete-cookie [driver cookie-spec]
+    (.deleteCookie (.manage (:webdriver driver)) (:cookie (init-cookie cookie-spec)))
+    driver)
+  
   (delete-all-cookies [driver]
-    (.deleteAllCookies (.manage (:webdriver driver))))
+    (.deleteAllCookies (.manage (:webdriver driver)))
+    driver)
+  
   (cookies [driver]
-    (into #{} (.getCookies (.manage (:webdriver driver)))))
+    (into #{} (map #(init-cookie {:cookie %})
+                   (.getCookies (.manage (:webdriver driver))))))
+  
   (cookie-named [driver cookie-name]
-    (.getCookieNamed (.manage (:webdriver driver)) cookie-name))
+    (let [cookie-obj (.getCookieNamed (.manage (:webdriver driver)) cookie-name)]
+      (init-cookie {:cookie cookie-obj})))
 
 
   ;; Find Functions

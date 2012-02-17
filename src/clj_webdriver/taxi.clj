@@ -91,9 +91,11 @@
   (core/to *driver* url))
 
 (defn back
-  "Navigate back in the browser history."
-  []
-  (core/back *driver*))
+  "Navigate back in the browser history, optionally `n` times."
+  ([] (back 1))
+  ([n]
+     (dotimes [m n]
+       (core/back *driver*))))
 
 (defn close
   "Close the browser. If multiple windows are open, this only closes the active window."
@@ -107,8 +109,10 @@
 
 (defn forward
   "Navigate forward in the browser history."
-  []
-  (core/forward *driver*))
+  ([] (forward 1))
+  ([n]
+     (dotimes [m n]
+       (core/forward *driver*))))
 
 (defn get-url
   "Navigate the browser to `url`."
@@ -184,32 +188,34 @@
   []
   (core/switch-to-active *driver*))
 
+;; TODO: test coverage
 (defn add-cookie
   "Add the given `cookie` to the browser session."
   [cookie]
   (options/add-cookie *driver* cookie))
 
-(defn delete-cookie-named
-  "Delete the cookie with name `cookie-name` from the browser session."
-  [cookie-name]
-  (options/delete-cookie-named *driver* cookie-name))
-
+;; TODO: test coverage
 (defn delete-cookie
-  "Delete the given `cookie` from the browser session."
-  [cookie]
-  (options/delete-cookie *driver* cookie))
+  "Provided the name of a cookie or a Cookie record itself, delete it from the browser session."
+  [name-or-obj]
+  (if (string? name-or-obj)
+    (options/delete-cookie-named *driver* name-or-obj)
+    (options/delete-cookie *driver* name-or-obj)))
 
+;; TODO: test coverage
 (defn delete-all-cookies
   "Delete all cookies from the browser session."
   []
   (options/delete-all-cookies *driver*))
 
+;; TODO: test coverage
 (defn cookies
   "Return all cookies in the browser session."
   []
   (options/cookies *driver*))
 
-(defn cookie-named
+;; TODO: test coverage
+(defn cookie
   "Return the cookie with name `cookie-name`."
   [cookie-name]
   (options/cookie-named *driver* cookie-name))
@@ -589,3 +595,6 @@
   (doseq [entry query-action-maps
           [k v] entry]
     (quick-fill* k v true)))
+
+
+;; IDEA: Go 2 pages back/forward
