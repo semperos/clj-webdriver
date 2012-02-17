@@ -267,7 +267,7 @@
 
 ;; Need to explain difference between element and find-element fn's
 (defn find-elements
-  "Return `Element` records that match the given `attr-val`.
+  "Return `Element` records that match the given `attr-val`. Prefer the default behavior of `elements` when possible.
 
    Whereas the `elements` function uses a query `q` with the default finder function, this function requires an `attr-val` parameter which is either a map or a vector of maps with special semantics for finding elements on the page.
 
@@ -281,8 +281,9 @@
     * The key `:index` and the zero-based index (order) of the target element on the page (e.g., `{:index 2}` retrieves the third element that matches)"
   [attr-val]
   (core/find-elements *driver* attr-val))
+
 (defn find-element
-  "Return the first `Element` record that matches the given `attr-val`.
+  "Return the first `Element` record that matches the given `attr-val`. Prefer the default behavior of `element` when possible.
 
    Whereas the `element` function uses a query `q` with the default finder function, this function requires an `attr-val` parameter which is either a map or a vector of maps with special semantics for finding elements on the page.
 
