@@ -188,13 +188,11 @@
   []
   (core/switch-to-active *driver*))
 
-;; TODO: test coverage
 (defn add-cookie
   "Add the given `cookie` to the browser session."
   [cookie]
   (options/add-cookie *driver* cookie))
 
-;; TODO: test coverage
 (defn delete-cookie
   "Provided the name of a cookie or a Cookie record itself, delete it from the browser session."
   [name-or-obj]
@@ -202,19 +200,16 @@
     (options/delete-cookie-named *driver* name-or-obj)
     (options/delete-cookie *driver* name-or-obj)))
 
-;; TODO: test coverage
 (defn delete-all-cookies
   "Delete all cookies from the browser session."
   []
   (options/delete-all-cookies *driver*))
 
-;; TODO: test coverage
 (defn cookies
   "Return all cookies in the browser session."
   []
   (options/cookies *driver*))
 
-;; TODO: test coverage
 (defn cookie
   "Return the cookie with name `cookie-name`."
   [cookie-name]
