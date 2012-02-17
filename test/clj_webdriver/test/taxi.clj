@@ -198,71 +198,63 @@
   ;; Select Lists
   (let [q "select#countries"]
     (facts
-     (count (all-options q)) => 4
-     (count (all-selected-options q)) => 1
-     (attribute (first-selected-option q) :value) => "bharat"
-     (attribute (first (all-selected-options q)) :value) => "bharat"
+     (count (options q)) => 4
+     (count (selected-options q)) => 1
+     (attribute (first (selected-options q)) :value) => "bharat"
      (multiple? q) => falsey)
     (select-option q {:value "deutschland"})
     (facts
-     (count (all-selected-options q)) => 1
-     (attribute (first-selected-option q) :value) => "deutschland"
-     (attribute (first (all-selected-options q)) :value) => "deutschland")
+     (count (selected-options q)) => 1
+     (attribute (first (selected-options q)) :value) => "deutschland")
     (select-by-index q 0)
     (facts
-     (count (all-selected-options q)) => 1
-     (attribute (first-selected-option q) :value) => "france"
-     (attribute (first (all-selected-options q)) :value) => "france")
+     (count (selected-options q)) => 1
+     (attribute (first (selected-options q)) :value) => "france")
     (select-by-text q "Haiti")
     (facts
-     (count (all-selected-options q)) => 1
-     (attribute (first-selected-option q) :value) => "ayiti"
-     (attribute (first (all-selected-options q)) :value) => "ayiti")
+     (count (selected-options q)) => 1
+     (attribute (first (selected-options q)) :value) => "ayiti")
     (select-by-value q "bharat")
     (facts
-     (count (all-selected-options q)) => 1
-     (attribute (first-selected-option q) :value) => "bharat"
-     (attribute (first (all-selected-options q)) :value) => "bharat"))
+     (count (selected-options q)) => 1
+     (attribute (first (selected-options q)) :value) => "bharat"))
   (let [q "select#site_types"]
     (facts
      (multiple? q) => truthy
-     (count (all-options q)) => 4
-     (count (all-selected-options q)) => zero?)
+     (count (options q)) => 4
+     (count (selected-options q)) => zero?)
     (select-option q {:index 0})
     (facts
-     (count (all-selected-options q)) => 1
-     (attribute (first-selected-option q) :value) => "blog"
-     (attribute (first (all-selected-options q)) :value) => "blog")
+     (count (selected-options q)) => 1
+     (attribute (first (selected-options q)) :value) => "blog")
     (select-option q {:value "social_media"})
     (facts
-     (count (all-selected-options q)) => 2
-     (attribute (second (all-selected-options q)) :value) => "social_media")
+     (count (selected-options q)) => 2
+     (attribute (second (selected-options q)) :value) => "social_media")
     (deselect-option q {:index 0})
     (facts
-     (count (all-selected-options q)) => 1
-     (attribute (first-selected-option q) :value) => "social_media"
-     (attribute (first (all-selected-options q)) :value) => "social_media")
+     (count (selected-options q)) => 1
+     (attribute (first (selected-options q)) :value) => "social_media")
     (select-option q {:value "search_engine"})
     (facts
-     (count (all-selected-options q)) => 2
-     (attribute (second (all-selected-options q)) :value) => "search_engine")
+     (count (selected-options q)) => 2
+     (attribute (second (selected-options q)) :value) => "search_engine")
     (deselect-by-index q 1)
     (facts
-     (count (all-selected-options q)) => 1
-     (attribute (first-selected-option q) :value) => "search_engine"
-     (attribute (first (all-selected-options q)) :value) => "search_engine")
+     (count (selected-options q)) => 1
+     (attribute (first (selected-options q)) :value) => "search_engine")
     (select-option q {:value "code"})
     (facts
-     (count (all-selected-options q)) => 2
-     (attribute (last (all-selected-options q)) :value) => "code")
+     (count (selected-options q)) => 2
+     (attribute (last (selected-options q)) :value) => "code")
     (deselect-by-text q "Search Engine")
     (facts
-     (count (all-selected-options q)) => 1
-     (attribute (first-selected-option q) :value) => "code")
+     (count (selected-options q)) => 1
+     (attribute (first (selected-options q)) :value) => "code")
     (select-all q)
-    (fact (count (all-selected-options q)) => 4)
+    (fact (count (selected-options q)) => 4)
     (deselect-all q)
-    (fact (count (all-selected-options q)) => zero?))
+    (fact (count (selected-options q)) => zero?))
 
   ;; Quick-fill ;;
   (go "example-form")
