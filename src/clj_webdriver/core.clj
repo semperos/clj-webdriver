@@ -86,8 +86,6 @@
   (click [element] "Click a particular HTML element")
 	(css-value [element property] "Return the value of the given CSS property")
   (displayed? [element] "Returns true if the given element object is visible/displayed")
-  (drag-and-drop-by [element x y] "Drag an element by `x` pixels to the right and `y` pixels down. Use negative numbers for opposite directions.")
-  (drag-and-drop-on [element-a element-b] "Drag `element-a` onto `element-b`. The (0,0) coordinates (top-left corners) of each element are aligned.")
   (exists? [element] "Returns true if the given element exists")
   (flash [element] "Flash the element in question, to verify you're looking at the correct element")
   (focus [element] "Apply focus to the given element")
@@ -134,6 +132,11 @@
   (select-by-index [select-element idx] "Select an option by its index in the given select list. Indeces begin at 0.")
   (select-by-text [select-element text] "Select all options with visible text `text` in the select list described by `by`")
   (select-by-value [select-element value] "Select all options with value `value` in the select list described by `by`"))
+
+(defprotocol IActions
+  "Methods available in the Actions class"
+  (drag-and-drop [driver element-a element-b] "Drag and drop `element-a` onto `element-b`.")
+  (drag-and-drop-by [driver element x y] "Drag `element` by `x` pixels to the right and `y` pixels down."))
 
 
 ;; ## Starting Driver/Browser ##

@@ -1,7 +1,8 @@
 (ns clj-webdriver.driver
-  (require [clojure.core.cache :as cache]))
+  (:require [clojure.core.cache :as cache])
+  (:import org.openqa.selenium.interactions.Actions))
 
-(defrecord Driver [webdriver cache-spec])
+(defrecord Driver [webdriver cache-spec actions])
 
 (defn- init-cache
   "Initialize cache based on given strategy"
@@ -26,7 +27,8 @@
   ([driver-spec]
      (let [{:keys [webdriver cache-spec]} driver-spec]
        (Driver. webdriver
-                (assoc cache-spec :cache (init-cache cache-spec))))))
+                (assoc cache-spec :cache (init-cache cache-spec))
+                (Actions. webdriver)))))
 
 (defn driver?
   "Function to check class of a Driver, to prevent needing to import it"

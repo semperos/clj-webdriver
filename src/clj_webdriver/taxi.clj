@@ -351,15 +351,15 @@
   [q]
   (core/displayed? (element q)))
 
+(defn drag-and-drop
+  "Drag the first element found with query `qa` onto the first element found with query `qb`."
+  [qa qb]
+  (core/drag-and-drop *driver* (element qa) (element qb)))
+
 (defn drag-and-drop-by
   "Drag the first element found with query `q` by `x` pixels to the right and `y` pixels down. Use negative numbers for `x` or `y` to move left or up respectively."
   [q x y]
-  (core/drag-and-drop-by (element q) x y))
-
-(defn drag-and-drop-on
-  "Drag the first element found with query `qa` onto the first element found with query `qb`."
-  [qa qb]
-  (core/drag-and-drop-on (element qa) (element qb)))
+  (core/drag-and-drop-by *driver* (element q) x y))
 
 (defn exists?
   "Return true if the first element found with query `q` exists on the current page in the browser."

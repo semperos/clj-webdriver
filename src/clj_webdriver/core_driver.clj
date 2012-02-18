@@ -421,4 +421,14 @@
              (do
                (cache/insert driver attr-val el)
                el)
-             el))))))
+             el)))))
+
+  IActions
+
+  (drag-and-drop [driver element-a element-b]
+    (let [act (:actions driver)]
+      (.perform (.dragAndDrop act (:webelement element-a) (:webelement element-b)))))
+
+  (drag-and-drop-by [driver element x y]
+    (let [act (:actions driver)]
+      (.perform (.dragAndDropBy act (:webelement element) x y)))))

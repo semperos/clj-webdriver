@@ -39,14 +39,6 @@
   (displayed? [element]
     (.isDisplayed (:webelement element)))
 
-  (drag-and-drop-by [element x y]
-    (.dragAndDropBy (:webelement element) x y)
-    element)
-
-  (drag-and-drop-on [element-a element-b]
-    (.dragAndDropOn (:webelement element-a) (:webelement element-b))
-    element-a)
-
   (exists? [element]
     (not (nil? (:webelement element))))
 
