@@ -5,9 +5,9 @@
         [clj-webdriver.test.config :only [test-base-url]]
         [clj-webdriver.test.util :only [start-server]]
         [clj-webdriver.test.common :only [run-common-tests]]
-        [clj-webdriver.remote-server :only [new-remote-session stop]])
+        [clj-webdriver.remote.server :only [new-remote-session stop]])
   (:require 
-            [clj-webdriver.remote-driver :as rd]))
+            [clj-webdriver.remote.driver :as rd]))
 
 (let [[this-server this-driver] (new-remote-session {:port 3003} {:browser :firefox})]
   (def server this-server)
