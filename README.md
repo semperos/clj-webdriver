@@ -213,7 +213,7 @@ If you want to fix a bug in the **current release**, please pull against the app
 
 The namespace `clj-webdriver.test.example-app.core` contains a [Ring](https://github.com/mmcgrana/ring) app (routing by [Moustache](https://github.com/cgrand/moustache)) that acts as the "control application" for this project's test suite.
 
-Use `lein test` to run this library's test suite. Ensure port 5744 is free, or edit `test/clj_webdriver/test/core.clj` before running the tests.
+Use `lein test` to run this library's test suite. Ensure port 5744 is free, or edit `test/clj_webdriver/test/core.clj` before running the tests. To run tests for the Taxi API, make sure you have the `lein-midje` plugin installed and run `lein midje clj-webdriver.test.taxi`.
 
 It is **highly** recommended that you run the test suite for each browser separately, as otherwise you will see strange errors. Each supported browser has its own namespace, for example:
 
