@@ -491,50 +491,67 @@
 (extend-type org.openqa.selenium.interactions.Actions
 
   IActions
+  ;; TODO: test coverage
   (click-and-hold
     ([act]
-       (.perform (.clickAndHold act)))
+       (.clickAndHold act))
     ([act element]
-       (.perform (.clickAndHold act (:webelement element)))))
+       (.clickAndHold act (:webelement element))))
 
+  ;; TODO: test coverage
   (double-click
     ([act]
-       (.perform (.doubleClick act)))
+       (.doubleClick act))
     ([act element]
-       (.perform (.doubleClick act (:webelement element)))))
-  
+       (.doubleClick act (:webelement element))))
+
+  ;; TODO: test coverage
   (drag-and-drop
     [act element-a element-b]
-    (.perform (.dragAndDrop act (:webelement element-a) (:webelement element-b))))
+    (.dragAndDrop act (:webelement element-a) (:webelement element-b)))
 
+  ;; TODO: test coverage
   (drag-and-drop-by
     [act element x y]
-    (.perform (.dragAndDropBy act (:webelement element) x y)))
+    (.dragAndDropBy act (:webelement element) x y))
 
+  ;; TODO: test coverage
   (key-down
     ([act k]
-       (.perform (.keyDown act (key-code k))))
+       (.keyDown act (key-code k)))
     ([act element k]
-       (.perform (.keyDown act (:webelement element) (key-code k)))))
+       (.keyDown act (:webelement element) (key-code k))))
 
+  ;; TODO: test coverage
   (key-up
     ([act k]
-       (.perform (.keyUp act (key-code k))))
+       (.keyUp act (key-code k)))
     ([act element k]
-       (.perform (.keyUp act (:webelement element) (key-code k)))))
+       (.keyUp act (:webelement element) (key-code k))))
 
+  ;; TODO: test coverage
   (move-by-offset
     [act x y]
-    (.perform (.moveByOffset act x y)))
+    (.moveByOffset act x y))
 
+  ;; TODO: test coverage
   (move-to-element
     ([act element]
-       (.perform (.moveToElement act (:webelement element))))
+       (.moveToElement act (:webelement element)))
     ([act element x y]
-       (.perform (.moveToElement act (:webelement element) x y))))
+       (.moveToElement act (:webelement element) x y)))
 
+  ;; TODO: test coverage
+  (perform [act] (.perform act))
+
+  ;; TODO: test coverage
   (release
     ([act]
        (.release act))
     ([act element]
        (.release act (:webelement element)))))
+
+(extend-type CompositeAction
+
+  IActions
+  (perform [comp-act] (.perform comp-act)))

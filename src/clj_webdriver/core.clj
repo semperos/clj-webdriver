@@ -29,7 +29,7 @@
            [com.opera.core.systems OperaDriver]
            [org.openqa.selenium.htmlunit HtmlUnitDriver]
            [org.openqa.selenium.support.ui Select]
-           org.openqa.selenium.interactions.Actions
+           [org.openqa.selenium.interactions Actions CompositeAction]
            [java.util Date]
            [java.io File]))
 
@@ -154,6 +154,7 @@
   (move-to-element
     [this element]
     [this element x y] "Move the mouse to the given element, or to an offset from the given element.")
+  (perform [this] "Perform the composite action chain.")
   (release
     [this]
     [this element] "Release the left mouse button, either at the current mouse position or in the middle of the given `element`."))
@@ -289,16 +290,17 @@
 
 (load "core_driver")
 
+;; TODO: test coverage
 (defmacro ->build-composite-action
   "Create a composite chain of actions, then call `.build()`. This does **not** execute the actions; it simply sets up an 'action chain' which can later by executed using `.perform()`.
 
    Unless you need to wait to execute your composite actions, you should prefer `->actions` to this macro."
   [driver & body]
-  `(let [act# (:actions ~driver)]
-     (doto act#
-       ~@body
-       .build)))
+  `(let [acts# (doto (:actions ~driver) 
+                 ~@body)]
+     (.build acts#)))
 
+;; TODO: test coverage
 (defmacro ->actions
   [driver & body]
   `(let [act# (:actions ~driver)]
