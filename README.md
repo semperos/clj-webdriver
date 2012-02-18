@@ -42,22 +42,22 @@ Here's an example of logging into Github:
 
 ;; Click "Login" link
 (-> b
-    (find-it {:text "Login"})
+    (find-element {:text "Login"})
     click)
 
 ;; Input username/email into the "Login or Email" field
 (-> b
-    (find-it {:class "text", :name "login"}) ; use multiple attributes
+    (find-element {:class "text", :name "login"}) ; use multiple attributes
     (input-text "username"))
 
 ;; Input password into the "Password" field
 (-> b
-    (find-it {:xpath "//input[@id='password']"}) ; :xpath and :css options
+    (find-element {:xpath "//input[@id='password']"}) ; :xpath and :css options
     (input-text "password"))
 
 ;; Click the "Log in" button"
 (-> b
-    (find-it {:tag :input, :value #"(?i)log"}) ; use of regular expressions
+    (find-element {:tag :input, :value #"(?i)log"}) ; use of regular expressions
     click)
 ```
 
@@ -75,94 +75,94 @@ If you plan to submit the form, you need to pass a third parameter of `true` to 
 
 ### Finding Elements ###
 
-The `find-it` function provides high-level querying abilities against the DOM using HTML attribute comparisons, XPath and CSS queries, or pure-Clojure hierarchical queries. As parameters it always takes a Driver record first, followed by one of the following:
+The `find-element` function provides high-level querying abilities against the DOM using HTML attribute comparisons, XPath and CSS queries, or pure-Clojure hierarchical queries. As parameters it always takes a Driver record first, followed by one of the following:
 
 #### Attribute-Value Map ####
 
 The attribute-value map (`attr-val`) can consist of HTML attributes, or can designate an XPath or CSS query:
 
 ```clj
-(find-it driver {:class "foo"})
-(find-it driver {:tag :a, :class "bar"})
+(find-element driver {:class "foo"})
+(find-element driver {:tag :a, :class "bar"})
 
-(find-it driver {:xpath "//a[@class='foo']"})
-(find-it driver {:css "a.bar"})
+(find-element driver {:xpath "//a[@class='foo']"})
+(find-element driver {:css "a.bar"})
 ```
 
 If the `:xpath` or `:css` options are used, everything else in the `attr-val` map is ignored.
 
 #### Hierarchical Queries ####
 
-If you want to build XPath or CSS-like hierarchical queries in pure Clojure, you can use the following type of forms with `find-it`:
+If you want to build XPath or CSS-like hierarchical queries in pure Clojure, you can use the following type of forms with `find-element`:
 
 ```clj
-(find-it driver [{:tag :form}, {:tag :input, :type :radio, :id "foo"}])
+(find-element driver [{:tag :form}, {:tag :input, :type :radio, :id "foo"}])
 ```
 
 Note that the usual attribute-value maps are within a vector, which is what lends the ordering to the hierarchical query. On the backend, this is simply converted to XPath.
 
 ##### Special Tags #####
 
-By default, the `:tag` option represents a standard HTML tag like `<a>` or `<div>`. Clj-webdriver, however, supports a number of "special" tags to make using `find-it` more intuitive or concise. *(Note that these are not available inside hierarhical queries.)*
+By default, the `:tag` option represents a standard HTML tag like `<a>` or `<div>`. Clj-webdriver, however, supports a number of "special" tags to make using `find-element` more intuitive or concise. *(Note that these are not available inside hierarhical queries.)*
 
 Here are all the special tags in action:
 
 ```clj
-(find-it driver {:tag :radio})
-;=> (find-it driver {:tag :input, :type "radio"})
+(find-element driver {:tag :radio})
+;=> (find-element driver {:tag :input, :type "radio"})
 
-(find-it driver {:tag :checkbox})
-;=> (find-it driver {:tag :input, :type "checkbox"})
+(find-element driver {:tag :checkbox})
+;=> (find-element driver {:tag :input, :type "checkbox"})
 
-(find-it driver {:tag :textfield})
-;=> (find-it driver {:tag :input, :type "text"})
+(find-element driver {:tag :textfield})
+;=> (find-element driver {:tag :input, :type "text"})
 
-(find-it driver {:tag :password})
-;=> (find-it driver {:tag :input, :type "password"})
+(find-element driver {:tag :password})
+;=> (find-element driver {:tag :input, :type "password"})
 
-(find-it driver {:tag :filefield})
-;=> (find-it driver {:tag :input, :type "file"})
+(find-element driver {:tag :filefield})
+;=> (find-element driver {:tag :input, :type "file"})
 
-(find-it driver {:tag :button*})
+(find-element driver {:tag :button*})
 ```
 
 The `:button*` option, unlike the others, conflates all button-like elements (form submit buttons, actual `<button>` tags, etc.).
 
-#### Find-it Summary ####
+#### find-element Summary ####
 
 To demonstrate how to use arguments in different ways, consider the following example. If I wanted to find `<a href="/contact" id="contact-link" class="menu-item" name="contact">Contact Us</a>` in a page and click on it I could perform any of the following:
 
 ```clj
 (-> b
-    (find-it {:tag :a})    ; assuming its the first <a> on the page
+    (find-element {:tag :a})    ; assuming its the first <a> on the page
     click)
 
 (-> b
-    (find-it {:id "contact-link"})    ; :id is unique, so only one is needed
+    (find-element {:id "contact-link"})    ; :id is unique, so only one is needed
     click)
 
 (-> b
-    (find-it {:class "menu-item", :name "contact"})    ; use multiple attributes
+    (find-element {:class "menu-item", :name "contact"})    ; use multiple attributes
     click)
 
 (-> b
-    (find-it {:tag :a, :class "menu-item", :name "contact"})    ; specify tag
+    (find-element {:tag :a, :class "menu-item", :name "contact"})    ; specify tag
     click)
 
 (-> b
-    (find-it {:tag :a, :text "Contact Us"})    ; special :text attribute, uses XPath's
+    (find-element {:tag :a, :text "Contact Us"})    ; special :text attribute, uses XPath's
     click)                                     ; text() function to find the element
 
 (-> b
-    (find-it {:tag :a, :class #"(?i)menu-"})  ; use Java-style regular
+    (find-element {:tag :a, :class #"(?i)menu-"})  ; use Java-style regular
     click)                                    ; expressions
 
 (-> b
-    (find-it {:xpath "//a[@id='contact-link']"})    ; XPath query
+    (find-element {:xpath "//a[@id='contact-link']"})    ; XPath query
     click)
 
 (-> b
-    (find-it {:css "a#contact-link"})    ; CSS selector
+    (find-element {:css "a#contact-link"})    ; CSS selector
     click)
 ```
 
@@ -170,7 +170,7 @@ So, to describe the general pattern of interacting with the page:
 
 ```clj
 (-> browser-instance
-    (find-it options)
+    (find-element options)
     (do-something-with-the-element))
 ```
 
