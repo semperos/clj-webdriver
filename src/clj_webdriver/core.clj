@@ -135,8 +135,24 @@
 
 (defprotocol IActions
   "Methods available in the Actions class"
+  (click-and-hold
+    [driver]
+    [driver element] "Drag and drop, either at the current mouse position or in the middle of a given `element`.")
+  (double-click
+    [driver]
+    [driver element] "Double click, either at the current mouse position or in the middle of a given `element`.")
   (drag-and-drop [driver element-a element-b] "Drag and drop `element-a` onto `element-b`.")
-  (drag-and-drop-by [driver element x y] "Drag `element` by `x` pixels to the right and `y` pixels down."))
+  (drag-and-drop-by [driver element x y] "Drag `element` by `x` pixels to the right and `y` pixels down.")
+  (key-down
+    [driver k]
+    [driver element k] "Press the given key (e.g., (key-press driver :enter))")
+  (key-up
+    [driver k]
+    [driver element k] "Release the given key (e.g., (key-press driver :enter))")
+  (move-by-offset [driver x y] "Move mouse by `x` pixels to the right and `y` pixels down.")
+  (move-to-element
+    [driver element]
+    [driver element x y] "Move the mouse to the given element, or to an offset from the given element."))
 
 
 ;; ## Starting Driver/Browser ##

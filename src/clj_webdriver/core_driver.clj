@@ -425,10 +425,55 @@
 
   IActions
 
+  (click-and-hold
+    ([driver]
+       (let [act (:actions driver)]
+         (.perform (.clickAndHold act))))
+    ([driver element]
+       (let [act (:actions driver)]
+         (.perform (.clickAndHold act (:webelement element))))))
+
+  (double-click
+    ([driver]
+       (let [act (:actions driver)]
+         (.perform (.doubleClick act))))
+    ([driver element]
+       (let [act (:actions driver)]
+         (.perform (.doubleClick act (:webelement element))))))
+  
   (drag-and-drop [driver element-a element-b]
     (let [act (:actions driver)]
       (.perform (.dragAndDrop act (:webelement element-a) (:webelement element-b)))))
 
   (drag-and-drop-by [driver element x y]
     (let [act (:actions driver)]
-      (.perform (.dragAndDropBy act (:webelement element) x y)))))
+      (.perform (.dragAndDropBy act (:webelement element) x y))))
+
+  (key-down
+    ([driver k]
+       (let [act (:actions driver)]
+         (.perform (.keyDown act (key-code k)))))
+    ([driver element k]
+       (let [act (:actions driver)]
+         (.perform (.keyDown act (:webelement element) (key-code k))))))
+
+  (key-up
+    ([driver k]
+       (let [act (:actions driver)]
+         (.perform (.keyUp act (key-code k)))))
+    ([driver element k]
+       (let [act (:actions driver)]
+         (.perform (.keyUp act (:webelement element) (key-code k))))))
+
+  (move-by-offset
+    [driver x y]
+    (let [act (:actions driver)]
+      (.perform (.moveByOffset act x y))))
+
+  (move-to-element
+    ([driver element]
+       (let [act (:actions driver)]
+         (.perform (.moveToElement act (:webelement element)))))
+    ([driver element x y]
+       (let [act (:actions driver)]
+         (.perform (.moveToElement act (:webelement element) x y))))))
