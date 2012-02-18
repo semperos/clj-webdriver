@@ -1,4 +1,4 @@
-(ns clj-webdriver.remote-server
+(ns clj-webdriver.remote.server
   (:use [clojure.java.io :only [as-url]]
         [clj-webdriver.driver :only [init-driver]]
         [clj-webdriver.core :only [get-url]])

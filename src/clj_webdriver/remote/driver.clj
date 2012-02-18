@@ -1,4 +1,4 @@
-(ns clj-webdriver.remote-driver
+(ns clj-webdriver.remote.driver
   (:use clj-webdriver.capabilities)
   (:import [org.openqa.selenium.remote
             DesiredCapabilities RemoteWebDriver
