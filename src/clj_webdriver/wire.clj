@@ -3,8 +3,8 @@
   (:use [cheshire.core :only [parse-string]]
         [clojure.walk :only [keywordize-keys]])
   (:require [clj-http.client :as client]
-            [clj-webdriver.remote-server :as rs])
-  (:import clj_webdriver.remote_server.RemoteServer))
+            [clj-webdriver.remote.server :as rs])
+  (:import clj_webdriver.remote.server.RemoteServer))
 
 (def default-wd-url "http://localhost:3001/wd/")
 
