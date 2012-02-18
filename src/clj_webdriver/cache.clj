@@ -45,7 +45,7 @@
 ;;
 
 (ns clj-webdriver.cache
-  (:use [clj-webdriver.element :only [is-element?]]
+  (:use [clj-webdriver.element :only [element?]]
         [clj-webdriver.driver :only [get-cache]])
   (:require [clojure.tools.logging :as log])
   (:import clj_webdriver.driver.Driver))
@@ -134,7 +134,7 @@
       (if (contains? (:cache-spec driver) :exclude)
         ;; handle excludes
         (let [excludes (get-in driver [:cache-spec :exclude])]
-          (if (is-element? query)
+          (if (element? query)
             ;; WebElement
             (let [excludes (remove #(map? %) excludes)]
               (not (some #{true} (map (fn [f] (f query)) excludes))))
@@ -143,7 +143,7 @@
               (not (some (fn [exclude-item] (= query exclude-item)) excludes)))))
         ;; handle includes
         (let [includes (get-in driver [:cache-spec :include])]
-          (if (is-element? query)
+          (if (element? query)
             ;; WebElement
             (let [includes (remove #(map? %) includes)]
               (some #{true} (map (fn [f] (f query)) includes)))

@@ -13,7 +13,7 @@
   (for [webel webelements]
     (init-element webel)))
 
-(defn is-element?
+(defn element?
   "Return true if parameter is an Element record"
   [element]
   (= (class element) Element))

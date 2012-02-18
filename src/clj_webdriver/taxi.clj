@@ -1,6 +1,6 @@
 ;; The faster way to use clj-webdriver: take a taxi
 (ns clj-webdriver.taxi
-  (:use [clj-webdriver.element :only [is-element?]])
+  (:use [clj-webdriver.element :only [element?]])
   (:require [clj-webdriver.core :as core]
             [clj-webdriver.options :as options]
             [clj-webdriver.wait :as wait])
@@ -56,7 +56,7 @@
 (defn css-finder
   "Given a CSS query `q`, return a lazy seq of the elements found by calling `find-elements` with `by-css`. If `q` is an `Element`, it is returned unchanged."
   [q]
-  (if (is-element? q)
+  (if (element? q)
     q
     (core/find-elements *driver* {:css q})))
 
@@ -65,7 +65,7 @@
 (defn xpath-finder
   "Given a XPath query `q`, return a lazy seq of the elements found by calling `find-elements` with `by-xpath`. If `q` is an `Element`, it is returned unchanged."
   [q]
-  (if (is-element? q)
+  (if (element? q)
     q
     (core/find-elements *driver* {:xpath q})))
 
@@ -73,14 +73,14 @@
 (defn element
   "Given a query `q`, return the first element that the default finder function returns."
   [q]
-  (if (is-element? q)
+  (if (element? q)
     q
     (first (*finder-fn* q))))
 
 (defn elements
   "Given a query `q`, return the elements that the default finder function returns."
   [q]
-  (if (is-element? q)
+  (if (element? q)
     q
     (*finder-fn* q)))
 
@@ -313,7 +313,7 @@
 
    Note that this function is intended to fit better with `find-element` by allowing a full `attr-val` map instead of a `by-clause`, which will be implemented pending a re-write of `find-elements`."
   [q-parent by-clause]
-  (if (is-element? q-parent)
+  (if (element? q-parent)
     (core/find-element q-parent by-clause)
     (core/find-element (element q-parent) by-clause)))
 
@@ -322,7 +322,7 @@
 
    Note that this function is intended to fit better with `find-element` by allowing a full `attr-val` map instead of a `by-clause`, which will be implemented pending a re-write of `find-elements`."
   [q-parent by-clause]
-  (if (is-element? q-parent)
+  (if (element? q-parent)
     (core/find-elements q-parent by-clause)
     (core/find-elements (element q-parent) by-clause)))
 
