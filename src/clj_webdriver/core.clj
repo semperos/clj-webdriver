@@ -29,6 +29,7 @@
            [com.opera.core.systems OperaDriver]
            [org.openqa.selenium.htmlunit HtmlUnitDriver]
            [org.openqa.selenium.support.ui Select]
+           org.openqa.selenium.interactions.Actions
            [java.util Date]
            [java.io File]))
 
@@ -136,23 +137,26 @@
 (defprotocol IActions
   "Methods available in the Actions class"
   (click-and-hold
-    [driver]
-    [driver element] "Drag and drop, either at the current mouse position or in the middle of a given `element`.")
+    [this]
+    [this element] "Drag and drop, either at the current mouse position or in the middle of a given `element`.")
   (double-click
-    [driver]
-    [driver element] "Double click, either at the current mouse position or in the middle of a given `element`.")
-  (drag-and-drop [driver element-a element-b] "Drag and drop `element-a` onto `element-b`.")
-  (drag-and-drop-by [driver element x y] "Drag `element` by `x` pixels to the right and `y` pixels down.")
+    [this]
+    [this element] "Double click, either at the current mouse position or in the middle of a given `element`.")
+  (drag-and-drop [this element-a element-b] "Drag and drop `element-a` onto `element-b`.")
+  (drag-and-drop-by [this element x y] "Drag `element` by `x` pixels to the right and `y` pixels down.")
   (key-down
-    [driver k]
-    [driver element k] "Press the given key (e.g., (key-press driver :enter))")
+    [this k]
+    [this element k] "Press the given key (e.g., (key-press driver :enter))")
   (key-up
-    [driver k]
-    [driver element k] "Release the given key (e.g., (key-press driver :enter))")
+    [this k]
+    [this element k] "Release the given key (e.g., (key-press driver :enter))")
   (move-by-offset [driver x y] "Move mouse by `x` pixels to the right and `y` pixels down.")
   (move-to-element
-    [driver element]
-    [driver element x y] "Move the mouse to the given element, or to an offset from the given element."))
+    [this element]
+    [this element x y] "Move the mouse to the given element, or to an offset from the given element.")
+  (release
+    [this]
+    [this element] "Release the left mouse button, either at the current mouse position or in the middle of the given `element`."))
 
 
 ;; ## Starting Driver/Browser ##
@@ -284,3 +288,27 @@
   (.executeScript driver js (to-array js-args)))
 
 (load "core_driver")
+
+(defmacro ->build-composite-action
+  "Create a composite chain of actions, then call `.build()`. This does **not** execute the actions; it simply sets up an 'action chain' which can later by executed using `.perform()`.
+
+   Unless you need to wait to execute your composite actions, you should prefer `->actions` to this macro."
+  [driver & body]
+  `(let [act# (:actions ~driver)]
+     (doto act#
+       ~@body
+       .build)))
+
+(defmacro ->actions
+  [driver & body]
+  `(let [act# (:actions ~driver)]
+     (doto act#
+       ~@body
+       .perform)
+     ~driver))
+
+;; e.g.
+;; Action dragAndDrop = builder.clickAndHold(someElement)
+;;       .moveToElement(otherElement)
+;;       .release(otherElement)
+;;       .build()

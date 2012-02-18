@@ -441,11 +441,13 @@
        (let [act (:actions driver)]
          (.perform (.doubleClick act (:webelement element))))))
   
-  (drag-and-drop [driver element-a element-b]
+  (drag-and-drop
+    [driver element-a element-b]
     (let [act (:actions driver)]
       (.perform (.dragAndDrop act (:webelement element-a) (:webelement element-b)))))
 
-  (drag-and-drop-by [driver element x y]
+  (drag-and-drop-by
+    [driver element x y]
     (let [act (:actions driver)]
       (.perform (.dragAndDropBy act (:webelement element) x y))))
 
@@ -476,4 +478,63 @@
          (.perform (.moveToElement act (:webelement element)))))
     ([driver element x y]
        (let [act (:actions driver)]
-         (.perform (.moveToElement act (:webelement element) x y))))))
+         (.perform (.moveToElement act (:webelement element) x y)))))
+
+  (release
+    ([driver]
+       (let [act (:actions driver)]
+         (.release act)))
+    ([driver element]
+       (let [act (:actions driver)]
+         (.release act element)))))
+
+(extend-type org.openqa.selenium.interactions.Actions
+
+  IActions
+  (click-and-hold
+    ([act]
+       (.perform (.clickAndHold act)))
+    ([act element]
+       (.perform (.clickAndHold act (:webelement element)))))
+
+  (double-click
+    ([act]
+       (.perform (.doubleClick act)))
+    ([act element]
+       (.perform (.doubleClick act (:webelement element)))))
+  
+  (drag-and-drop
+    [act element-a element-b]
+    (.perform (.dragAndDrop act (:webelement element-a) (:webelement element-b))))
+
+  (drag-and-drop-by
+    [act element x y]
+    (.perform (.dragAndDropBy act (:webelement element) x y)))
+
+  (key-down
+    ([act k]
+       (.perform (.keyDown act (key-code k))))
+    ([act element k]
+       (.perform (.keyDown act (:webelement element) (key-code k)))))
+
+  (key-up
+    ([act k]
+       (.perform (.keyUp act (key-code k))))
+    ([act element k]
+       (.perform (.keyUp act (:webelement element) (key-code k)))))
+
+  (move-by-offset
+    [act x y]
+    (.perform (.moveByOffset act x y)))
+
+  (move-to-element
+    ([act element]
+       (.perform (.moveToElement act (:webelement element))))
+    ([act element x y]
+       (.perform (.moveToElement act (:webelement element) x y))))
+
+  (release
+    ([act]
+       (.release act))
+    ([act element]
+       (.release act (:webelement element)))))
