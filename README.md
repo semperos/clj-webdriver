@@ -10,7 +10,7 @@ This is a Clojure library for driving a web browser using Selenium-WebDriver as 
 
 **External Resources**
 
- * [Selenium-WebDriver API Javadoc](http://selenium.googlecode.com/svn/trunk/docs/api/java/index.html)
+ * [Selenium-WebDriver API (Javadoc)](http://selenium.googlecode.com/svn/trunk/docs/api/java/index.html)
  * [Selenium-WebDriver Changelog](http://code.google.com/p/selenium/source/browse/trunk/java/CHANGELOG)
  * [CSS Selector Syntax](http://www.w3.org/TR/css3-selectors/#selectors)
 
@@ -22,159 +22,38 @@ This library is compatible with *Clojure 1.3.0*.
  
 ### Quickstart ###
 
-Use/require the library in your code:
+Here's a complete example of how to log into Github:
 
 ```clj
-(use 'clj-webdriver.core)
+(use 'clj-webdriver.taxi)
+
+;; Start up a browser
+(set-driver! {:browser :firefox} "https://github.com")
+
+(click "a[href*='login']")
+
+(input-text "#login_field" "your-username")
+(input-text "#password" "your-password")
+
+(submit "#password")
+(quit)
 ```
 
-Start up a browser:
+Forms can be filled out en masse using the `quick-fill-submit` function:
 
 ```clj
-(def b (start {:browser :firefox} "https://github.com"))
+(quick-fill-submit {"#login_field" "your-username"}
+                   {"#password" "your-password"}
+                   {"#password" submit})
 ```
 
-Here's an example of logging into Github:
+## API Documentation ##
 
-```clj
-;; Start the browser and bind it to `b`
-(def b (start {:browser :firefox} "https://github.com"))
-
-;; Click "Login" link
-(-> b
-    (find-element {:text "Login"})
-    click)
-
-;; Input username/email into the "Login or Email" field
-(-> b
-    (find-element {:class "text", :name "login"}) ; use multiple attributes
-    (input-text "username"))
-
-;; Input password into the "Password" field
-(-> b
-    (find-element {:xpath "//input[@id='password']"}) ; :xpath and :css options
-    (input-text "password"))
-
-;; Click the "Log in" button"
-(-> b
-    (find-element {:tag :input, :value #"(?i)log"}) ; use of regular expressions
-    click)
-```
-
-Filling out the form can been accomplished more compactly using `clj-webdriver.form-helpers/quick-fill` as follows:
-
-```clj
-(require '[clj-webdriver.form-helpers :as form])
-
-(form/quick-fill b [{{:class "text", :name "login"}     "username"}
-                    {{:xpath "//input[@id='password']"} "password"}
-                    {{:value #"(?i)log"}                click}])
-```
-
-If you plan to submit the form, you need to pass a third parameter of `true` to prevent `quick-fill` from trying to return the elements you act upon (since the page will reload, they will be lost in the Selenium-WebDriver cache).
-
-### Finding Elements ###
-
-The `find-element` function provides high-level querying abilities against the DOM using HTML attribute comparisons, XPath and CSS queries, or pure-Clojure hierarchical queries. As parameters it always takes a Driver record first, followed by one of the following:
-
-#### Attribute-Value Map ####
-
-The attribute-value map (`attr-val`) can consist of HTML attributes, or can designate an XPath or CSS query:
-
-```clj
-(find-element driver {:class "foo"})
-(find-element driver {:tag :a, :class "bar"})
-
-(find-element driver {:xpath "//a[@class='foo']"})
-(find-element driver {:css "a.bar"})
-```
-
-If the `:xpath` or `:css` options are used, everything else in the `attr-val` map is ignored.
-
-#### Hierarchical Queries ####
-
-If you want to build XPath or CSS-like hierarchical queries in pure Clojure, you can use the following type of forms with `find-element`:
-
-```clj
-(find-element driver [{:tag :form}, {:tag :input, :type :radio, :id "foo"}])
-```
-
-Note that the usual attribute-value maps are within a vector, which is what lends the ordering to the hierarchical query. On the backend, this is simply converted to XPath.
-
-##### Special Tags #####
-
-By default, the `:tag` option represents a standard HTML tag like `<a>` or `<div>`. Clj-webdriver, however, supports a number of "special" tags to make using `find-element` more intuitive or concise. *(Note that these are not available inside hierarhical queries.)*
-
-Here are all the special tags in action:
-
-```clj
-(find-element driver {:tag :radio})
-;=> (find-element driver {:tag :input, :type "radio"})
-
-(find-element driver {:tag :checkbox})
-;=> (find-element driver {:tag :input, :type "checkbox"})
-
-(find-element driver {:tag :textfield})
-;=> (find-element driver {:tag :input, :type "text"})
-
-(find-element driver {:tag :password})
-;=> (find-element driver {:tag :input, :type "password"})
-
-(find-element driver {:tag :filefield})
-;=> (find-element driver {:tag :input, :type "file"})
-
-(find-element driver {:tag :button*})
-```
-
-The `:button*` option, unlike the others, conflates all button-like elements (form submit buttons, actual `<button>` tags, etc.).
-
-#### find-element Summary ####
-
-To demonstrate how to use arguments in different ways, consider the following example. If I wanted to find `<a href="/contact" id="contact-link" class="menu-item" name="contact">Contact Us</a>` in a page and click on it I could perform any of the following:
-
-```clj
-(-> b
-    (find-element {:tag :a})    ; assuming its the first <a> on the page
-    click)
-
-(-> b
-    (find-element {:id "contact-link"})    ; :id is unique, so only one is needed
-    click)
-
-(-> b
-    (find-element {:class "menu-item", :name "contact"})    ; use multiple attributes
-    click)
-
-(-> b
-    (find-element {:tag :a, :class "menu-item", :name "contact"})    ; specify tag
-    click)
-
-(-> b
-    (find-element {:tag :a, :text "Contact Us"})    ; special :text attribute, uses XPath's
-    click)                                     ; text() function to find the element
-
-(-> b
-    (find-element {:tag :a, :class #"(?i)menu-"})  ; use Java-style regular
-    click)                                    ; expressions
-
-(-> b
-    (find-element {:xpath "//a[@id='contact-link']"})    ; XPath query
-    click)
-
-(-> b
-    (find-element {:css "a#contact-link"})    ; CSS selector
-    click)
-```
-
-So, to describe the general pattern of interacting with the page:
-
-```clj
-(-> browser-instance
-    (find-element options)
-    (do-something-with-the-element))
-```
+For API documentation on the high-level Taxi API (shown above), please [see its wiki page](https://github.com/semperos/clj-webdriver/wiki/Taxi%3A-Concise%2C-High-level-API).
 
 ### Firefox Functionality
+
+**Note: This documentation is still valid, but refers to the lower-level core API for clj-webdriver.**
 
 Support for Firefox currently exceeds that for all other browsers, most notably via support for customizable Firefox profiles. I've included support for several of these advanced featues in the `clj-webdriver.firefox` namespace. Here are a few examples (borrowed from [here](http://code.google.com/p/selenium/wiki/RubyBindings):
 
@@ -195,7 +74,7 @@ Support for Firefox currently exceeds that for all other browsers, most notably 
                                   
 ### Grid Support ###
 
-From a "user" perspective, working with Selenium-WebDriver's Grid 2 support behaves exactly like interacting with a locally-run RemoteWebDriver instance. See the `clj-webdriver.remote-server` and `clj-webdriver.remote-driver` namespaces for details on using this functionality.
+From a "user" perspective, working with Selenium-WebDriver's Grid 2 support behaves exactly like interacting with a locally-run RemoteWebDriver instance. See the `clj-webdriver.remote.server` and `clj-webdriver.remote.driver` namespaces for details on using this functionality.
 
 For information about configuring your Grid hub and nodes (which is handled at the command-line using the server-standalone jars), read [the Selenium-WebDriver wiki documentation on Grid 2](http://code.google.com/p/selenium/wiki/Grid2).
 
