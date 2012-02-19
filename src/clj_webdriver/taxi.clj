@@ -21,12 +21,60 @@
 
 (declare to)
 (defn set-driver!
-  "Set a default `Driver` for this thread, optionally sending it to a starting `url`."
+  "Set a default `Driver` for this thread, optionally sending it to a starting `url`.
+
+   Available browsers are `:firefox`, `:chrome`, `:ie`, `:opera`, and `:htmlunit`.
+
+   Examples:
+   =========
+
+   ;; Simple Example
+   (set-driver! {:browser :firefox})
+
+   ;; Full Example
+   (set-driver! {:browser :firefox
+                 :cache-spec {:strategy :basic,
+                              :args [{}],
+                              :include [ (fn [element] (= (attribute element :class) \"external\"))
+                                         {:css \"ol#pages\"}]}"
   ([browser-spec] (set-driver* browser-spec))
   ([browser-spec url] (to (set-driver* browser-spec) url)))
 
 (defn set-finder!
-  "Set a default finder function, which will be used with all `q` parameters in functions that require an Element."
+  "Set a default finder function, which will be used with all `q` parameters in functions that require an Element.
+
+   Examples:
+   =========
+
+   ;; Simple Example
+   (set-finder! xpath-finder)
+
+   ;; Derivative finder function
+   ;;
+   ;; Takes the query string and always prepends \"div#container \", which would be
+   ;; useful in situations where you know you're always inside that particular div.
+   (set-finder! (fn [q]
+                  (if (element? q)
+                    q
+                    (css-finder (str \"div#container \" q)))))
+
+   ;; Custom finder function
+   ;;
+   ;; If you want to easily switch between using CSS and XPath (e.g., because
+   ;; XPath has the text() function for which no CSS equivalent exists), then
+   ;; you could write something like this, where `q` would become either the map
+   ;; {:css \"query\"} or {:xpath \"query\"} instead of just a string.
+   (set-finder! (fn [q]
+                  (if (element? q)
+                    q
+                    (case (first (keys q))
+                      :css   (core/find-elements-by *driver* (by-css (first (values q))))
+                      :xpath (core/find-elements-by *driver* (by-xpath (first (values q))))))))
+
+   ;; (Note: This last example is written to show how to use the lowest-level functions
+   ;; `find-elements-by`, `by-css` and `by-xpath`. The maps `{:css \"query\"}` and
+   ;; `{:xpath \"query\"}` are themselves acceptable arguments to the `find-elements`,
+   ;; function, so that function could have been used instead without the `case` statement.)"
   [finder-fn]
   (alter-var-root (var *finder-fn*)
                   (constantly finder-fn)
@@ -35,7 +83,20 @@
 
 (declare quit)
 (defmacro with-driver
-  "Given a `browser-spec` to start a browser, execute the forms in `body`, then call `quit` on the browser. Uses the default finder function."
+  "Given a `browser-spec` to start a browser, execute the forms in `body`, then call `quit` on the browser. Uses the default finder function.
+
+   Examples:
+   =========
+
+   ;; Log into Github
+   (with-driver {:browser :firefox}
+     (to \"https://github.com\")
+     (click \"a[href*='login']\")
+
+     (input-text \"#login_field\" \"your_username\")
+     (-> \"#password\"
+       (input-text \"your_password\")
+       submit))"
   [browser-spec & body]
   `(binding [*driver* (core/new-driver ~browser-spec)]
     (try
@@ -44,7 +105,20 @@
         (quit)))))
 
 (defmacro with-driver-fn
-  "Given a `browser-spec` to start a browser and a `finder-fn` to use as a finding function, execute the forms in `body`, then call `quit` on the browser."
+  "Given a `browser-spec` to start a browser and a `finder-fn` to use as a finding function, execute the forms in `body`, then call `quit` on the browser.
+
+   Examples:
+   =========
+
+   ;; Log into Github
+   (with-driver {:browser :firefox} xpath-finder
+     (to \"https://github.com\")
+     (click \"//a[text()='Login']\")
+
+     (input-text \"//input[@id='login_field']\" \"your_username\")
+     (-> \"//input[@id='password']\"
+       (input-text \"your_password\")
+       submit))"
   [browser-spec finder-fn & body]
   `(binding [*driver* (core/new-driver ~browser-spec)
              *finder-fn* ~finder-fn]
@@ -54,7 +128,9 @@
         (quit)))))
 
 (defn css-finder
-  "Given a CSS query `q`, return a lazy seq of the elements found by calling `find-elements` with `by-css`. If `q` is an `Element`, it is returned unchanged."
+  "Given a CSS query `q`, return a lazy seq of the elements found by calling `find-elements` with `by-css`. If `q` is an `Element`, it is returned unchanged.
+
+   This function is used internally by the Taxi API as `*finder*`. See the documentation for `set-finder!` for examples of extending this function or creating your own custom finder function."
   [q]
   (if (element? q)
     q
@@ -63,7 +139,9 @@
 (set-finder! css-finder)
 
 (defn xpath-finder
-  "Given a XPath query `q`, return a lazy seq of the elements found by calling `find-elements` with `by-xpath`. If `q` is an `Element`, it is returned unchanged."
+  "Given a XPath query `q`, return a lazy seq of the elements found by calling `find-elements` with `by-xpath`. If `q` is an `Element`, it is returned unchanged.
+
+   This function is used internally by the Taxi API as `*finder*`. See the documentation for `set-finder!` for examples of extending this function or creating your own custom finder function."
   [q]
   (if (element? q)
     q
@@ -71,14 +149,38 @@
 
 ;; Be able to get actual element/elements when needed
 (defn element
-  "Given a query `q`, return the first element that the default finder function returns."
+  "Given a query `q`, return the first element that the default finder function returns.
+
+   Examples:
+   =========
+
+   ;; Simple example
+   ;;
+   ;; Create a var that points to an element for later use.
+   (def login-link (element \"a[href*='login']\"))
+
+   ;; More useful example: composing actions on an element
+   ;;
+   ;; When threading actions together, it's more performant to thread an actual element,
+   ;; than to thread simply the query string. Threading the query string makes clj-webdriver
+   ;; locate the same element multiple times, while threading an actual element only
+   ;; requires one lookup.
+   (-> (element \"input#password\")
+     (input-text \"my-password\")
+     submit)"
   [q]
   (if (element? q)
     q
     (first (*finder-fn* q))))
 
 (defn elements
-  "Given a query `q`, return the elements that the default finder function returns."
+  "Given a query `q`, return the elements that the default finder function returns.
+
+   Examples:
+   =========
+
+   ;; Simple example; save a seq of anchor tags (links) for later
+   (def target-elements (elements \"a\"))"
   [q]
   (if (element? q)
     q
@@ -86,77 +188,185 @@
 
 ;; Driver functions
 (defn to
-  "Navigate the browser to `url`."
+  "Navigate the browser to `url`.
+
+   Examples:
+   =========
+
+   ;; Simple example
+   (to \"https://github.com\")
+
+   ;; Custom function for building URL's from a base url
+   (defn go
+    [path]
+    (let [base-url \"http://example.com/\"]
+      (to (str base-url path))))
+   ;; (go \"test-page\") would navigate to \"http://example.com/test-page\""
   [url]
   (core/to *driver* url))
 
 (defn back
-  "Navigate back in the browser history, optionally `n` times."
+  "Navigate back in the browser history, optionally `n` times.
+
+   Examples:
+   =========
+
+   ;; Simple example
+   (back)
+
+   ;; Specify number of times to go back
+   (back 2)"
   ([] (back 1))
   ([n]
      (dotimes [m n]
        (core/back *driver*))))
 
 (defn close
-  "Close the browser. If multiple windows are open, this only closes the active window."
+  "Close the browser. If multiple windows are open, this only closes the active window.
+
+   Examples:
+   =========
+
+   (close)"
   []
   (core/close *driver*))
 
 (defn current-url
-  "Return the current url of the browser."
+  "Return the current url of the browser.
+
+   Examples:
+   =========
+
+   (current-url)"
   []
   (core/current-url *driver*))
 
 (defn forward
-  "Navigate forward in the browser history."
+  "Navigate forward in the browser history.
+
+   Examples:
+   =========
+
+   ;; Simple example
+   (forward)
+
+   ;; Specify number of times to go back
+   (forward 2)"
   ([] (forward 1))
   ([n]
      (dotimes [m n]
        (core/forward *driver*))))
 
 (defn get-url
-  "Navigate the browser to `url`."
+  "Navigate the browser to `url`.
+
+   Examples:
+   =========
+
+   ;; Simple example
+   (get-url \"https://github.com\")
+
+   ;; Custom function for building URL's from a base url
+   (defn go
+    [path]
+    (let [base-url \"http://example.com/\"]
+      (get-url (str base-url path))))
+   ;; (go \"test-page\") would navigate to \"http://example.com/test-page\""
   [url]
   (core/get-url *driver* url))
 
 (defn take-screenshot
-  "Take a screenshot of the browser's current page, optionally specifying the format (`:file`, `:base64`, or `:bytes`) and the `destination` (something that `clojure.java.io/file` will accept)."
+  "Take a screenshot of the browser's current page, optionally specifying the format (`:file`, `:base64`, or `:bytes`) and the `destination` (something that `clojure.java.io/file` will accept).
+
+   Examples:
+   =========
+
+   ;; Simple example, return screenshot as file object
+   (take-screenshot :file)
+
+   ;; Specify a default destination for the file object
+   (take-screenshot :file \"/path/to/save/screenshot.png\")"
   ([] (core/get-screenshot *driver*))
   ([format] (core/get-screenshot *driver* format))
   ([format destination] (core/get-screenshot *driver* format destination)))
 
 (defn page-source
-  "Return the source code of the current page in the browser."
+  "Return the source code of the current page in the browser.
+
+   Examples:
+   =========
+
+   ;; Simple example
+   (page-source)
+
+   ;; Do something with the HTML
+   ;;
+   ;; Selenium-WebDriver will instantiate a Java object for every element you query
+   ;; or interact with, so if you have huge pages or need to do heavy-duty DOM
+   ;; inspection or traversal, it could be more performant to do that \"offline\".
+   (let [source (page-source)]
+     ;; do hard-core parsing and manipulation here
+     )"
   []
   (core/page-source *driver*))
 
 (defn quit
-  "Quit the browser completely, including all open windows."
+  "Quit the browser completely, including all open windows.
+
+   Examples:
+   =========
+
+   (quit)"
   []
   (core/quit *driver*))
 
 (defn refresh
-  "Refresh the current page in the browser."
+  "Refresh the current page in the browser. Note that all references to elements will become \"stale\" and unusable after a page refresh.
+
+   Examples:
+   =========
+
+   (refresh)"
   []
   (core/refresh *driver*))
 
 (defn title
-  "Return the title of the current page in the browser."
+  "Return the title of the current page in the browser.
+
+   Examples:
+   =========
+
+   (title)"
   []
   (core/title *driver*))
 
 (defn window-handle
-  "Return a `WindowHandle` that contains information about the active window and can be used for switching."
+  "Return a `WindowHandle` that contains information about the active window and can be used for switching.
+
+   Examples:
+   =========
+
+   (window-handle)"
   []
   (core/window-handle *driver*))
 
 (defn window-handles
-  "Return a `WindowHandle` for all open windows."
+  "Return `WindowHandle` records as a seq for all open windows.
+
+   Examples:
+   =========
+
+   (window-handles)"
   []
   (core/window-handles *driver*))
 
 (defn other-window-handles
-  "Return a `WindowHandle` for all open windows except the active one."
+  "Return a `WindowHandle` for all open windows except the active one.
+
+   Examples:
+   =========
+
+   (other-window-handles)"
   []
   (core/other-window-handles *driver*))
 
@@ -164,27 +374,64 @@
 (defn switch-to-frame
   "Switch focus to the frame found by the finder query `frame-q`.
  
-   If you need the default behavior of `.frame()`, you can use clj-webdriver.core/switch-to-frame. For that function, you can pass either a number (the index of the frame on the page), a string (the `name` or `id` attribute of the target frame), or an `Element` of the frame."
+   If you need the default behavior of `.frame()`, you can use clj-webdriver.core/switch-to-frame. For that function, you can pass either a number (the index of the frame on the page), a string (the `name` or `id` attribute of the target frame), or an `Element` of the frame.
+
+   Examples:
+   =========
+
+   (switch-to-frame \"#target-frame\")"
   [frame-q]
   (core/switch-to-frame *driver* (element frame-q)))
 
+;; TODO: accept a handle or an attr-val that would get the handle
 (defn switch-to-window
-  "Switch focus to the window for the given WindowHandle `handle`."
+  "Switch focus to the window for the given one of the following:
+
+    * A string representing the target window name (as seen in the application titlebar)
+    * A number representing the index (order) of the target window
+    * A `WindowHandle` record
+
+   Examples:
+   =========
+
+   ;; By name
+   (switch-to-window \"Name Of Window\")
+
+   ;; By index (order), open the 3rd window
+   (switch-to-window 2)
+
+   ;; Passing a `WindowHandle` record directly (as returned by the `window-handle` function)
+   (switch-to-window a-window-handle)"
   [handle]
   (core/switch-to-window *driver* handle))
 
 (defn switch-to-other-window
-  "If two windows are open, switch focus to the other."
+  "If two windows are open, switch focus to the other.
+
+   Examples:
+   =========
+
+   (switch-to-other-window)"
   []
   (core/switch-to-other-window *driver*))
 
 (defn switch-to-default
-  "Switch focus to the first first frame of the page, or the main document if the page contains iframes."
+  "Switch focus to the first first frame of the page, or the main document if the page contains iframes.
+
+   Examples:
+   =========
+
+   (switch-to-default)"
   []
   (core/switch-to-default *driver*))
 
 (defn switch-to-active
-  "Switch to the page element that currently has focus, or to the body if this cannot be detected."
+  "Switch to the page element that currently has focus, or to the body if this cannot be detected.
+
+   Examples:
+   =========
+
+   (switch-to-active)"
   []
   (core/switch-to-active *driver*))
 
