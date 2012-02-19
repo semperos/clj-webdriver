@@ -112,6 +112,7 @@
 
   ;; Window and Frame Handling
   ITargetLocator
+  ;; TODO (possible): multiple arities; only driver, return current window handle; driver and query, return matching window handle
   (window-handle [driver]
     (init-window-handle (:webdriver driver)
                         (.getWindowHandle (:webdriver driver))
