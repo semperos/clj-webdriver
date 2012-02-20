@@ -73,7 +73,6 @@
   (go)
   (facts
    (attribute "*.first.odd" :class) => "first odd"
-   (attribute (find-element-by (core/by-class-name "first odd")) :class) => "first odd"
    (attribute (find-element-under (find-element {:tag :li, :text #"simple"})
                                   (core/by-tag :a))
               :href) => "http://clojure.blip.tv/file/4824610/"
