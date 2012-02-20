@@ -628,7 +628,7 @@
    ;; noticeable delay to prove that it works
    ;;
    (implicit-wait 3000)
-   (execute-script \"setTimeout(function () { window.document.body.innerHTML = \'<div id='test'>hi!</div>\'}, 1000)\")"
+   (execute-script \"setTimeout(function () { window.document.body.innerHTML = '<div id='test'>hi!</div>'}, 1000)\")"
   [timeout]
   (wait/implicit-wait *driver* timeout))
 
@@ -902,7 +902,7 @@
    ;;
    (drag-and-drop-by \"#draggable\" {:x -15, :y -5})"
   [q x-y-map]
-  (core/drag-and-drop-by *driver* (element q) x y))
+  (core/drag-and-drop-by *driver* (element q) {:x x-y-map} {:y x-y-map}))
 
 (defn exists?
   "Return true if the first element found with query `q` exists on the current page in the browser.
