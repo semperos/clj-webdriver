@@ -143,7 +143,7 @@
     [this]
     [this element] "Double click, either at the current mouse position or in the middle of a given `element`.")
   (drag-and-drop [this element-a element-b] "Drag and drop `element-a` onto `element-b`.")
-  (drag-and-drop-by [this element x y] "Drag `element` by `x` pixels to the right and `y` pixels down.")
+  (drag-and-drop-by [this element x-y-map] "Drag `element` by `x` pixels to the right and `y` pixels down.")
   (key-down
     [this k]
     [this element k] "Press the given key (e.g., (key-press driver :enter))")

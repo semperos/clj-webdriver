@@ -954,7 +954,7 @@
    (drag-and-drop-by \"#draggable\" {:x -15, :y -5})"
   ([q x-y-map] (drag-and-drop-by *driver* q x-y-map))
   ([driver q x-y-map]
-     (core/drag-and-drop-by *driver* (element driver q) {:x x-y-map} {:y x-y-map})))
+     (core/drag-and-drop-by *driver* (element driver q) x-y-map)))
 
 (defn exists?
   "Return true if the first element found with query `q` exists on the current page in the browser.

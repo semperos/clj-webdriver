@@ -448,9 +448,9 @@
       (.perform (.dragAndDrop act (:webelement element-a) (:webelement element-b)))))
 
   (drag-and-drop-by
-    [driver element x y]
+    [driver element x-y-map]
     (let [act (:actions driver)]
-      (.perform (.dragAndDropBy act (:webelement element) x y))))
+      (.perform (.dragAndDropBy act (:webelement element) {:x x-y-map} {:y x-y-map}))))
 
   (key-down
     ([driver k]
