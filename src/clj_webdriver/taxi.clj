@@ -832,9 +832,14 @@
    =========
 
    ;;
-   ;; Simple example, find an element with id \"foo\" within a div with id \"container\"
+   ;; Example using by-clause, find an element with id \"foo\" within a div with id \"container\"
    ;;
-   (find-elements-under \"div#container\" (core/by-id \"foo\")"
+   (find-elements-under \"div#container\" (core/by-id \"foo\")
+
+   ;;
+   ;; Example using map, which generates a (by-xpath ...) form
+   ;;
+   (find-elements-under  \"div#container\" {:tag :a, :id \"foo\"})"
   [q-parent by-clause]
   (if (element? q-parent)
     (core/find-elements q-parent by-clause)
@@ -849,9 +854,14 @@
    =========
 
    ;;
-   ;; Simple example, find an element with id \"foo\" within a div with id \"container\"
+   ;; Example using by-clause, find an element with id \"foo\" within a div with id \"container\"
    ;;
-   (find-element-under \"div#container\" (core/by-id \"foo\")"
+   (find-element-under \"div#container\" (core/by-id \"foo\")
+
+   ;;
+   ;; Example using map, which generates a (by-xpath ...) form
+   ;;
+   (find-element-under  \"div#container\" {:tag :a, :id \"foo\"})"
   [q-parent by-clause]
   (if (element? q-parent)
     (core/find-element q-parent by-clause)
