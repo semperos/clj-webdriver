@@ -232,8 +232,10 @@
     (let [base-url \"http://example.com/\"]
       (to (str base-url path))))
    ;; (go \"test-page\") would navigate to \"http://example.com/test-page\""
-  [url]
-  (core/to *driver* url))
+  ([url]
+     (to *driver* url))
+  ([driver url]
+     (core/to driver url)))
 
 (defn back
   "Navigate back in the browser history, optionally `n` times.
@@ -250,10 +252,11 @@
    ;; Specify number of times to go back
    ;;
    (back 2)"
-  ([] (back 1))
-  ([n]
+  ([] (back *driver* 1))
+  ([n] (back *driver* n))
+  ([driver n]
      (dotimes [m n]
-       (core/back *driver*))))
+       (core/back driver))))
 
 (defn close
   "Close the browser. If multiple windows are open, this only closes the active window.
@@ -262,8 +265,9 @@
    =========
 
    (close)"
-  []
-  (core/close *driver*))
+  ([] (close *driver*))
+  ([driver]
+     (core/close driver)))
 
 (defn current-url
   "Return the current url of the browser.
@@ -272,8 +276,8 @@
    =========
 
    (current-url)"
-  []
-  (core/current-url *driver*))
+  ([] (current-url *driver*))
+  ([driver] (core/current-url driver)))
 
 (defn forward
   "Navigate forward in the browser history.
@@ -290,8 +294,9 @@
    ;; Specify number of times to go back
    ;;
    (forward 2)"
-  ([] (forward 1))
-  ([n]
+  ([] (forward *driver* 1))
+  ([n] (forward *driver* n))
+  ([driver n]
      (dotimes [m n]
        (core/forward *driver*))))
 
@@ -314,8 +319,9 @@
     (let [base-url \"http://example.com/\"]
       (get-url (str base-url path))))
    ;; (go \"test-page\") would navigate to \"http://example.com/test-page\""
-  [url]
-  (core/get-url *driver* url))
+  ([url] (get-url *driver* url))
+  ([driver url]
+     (core/get-url driver url)))
 
 (defn take-screenshot
   "Take a screenshot of the browser's current page, optionally specifying the format (`:file`, `:base64`, or `:bytes`) and the `destination` (something that `clojure.java.io/file` will accept).
@@ -336,7 +342,8 @@
    (take-screenshot :file \"/path/to/save/screenshot.png\")"
   ([] (core/get-screenshot *driver*))
   ([format] (core/get-screenshot *driver* format))
-  ([format destination] (core/get-screenshot *driver* format destination)))
+  ([format destination] (core/get-screenshot *driver* format destination))
+  ([driver format destination] (core/get-screenshot driver format destination)))
 
 (defn page-source
   "Return the source code of the current page in the browser.
@@ -359,8 +366,9 @@
    (let [source (page-source)]
      ;; do hard-core parsing and manipulation here
      )"
-  []
-  (core/page-source *driver*))
+  ([] (page-source *driver*))
+  ([driver]
+     (core/page-source driver)))
 
 (defn quit
   "Quit the browser completely, including all open windows.
@@ -369,8 +377,9 @@
    =========
 
    (quit)"
-  []
-  (core/quit *driver*))
+  ([] (quit *driver*))
+  ([driver]
+     (core/quit driver)))
 
 (defn refresh
   "Refresh the current page in the browser. Note that all references to elements will become \"stale\" and unusable after a page refresh.
@@ -379,8 +388,9 @@
    =========
 
    (refresh)"
-  []
-  (core/refresh *driver*))
+  ([] (refresh *driver*))
+  ([driver]
+     (core/refresh driver)))
 
 (defn title
   "Return the title of the current page in the browser.
@@ -389,8 +399,9 @@
    =========
 
    (title)"
-  []
-  (core/title *driver*))
+  ([] (title *driver*))
+  ([driver]
+     (core/title driver)))
 
 (defn window-handle
   "Return a `WindowHandle` that contains information about the active window and can be used for switching.
@@ -399,8 +410,9 @@
    =========
 
    (window-handle)"
-  []
-  (core/window-handle *driver*))
+  ([] (window-handle *driver*))
+  ([driver]
+     (core/window-handle driver)))
 
 (defn window-handles
   "Return `WindowHandle` records as a seq for all open windows.
@@ -409,8 +421,9 @@
    =========
 
    (window-handles)"
-  []
-  (core/window-handles *driver*))
+  ([] (window-handles *driver*))
+  ([driver]
+     (core/window-handles driver)))
 
 (defn other-window-handles
   "Return a `WindowHandle` for all open windows except the active one.
@@ -419,8 +432,9 @@
    =========
 
    (other-window-handles)"
-  []
-  (core/other-window-handles *driver*))
+  ([] (other-window-handles *driver*))
+  ([driver]
+     (core/other-window-handles driver)))
 
 ;; TODO: test coverage
 (defn switch-to-frame
@@ -432,8 +446,9 @@
    =========
 
    (switch-to-frame \"#target-frame\")"
-  [frame-q]
-  (core/switch-to-frame *driver* (element frame-q)))
+  ([frame-q] (switch-to-frame *driver* frame-q))
+  ([driver frame-q]
+     (core/switch-to-frame driver (element frame-q))))
 
 ;; TODO: accept a handle or an attr-val that would get the handle
 (defn switch-to-window
@@ -460,8 +475,9 @@
    ;; Passing a `WindowHandle` record directly (as returned by the `window-handle` function)
    ;;
    (switch-to-window a-window-handle)"
-  [handle]
-  (core/switch-to-window *driver* handle))
+  ([handle] (switch-to-window *driver* handle))
+  ([driver handle]
+     (core/switch-to-window driver handle)))
 
 (defn switch-to-other-window
   "If two windows are open, switch focus to the other.
@@ -470,8 +486,9 @@
    =========
 
    (switch-to-other-window)"
-  []
-  (core/switch-to-other-window *driver*))
+  ([] (switch-to-other-window *driver*))
+  ([driver]
+     (core/switch-to-other-window driver)))
 
 (defn switch-to-default
   "Switch focus to the first first frame of the page, or the main document if the page contains iframes.
@@ -480,8 +497,9 @@
    =========
 
    (switch-to-default)"
-  []
-  (core/switch-to-default *driver*))
+  ([] (switch-to-default *driver*))
+  ([driver]
+     (core/switch-to-default driver)))
 
 (defn switch-to-active
   "Switch to the page element that currently has focus, or to the body if this cannot be detected.
@@ -490,8 +508,9 @@
    =========
 
    (switch-to-active)"
-  []
-  (core/switch-to-active *driver*))
+  ([] (switch-to-active *driver*))
+  ([driver]
+     (core/switch-to-active driver)))
 
 (defn add-cookie
   "Add a cookie to the browser session. The `cookie-spec` is a map which must contain `:name` and `:value` keys, and can also optionally include `:domain`, `:path`, `:expiry`, and `:secure?` (a boolean).
@@ -510,8 +529,9 @@
    (add-cookie {:name \"foo\", :value \"bar\", 
                 :domain \"example.com\", :path \"a-path\",
                 :expiry (java.util.Date.), :secure? false}) "
-  [cookie-spec]
-  (options/add-cookie *driver* cookie-spec))
+  ([cookie-spec] (add-cookie *driver* cookie-spec))
+  ([driver cookie-spec]
+     (options/add-cookie driver cookie-spec)))
 
 (defn delete-cookie
   "Provided the name of a cookie or a Cookie record itself, delete it from the browser session.
@@ -528,10 +548,11 @@
    ;; With `Cookie` record as returned by `cookies` or `cookie` functions
    ;;
    (delete-cookie a-cookie)"
-  [name-or-obj]
-  (if (string? name-or-obj)
-    (options/delete-cookie-named *driver* name-or-obj)
-    (options/delete-cookie *driver* name-or-obj)))
+  ([name-or-obj] (delete-cookie *driver* name-or-obj))
+  ([driver name-or-obj]
+     (if (string? name-or-obj)
+       (options/delete-cookie-named driver name-or-obj)
+       (options/delete-cookie driver name-or-obj))))
 
 (defn delete-all-cookies
   "Delete all cookies from the browser session.
@@ -540,8 +561,9 @@
    =========
 
    (delete-all-cookies)"
-  []
-  (options/delete-all-cookies *driver*))
+  ([] (delete-all-cookies *driver*))
+  ([driver]
+     (options/delete-all-cookies driver)))
 
 (defn cookies
   "Return a seq of all cookies in the browser session. Items are `Cookie` records, which themselves contain a `:cookie` field with the original Java objects.
@@ -550,8 +572,9 @@
    =========
 
    (cookies)"
-  []
-  (options/cookies *driver*))
+  ([] (cookies *driver*))
+  ([driver]
+     (options/cookies driver)))
 
 (defn cookie
   "Return the cookie with name `cookie-name`. Returns a `Cookie` record which contains a `:cookie` field with the original Java object.
@@ -560,8 +583,9 @@
    =========
 
    (cookie \"foo\")"
-  [cookie-name]
-  (options/cookie-named *driver* cookie-name))
+  ([cookie-name] (cookie *driver* cookie-name))
+  ([driver cookie-name]
+     (options/cookie-named driver cookie-name)))
 
 (defn execute-script
   "Execute the JavaScript code `js` with arguments `js-args`.
@@ -594,7 +618,8 @@
    ;; Return an element. Note that this currently returns a raw WebElement Java object.
    ;;
    (execute-script \"var myElement = document.getElementById('elementId'); return myElement;\")"
-  [js & js-args] (apply (partial core/execute-script *driver* js) js-args))
+  ([js & js-args]
+     (apply (partial core/execute-script *driver* js) js-args)))
 
 (defn wait-until
   "Make the browser wait until the predicate `pred` returns true, providing an optional `timeout` in milliseconds and an optional `interval` in milliseconds on which to attempt the predicate. If the timeout is exceeded, an exception is thrown.
@@ -613,7 +638,8 @@
    (wait-until (fn [d] (= \"asdf\" (core/title d))))"
   ([pred] (wait/wait-until *driver* pred))
   ([pred timeout] (wait/wait-until *driver* pred timeout))
-  ([pred timeout interval] (wait/wait-until *driver* pred timeout interval)))
+  ([pred timeout interval] (wait/wait-until *driver* pred timeout interval))
+  ([driver pred timeout interval] (wait/wait-until driver pred timeout interval)))
 
 (defn implicit-wait
   "Set the global `timeout` that the browser should wait when attempting to find elements on the page, before timing out with an exception.
@@ -629,8 +655,9 @@
    ;;
    (implicit-wait 3000)
    (execute-script \"setTimeout(function () { window.document.body.innerHTML = '<div id='test'>hi!</div>'}, 1000)\")"
-  [timeout]
-  (wait/implicit-wait *driver* timeout))
+  ([timeout] (implicit-wait *driver* timeout))
+  ([driver timeout]
+     (wait/implicit-wait driver timeout)))
 
 (defn find-windows
   "Return all `WindowHandle` records that match the given `attr-val` map.
@@ -654,8 +681,9 @@
    ;; By index
    ;;
    (find-windows {:index 2})"
-  [attr-val]
-  (core/find-windows *driver* attr-val))
+  ([attr-val] (find-windows *driver* attr-val))
+  ([driver attr-val]
+     (core/find-windows driver attr-val)))
 
 (defn find-window
   "Return the first `WindowHandle` record that matches the given `attr-val` map.
@@ -679,7 +707,8 @@
    ;; By index
    ;;
    (find-window {:index 2})"
-  [attr-val] (core/find-window *driver* attr-val))
+  ([attr-val] (find-window *driver* attr-val))
+  ([driver attr-val] (core/find-window driver attr-val)))
 
 (defn find-table-cell
   "Within the table found with query `table-q`, return the table cell at coordinates `coords`. The top-left cell has coordinates `[0 0]`.
@@ -691,8 +720,9 @@
    ;; Simple example, find 2nd cell on 2nd row from top
    ;;
    (find-table-cell \"table#my-table\" [1 1])"
-  [table-q coords]
-  (core/find-table-cell *driver* (element table-q) coords))
+  ([table-q coords] (find-table-cell *driver* table-q coords))
+  ([driver table-q coords]
+     (core/find-table-cell driver (element table-q) coords)))
 
 (defn find-table-row
   "Within the table found with query `table-q`, return a seq of all cells at row number `row`. The top-most row is row `0` (zero-based index).
@@ -704,8 +734,9 @@
    ;; Simple example, return cells in second row
    ;;
    (find-table-row \"table#my-table\" 1)"
-  [table-q row]
-  (core/find-table-row *driver* (element table-q) row))
+  ([table-q row] (find-table-row *driver* table-q row))
+  ([driver table-q row]
+     (core/find-table-row driver (element table-q) row)))
 
 ;; Need to explain difference between element and find-element fn's
 (defn find-elements
@@ -739,8 +770,9 @@
    (find-elements [{:tag :div, :id \"container\"},
                    {:tag :a, :class \"external\"}])
 "
-  [attr-val]
-  (core/find-elements *driver* attr-val))
+  ([attr-val] (find-elements *driver* attr-val))
+  ([driver attr-val]
+     (core/find-elements driver attr-val)))
 
 (defn find-element
   "Return first `Element` record that matches the given `attr-val`. Prefer the default behavior of `element` when possible.
@@ -771,10 +803,11 @@
    (find-element {:tag :button*, :class \"foo\"})
    (find-element {:tag :radio, :class \"choice\"})
    (find-element [{:tag :div, :id \"container\"},
-                   {:tag :a, :class \"external\"}])
+                  {:tag :a, :class \"external\"}])
 "
-  [attr-val]
-  (core/find-element *driver* attr-val))
+  ([attr-val] (find-element *driver* attr-val))
+  ([driver attr-val]
+     (core/find-element driver attr-val)))
 
 
 ;; Element versions of find-element-by and find-elements-by
