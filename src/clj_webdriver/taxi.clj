@@ -28,10 +28,14 @@
    Examples:
    =========
 
-   ;; Simple Example
+   ;;
+   ;; Simple example
+   ;;
    (set-driver! {:browser :firefox})
 
-   ;; Full Example
+   ;;
+   ;; Full example
+   ;;
    (set-driver! {:browser :firefox
                  :cache-spec {:strategy :basic,
                               :args [{}],
@@ -46,24 +50,32 @@
    Examples:
    =========
 
-   ;; Simple Example
+   ;;
+   ;; Simple example
+   ;;
    (set-finder! xpath-finder)
 
+   ;;
    ;; Derivative finder function
    ;;
    ;; Takes the query string and always prepends \"div#container \", which would be
    ;; useful in situations where you know you're always inside that particular div.
+   ;; (Note that this same functionality is provided by `find-element-under`, but
+   ;; you get the idea.)
+   ;;
    (set-finder! (fn [q]
                   (if (element? q)
                     q
                     (css-finder (str \"div#container \" q)))))
 
+   ;;
    ;; Custom finder function
    ;;
    ;; If you want to easily switch between using CSS and XPath (e.g., because
    ;; XPath has the text() function for which no CSS equivalent exists), then
    ;; you could write something like this, where `q` would become either the map
    ;; {:css \"query\"} or {:xpath \"query\"} instead of just a string.
+   ;;
    (set-finder! (fn [q]
                   (if (element? q)
                     q
@@ -71,10 +83,12 @@
                       :css   (core/find-elements-by *driver* (by-css (first (values q))))
                       :xpath (core/find-elements-by *driver* (by-xpath (first (values q))))))))
 
+   ;;
    ;; (Note: This last example is written to show how to use the lowest-level functions
    ;; `find-elements-by`, `by-css` and `by-xpath`. The maps `{:css \"query\"}` and
    ;; `{:xpath \"query\"}` are themselves acceptable arguments to the `find-elements`,
-   ;; function, so that function could have been used instead without the `case` statement.)"
+   ;; function, so that function could have been used instead without the `case` statement.)
+   ;;"
   [finder-fn]
   (alter-var-root (var *finder-fn*)
                   (constantly finder-fn)
@@ -88,7 +102,9 @@
    Examples:
    =========
 
+   ;;
    ;; Log into Github
+   ;;
    (with-driver {:browser :firefox}
      (to \"https://github.com\")
      (click \"a[href*='login']\")
@@ -110,7 +126,9 @@
    Examples:
    =========
 
+   ;;
    ;; Log into Github
+   ;;
    (with-driver {:browser :firefox} xpath-finder
      (to \"https://github.com\")
      (click \"//a[text()='Login']\")
@@ -154,17 +172,21 @@
    Examples:
    =========
 
-   ;; Simple example
+   ;;
+   ;; Simple Example
    ;;
    ;; Create a var that points to an element for later use.
+   ;;
    (def login-link (element \"a[href*='login']\"))
 
+   ;;
    ;; More useful example: composing actions on an element
    ;;
    ;; When threading actions together, it's more performant to thread an actual element,
    ;; than to thread simply the query string. Threading the query string makes clj-webdriver
    ;; locate the same element multiple times, while threading an actual element only
    ;; requires one lookup.
+   ;;
    (-> (element \"input#password\")
      (input-text \"my-password\")
      submit)"
@@ -179,24 +201,32 @@
    Examples:
    =========
 
-   ;; Simple example; save a seq of anchor tags (links) for later
+   ;;
+   ;; Simple Example
+   ;;
+   ;; Save a seq of anchor tags (links) for later.
+   ;;
    (def target-elements (elements \"a\"))"
   [q]
   (if (element? q)
     q
     (*finder-fn* q)))
 
-;; Driver functions
+;; ## Driver functions ##
 (defn to
   "Navigate the browser to `url`.
 
    Examples:
    =========
 
-   ;; Simple example
+   ;;
+   ;; Simple Example
+   ;;
    (to \"https://github.com\")
 
+   ;;
    ;; Custom function for building URL's from a base url
+   ;;
    (defn go
     [path]
     (let [base-url \"http://example.com/\"]
@@ -211,10 +241,14 @@
    Examples:
    =========
 
-   ;; Simple example
+   ;;
+   ;; Simple Example
+   ;;
    (back)
 
+   ;;
    ;; Specify number of times to go back
+   ;;
    (back 2)"
   ([] (back 1))
   ([n]
@@ -247,10 +281,14 @@
    Examples:
    =========
 
-   ;; Simple example
+   ;;
+   ;; Simple Example
+   ;;
    (forward)
 
+   ;;
    ;; Specify number of times to go back
+   ;;
    (forward 2)"
   ([] (forward 1))
   ([n]
@@ -263,10 +301,14 @@
    Examples:
    =========
 
-   ;; Simple example
+   ;;
+   ;; Simple Example
+   ;;
    (get-url \"https://github.com\")
 
+   ;;
    ;; Custom function for building URL's from a base url
+   ;;
    (defn go
     [path]
     (let [base-url \"http://example.com/\"]
@@ -281,10 +323,16 @@
    Examples:
    =========
 
-   ;; Simple example, return screenshot as file object
+   ;;
+   ;; Simple Example
+   ;;
+   ;; Return screenshot as file object
+   ;;
    (take-screenshot :file)
 
+   ;;
    ;; Specify a default destination for the file object
+   ;;
    (take-screenshot :file \"/path/to/save/screenshot.png\")"
   ([] (core/get-screenshot *driver*))
   ([format] (core/get-screenshot *driver* format))
@@ -296,14 +344,18 @@
    Examples:
    =========
 
-   ;; Simple example
+   ;;
+   ;; Simple Example
+   ;;
    (page-source)
 
+   ;;
    ;; Do something with the HTML
    ;;
    ;; Selenium-WebDriver will instantiate a Java object for every element you query
    ;; or interact with, so if you have huge pages or need to do heavy-duty DOM
    ;; inspection or traversal, it could be more performant to do that \"offline\".
+   ;;
    (let [source (page-source)]
      ;; do hard-core parsing and manipulation here
      )"
@@ -394,13 +446,19 @@
    Examples:
    =========
 
+   ;;
    ;; By name
+   ;;
    (switch-to-window \"Name Of Window\")
 
+   ;;
    ;; By index (order), open the 3rd window
+   ;;
    (switch-to-window 2)
 
+   ;;
    ;; Passing a `WindowHandle` record directly (as returned by the `window-handle` function)
+   ;;
    (switch-to-window a-window-handle)"
   [handle]
   (core/switch-to-window *driver* handle))
@@ -436,79 +494,216 @@
   (core/switch-to-active *driver*))
 
 (defn add-cookie
-  "Add the given `cookie` to the browser session."
-  [cookie]
-  (options/add-cookie *driver* cookie))
+  "Add a cookie to the browser session. The `cookie-spec` is a map which must contain `:name` and `:value` keys, and can also optionally include `:domain`, `:path`, `:expiry`, and `:secure?` (a boolean).
+
+   Examples:
+   =========
+
+   ;;
+   ;; Simple example
+   ;;
+   (add-cookie {:name \"foo\", :value \"bar\"})
+
+   ;;
+   ;; Full example
+   ;;
+   (add-cookie {:name \"foo\", :value \"bar\", 
+                :domain \"example.com\", :path \"a-path\",
+                :expiry (java.util.Date.), :secure? false}) "
+  [cookie-spec]
+  (options/add-cookie *driver* cookie-spec))
 
 (defn delete-cookie
-  "Provided the name of a cookie or a Cookie record itself, delete it from the browser session."
+  "Provided the name of a cookie or a Cookie record itself, delete it from the browser session.
+
+   Examples:
+   =========
+
+   ;;
+   ;; By name
+   ;;
+   (delete-cookie \"foo\")
+
+   ;;
+   ;; With `Cookie` record as returned by `cookies` or `cookie` functions
+   ;;
+   (delete-cookie a-cookie)"
   [name-or-obj]
   (if (string? name-or-obj)
     (options/delete-cookie-named *driver* name-or-obj)
     (options/delete-cookie *driver* name-or-obj)))
 
 (defn delete-all-cookies
-  "Delete all cookies from the browser session."
+  "Delete all cookies from the browser session.
+
+   Examples:
+   =========
+
+   (delete-all-cookies)"
   []
   (options/delete-all-cookies *driver*))
 
 (defn cookies
-  "Return all cookies in the browser session."
+  "Return a seq of all cookies in the browser session. Items are `Cookie` records, which themselves contain a `:cookie` field with the original Java objects.
+
+   Examples:
+   =========
+
+   (cookies)"
   []
   (options/cookies *driver*))
 
 (defn cookie
-  "Return the cookie with name `cookie-name`."
+  "Return the cookie with name `cookie-name`. Returns a `Cookie` record which contains a `:cookie` field with the original Java object.
+
+   Examples:
+   =========
+
+   (cookie \"foo\")"
   [cookie-name]
   (options/cookie-named *driver* cookie-name))
 
 (defn execute-script
-  "Execute the JavaScript code `js` with arguments `js-args`. 
+  "Execute the JavaScript code `js` with arguments `js-args`.
 
-   See http://selenium.googlecode.com/svn/trunk/docs/api/java/org/openqa/selenium/remote/RemoteWebDriver.html#executeScript(java.lang.String, java.lang.Object...) for full details."
+   Within the script, use document to refer to the current document. Note that local variables will not be available once the script has finished executing, though global variables will persist.
+
+   If the script has a return value (i.e. if the script contains a return statement), then the following steps will be taken:
+
+    * For an HTML element, this method returns a WebElement
+    * For a decimal, a Double is returned
+    * For a non-decimal number, a Long is returned
+    * For a boolean, a Boolean is returned
+    * For all other cases, a String is returned.
+    * For an array, return a List<Object> with each object following the rules above. We support nested lists.
+    * Unless the value is null or there is no return value, in which null is returned.
+
+   Arguments must be a number, a boolean, a String, WebElement, or a List of any combination of the above. An exception will be thrown if the arguments do not meet these criteria. The arguments will be made available to the JavaScript via the 'arguments' magic variable, as if the function were called via 'Function.apply'
+
+   See http://selenium.googlecode.com/svn/trunk/docs/api/java/org/openqa/selenium/remote/RemoteWebDriver.html#executeScript(java.lang.String, java.lang.Object...) for full details.
+
+   Examples:
+   =========
+
+   ;;
+   ;; Set a global variable
+   ;;
+   (execute-script \"window.document.title = 'asdf'\")
+
+   ;;
+   ;; Return an element. Note that this currently returns a raw WebElement Java object.
+   ;;
+   (execute-script \"var myElement = document.getElementById('elementId'); return myElement;\")"
   [js & js-args] (apply (partial core/execute-script *driver* js) js-args))
 
 (defn wait-until
-  "Make the browser wait until the predicate `pred` returns true, providing an optional `timeout` period of time an optional `interval` on which to attempt the predicate."
+  "Make the browser wait until the predicate `pred` returns true, providing an optional `timeout` in milliseconds and an optional `interval` in milliseconds on which to attempt the predicate. If the timeout is exceeded, an exception is thrown.
+
+   The predicate is a function that accepts the browser `Driver` record as its single parameter, and should return a truthy/falsey value.
+
+   Examples:
+   =========
+
+   ;;
+   ;; Simple example (taken from unit tests)
+   ;;
+   ;; Wait until the title of the page is 'asdf'
+   ;;
+   (execute-script \"setTimeout(function () { window.document.title = 'asdf'}, 3000)\")
+   (wait-until (fn [d] (= \"asdf\" (core/title d))))"
   ([pred] (wait/wait-until *driver* pred))
   ([pred timeout] (wait/wait-until *driver* pred timeout))
   ([pred timeout interval] (wait/wait-until *driver* pred timeout interval)))
 
 (defn implicit-wait
-  "Set the global `timeout` that the browser should wait when attempting to find elements on the page, before timing out with an exception."
+  "Set the global `timeout` that the browser should wait when attempting to find elements on the page, before timing out with an exception.
+
+   Examples:
+   =========
+
+   ;;
+   ;; Simple example (taken from unit tests)
+   ;;
+   ;; Set implicit timeout (global) to 3 seconds, then execute JavaScript with a
+   ;; noticeable delay to prove that it works
+   ;;
+   (implicit-wait 3000)
+   (execute-script \"setTimeout(function () { window.document.body.innerHTML = \'<div id='test'>hi!</div>\'}, 1000)\")"
   [timeout]
   (wait/implicit-wait *driver* timeout))
-
-(defn find-element-by
-  "Find an element using the provided `by-clause`. See the functions in `core_by.clj`, available as in the `clj-webdriver.core` namespace."
-  [by-clause]
-  (core/find-element-by *driver* by-clause))
-
-(defn find-elements-by
-  "Find elements using the provided `by-clause`. See the functions in `core_by.clj`, available as in the `clj-webdriver.core` namespace."
-  [by-clause]
-  (core/find-elements-by *driver* by-clause))
 
 (defn find-windows
   "Return all `WindowHandle` records that match the given `attr-val` map.
 
-   Attributes can be anything in a `WindowHandle` record (`:title` or `:url`) or you can pass an `:index` key and a number value to select a window by its open order."
+   Attributes can be anything in a `WindowHandle` record (`:title` or `:url`) or you can pass an `:index` key and a number value to select a window by its open order.
+
+   Examples:
+   =========
+
+   ;;
+   ;; By name
+   ;;
+   (find-windows {:title \"Window Title\"})
+
+   ;;
+   ;; By URL
+   ;;
+   (find-windows {:url \"http://example.com/test-page\"})
+
+   ;;
+   ;; By index
+   ;;
+   (find-windows {:index 2})"
   [attr-val]
   (core/find-windows *driver* attr-val))
 
 (defn find-window
   "Return the first `WindowHandle` record that matches the given `attr-val` map.
 
-   Attributes can be anything in a `WindowHandle` record (`:title` or `:url`) or you can pass an `:index` key and a number value to select a window by its open order."
+   Attributes can be anything in a `WindowHandle` record (`:title` or `:url`) or you can pass an `:index` key and a number value to select a window by its open order.
+
+   Examples:
+   =========
+
+   ;;
+   ;; By name
+   ;;
+   (find-window {:title \"Window Title\"})
+
+   ;;
+   ;; By URL
+   ;;
+   (find-window {:url \"http://example.com/test-page\"})
+
+   ;;
+   ;; By index
+   ;;
+   (find-window {:index 2})"
   [attr-val] (core/find-window *driver* attr-val))
 
 (defn find-table-cell
-  "Within the table found with query `table-q`, return the table cell at coordinates `coords`. The top-left cell has coordinates `[0 0]`."
+  "Within the table found with query `table-q`, return the table cell at coordinates `coords`. The top-left cell has coordinates `[0 0]`.
+
+   Examples:
+   =========
+
+   ;;
+   ;; Simple example, find 2nd cell on 2nd row from top
+   ;;
+   (find-table-cell \"table#my-table\" [1 1])"
   [table-q coords]
   (core/find-table-cell *driver* (element table-q) coords))
 
 (defn find-table-row
-  "Within the table found with query `table-q`, return the cells at row number `row`. The top-most row is row `0`."
+  "Within the table found with query `table-q`, return a seq of all cells at row number `row`. The top-most row is row `0` (zero-based index).
+
+   Examples:
+   =========
+
+   ;;
+   ;; Simple example, return cells in second row
+   ;;
+   (find-table-row \"table#my-table\" 1)"
   [table-q row]
   (core/find-table-row *driver* (element table-q) row))
 
@@ -525,12 +720,30 @@
     * An HTML element attribute and its value (e.g., `{:class \"external\"}`)
     * An HTML element attribute and a regular expression that partially matches the value (e.g., `{:class #\"exter\"}`)
     * A 'meta' tag `:button*`, `:radio`, `:checkbox`, `:textfield`, `:password`, `:filefield` (e.g., `{:tag :button*}`)
-    * The key `:index` and the zero-based index (order) of the target element on the page (e.g., `{:index 2}` retrieves the third element that matches)"
+    * The key `:index` and the zero-based index (order) of the target element on the page (e.g., `{:index 2}` retrieves the third element that matches)
+    * A vector of attr-val maps like the above, representing a hierarchical query (auto-generates XPath)
+
+   Examples:
+   =========
+
+   ;;
+   ;; Medley of possibilities
+   ;;
+   (find-elements {:css \"a.foo\"})
+   (find-elements {:xpath \"//a[@class='foo']\"})
+   (find-elements {:tag :a, :text \"Login\"})
+   (find-elements {:tag :a, :class #\"exter\"})
+   (find-elements {:tag :a, :index 4}) ;; 5th anchor tag
+   (find-elements {:tag :button*, :class \"foo\"})
+   (find-elements {:tag :radio, :class \"choice\"})
+   (find-elements [{:tag :div, :id \"container\"},
+                   {:tag :a, :class \"external\"}])
+"
   [attr-val]
   (core/find-elements *driver* attr-val))
 
 (defn find-element
-  "Return the first `Element` record that matches the given `attr-val`. Prefer the default behavior of `element` when possible.
+  "Return first `Element` record that matches the given `attr-val`. Prefer the default behavior of `element` when possible.
 
    Whereas the `element` function uses a query `q` with the default finder function, this function requires an `attr-val` parameter which is either a map or a vector of maps with special semantics for finding elements on the page.
 
@@ -541,7 +754,25 @@
     * An HTML element attribute and its value (e.g., `{:class \"external\"}`)
     * An HTML element attribute and a regular expression that partially matches the value (e.g., `{:class #\"exter\"}`)
     * A 'meta' tag `:button*`, `:radio`, `:checkbox`, `:textfield`, `:password`, `:filefield` (e.g., `{:tag :button*}`)
-    * The key `:index` and the zero-based index (order) of the target element on the page (e.g., `{:index 2}` retrieves the third element that matches)"
+    * The key `:index` and the zero-based index (order) of the target element on the page (e.g., `{:index 2}` retrieves the third element that matches)
+    * A vector of attr-val maps like the above, representing a hierarchical query (auto-generates XPath)
+
+   Examples:
+   =========
+
+   ;;
+   ;; Medley of possibilities
+   ;;
+   (find-element {:css \"a.foo\"})
+   (find-element {:xpath \"//a[@class='foo']\"})
+   (find-element {:tag :a, :text \"Login\"})
+   (find-element {:tag :a, :class #\"exter\"})
+   (find-element {:tag :a, :index 4}) ;; 5th anchor tag
+   (find-element {:tag :button*, :class \"foo\"})
+   (find-element {:tag :radio, :class \"choice\"})
+   (find-element [{:tag :div, :id \"container\"},
+                   {:tag :a, :class \"external\"}])
+"
   [attr-val]
   (core/find-element *driver* attr-val))
 
@@ -555,25 +786,43 @@
 ;; The map will currently generate a (by-xpath ...) form for you based on the map,
 ;; but it's not as powerful as the core/find-element map syntax (which handles things
 ;; like button*, radio, checkbox, etc.).
-(defn find-element-under
-  "Find the first element that is a child of the element found with query `q-parent`, using the given `by-clause`. If `q-parent` is an `Element`, it will be used as-is. See the functions in `core_by.clj`, available as in the `clj-webdriver.core` namespace.
-
-   Note that this function is intended to fit better with `find-element` by allowing a full `attr-val` map instead of a `by-clause`, which will be implemented pending a re-write of `find-elements`."
-  [q-parent by-clause]
-  (if (element? q-parent)
-    (core/find-element q-parent by-clause)
-    (core/find-element (element q-parent) by-clause)))
-
 (defn find-elements-under
   "Find the elements that are children of the element found with query `q-parent`, using the given `by-clause`. If `q-parent` is an `Element`, it will be used as-is. See the functions in `core_by.clj`, available as in the `clj-webdriver.core` namespace.
 
-   Note that this function is intended to fit better with `find-element` by allowing a full `attr-val` map instead of a `by-clause`, which will be implemented pending a re-write of `find-elements`."
+   Note that this function is intended to fit better with `find-element` by allowing a full `attr-val` map instead of a `by-clause`, which will be implemented pending a re-write of `find-elements`.
+
+   Examples:
+   =========
+
+   ;;
+   ;; Simple example, find an element with id \"foo\" within a div with id \"container\"
+   ;;
+   (find-elements-under \"div#container\" (core/by-id \"foo\")"
   [q-parent by-clause]
   (if (element? q-parent)
     (core/find-elements q-parent by-clause)
     (core/find-elements (element q-parent) by-clause)))
 
-;; Element functions
+(defn find-element-under
+  "Find the first element that is a child of the element found with query `q-parent`, using the given `by-clause`. If `q-parent` is an `Element`, it will be used as-is. See the functions in `core_by.clj`, available as in the `clj-webdriver.core` namespace.
+
+   Note that this function is intended to fit better with `find-element` by allowing a full `attr-val` map instead of a `by-clause`, which will be implemented pending a re-write of `find-elements`.
+
+   Examples:
+   =========
+
+   ;;
+   ;; Simple example, find an element with id \"foo\" within a div with id \"container\"
+   ;;
+   (find-element-under \"div#container\" (core/by-id \"foo\")"
+  [q-parent by-clause]
+  (if (element? q-parent)
+    (core/find-element q-parent by-clause)
+    (core/find-element (element q-parent) by-clause)))
+
+
+
+;; ## Element functions ##
 ;;
 ;; Unlike their counterparts in core, you don't need to do a `(find-element ...)`
 ;; with these; just pass in a CSS query followed by other necessary parameters
@@ -584,212 +833,485 @@
 ;; back to core functionality (expecting that you're passing in an Element record)
 
 (defn attribute
-  "For the first element found with query `q`, return the value of the given `attribute`."
+  "For the first element found with query `q`, return the value of the given `attribute`.
+
+   Examples:
+   =========
+
+   ;;
+   ;; Example medley for an anchor tag with id \"foo\", class \"bar\", and target \"_blank\"
+   ;;
+   (attribute \"a#foo\" :id)     ;=> \"foo\"
+   (attribute \"a#foo\" :class)  ;=> \"bar\"
+   (attribute \"a#foo\" :target) ;=> \"_blank\""
   [q attr]
   (core/attribute (element q) attr))
 
 (defn click
-  "Click the first element found with query `q`."
+  "Click the first element found with query `q`.
+
+   Examples:
+   =========
+
+   (click \"a#foo\")"
   [q]
   (core/click (element q)))
 
 (defn displayed?
-  "Return true if the first element found with query `q` is visible on the page."
+  "Return true if the first element found with query `q` is visible on the page.
+
+   Examples:
+   =========
+
+   (displayed? \"div#container\") ;=> true
+   (displayed? \"a.hidden\")      ;=> false"
   [q]
   (core/displayed? (element q)))
 
 (defn drag-and-drop
-  "Drag the first element found with query `qa` onto the first element found with query `qb`."
+  "Drag the first element found with query `qa` onto the first element found with query `qb`.
+
+   Examples:
+   =========
+
+   ;;
+   ;; Drag div with id \"draggable\" onto div with id \"droppable\"
+   ;;
+   (drag-and-drop \"#draggable\" \"#droppable\")"
   [qa qb]
   (core/drag-and-drop *driver* (element qa) (element qb)))
 
 (defn drag-and-drop-by
-  "Drag the first element found with query `q` by `x` pixels to the right and `y` pixels down. Use negative numbers for `x` or `y` to move left or up respectively."
-  [q x y]
+  "Drag the first element found with query `q` by `:x` pixels to the right and `:y` pixels down, passed in as a map like `{:x 10, :y 10}`. Values default to zero if excluded. Use negative numbers for `:x` and `:y` to move left or up respectively.
+
+   Examples:
+   =========
+
+   ;;
+   ;; Drag a div with id \"draggable\" 20 pixels to the right
+   ;;
+   (drag-and-drop-by \"#draggable\" {:x 20})
+
+   ;;
+   ;; Drag a div with id \"draggable\" 10 pixels down
+   ;;
+   (drag-and-drop-by \"#draggable\" {:y 10})
+
+   ;;
+   ;; Drag a div with id \"draggable\" 15 pixels to the left and 5 pixels up
+   ;;
+   (drag-and-drop-by \"#draggable\" {:x -15, :y -5})"
+  [q x-y-map]
   (core/drag-and-drop-by *driver* (element q) x y))
 
 (defn exists?
-  "Return true if the first element found with query `q` exists on the current page in the browser."
+  "Return true if the first element found with query `q` exists on the current page in the browser.
+
+   Examples:
+   =========
+
+   (exists? \"a#foo\")   ;=> true
+   (exists? \"footer\")  ;=> false"
   [q]
   (core/exists? (element q)))
 
 (defn flash
-  "Flash the background color of the first element found with query `q`."
+  "Flash the background color of the first element found with query `q`.
+
+   Examples:
+   =========
+
+   (flash \"a.hard-to-see\")"
   [q]
   (core/flash (element q)))
 
 (defn focus
-  "Explicitly give the first element found with query `q` focus on the page."
+  "Explicitly give the first element found with query `q` focus on the page.
+
+   Examples:
+   =========
+
+   (focus \"input.next-element\")"
   [q]
   (core/focus (element q)))
 
 (defn html
-  "Return the inner html of the first element found with query `q`."
+  "Return the inner html of the first element found with query `q`.
+
+   Examples:
+   =========
+
+   (html \"div.with-interesting-html\")"
   [q]
   (core/html (element q)))
 
 (defn location
-  "Return a map of `:x` and `:y` coordinates for the first element found with query `q`."
+  "Return a map of `:x` and `:y` coordinates for the first element found with query `q`.
+
+   Examples:
+   =========
+
+   (location \"a#foo\") ;=> {:x 240, :y 300}"
   [q]
   (core/location (element q)))
 
 (defn location-once-visible
-  "Return a map of `:x` and `:y` coordinates for the first element found with query `q` once the page has been scrolled enough to be visible in the viewport."
+  "Return a map of `:x` and `:y` coordinates for the first element found with query `q` once the page has been scrolled enough to be visible in the viewport.
+
+   Examples:
+   =========
+
+   (location-once-visible \"a#foo\") ;=> {:x 240, :y 300}"
   [q]
   (core/location-once-visible (element q)))
 
 (defn present?
-  "Return true if the first element found with query `q` both exists and is visible on the page."
+  "Return true if the first element found with query `q` both exists and is visible on the page.
+
+   Examples:
+   =========
+
+   (present? \"div#container\")        ;=> true
+   (present? \"a#skip-to-navigation\") ;=> false"
   [q]
   (core/present? (element q)))
 
 (defn size
-  "Return the size of the first element found with query `q` in pixels."
+  "Return the size of the first element found with query `q` in pixels as a map of `:width` and `:height`..
+
+   Examples:
+   =========
+
+   (size \"div#container\") ;=> {:width 960, :height 2000} "
   [q]
   (core/size (element q)))
 
 (defn rectangle
-  "Return a `java.awt.Rectangle` with the position and dimensions of the first element found with query `q` (using the `location` and `size` functions)."
+  "Return a `java.awt.Rectangle` with the position and dimensions of the first element found with query `q` (using the `location` and `size` functions).
+
+   Examples:
+   =========
+
+   (rectangle \"div#login\") ;=> #<Rectangle java.awt.Rectangle[x=279,y=132,width=403,height=265]>"
   [q]
   (core/rectangle (element q)))
 
 (defn intersect?
-  "Return true if the first element found with query `q` intersects with any of the elements found with queries `qs`."
+  "Return true if the first element found with query `q` intersects with any of the elements found with queries `qs`.
+
+   Examples:
+   =========
+
+   (intersect? \"#login\" \"#login_field\")    ;=> true
+   (intersect? \"#login_field\" \"#password\") ;=> false"
   [q & qs]
   (apply (partial core/intersect? (element q))
          (map element qs)))
 
 (defn tag
-  "Return the HTML tag for the first element found with query `q`."
+  "Return the HTML tag for the first element found with query `q`.
+
+   Examples:
+   =========
+
+   (tag \"#foo\") ;=> \"a\""
   [q]
   (core/tag (element q)))
 
 (defn text
-  "Return the text within the first element found with query `q`."
+  "Return the text within the first element found with query `q`.
+
+   Examples:
+   =========
+
+   (text \"#message\") ;=> \"An error occurred.\""
   [q]
   (core/text (element q)))
 
 (defn value
-  "Return the value of the HTML value attribute for the first element found with query `q`. The is identical to `(attribute q :value)`"
+  "Return the value of the HTML value attribute for the first element found with query `q`. The is identical to `(attribute q :value)`
+
+   Examples:
+   =========
+
+   (value \"#my-button\") ;=> \"submit\" "
   [q]
   (core/value (element q)))
 
 (defn visible?
-  "Return true if the first element found with query `q` is visible on the current page in the browser."
+  "Return true if the first element found with query `q` is visible on the current page in the browser.
+
+   Examples:
+   =========
+
+   (visible? \"div#container\") ;=> true
+   (visible? \"a.hidden\")      ;=> false"
   [q]
   (core/visible? (element q)))
 
 (defn xpath
-  "Return an absolute XPath path for the first element found with query `q`. NOTE: This function relies on executing JavaScript in the browser, and is therefore not as dependable as other functions."
+  "Return an absolute XPath path for the first element found with query `q`. NOTE: This function relies on executing JavaScript in the browser, and is therefore not as dependable as other functions.
+
+   Examples:
+   =========
+
+   (xpath \"#login_field\") ;=> \"/html/body/div[2]/div/div/form/div[2]/label/input\""
   [q]
   (core/xpath (element q)))
 
 (defn deselect
-  "If the first form element found with query `q` is selected, click the element to deselect it. Otherwise, do nothing and just return the element found."
+  "If the first form element found with query `q` is selected, click the element to deselect it. Otherwise, do nothing and just return the element found.
+
+   Examples:
+   =========
+
+   (deselect \"input.already-selected\") ;=> click
+   (deselect \"input.not-selected\")     ;=> do nothing"
   [q]
   (core/deselect (element q)))
 
 (defn enabled?
-  "Return true if the first form element found with query `q` is enabled (not disabled)."
+  "Return true if the first form element found with query `q` is enabled (not disabled).
+
+   Examples:
+   =========
+
+   (enabled? \"input\")                      ;=> true
+   (enabled? \"input[disabled='disabled']\") ;=> false"
   [q] (core/enabled? (element q)))
 
 (defn input-text
-  "Type the string `s` into the first form element found with query `q`."
+  "Type the string `s` into the first form element found with query `q`.
+
+   Examples:
+   =========
+
+   (input-text \"input#login_field\" \"semperos\")"
   [q s]
   (core/input-text (element q) s))
 
 (defn submit
-  "Submit the form that the first form element found with query `q` belongs to (this is equivalent to pressing ENTER in a text field while filling out a form)."
+  "Submit the form that the first form element found with query `q` belongs to (this is equivalent to pressing ENTER in a text field while filling out a form).
+
+   Examples:
+   =========
+
+   (submit \"input#password\")"
   [q]
   (core/submit (element q)))
 
 (defn clear
-  "Clear the contents (the HTML value attribute) of the first form element found with query `q`."
+  "Clear the contents (the HTML value attribute) of the first form element found with query `q`.
+
+   Examples:
+   =========
+
+   (clear \"input.with-default-text\")"
   [q]
   (core/clear (element q)))
 
 (defn select
-  "If the first form element found with query `q` is not selected, click the element to select it. Otherwise, do nothing and just return the element found."
+  "If the first form element found with query `q` is not selected, click the element to select it. Otherwise, do nothing and just return the element found.
+
+   Examples:
+   =========
+
+   (select \"input.already-selected\") ;=> do nothing
+   (select \"input.not-selected\")     ;=> click"
   [q]
   (core/select (element q)))
 
 (defn selected?
-  "Return true if the first element found with the query `q` is selected (works for radio buttons, checkboxes, and option tags within select lists)."
+  "Return true if the first element found with the query `q` is selected (works for radio buttons, checkboxes, and option tags within select lists).
+
+   Examples:
+   =========
+
+   (selected? \"input[type='radio'][value='foo']\") ;=> true
+   (selected? \"option[value='foo']\")              ;=> false "
   [q] (core/selected? (element q)))
 
 (defn send-keys
-  "Type the string `s` into the first form element found with query `q`."
+  "Type the string `s` into the first form element found with query `q`.
+
+   Examples:
+   =========
+
+   (input-text \"input#login_field\" \"semperos\")"
   [q s]
   (core/send-keys (element q) s))
 
 (defn toggle
-  "Toggle is a synonym for click. Click the first element found with query `q`."
+  "Toggle is a synonym for click. Click the first element found with query `q`.
+
+   Examples:
+   =========
+
+   (toggle \"input[type='checkbox'][value='foo']\")"
   [q]
   (core/toggle (element q)))
 
 (defn options
-  "Return all option elements within the first select list found with query `q`."
+  "Return all option elements within the first select list found with query `q`.
+
+   Examples:
+   =========
+
+   (options \"#my-select-list\")"
   [q]
   (core/all-options (element q)))
 
 (defn selected-options
-  "Return all selected option elements within the first select list found with query `q`."
+  "Return all selected option elements within the first select list found with query `q`.
+
+   Examples:
+   =========
+
+   (selected-options \"#my-select-list\")"
   [q]
   (core/all-selected-options (element q)))
 
 (defn deselect-option
   "Deselect the option element matching `attr-val` within the first select list found with query `q`. 
 
-   The `attr-val` can contain `:index`, `:value`, or `:text` keys to find the target option element. Index is the zero-based order of the option element in the list, value is the value of the HTML value attribute, and text is the visible text of the option element on the page."
+   The `attr-val` can contain `:index`, `:value`, or `:text` keys to find the target option element. Index is the zero-based order of the option element in the list, value is the value of the HTML value attribute, and text is the visible text of the option element on the page.
+
+   Examples:
+   =========
+
+   ;;
+   ;; By index, select 3rd option element
+   ;;
+   (deselect-option \"#my-select-list\" {:index 2})
+
+   ;;
+   ;; By value of option element
+   ;;
+   (deselect-option \"#my-select-list\" {:value \"foo\"})
+
+   ;;
+   ;; By visible text of option element
+   ;;
+   (deselect-option \"#my-select-list\" {:value \"Foo\"})"
   [q attr-val]
   (core/deselect-option (element q) attr-val))
 
 (defn deselect-all
-  "Deselect all options within the first select list found with query `q`."
+  "Deselect all options within the first select list found with query `q`.
+
+   Examples:
+   =========
+
+   (deselect-all \"#my-select-list\")"
   [q] (core/deselect-all (element q)))
 
 (defn deselect-by-index
-  "Deselect the option element at index `idx` (zero-based) within the first select list found with query `q`."
+  "Deselect the option element at index `idx` (zero-based) within the first select list found with query `q`.
+
+   Examples:
+   =========
+
+   ;;
+   ;; Deselect by index, deselect 2nd element
+   ;;
+   (deselect-by-index \"#my-select-list\" 1)"
   [q idx] (core/deselect-by-index (element q) idx))
 
 (defn deselect-by-text
-  "Deselect the option element with visible text `text` within the first select list found with query `q`."
+  "Deselect the option element with visible text `text` within the first select list found with query `q`.
+
+   Examples:
+   =========
+
+   (deselect-by-text \"#my-select-list\" \"Foo\")"
   [q text]
   (core/deselect-by-text (element q) text))
 
 (defn deselect-by-value
-  "Deselect the option element with `value` within the first select list found with query `q`."
+  "Deselect the option element with `value` within the first select list found with query `q`.
+
+   Examples:
+   =========
+
+   (deselect-by-value \"#my-select-list\" \"foo\")"
   [q value]
   (core/deselect-by-value (element q) value))
 
 (defn multiple?
-  "Return true if the first select list found with query `q` allows multiple selections."
+  "Return true if the first select list found with query `q` allows multiple selections.
+
+   Examples:
+   =========
+
+   (multiple? \"select.multiple\")     ;=> true
+   (multiple? \"select.not-multiple\") ;=> false "
   [q] (core/multiple? (element q)))
 
 (defn select-option
   "Select the option element matching `attr-val` within the first select list found with query `q`. 
 
-   The `attr-val` can contain `:index`, `:value`, or `:text` keys to find the target option element. Index is the zero-based order of the option element in the list, value is the value of the HTML value attribute, and text is the visible text of the option element on the page."
+   The `attr-val` can contain `:index`, `:value`, or `:text` keys to find the target option element. Index is the zero-based order of the option element in the list, value is the value of the HTML value attribute, and text is the visible text of the option element on the page.
+
+   Examples:
+   =========
+
+   ;;
+   ;; By index, select 3rd option element
+   ;;
+   (select-option \"#my-select-list\" {:index 2})
+
+   ;;
+   ;; By value of option element
+   ;;
+   (select-option \"#my-select-list\" {:value \"foo\"})
+
+   ;;
+   ;; By visible text of option element
+   ;;
+   (select-option \"#my-select-list\" {:value \"Foo\"})"
   [q attr-val]
   (core/select-option (element q) attr-val))
 
 (defn select-all
-  "Select all options within the first select list found with query `q`."
+  "Select all options within the first select list found with query `q`.
+
+   Examples:
+   =========
+
+   (deselect-all \"#my-select-list\")"
   [q]
   (core/select-all (element q)))
 
 (defn select-by-index
-  "Select the option element at index `idx` (zero-based) within the first select list found with query `q`."
+  "Select the option element at index `idx` (zero-based) within the first select list found with query `q`.
+
+   Examples:
+   =========
+
+   ;;
+   ;; Select by index, select 2nd element
+   ;;
+   (select-by-index \"#my-select-list\" 1)"
   [q idx]
   (core/select-by-index (element q) idx))
 
 (defn select-by-text
-  "Select the option element with visible text `text` within the first select list found with query `q`."
+  "Select the option element with visible text `text` within the first select list found with query `q`.
+
+   Examples:
+   =========
+
+   (select-by-text \"#my-select-list\" \"foo\")"
   [q text]
   (core/select-by-text (element q) text))
 
 (defn select-by-value
-  "Deselect the option element with `value` within the first select list found with query `q`."
+  "Deselect the option element with `value` within the first select list found with query `q`.
+
+   Examples:
+   =========
+
+   (deselect-by-value \"#my-select-list\" \"foo\")"
   [q value]
   (core/select-by-value (element q) value))
 
@@ -816,7 +1338,9 @@
 
    Note that an \"action\" that is just a String will be interpreted as a call to `input-text` with that String for the target text field.
 
-   Example usage:
+   Examples:
+   =========
+
    (quick-fill {\"#first_name\" \"Rich\"}
                {\"a.foo\" click})"
   [& query-action-maps]
@@ -831,7 +1355,9 @@
 
    Note that an \"action\" that is just a String will be interpreted as a call to `input-text` with that String for the target text field.
 
-   Example usage:
+   Examples:
+   =========
+
    (quick-fill {\"#first_name\" \"Rich\"}
                {\"a.foo\" click})"
   [& query-action-maps]
