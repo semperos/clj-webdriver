@@ -1,6 +1,7 @@
 ;; The faster way to use clj-webdriver: take a taxi
 (ns clj-webdriver.taxi
-  (:use [clj-webdriver.element :only [element?]])
+  (:use [clj-webdriver.element :only [element?]]
+        [clj-webdriver.driver :only [driver?]])
   (:require [clj-webdriver.core :as core]
             [clj-webdriver.options :as options]
             [clj-webdriver.wait :as wait])
@@ -13,7 +14,9 @@
 (defn- set-driver*
   "Given a `browser-spec`, instantiate a new Driver record and assign to `*driver*`."
   [browser-spec]
-  (let [new-driver (core/new-driver browser-spec)]
+  (let [new-driver (if (driver? browser-spec)
+                     browser-spec
+                     (core/new-driver browser-spec))]
        (alter-var-root (var *driver*)
                        (constantly new-driver)
                        (when (thread-bound? (var *driver*))
