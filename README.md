@@ -2,6 +2,28 @@
 
 This is a Clojure library for driving a web browser using Selenium-WebDriver as the backend. For more comprehensive documentation on all of clj-webdriver's features, read the [Github wiki](https://github.com/semperos/clj-webdriver/wiki). You can generate documentation locally with `lein doc` (API docs) or `lein marg` (annotated source).
 
+<table>
+  <thead>
+    <tr>
+      <th>Release Type</th>
+      <th>Date</th>
+      <th>Leiningen/Maven</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Stable</td>
+      <td>Feb 15 2012</td>
+      <td><code>[clj-webdriver "0.5.1"]</code></td>
+    </tr>
+    <tr>
+      <td>Pre-Release</td>
+      <td>Feb 20 2012</td>
+      <td><code>[clj-webdriver "0.6.0-alpha3]</code></td>
+    </tr>
+  </tbody>
+</table>
+
 **clj-webdriver Resources**
 
  * [Project Wiki](https://github.com/semperos/clj-webdriver/wiki)
