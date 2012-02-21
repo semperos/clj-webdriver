@@ -43,7 +43,12 @@
                  :cache-spec {:strategy :basic,
                               :args [{}],
                               :include [ (fn [element] (= (attribute element :class) \"external\"))
-                                         {:css \"ol#pages\"}]}"
+                                         {:css \"ol#pages\"}]}
+
+   ;;
+   ;; Use existing Driver record
+   ;;
+   (set-driver! a-driver)"
   ([browser-spec] (set-driver* browser-spec))
   ([browser-spec url] (to (set-driver* browser-spec) url)))
 
