@@ -71,7 +71,7 @@ Forms can be filled out en masse using the `quick-fill-submit` function:
 
 ## Documentation ##
 
-For API documentation on the high-level Taxi API (shown above), please [see its wiki page](https://github.com/semperos/clj-webdriver/wiki/Taxi%3A-Concise%2C-High-level-API).
+For API documentation on the high-level Taxi API (shown above), please [see its wiki page](https://github.com/semperos/clj-webdriver/wiki/Introduction%3A-Taxi).
 
 For reference documentation, run `lein doc` at the root of this repo. For annotated source documentation, run `lein marg`.
 
