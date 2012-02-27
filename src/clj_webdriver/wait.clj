@@ -25,7 +25,10 @@
     ([driver pred] (wait-until driver pred 5000 0))
     ([driver pred timeout] (wait-until driver pred timeout 0))
     ([driver pred timeout interval]
-       (let [wait (WebDriverWait. (:webdriver driver) (/ timeout 1000) interval)]
+       (let [wait (WebDriverWait. (:webdriver driver) (/ timeout 1000) interval)
+             pred (if (fn? pred)
+                    pred
+                    (fn [_] pred))]
          (.until wait (proxy [ExpectedCondition] []
                         (apply [d] (pred (init-driver {:webdriver d})))))
          driver))))
