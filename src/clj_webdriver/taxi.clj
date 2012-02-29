@@ -647,11 +647,11 @@
    ;; Wait until the title of the page is 'asdf'
    ;;
    (execute-script \"setTimeout(function () { window.document.title = 'asdf'}, 3000)\")
-   (wait-until (fn [d] (= \"asdf\" (core/title d))))"
-  ([pred] (wait/wait-until *driver* pred))
-  ([pred timeout] (wait/wait-until *driver* pred timeout))
-  ([pred timeout interval] (wait/wait-until *driver* pred timeout interval))
-  ([driver pred timeout interval] (wait/wait-until driver pred timeout interval)))
+   (wait-until (fn [_] (= (title) \"asdf\")))"
+  ([pred] (wait/wait-until *driver* (fn [_] pred)))
+  ([pred timeout] (wait/wait-until *driver* (fn [_] pred) timeout))
+  ([pred timeout interval] (wait/wait-until *driver* (fn [_] pred) timeout interval))
+  ([driver pred timeout interval] (wait/wait-until driver (fn [_] pred) timeout interval)))
 
 (defn implicit-wait
   "Set the global `timeout` that the browser should wait when attempting to find elements on the page, before timing out with an exception.
