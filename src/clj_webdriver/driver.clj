@@ -20,10 +20,11 @@
                 (:args cache-spec)))))))
 
 (defn init-driver
-  "Constructor for Driver records.
+  "Constructor for Driver records. Accepts a `driver-spec` map with the following keys:
 
    webdriver - WebDriver instance
-   cache-spec - map with keys :strategy, :args, :include and :exclude"
+   cache-spec - map with keys :strategy, :args, :include and :exclude, used to setup caching rules"
+  ([] (Driver. nil nil nil))
   ([driver-spec]
      (let [{:keys [webdriver cache-spec]} driver-spec]
        (Driver. webdriver
