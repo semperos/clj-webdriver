@@ -325,16 +325,16 @@
   ;; Wait functionality ;;
   (fact (title) => "Ministache")
   (execute-script "setTimeout(function () { window.document.title = \"asdf\"}, 3000)")
-  (wait-until (fn [d] (= "asdf" (title d))))
+  (wait-until #(= (title) "asdf"))
 
   (fact (thrown? TimeoutException
                  (do
                    (execute-script "setTimeout(function () { window.document.title = \"test\"}, 6000)")
-                   (wait-until (fn [d] (= "test" (title d)))))))
+                   (wait-until #(= (title) "test")))))
   (fact (thrown? TimeoutException
                  (do
                    (execute-script "setTimeout(function () { window.document.title = \"test\"}, 6000)")
-                   (wait-until (fn [d] (= "test" (title d))) 1000))))
+                   (wait-until #(= (title) "test") 1000))))
 
   ;; Implicit Wait ;;
   (go)
