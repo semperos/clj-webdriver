@@ -482,16 +482,16 @@
 (defn wait-until-should-wait-for-condition
   [driver]
   (is (= "Ministache" (title driver)))
-  (execute-script driver "setTimeout(function () { window.document.title = \"asdf\"}, 3000)")
-  (wait-until driver (fn [d#] (= "asdf" (title d#))))
-  (is (= "asdf" (title driver))))
+  (execute-script driver "setTimeout(function () { window.document.title = \"asdf\"}, 2000)")
+  (wait-until driver (fn [d] (= (title d) "asdf")))
+  (is (= (title driver) "asdf")))
 
 (defn wait-until-should-throw-on-timeout
   [driver]
   (is (thrown? TimeoutException
                (do
                  (execute-script driver "setTimeout(function () { window.document.title = \"test\"}, 6000)")
-                 (wait-until driver (fn [d#] (= "test" (title d#))))))))
+                 (wait-until driver (fn [d] (= "test" (title d))))))))
 
 (defn wait-until-should-allow-timeout-argument
   [driver]
