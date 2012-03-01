@@ -647,7 +647,14 @@
    ;; Wait until the title of the page is 'asdf'
    ;;
    (execute-script \"setTimeout(function () { window.document.title = 'asdf'}, 3000)\")
-   (wait-until (fn [_] (= (title) \"asdf\")))"
+   (wait-until #(= (title) \"asdf\"))
+
+   ;;
+   ;; Wait until an element exists
+   ;;
+   (... code to load page ...)
+   (wait-until #(exists? \"#foo\"))
+   (click \"#foo a.bar\")"
   ([pred] (wait/wait-until *driver* (fn [_] pred)))
   ([pred timeout] (wait/wait-until *driver* (fn [_] pred) timeout))
   ([pred timeout interval] (wait/wait-until *driver* (fn [_] pred) timeout interval))
