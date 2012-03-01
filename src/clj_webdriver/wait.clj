@@ -27,5 +27,12 @@
     ([driver pred timeout interval]
        (let [wait (WebDriverWait. (:webdriver driver) (/ timeout 1000) interval)]
          (.until wait (proxy [ExpectedCondition] []
-                        (apply [d] (pred (init-driver {:webdriver d})))))
+                        (apply [d] (let [result (pred (init-driver {:webdriver d}))]
+                                     ;; This allows us to wrap zero-arity functions
+                                     ;; in a single-arity function, so we don't need
+                                     ;; to write a macro or different function.
+                                     ;; (Taxi API support)
+                                     (if (fn? result)
+                                       (result)
+                                       result)))))
          driver))))
