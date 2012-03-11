@@ -247,46 +247,6 @@
   (find-window [driver attr-val]
     (first (find-windows driver attr-val)))
 
-  (find-semantic-buttons [driver attr-val]
-    (let [attr-val (dissoc attr-val :tag)
-          xpath-parts ["//input[@type='submit']"
-                       "//input[@type='reset']"
-                       "//input[@type='image']"
-                       "//input[@type='button']"
-                       "//button"]
-          xpath-full (if (or (nil? attr-val) (empty? attr-val))
-                       (interpose "|" xpath-parts)
-                       (conj
-                        (->> (repeat (str (build-xpath-attrs attr-val) "|"))
-                             (interleave (drop-last xpath-parts))
-                             vec)
-                        (str "//button" (build-xpath-attrs attr-val))))]
-      (->> (apply str xpath-full)
-           by-xpath
-           (find-elements-by driver))))
-
-  ;; (find-semantic-buttons [driver attr-val]
-  ;;   (let [ending (if (or (nil? attr-val) (empty? attr-val))
-  ;;                  ""
-  ;;                  (build-css-attrs (dissoc :tag attr-val)))
-  ;;         css-full-queries (for [beginning ["input[type='submit']"
-  ;;                                           "input[type='reset']"
-  ;;                                           "input[type='image']"
-  ;;                                           "input[type='button']"
-  ;;                                           "button"]]
-  ;;                            (str beginning ending))]
-  ;;     (remove #(nil? (:webelement %))
-  ;;             (flatten (for [query css-full-queries]
-  ;;                        (find-elements driver (by-css query)))))))
-
-  (find-semantic-buttons-by-regex [driver attr-val]
-    (let [attr-vals-without-regex (into {}
-                                        (remove
-                                         #(let [[k v] %] (= java.util.regex.Pattern (class v)))
-                                         attr-val))
-          elements (find-semantic-buttons driver attr-vals-without-regex)]
-      (filter-elements-by-regex elements attr-val)))
-
   (find-checkables-by-text [driver attr-val]
     (if (contains-regex? attr-val)
       (throw (IllegalArgumentException.
@@ -381,7 +341,7 @@
             (and (> (count attr-val) 1)
                  (contains? attr-val :css))            (find-elements driver {:css (:css attr-val)})
 
-                 (contains? attr-val :index)                (find-elements-by driver (by-xpath (build-xpath attr-val)))
+            (contains? attr-val :index)                (find-elements-by driver (by-xpath (build-xpath attr-val)))
           (= (:tag attr-val) :radio)                             (find-elements driver (assoc attr-val :tag :input :type "radio"))
           (= (:tag attr-val) :checkbox)                          (find-elements driver (assoc attr-val :tag :input :type "checkbox"))
           (= (:tag attr-val) :textfield)                         (find-elements driver (assoc attr-val :tag :input :type "text"))
@@ -393,9 +353,6 @@
                    (= "checkbox" (:type attr-val)))
                (or (contains? attr-val :text)
                    (contains? attr-val :label)))       (find-checkables-by-text driver attr-val)
-          (= (:tag attr-val) :button*)                 (if (contains-regex? attr-val)
-                                                         (find-semantic-buttons-by-regex driver attr-val)
-                                                         (find-semantic-buttons driver attr-val))
           (= 1 (count attr-val))                     (let [entry (first attr-val)
                                                            attr  (key entry)
                                                            value (val entry)]
