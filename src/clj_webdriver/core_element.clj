@@ -237,13 +237,13 @@
   IFind
   (find-element-by [element by]
     (let [by (if (map? by)
-               (by-xpath (build-xpath (:tag by) by :local))
+               (by-xpath (build-xpath by :local))
                by)]
       (init-element (.findElement (:webelement element) by))))
   
   (find-elements-by [element by]
     (let [by (if (map? by)
-               (by-xpath (build-xpath (:tag by) by :local))
+               (by-xpath (build-xpath by :local))
                by)
           els (.findElements (:webelement element) by)]
       (if (seq els)

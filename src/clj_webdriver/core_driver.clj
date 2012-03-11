@@ -200,13 +200,13 @@
   IFind
   (find-element-by [driver by]
     (let [by (if (map? by)
-               (by-xpath (build-xpath (:tag by) by))
+               (by-xpath (build-xpath by))
                by)]
       (init-element (.findElement (:webdriver driver) by))))
 
   (find-elements-by [driver by]
     (let [by (if (map? by)
-               (by-xpath (build-xpath (:tag by) by))
+               (by-xpath (build-xpath by))
                by)
           els (.findElements (:webdriver driver) by)]
       (if (seq els)
@@ -297,7 +297,7 @@
                       :text
                       :label)
             other-attr-vals (dissoc attr-val text-kw)
-            non-text-xpath (build-xpath :input other-attr-vals)
+            non-text-xpath (build-xpath (assoc other-attr-vals :tag :input))
             text-xpath (str non-text-xpath "[contains(..,'" (text-kw attr-val) "')]")]
         (find-elements-by driver (by-xpath text-xpath)))))
   ;; (find-checkables-by-text [driver attr-val]
@@ -381,7 +381,7 @@
             (and (> (count attr-val) 1)
                  (contains? attr-val :css))            (find-elements driver {:css (:css attr-val)})
 
-          (contains? attr-val :index)                (find-elements-by driver (by-xpath (build-xpath (:tag attr-val) attr-val)))
+                 (contains? attr-val :index)                (find-elements-by driver (by-xpath (build-xpath attr-val)))
           (= (:tag attr-val) :radio)                             (find-elements driver (assoc attr-val :tag :input :type "radio"))
           (= (:tag attr-val) :checkbox)                          (find-elements driver (assoc attr-val :tag :input :type "checkbox"))
           (= (:tag attr-val) :textfield)                         (find-elements driver (assoc attr-val :tag :input :type "text"))
@@ -405,7 +405,7 @@
                                                          (= java.util.regex.Pattern (class value)) (find-elements-by-regex-alone driver (:tag attr-val) attr-val)
                                                          :else           (find-elements-by driver (by-attr= (:tag attr-val) attr value))))
           (contains-regex? attr-val)                 (find-elements-by-regex driver (:tag attr-val) attr-val)
-          :else                                      (find-elements-by driver (by-xpath (build-xpath (:tag attr-val) attr-val))))
+          :else                                      (find-elements-by driver (by-xpath (build-xpath attr-val))))
            (catch org.openqa.selenium.NoSuchElementException e
              ;; NoSuchElementException caught here, so we can have functions like `exist?`
              (lazy-seq (init-element nil)))))))

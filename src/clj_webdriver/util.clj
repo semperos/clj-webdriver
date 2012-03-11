@@ -53,18 +53,19 @@
 
 (defn build-xpath
   "Given a tag and a map of attribute-value pairs, generate XPath"
-  ([tag attr-val] (build-xpath tag attr-val :global))
-  ([tag attr-val prefix]
+  ([attr-val] (build-xpath attr-val :global))
+  ([attr-val prefix]
      (when-not (contains-regex? attr-val)
-       (if (nil? tag)
-         (build-xpath :* attr-val)
-         (let [attr-val (dissoc attr-val :tag)
-               prefix-legend {:local "."
-                              :global ""}]
-           (str (get prefix-legend prefix) "//"
-                (name tag)
-                (when-not (empty? attr-val)
-                  (build-xpath-attrs attr-val))))))))
+       (let [tag (if (nil? (:tag attr-val))
+                   :*
+                   (:tag attr-val))
+             attr-val (dissoc attr-val :tag)
+             prefix-legend {:local "."
+                            :global ""}]
+         (str (get prefix-legend prefix) "//"
+              (name tag)
+              (when-not (empty? attr-val)
+                (build-xpath-attrs attr-val)))))))
 
 (defn build-xpath-with-ancestry
   "Given a vector of queries in hierarchical order, create XPath.
@@ -82,8 +83,7 @@
                                            :textfield
                                            :password
                                            :filefield]) (throw (IllegalArgumentException. "Hierarchical queries do not support the use of \"meta\" tags such as :button*, :radio, :checkbox, :textfield, :password or :filefield. "))
-                                           (not (contains? attr-val :tag)) (build-xpath :* attr-val)
-                                           :else (build-xpath (:tag attr-val) (dissoc attr-val :tag))))))
+                                           :else (build-xpath attr-val)))))
 
 (defn contains-regex?
   "Checks if the values of a map contain a regex"
