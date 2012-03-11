@@ -247,33 +247,6 @@
   (find-window [driver attr-val]
     (first (find-windows driver attr-val)))
 
-  (find-checkables-by-text [driver attr-val]
-    (if (contains-regex? attr-val)
-      (throw (IllegalArgumentException.
-              (str "Combining regular expressions and the 'text' attribute "
-                   "for finding radio buttons and checkboxes "
-                   "is not supported at this time.")))
-      (let [text-kw (if (contains? attr-val :text)
-                      :text
-                      :label)
-            other-attr-vals (dissoc attr-val text-kw)
-            non-text-xpath (build-xpath (assoc other-attr-vals :tag :input))
-            text-xpath (str non-text-xpath "[contains(..,'" (text-kw attr-val) "')]")]
-        (find-elements-by driver (by-xpath text-xpath)))))
-  ;; (find-checkables-by-text [driver attr-val]
-  ;;   (if (contains-regex? attr-val)
-  ;;     (throw (IllegalArgumentException.
-  ;;             (str "Combining regular expressions and the 'text' attribute "
-  ;;                  "for finding radio buttons and checkboxes "
-  ;;                  "is not supported at this time.")))
-  ;;     (let [text-kw (if (contains? attr-val :text)
-  ;;                     :text
-  ;;                     :label)
-  ;;           other-attr-vals (dissoc attr-val text-kw)
-  ;;           non-text-css (build-css :input other-attr-vals)
-  ;;           text-css (str non-text-css ":contains(\"^" (text-kw attr-val) "$\")")]
-  ;;       (find-elements-by driver (by-css text-css)))))
-
   (find-table-cell [driver table coords]
     (when (not= (count coords) 2)
       (throw (IllegalArgumentException.
@@ -347,12 +320,6 @@
           (= (:tag attr-val) :textfield)                         (find-elements driver (assoc attr-val :tag :input :type "text"))
           (= (:tag attr-val) :password)                          (find-elements driver (assoc attr-val :tag :input :type "password"))
           (= (:tag attr-val) :filefield)                         (find-elements driver (assoc attr-val :tag :input :type "file"))
-          (and (= (:tag attr-val) :input)
-               (contains? attr-val :type)
-               (or (= "radio" (:type attr-val))
-                   (= "checkbox" (:type attr-val)))
-               (or (contains? attr-val :text)
-                   (contains? attr-val :label)))       (find-checkables-by-text driver attr-val)
           (= 1 (count attr-val))                     (let [entry (first attr-val)
                                                            attr  (key entry)
                                                            value (val entry)]
