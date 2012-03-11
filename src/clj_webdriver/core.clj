@@ -71,7 +71,6 @@
   (find-elements-by-regex [driver tag attr-val])
   (find-windows [driver attr-val] "Given a browser `driver` and a map of attributes, return the WindowHandles that match")
   (find-window [driver attr-val] "Given a browser `driver` and a map of attributes, return the WindowHandles that match")
-  (find-checkables-by-text [driver attr-val] "Finding the 'text' of a radio or checkbox is complex. Handle it here.")
   (find-table-cell [driver table coordinates] "Given a `driver`, a `table` element, and a zero-based set of coordinates for row and column, return the table cell at those coordinates for the given table.")
   (find-table-row [driver table row-index] "Return all cells in the row of the given table element, `row-index` as a zero-based index of the target row.")
   (find-by-hierarchy [driver hierarchy-vector] "Given a Webdriver `driver` and a vector `hierarchy-vector`, return a lazy seq of the described elements in the hierarchy dictated by the order of elements in the `hierarchy-vector`.")
