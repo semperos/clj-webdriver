@@ -10,7 +10,7 @@
   (:import [org.openqa.selenium TimeoutException]))
 
 (defonce test-server (run-jetty #'web-app/routes {:port test-port, :join? false}))
-(def driver {:browser :firefox})
+(def driver {:browser :chrome})
 (defn- go
   ([] (go ""))
   ([path] (to (str test-base-url path))))
@@ -201,14 +201,6 @@
    (attribute "#purpose_here" :readonly) => "readonly"
    (attribute "#disabled_field" :readonly) => nil?
    (attribute "#purpose_here" :disabled) => nil?)
-
-  ;; Buttons
-  (facts
-   (count (find-elements {:tag :button*})) => 4
-   (count (find-elements {:tag :button*, :class "button-button"}))  => 1
-   (count (find-elements {:tag :button*, :id "input-input-button"}))  => 1
-   (count (find-elements {:tag :button*, :class "input-submit-button"}))  => 1
-   (count (find-elements {:tag :button*, :class "input-reset-button"}))  => 1)
 
   ;; Select Lists
   (let [q "select#countries"]
