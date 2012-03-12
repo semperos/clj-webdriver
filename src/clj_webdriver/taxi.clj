@@ -3,6 +3,7 @@
   (:use [clj-webdriver.element :only [element?]]
         [clj-webdriver.driver :only [driver?]])
   (:require [clj-webdriver.core :as core]
+            [clj-webdriver.util :as util]
             [clj-webdriver.options :as options]
             [clj-webdriver.wait :as wait])
   (:import clj_webdriver.element.Element))

@@ -5,6 +5,8 @@
            [org.openqa.selenium WebDriver WebElement]
            java.io.Writer))
 
+(declare build-query)
+
 (defn build-css-attrs
   "Given a map of attribute-value pairs, build the latter portion of a CSS query that follows the tag."
   [attr-val]
@@ -13,31 +15,6 @@
                  (= :text attr) (throw (IllegalArgumentException. "CSS queries do not support checking against the text of an element."))
                  (= :index attr) (str ":nth-child(" (inc value) ")") ;; CSS is 1-based
                  :else (str "[" (name attr) "='" value "']")))))
-
-(declare contains-regex?)
-(defn build-css
-  "Given a tag and attr-val map, generate a complete CSS query."
-  [tag attr-val]
-  (when-not (contains-regex? attr-val)
-    (let [attr-val (dissoc attr-val :tag)]
-      (str (name tag)
-           (when-not (empty? attr-val)
-             (build-css-attrs attr-val))))))
-
-(defn build-css-with-ancestry
-  "Given a vector of queries in hierarchical order, create a CSS query.
-   For example: `[{:tag :div, :id \"content\"}, {:tag :a, :class \"external\"}]` would
-   produce the CSS query \"div[id='content'] a[class='external']\""
-  [v-of-attr-vals]
-  (apply str
-         (interpose " "
-                    (for [attr-val v-of-attr-vals]
-                      (cond
-                        (or (contains? attr-val :css)
-                            (contains? attr-val :xpath)) (throw (IllegalArgumentException. "Hierarhical queries do not support the use of :css or :css entries."))
-                        (not (contains? attr-val :tag)) (build-css :* attr-val)
-                        :else (build-css (:tag attr-val) (dissoc attr-val :tag)))))))
-
 
 (defn build-xpath-attrs
   "Given a map of attribute-value pairs, build the bracketed portion of an XPath query that follows the tag"
@@ -51,23 +28,26 @@
                            "="
                            "'" (name value) "']")))))
 
-(defn build-xpath
-  "Given a tag and a map of attribute-value pairs, generate XPath"
-  ([attr-val] (build-xpath attr-val :global))
-  ([attr-val prefix]
-     (when-not (contains-regex? attr-val)
-       (let [tag (if (nil? (:tag attr-val))
-                   :*
-                   (:tag attr-val))
-             attr-val (dissoc attr-val :tag)
-             prefix-legend {:local "."
-                            :global ""}]
-         (str (get prefix-legend prefix) "//"
-              (name tag)
-              (when-not (empty? attr-val)
-                (build-xpath-attrs attr-val)))))))
+(defn build-css-with-hierarchy
+  "Given a vector of queries in hierarchical order, create a CSS query.
+   For example: `[{:tag :div, :id \"content\"}, {:tag :a, :class \"external\"}]` would
+   produce the CSS query \"div[id='content'] a[class='external']\""
+  [v-of-attr-vals]
+  (apply str
+         (interpose " "
+                    (for [attr-val v-of-attr-vals]
+                      (cond
+                        (or (contains? attr-val :css)
+                              (contains? attr-val :xpath)) (throw (IllegalArgumentException. "Hierarhical queries do not support the use of :css or :xpath entries."))
+                        (some #{(:tag attr-val)} [:radio
+                                                  :checkbox
+                                                  :textfield
+                                                  :password
+                                                  :filefield]) (throw (IllegalArgumentException. "Hierarchical queries do not support the use of \"meta\" tags such as :button*, :radio, :checkbox, :textfield, :password or :filefield. "))
 
-(defn build-xpath-with-ancestry
+                        :else (:css (build-query attr-val :css)))))))
+
+(defn build-xpath-with-hierarchy
   "Given a vector of queries in hierarchical order, create XPath.
    For example: `[{:tag :div, :id \"content\"}, {:tag :a, :class \"external\"}]` would
    produce the XPath \"//div[@id='content']//a[@class='external']"
@@ -77,13 +57,52 @@
            (cond
              (or (contains? attr-val :css)
                  (contains? attr-val :xpath)) (throw (IllegalArgumentException. "Hierarhical queries do not support the use of :css or :xpath entries."))
-                 (some #{(:tag attr-val)} [:button*
-                                           :radio
+                 (some #{(:tag attr-val)} [:radio
                                            :checkbox
                                            :textfield
                                            :password
                                            :filefield]) (throw (IllegalArgumentException. "Hierarchical queries do not support the use of \"meta\" tags such as :button*, :radio, :checkbox, :textfield, :password or :filefield. "))
-                                           :else (build-xpath attr-val)))))
+                                           :else (:xpath (build-query attr-val))))))
+
+
+(declare remove-regex-entries)
+(defn build-query
+  "Given a map of attribute-value pairs, generate XPath or CSS based on `output`. Optionally include a `prefix` to specify whether this should be a `:global` \"top-level\" query or a `:local`, child query."
+  ([attr-val] (build-query attr-val :xpath :global))
+  ([attr-val output] (build-query attr-val output :global))
+  ([attr-val output prefix]
+     (if (not (map? attr-val)) ;; dispatch here for hierarhical queries
+       (if (= output :xpath)
+         (build-xpath-with-hierarchy attr-val)
+         (build-css-with-hierarchy attr-val))
+       (let [attr-val (remove-regex-entries attr-val)]
+         (cond
+           (contains? attr-val :xpath)      {:xpath (:xpath attr-val)}
+           (contains? attr-val :css)        {:css (:css attr-val)}
+           (= (:tag attr-val) :radio)       (build-query (assoc attr-val :tag :input :type "radio"))
+           (= (:tag attr-val) :checkbox)    (build-query (assoc attr-val :tag :input :type "checkbox"))
+           (= (:tag attr-val) :textfield)   (build-query (assoc attr-val :tag :input :type "text"))
+           (= (:tag attr-val) :password)    (build-query (assoc attr-val :tag :input :type "password"))
+           (= (:tag attr-val) :filefield)   (build-query (assoc attr-val :tag :input :type "filefield"))
+           :else (let [tag (if (nil? (:tag attr-val))
+                             :*
+                             (:tag attr-val))
+                       attr-val (dissoc attr-val :tag)
+                       prefix-legend {:local "."
+                                      :global ""}]
+                   (if (= output :xpath)
+                     (let [query-str (str (prefix-legend prefix) "//"
+                                          (name tag)
+                                          (when-not (empty? attr-val)
+                                            (build-xpath-attrs attr-val)))]
+                       {:xpath query-str})
+                     ;; else, CSS
+                     (let [query-str (str (name tag)
+                                          (when-not (empty? attr-val)
+                                            (build-css-attrs attr-val)))]
+                       {:css query-str}))))))))
+
+
 
 (defn contains-regex?
   "Checks if the values of a map contain a regex"
@@ -100,11 +119,19 @@
                     (let [[k v] entry]
                       (not= java.util.regex.Pattern (class v)))) m))))
 
-(defn query-with-ancestry-has-regex?
-  "Check if any values in maps as part of ancestry-based query have a regex"
-  [v-of-ms]
-  (boolean (some true? (for [m v-of-ms]
-                         (contains-regex? m)))))
+(defn filter-regex-entries
+  "Given a map `m`, return a map containing only entries whose values are regular expressions."
+  [m]
+  (into {} (filter
+            #(let [[k v] %] (= java.util.regex.Pattern (class v)))
+            m)))
+
+(defn remove-regex-entries
+  "Given a map `m`, return a map containing only entries whose values are NOT regular expressions."
+  [m]
+  (into {} (remove
+            #(let [[k v] %] (= java.util.regex.Pattern (class v)))
+            m)))
 
 (defn first-60
   "Get first twenty characters of `s`, then add ellipsis"

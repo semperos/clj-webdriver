@@ -43,6 +43,14 @@
 
 (def by-css-selector by-css)
 
+(defn by-query
+  "Given a map with either an `:xpath` or `:css` key, return the respective by-* function (`by-xpath` or `by-css`) using the value for that key."
+  [{:keys [xpath css] :as m}]
+  (cond
+    xpath (by-xpath (:xpath m))
+    css (by-css (:css m))
+    :else (throw (IllegalArgumentException. "You must provide either an `:xpath` or `:css` entry."))))
+
 (defn by-class-name
   "Used when finding elements. Returns `By/className` of `expr`"
   [expr]

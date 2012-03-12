@@ -12,21 +12,23 @@
   ;; Element action basics
   IElement
   (attribute [element attr]
-    (let [attr (name attr)
-          boolean-attrs ["async", "autofocus", "autoplay", "checked", "compact", "complete",
-                         "controls", "declare", "defaultchecked", "defaultselected", "defer",
-                         "disabled", "draggable", "ended", "formnovalidate", "hidden",
-                         "indeterminate", "iscontenteditable", "ismap", "itemscope", "loop",
-                         "multiple", "muted", "nohref", "noresize", "noshade", "novalidate",
-                         "nowrap", "open", "paused", "pubdate", "readonly", "required",
-                         "reversed", "scoped", "seamless", "seeking", "selected", "spellcheck",
-                         "truespeed", "willvalidate"]
-          webdriver-result (.getAttribute (:webelement element) (name attr))]
-      (if (some #{attr} boolean-attrs)
-        (if (= webdriver-result "true")
-          attr
-          nil)
-        webdriver-result)))
+    (if (= attr :text)
+      (text element)
+      (let [attr (name attr)
+            boolean-attrs ["async", "autofocus", "autoplay", "checked", "compact", "complete",
+                           "controls", "declare", "defaultchecked", "defaultselected", "defer",
+                           "disabled", "draggable", "ended", "formnovalidate", "hidden",
+                           "indeterminate", "iscontenteditable", "ismap", "itemscope", "loop",
+                           "multiple", "muted", "nohref", "noresize", "noshade", "novalidate",
+                           "nowrap", "open", "paused", "pubdate", "readonly", "required",
+                           "reversed", "scoped", "seamless", "seeking", "selected", "spellcheck",
+                           "truespeed", "willvalidate"]
+            webdriver-result (.getAttribute (:webelement element) (name attr))]
+        (if (some #{attr} boolean-attrs)
+          (if (= webdriver-result "true")
+            attr
+            nil)
+          webdriver-result))))
   
   (click [element]
     (.click (:webelement element))
@@ -237,13 +239,13 @@
   IFind
   (find-element-by [element by]
     (let [by (if (map? by)
-               (by-xpath (build-xpath by :local))
+               (by-query (build-query by :local))
                by)]
       (init-element (.findElement (:webelement element) by))))
   
   (find-elements-by [element by]
     (let [by (if (map? by)
-               (by-xpath (build-xpath by :local))
+               (by-query (build-query by :local))
                by)
           els (.findElements (:webelement element) by)]
       (if (seq els)
