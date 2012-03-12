@@ -831,38 +831,29 @@
 
 
 ;; Element versions of find-element-by and find-elements-by
-
-;; Querying "under" elements
-;; This is the part that will see more love once #42 is fixed (decouple by-* determination)
-;;
-;; You can either use a by-foo function (in clj-webdriver.core), or a map.
-;; The map will currently generate a (by-xpath ...) form for you based on the map,
-;; but it's not as powerful as the core/find-element map syntax (which handles things
-;; like button*, radio, checkbox, etc.).
 (defn find-elements-under
-  "Find the elements that are children of the element found with query `q-parent`, using the given `by-clause`. If `q-parent` is an `Element`, it will be used as-is. See the functions in `core_by.clj`, available as in the `clj-webdriver.core` namespace.
+  "Find the elements that are children of the element found with query `q-parent`, using the given `attr-val`. If `q-parent` is an `Element`, it will be used as-is. The `attr-val` can either be a find-element-style map of attributes and values, or a by-clause (`by-tag`, `by-class`, etc.)
 
-   Note that this function is intended to fit better with `find-element` by allowing a full `attr-val` map instead of a `by-clause`, which will be implemented pending a re-write of `find-elements`.
 
    Examples:
    =========
 
    ;;
-   ;; Example using by-clause, find an element with id \"foo\" within a div with id \"container\"
+   ;; Example using a map
    ;;
-   (find-elements-under \"div#container\" (core/by-id \"foo\")
+   (find-elements-under  \"div#container\" {:tag :a, :id \"foo\"})
 
    ;;
-   ;; Example using map, which generates a (by-xpath ...) form
+   ;; Example using by-clause, find an element with id \"foo\" within a div with id \"container\"
    ;;
-   (find-elements-under  \"div#container\" {:tag :a, :id \"foo\"})"
-  [q-parent by-clause]
+   (find-elements-under \"div#container\" (core/by-id \"foo\")"
+  [q-parent attr-val]
   (if (element? q-parent)
-    (core/find-elements q-parent by-clause)
-    (core/find-elements (element q-parent) by-clause)))
+    (core/find-elements q-parent attr-val)
+    (core/find-elements (element q-parent) attr-val)))
 
 (defn find-element-under
-  "Find the first element that is a child of the element found with query `q-parent`, using the given `by-clause`. If `q-parent` is an `Element`, it will be used as-is. See the functions in `core_by.clj`, available as in the `clj-webdriver.core` namespace.
+  "Find the first element that is a child of the element found with query `q-parent`, using the given `attr-val`. If `q-parent` is an `Element`, it will be used as-is. The `attr-val` can either be a find-element-style map of attributes and values, or a by-clause (`by-tag`, `by-class`, etc.)
 
    Note that this function is intended to fit better with `find-element` by allowing a full `attr-val` map instead of a `by-clause`, which will be implemented pending a re-write of `find-elements`.
 
@@ -870,18 +861,18 @@
    =========
 
    ;;
-   ;; Example using by-clause, find an element with id \"foo\" within a div with id \"container\"
-   ;;
-   (find-element-under \"div#container\" (core/by-id \"foo\")
-
-   ;;
    ;; Example using map, which generates a (by-xpath ...) form
    ;;
-   (find-element-under  \"div#container\" {:tag :a, :id \"foo\"})"
-  [q-parent by-clause]
+   (find-element-under  \"div#container\" {:tag :a, :id \"foo\"})
+
+   ;;
+   ;; Example using by-clause, find an element with id \"foo\" within a div with id \"container\"
+   ;;
+   (find-element-under \"div#container\" (core/by-id \"foo\")"
+  [q-parent attr-val]
   (if (element? q-parent)
-    (core/find-element q-parent by-clause)
-    (core/find-element (element q-parent) by-clause)))
+    (core/find-element q-parent attr-val)
+    (core/find-element (element q-parent) attr-val)))
 
 
 
