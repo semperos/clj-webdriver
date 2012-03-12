@@ -9,19 +9,6 @@
 ;;  * IFind
 (in-ns 'clj-webdriver.core)
 
-;; Utility used below
-(defn filter-elements-by-regex
-  "Given a collection of Element records, filter the collection by the regular expression values for the respective attributes in the `attr-val` map. Entries should be HTML attributes."
-  [attr-val elements]
-  (let [attr-vals-with-regex (filter-regex-entries attr-val)]
-    (flatten (for [[attr value] attr-vals-with-regex]
-               (reduce (fn [state item]
-                         (if ((fnil (partial re-find value) "")
-                              (attribute item (name attr)))
-                           (conj state item)
-                           state))
-                       [] elements)))))
-
 (extend-type Driver
 
   ;; Basic Functions
