@@ -231,12 +231,10 @@
 
   (find-elements
     ([driver attr-val]
-       (if (and (or
-                 (map? attr-val)
-                 (vector? attr-val))
-                (empty? attr-val))
-         ;; Return nil, not everything
-         nil
+       (when-not (and (or
+                       (map? attr-val)
+                       (vector? attr-val))
+                      (empty? attr-val))
          (try
            (cond
             ;; Accept by-clauses

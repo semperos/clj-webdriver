@@ -25,9 +25,8 @@
                            "truespeed", "willvalidate"]
             webdriver-result (.getAttribute (:webelement element) (name attr))]
         (if (some #{attr} boolean-attrs)
-          (if (= webdriver-result "true")
-            attr
-            nil)
+          (when (= webdriver-result "true")
+            attr)
           webdriver-result))))
   
   (click [element]

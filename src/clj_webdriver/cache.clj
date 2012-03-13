@@ -136,19 +136,19 @@
         (let [excludes (get-in driver [:cache-spec :exclude])]
           (if (element? query)
             ;; WebElement
-            (let [excludes (remove #(map? %) excludes)]
+            (let [excludes (remove map? excludes)]
               (not (some #{true} (map (fn [f] (f query)) excludes))))
             ;; xpath, css or ancestry
-            (let [excludes (remove #(fn? %) excludes)]
+            (let [excludes (remove fn? excludes)]
               (not (some (fn [exclude-item] (= query exclude-item)) excludes)))))
         ;; handle includes
         (let [includes (get-in driver [:cache-spec :include])]
           (if (element? query)
             ;; WebElement
-            (let [includes (remove #(map? %) includes)]
+            (let [includes (remove map? includes)]
               (some #{true} (map (fn [f] (f query)) includes)))
             ;; xpath, css or ancestry
-            (let [includes (remove #(fn? %) includes)]
+            (let [includes (remove fn? includes)]
               (some (fn [include-item] (= query include-item)) includes))))))))
 
 (defn set-status

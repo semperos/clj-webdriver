@@ -57,7 +57,7 @@
   (let [expr (str expr)]
     (if (re-find #"\s" expr)
       (let [classes (string/split expr #"\s+")
-            class-query (apply str (interpose "." classes))]
+            class-query (string/join "." classes)]
         (by-css (str "*." class-query)))
       (By/className (name expr)))))
 
@@ -71,7 +71,7 @@
      (cond
          (= :class attr)  (if (re-find #"\s" value)
                             (let [classes (string/split value #"\s+")
-                                  class-query (apply str (interpose "." classes))]
+                                  class-query (string/join "." classes)]
                               (by-css (str (name tag) class-query)))
                             (by-class-name value))
          (= :id attr)     (by-id value)
