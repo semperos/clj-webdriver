@@ -166,7 +166,7 @@
     driver)
   
   (cookies [driver]
-    (into #{} (map #(init-cookie {:cookie %})
+    (set (map #(init-cookie {:cookie %})
                    (.getCookies (.manage (:webdriver driver))))))
   
   (cookie-named [driver cookie-name]

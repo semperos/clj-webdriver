@@ -3,7 +3,8 @@
   (:use [cheshire.core :only [parse-string]]
         [clojure.walk :only [keywordize-keys]])
   (:require [clj-http.client :as client]
-            [clj-webdriver.remote.server :as rs])
+            [clj-webdriver.remote.server :as rs]
+            [clojure.string :as string])
   (:import clj_webdriver.remote.server.RemoteServer))
 
 (def default-wd-url "http://localhost:3001/wd/")
@@ -26,7 +27,7 @@
                     (vector commands)
                     commands)
           resp (client/get (str (rs/address server)
-                                (apply str (interpose "/" commands))))
+                                (string/join "/" commands)))
           body (parse-body resp)]
       (keywordize-keys (assoc resp :body body))))
 

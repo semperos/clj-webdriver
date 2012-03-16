@@ -33,19 +33,19 @@
    For example: `[{:tag :div, :id \"content\"}, {:tag :a, :class \"external\"}]` would
    produce the CSS query \"div[id='content'] a[class='external']\""
   [v-of-attr-vals]
-  (apply str
-         (interpose " "
-                    (for [attr-val v-of-attr-vals]
-                      (cond
-                        (or (contains? attr-val :css)
-                              (contains? attr-val :xpath)) (throw (IllegalArgumentException. "Hierarhical queries do not support the use of :css or :xpath entries."))
-                        (some #{(:tag attr-val)} [:radio
-                                                  :checkbox
-                                                  :textfield
-                                                  :password
-                                                  :filefield]) (throw (IllegalArgumentException. "Hierarchical queries do not support the use of \"meta\" tags such as :button*, :radio, :checkbox, :textfield, :password or :filefield. "))
-
-                        :else (:css (build-query attr-val :css)))))))
+  (str/join
+   " "
+   (for [attr-val v-of-attr-vals]
+     (cond
+      (or (contains? attr-val :css)
+          (contains? attr-val :xpath)) (throw (IllegalArgumentException. "Hierarhical queries do not support the use of :css or :xpath entries."))
+          (some #{(:tag attr-val)} [:radio
+                                    :checkbox
+                                    :textfield
+                                    :password
+                                    :filefield]) (throw (IllegalArgumentException. "Hierarchical queries do not support the use of \"meta\" tags such as :button*, :radio, :checkbox, :textfield, :password or :filefield. "))
+                                    
+                                    :else (:css (build-query attr-val :css))))))
 
 (defn build-xpath-with-hierarchy
   "Given a vector of queries in hierarchical order, create XPath.
@@ -71,7 +71,7 @@
   ([attr-val] (build-query attr-val :xpath :global))
   ([attr-val output] (build-query attr-val output :global))
   ([attr-val output prefix]
-     (if (not (map? attr-val)) ;; dispatch here for hierarhical queries
+     (if-not (map? attr-val) ;; dispatch here for hierarhical queries
        (if (= output :xpath)
          (build-xpath-with-hierarchy attr-val)
          (build-css-with-hierarchy attr-val))
@@ -137,9 +137,8 @@
   "Get first twenty characters of `s`, then add ellipsis"
   [s]
   (str (re-find #"(?s).{1,60}" s)
-       (if (> (count s) 60)
-         "..."
-         nil)))
+       (when (> (count s) 60)
+         "...")))
 
 (defn elim-breaks
   "Eliminate line breaks; used for REPL printing"
@@ -246,7 +245,7 @@
           "Browser: "               (.getBrowserName caps) ", "
           "Version: "               (.getVersion caps) ", "
           "JS Enabled: "            (.isJavascriptEnabled caps) ", "
-          "Native Events Enabled: " (boolean (re-find #"nativeEvents=true" (.toString caps))) ", "
+          "Native Events Enabled: " (boolean (re-find #"nativeEvents=true" (str caps))) ", "
           "Object: "                q ">") w)))
 
 (defmethod print-method WebElement
