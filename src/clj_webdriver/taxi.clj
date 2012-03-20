@@ -160,9 +160,10 @@
    This function is used internally by the Taxi API as `*finder*`. See the documentation for `set-finder!` for examples of extending this function or creating your own custom finder function."
   ([q] (css-finder *driver* q))
   ([driver q]
-     (if (element? q)
-       q
-       (core/find-elements driver {:css q}))))
+     (cond
+      (element? q) q
+      (map? q)     (core/find-elements driver q)
+      :else        (core/find-elements driver {:css q}))))
 
 (set-finder! css-finder)
 
@@ -172,9 +173,10 @@
    This function is used internally by the Taxi API as `*finder*`. See the documentation for `set-finder!` for examples of extending this function or creating your own custom finder function."
   ([q] (xpath-finder *driver* q))
   ([driver q]
-     (if (element? q)
-       q
-       (core/find-elements driver {:xpath q}))))
+     (cond
+      (element? q) q
+      (map? q)     (core/find-elements driver q)
+      :else        (core/find-elements driver {:xpath q}))))
 
 ;; Be able to get actual element/elements when needed
 (defn element
