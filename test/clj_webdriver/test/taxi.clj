@@ -65,6 +65,7 @@
    (attribute "input[name='first_name']" :id) => "first_name"
    (text "a") => "home"
    (text "a.menu-item") => "home"
+   (attribute {:tag "a", :class "menu-item"} :class) => "menu-item"
    (text "#footer a.menu-item") => "home"
    (attribute "option[value*='cial_']" :value) => "social_media"
    (attribute "option[value^='social_']" :value) => "social_media"
@@ -73,12 +74,7 @@
   (go)
   (facts
    (attribute "*.first.odd" :class) => "first odd"
-   ;; (attribute (find-element-under (find-element {:tag :li, :text #"simple"})
-   ;;                                (core/by-tag :a))
-   ;;            :href) => "http://clojure.blip.tv/file/4824610/"
-   ;; (attribute (find-element-under (find-element {:tag :li, :text #"simple"})
-   ;;                                {:tag :a})
-   ;;            :href) => "http://clojure.blip.tv/file/4824610/"
+   (tag {:class "external"}) => "a"
    (text (nth (elements "a") 1)) => "Moustache"
    (text "*.external") => "Moustache"
    (attribute "*.first.odd" :class) => "first odd"
@@ -344,6 +340,7 @@
 (with-driver-fn driver xpath-finder
   (go "example-form")
   (facts
+   (text {:tag :a, :text "home"}) => "home"
    (text "//a[text()='home']") => "home"
    (text "//a[text()='example form']") => "example form")
   (go)
