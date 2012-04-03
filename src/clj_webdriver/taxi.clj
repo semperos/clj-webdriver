@@ -771,7 +771,6 @@
     * The key `:css` or `:xpath` and a query value (e.g., `{:css \"a.external\"}`)
     * The key `:tag` and an HTML tag (e.g., `{:tag :a}`)
     * An HTML element attribute and its value (e.g., `{:class \"external\"}`)
-    * An HTML element attribute and a regular expression that partially matches the value (e.g., `{:class #\"exter\"}`)
     * A 'meta' tag `:button*`, `:radio`, `:checkbox`, `:textfield`, `:password`, `:filefield` (e.g., `{:tag :button*}`)
     * The key `:index` and the zero-based index (order) of the target element on the page (e.g., `{:index 2}` retrieves the third element that matches)
     * A vector of attr-val maps like the above, representing a hierarchical query (auto-generates XPath)
@@ -785,7 +784,6 @@
    (find-elements {:css \"a.foo\"})
    (find-elements {:xpath \"//a[@class='foo']\"})
    (find-elements {:tag :a, :text \"Login\"})
-   (find-elements {:tag :a, :class #\"exter\"})
    (find-elements {:tag :a, :index 4}) ;; 5th anchor tag
    (find-elements {:tag :button*, :class \"foo\"})
    (find-elements {:tag :radio, :class \"choice\"})
@@ -806,7 +804,6 @@
     * The key `:css` or `:xpath` and a query value (e.g., `{:css \"a.external\"}`)
     * The key `:tag` and an HTML tag (e.g., `{:tag :a}`)
     * An HTML element attribute and its value (e.g., `{:class \"external\"}`)
-    * An HTML element attribute and a regular expression that partially matches the value (e.g., `{:class #\"exter\"}`)
     * A 'meta' tag `:button*`, `:radio`, `:checkbox`, `:textfield`, `:password`, `:filefield` (e.g., `{:tag :button*}`)
     * The key `:index` and the zero-based index (order) of the target element on the page (e.g., `{:index 2}` retrieves the third element that matches)
     * A vector of attr-val maps like the above, representing a hierarchical query (auto-generates XPath)
@@ -820,7 +817,6 @@
    (find-element {:css \"a.foo\"})
    (find-element {:xpath \"//a[@class='foo']\"})
    (find-element {:tag :a, :text \"Login\"})
-   (find-element {:tag :a, :class #\"exter\"})
    (find-element {:tag :a, :index 4}) ;; 5th anchor tag
    (find-element {:tag :button*, :class \"foo\"})
    (find-element {:tag :radio, :class \"choice\"})
