@@ -1,6 +1,6 @@
 (defproject clj-webdriver "0.6.0-SNAPSHOT"
   :description "Clojure wrapper around Selenium-WebDriver library"
-  :dependencies [[org.clojure/clojure "1.3.0"]
+  :dependencies [[org.clojure/clojure "1.4.0"]
                  [clj-http "0.3.0"]
                  [cheshire "2.1.0"]
                  [org.mortbay.jetty/jetty "6.1.25"]
