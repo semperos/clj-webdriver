@@ -30,8 +30,13 @@
            [org.openqa.selenium.htmlunit HtmlUnitDriver]
            [org.openqa.selenium.support.ui Select]
            [org.openqa.selenium.interactions Actions CompositeAction]
-           [java.util Date]
+           [java.util Date Properties]
            [java.io File]))
+
+;; State and Properties ;;
+(def ^{:dynamic true} *properties* (when (.exists (io/as-file "resources/clj_webdriver.properties"))
+                                     (into {} (doto (Properties.)
+                                        (.load (io/reader "resources/clj_webdriver.properties"))))))
 
 ;; ## Protocols for clj-webdriver API ##
 
