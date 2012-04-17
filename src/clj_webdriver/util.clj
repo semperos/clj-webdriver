@@ -1,9 +1,10 @@
 (ns clj-webdriver.util
   (:require [clojure.string :as str]
+            [clojure.java.io :as io]
             [clj-webdriver.cache :as cache])
   (:import clj_webdriver.driver.Driver
            [org.openqa.selenium WebDriver WebElement]
-           java.io.Writer))
+           [java.io PushbackReader Writer]))
 
 (declare build-query)
 
@@ -278,3 +279,8 @@
          (when-attr src
                     (str "Source: " src ", "))
          "Object: "                  q ">") w)))
+
+(defn read-config
+  [f]
+  (with-open [r (io/reader f)]
+    (read (PushbackReader. r))))

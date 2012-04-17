@@ -13,7 +13,8 @@
 ;; WebDriver API.
 ;;
 (ns clj-webdriver.core
-  (:use [clj-webdriver driver element util window-handle options cookie])
+  (:use [clj-webdriver driver element util window-handle options cookie]
+        [clojure.walk :only [keywordize-keys]])
   (:require [clj-webdriver.js.browserbot :as browserbot-js]
             [clj-webdriver.cache :as cache]
             [clojure.java.io :as io]
@@ -34,9 +35,12 @@
            [java.io File]))
 
 ;; State and Properties ;;
-(def ^{:dynamic true} *properties* (when (.exists (io/as-file "resources/clj_webdriver.properties"))
-                                     (into {} (doto (Properties.)
-                                        (.load (io/reader "resources/clj_webdriver.properties"))))))
+(def ^{:dynamic true} *properties* (keywordize-keys
+                                    (if (.exists (io/as-file "resources/properties.clj"))
+                                      (read-config "resources/properties.clj")
+                                      (when (.exists (io/as-file "resources/clj_webdriver.properties"))
+                                        (into {} (doto (Properties.)
+                                                   (.load (io/reader "resources/clj_webdriver.properties"))))))))
 
 ;; ## Protocols for clj-webdriver API ##
 
