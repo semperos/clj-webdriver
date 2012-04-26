@@ -19,7 +19,7 @@ This is a Clojure library for driving a web browser using Selenium-WebDriver as 
     <tr>
       <td>Pre-Release</td>
       <td>Mar 30 2012</td>
-      <td><code>[clj-webdriver "0.6.0-alpha7]</code></td>
+      <td><code>[clj-webdriver "0.6.0-alpha7"]</code></td>
     </tr>
   </tbody>
 </table>
