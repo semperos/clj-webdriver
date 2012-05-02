@@ -1,4 +1,4 @@
-(defproject clj-webdriver "0.6.0-alpha8"
+(defproject clj-webdriver "0.6.0-SNAPSHOT"
   :description "Clojure wrapper around Selenium-WebDriver library"
   :min-lein-version "2.0.0"
   :profiles {:dev
