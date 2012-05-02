@@ -13,7 +13,7 @@
                  [cheshire "2.1.0"]
                  [org.mortbay.jetty/jetty "6.1.25"]
                  [org.seleniumhq.selenium/selenium-server "2.19.0"]
-                 [com.opera/operadriver "0.10"]
+                 ;; [com.opera/operadriver "0.11"]
                  [org.clojure/core.cache "0.5.0"]
                  [org.clojure/tools.logging "0.2.3"]]
   :description "Clojure wrapper around Selenium-WebDriver library")
