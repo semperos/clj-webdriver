@@ -1,4 +1,6 @@
-(defproject clj-webdriver "0.6.0-SNAPSHOT"   :min-lein-version "2.0.0"
+(defproject clj-webdriver "0.6.0-alpha8"
+  :description "Clojure wrapper around Selenium-WebDriver library"
+  :min-lein-version "2.0.0"
   :profiles {:dev
              {:dependencies
               [[midje "1.3.1"]
@@ -15,5 +17,4 @@
                  [org.seleniumhq.selenium/selenium-server "2.21.0"]
                  ;; [com.opera/operadriver "0.11"]
                  [org.clojure/core.cache "0.5.0"]
-                 [org.clojure/tools.logging "0.2.3"]]
-  :description "Clojure wrapper around Selenium-WebDriver library")
+                 [org.clojure/tools.logging "0.2.3"]])
