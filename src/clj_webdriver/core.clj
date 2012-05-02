@@ -27,7 +27,7 @@
            [org.openqa.selenium.firefox FirefoxDriver]
            [org.openqa.selenium.ie InternetExplorerDriver]
            [org.openqa.selenium.chrome ChromeDriver]
-           [com.opera.core.systems OperaDriver]
+           ;; [com.opera.core.systems OperaDriver]
            [org.openqa.selenium.htmlunit HtmlUnitDriver]
            [org.openqa.selenium.support.ui Select]
            [org.openqa.selenium.interactions Actions CompositeAction]
@@ -170,7 +170,7 @@
   {:firefox FirefoxDriver
    :ie InternetExplorerDriver
    :chrome ChromeDriver
-   :opera OperaDriver
+   ;; :opera OperaDriver
    :htmlunit HtmlUnitDriver})
 
 (defn new-webdriver*
