@@ -109,6 +109,7 @@ Credits to [mikitebeka/webdriver-clj](https://github.com/mikitebeka/webdriver-cl
 
 Many thanks to those who have contributed so far (in nick-alphabetical order):
 
+ * [mangaohua](https://github.com/mangaohua)
  * [maxweber](https://github.com/maxweber) (Max Weber)
  * [RobLally](https://github.com/RobLally) (Rob Lally)
  * [ulsa](https://github.com/ulsa) (Ulrik Sandberg)
