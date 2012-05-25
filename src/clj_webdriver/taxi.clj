@@ -463,7 +463,7 @@
    (switch-to-frame \"#target-frame\")"
   ([frame-q] (switch-to-frame *driver* frame-q))
   ([driver frame-q]
-     (core/switch-to-frame driver (element frame-q))))
+     (core/switch-to-frame driver frame-q)))
 
 ;; TODO: accept a handle or an attr-val that would get the handle
 (defn switch-to-window
