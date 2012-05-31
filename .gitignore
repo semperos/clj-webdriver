@@ -13,3 +13,4 @@ chromedriver.log
 /autodoc
 /doc
 *.tar.gz
+/target/
