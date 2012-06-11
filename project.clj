@@ -1,4 +1,4 @@
-(defproject clj-webdriver "0.6.0-SNAPSHOT"
+(defproject clj-webdriver "0.6.0-alpha9"
   :description "Clojure wrapper around Selenium-WebDriver library"
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [clj-http "0.3.0"]
