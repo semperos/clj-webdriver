@@ -1,5 +1,5 @@
 (ns clj-webdriver.firefox
-  (:use [clj-webdriver.core :only [new-webdriver* *properties*]]
+  (:use [clj-webdriver.properties :only [*properties*]]
         [clj-webdriver.driver :only [init-driver]])
   (:require [clojure.java.io :as io])
   (:import org.openqa.selenium.firefox.FirefoxProfile))
@@ -14,15 +14,15 @@
 
    The `extension` parameter should either be (1) a File object pointing to an extension, (2) a String representation of the full path to an object, or (3) a keyword like `:firebug` which, by convention, will make clj-webdriver check an environment variable `FIREFOX_EXTENSION_FIREBUG`, hence `FIREFOX_EXTENSION_` plus the name of the plugin (keyword to string, dashes to underscores and uppercase)"
   [profile extension]
-  (let [property (str "FIREFOX_EXTENSION_"
-                                  (-> extension
-                                      name
-                                      (.replace "-" "_")
-                                      .toUpperCase))
+  (let [property (keyword (str "FIREFOX_EXTENSION_"
+                               (-> extension
+                                   name
+                                   (.replace "-" "_")
+                                   .toUpperCase)))
         ext-file (if (keyword? extension)
-                   (cond
-                     *properties*  (io/file (*properties* property))
-                     :else         (io/file (System/getenv property))) 
+                   (if (not (empty? *properties*))
+                     (io/file (*properties* property))
+                     (io/file (System/getenv (name property))))
                    (io/file extension))]
     (.addExtension profile ext-file)))
 

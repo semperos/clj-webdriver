@@ -17,6 +17,7 @@
         [clojure.walk :only [keywordize-keys]])
   (:require [clj-webdriver.js.browserbot :as browserbot-js]
             [clj-webdriver.cache :as cache]
+            [clj-webdriver.firefox :as ff]
             [clojure.java.io :as io]
             [clojure.string :as string]
             [clojure.tools.logging :as log])
@@ -31,16 +32,8 @@
            [org.openqa.selenium.htmlunit HtmlUnitDriver]
            [org.openqa.selenium.support.ui Select]
            [org.openqa.selenium.interactions Actions CompositeAction]
-           [java.util Date Properties]
+           [java.util Date]
            [java.io File]))
-
-;; State and Properties ;;
-(def ^{:dynamic true} *properties* (keywordize-keys
-                                    (if (.exists (io/as-file "resources/properties.clj"))
-                                      (read-config "resources/properties.clj")
-                                      (when (.exists (io/as-file "resources/clj_webdriver.properties"))
-                                        (into {} (doto (Properties.)
-                                                   (.load (io/reader "resources/clj_webdriver.properties"))))))))
 
 ;; ## Protocols for clj-webdriver API ##
 
