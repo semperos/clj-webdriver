@@ -1,12 +1,12 @@
 (ns clj-webdriver.test.opera
   (:use clojure.test
-        [clj-webdriver.core :only [start to quit]]
+        [clj-webdriver.core :only [start new-driver to quit]]
         [clj-webdriver.test.common :only [run-common-tests]]
         [clj-webdriver.test.util :only [start-server]]
         [clj-webdriver.test.config :only [test-base-url]]))
 
 ;; Driver definitions
-(def opera-driver (start {:browser :opera} test-base-url))
+(def opera-driver (new-driver {:browser :opera}))
 
 ;; Fixtures
 (defn reset-browser-fixture

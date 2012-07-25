@@ -1,6 +1,6 @@
 (ns clj-webdriver.test.chrome
   (:use clojure.test
-        [clj-webdriver.core :only [start to quit]]
+        [clj-webdriver.core :only [start new-driver to quit]]
         [clj-webdriver.test.common :only [run-common-tests]]
         [clj-webdriver.test.util :only [start-server]]
         [clj-webdriver.test.config :only [test-base-url]])
@@ -8,7 +8,7 @@
 
 ;; Driver definitions
 (log/debug "WARNING: The Chrome driver requires a separate download. See the Selenium-WebDriver wiki for more information if Chrome fails to start.")
-(def chrome-driver (start {:browser :chrome} test-base-url))
+(def chrome-driver (new-driver {:browser :chrome}))
 
 ;; Fixtures
 (defn reset-browser-fixture

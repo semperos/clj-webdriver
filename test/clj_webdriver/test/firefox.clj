@@ -1,6 +1,6 @@
 (ns clj-webdriver.test.firefox
   (:use clojure.test
-        [clj-webdriver.core :only [start current-url find-element quit get-screenshot with-browser attribute to]]
+        [clj-webdriver.core :only [new-driver start current-url find-element quit get-screenshot with-browser attribute to]]
         [clj-webdriver.driver :only [get-cache driver?]]
         [clj-webdriver.test.common :only [run-common-tests]]
         [clj-webdriver.test.util :only [start-server]]
@@ -11,14 +11,13 @@
             [clojure.tools.logging :as log]))
 
 ;; Driver definitions
-(def firefox-driver (start {:browser :firefox
-                            :cache-spec {:strategy :basic,
-                                         :args [{}],
-                                         :include [ (fn [element] (= (attribute element :class) "external"))
-                                                    {:css "ol#pages"}]}}
-                           test-base-url))
+(def firefox-driver (new-driver {:browser :firefox
+                                 :cache-spec {:strategy :basic,
+                                              :args [{}],
+                                              :include [ (fn [element] (= (attribute element :class) "external"))
+                                                         {:css "ol#pages"}]}}))
 
-(def firefox-driver-no-cache (start {:browser :firefox} test-base-url))
+(def firefox-driver-no-cache (new-driver {:browser :firefox}))
 
 ;; Fixtures
 (defn reset-browser-fixture
@@ -86,7 +85,6 @@
   (is (= @(get-cache firefox-driver) {:url (current-url firefox-driver)})))
 
 (deftest test-cacheable?
-  ;; assume at test-base-url
   (is (cache/cacheable? firefox-driver (find-element firefox-driver {:tag :a, :class "external"})))
   (is (not (cache/cacheable? firefox-driver {:class "external"})))
   (is (cache/cacheable? firefox-driver {:css "ol#pages"}))
