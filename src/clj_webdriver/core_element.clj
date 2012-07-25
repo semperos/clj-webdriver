@@ -33,9 +33,9 @@
     (.click (:webelement element))
     (cache/set-status :check)
     nil)
-
-	(css-value [element property]
-		(.getCssValue (:webelement element) property))
+  
+  (css-value [element property]
+    (.getCssValue (:webelement element) property))
 
   (displayed? [element]
     (.isDisplayed (:webelement element)))
@@ -256,3 +256,102 @@
 
   (find-elements [element by]
     (find-elements-by element by)))
+
+(extend-type clojure.lang.PersistentArrayMap
+
+  ;; Element action basics
+  IElement
+  (attribute   [m attr] (attribute (map->Element m) attr))
+
+  (click       [m] (click (map->Element m)))
+
+  (css-value   [m property] (css-value (map->Element m) property))
+
+  (displayed?  [m] (displayed? (map->Element m)))
+
+  (exists?     [m] (exists? (map->Element m)))
+
+  (flash       [m] (flash (map->Element m)))
+
+  (focus [m] (focus (map->Element m)))
+
+  (html [m] (html (map->Element m)))
+
+  (location [m] (location (map->Element m)))
+
+  (location-once-visible [m] (location-once-visible (map->Element m)))
+
+  (present? [m] (present? (map->Element m)))
+
+  (size [m] (size (map->Element m)))
+
+  (rectangle [m] (rectangle (map->Element m)))
+
+  (intersect*? [m-a m-b] (intersect*? (map->Element m-a) (map->Element m-b)))
+
+  (tag [m] (tag (map->Element m)))
+
+  (text [m] (text (map->Element m)))
+
+  (value [m] (value (map->Element m)))
+
+  (visible? [m] (visible? (map->Element m)))
+
+  (xpath [m] (xpath (map->Element m)))
+
+  IFormElement
+  (deselect [m] (deselect (map->Element m)))
+
+  (enabled? [m] (enabled? (map->Element m)))
+
+  (input-text [m s] (input-text (map->Element m) s))
+
+  (submit [m] (submit (map->Element m)))
+
+  (clear [m] (clear (map->Element m)))
+
+  (select [m] (select (map->Element m)))
+
+  (selected? [m] (selected? (map->Element m)))
+
+  (send-keys [m s] (send-keys (map->Element m) s))
+
+  (toggle [m] (toggle (map->Element m)))
+
+  ISelectElement
+  (all-options [m] (all-options (map->Element m)))
+
+  (all-selected-options [m] (all-selected-options (map->Element m)))
+
+  (deselect-option [m attr-val] (deselect-option (map->Element m) attr-val))
+
+  (deselect-all [m] (deselect-all (map->Element m)))
+
+  (deselect-by-index [m idx] (deselect-by-index (map->Element m) idx))
+
+  (deselect-by-text [m text] (deselect-by-text (map->Element m) text))
+
+  (deselect-by-value [m value] (deselect-by-value (map->Element m) value))
+
+  (first-selected-option [m] (first-selected-option (map->Element m)))
+
+  (multiple? [m] (multiple? (map->Element m)))
+
+  (select-option [m attr-val] (select-option (map->Element m) attr-val))
+
+  (select-all [m] (select-all (map->Element m)))
+
+  (select-by-index [m idx] (select-by-index (map->Element m) idx))
+
+  (select-by-text [m text] (select-by-text (map->Element m) text))
+
+  (select-by-value [m value] (select-by-value (map->Element m) value))
+
+  IFind
+  (find-element-by [m by] (find-element-by (map->Element m) by))
+
+  (find-elements-by [m by] (find-elements-by (map->Element m) by))
+
+  (find-element [m by] (find-element (map->Element m) by))
+
+  (find-elements [m by] (find-elements (map->Element m) by)))
