@@ -1,6 +1,6 @@
 (ns clj-webdriver.test.firefox
   (:use clojure.test
-        [clj-webdriver.core :only [new-driver start current-url find-element quit get-screenshot with-browser attribute to]]
+        [clj-webdriver.core :only [new-driver start current-url find-element find-elements quit get-screenshot with-browser attribute to]]
         [clj-webdriver.driver :only [get-cache driver?]]
         [clj-webdriver.test.common :only [run-common-tests]]
         [clj-webdriver.test.util :only [start-server]]
@@ -14,8 +14,8 @@
 (def firefox-driver (new-driver {:browser :firefox
                                  :cache-spec {:strategy :basic,
                                               :args [{}],
-                                              :include [ (fn [element] (= (attribute element :class) "external"))
-                                                         {:css "ol#pages"}]}}))
+                                              :include [ {:css "ol#pages"}
+                                                         {:tag :a, :class "external"} ]}}))
 
 (def firefox-driver-no-cache (new-driver {:browser :firefox}))
 
@@ -34,7 +34,7 @@
 
 (defn seed-driver-cache-fixture
   [f]
-  (cache/seed firefox-driver {:url (current-url firefox-driver), {:query [:foo]} "bar"})
+  (cache/seed firefox-driver {:url (current-url firefox-driver)})
   (f))
 
 (use-fixtures :once start-server quit-browser-fixture)
@@ -59,22 +59,10 @@
 (deftest test-cache-initialization
   (is (cache/cache-enabled? firefox-driver)))
 
-(deftest test-cache-insert
-  ;; insert was used to seed the data in the test fixture; test now for presence
-  (is (= (get @(get-cache firefox-driver) {:query [:foo]}) "bar"))
-  (is (nil? (get @(get-cache firefox-driver) :wowza))))
-
-(deftest test-in-cache?
-  (is (cache/in-cache? firefox-driver {:query [:foo]}))
-  (is (not (cache/in-cache? firefox-driver :wowza))))
-
-(deftest test-cache-retrieve
-  (is (= (cache/retrieve firefox-driver :foo) "bar"))
-  (is (nil? (cache/retrieve firefox-driver :wowza))))
-
-(deftest test-cache-delete
+(deftest test-cache-insert-retrieve-delete
   (cache/insert firefox-driver {:query [:alpha]} "beta")
-  (is (= (cache/retrieve firefox-driver :alpha) "beta"))
+  (is (cache/in-cache? firefox-driver {:query [:alpha]}))
+  (is (= (cache/retrieve firefox-driver :alpha) '("beta")))
   (cache/delete firefox-driver :alpha)
   (is (nil? (cache/retrieve firefox-driver :alpha))))
 
@@ -85,24 +73,27 @@
   (is (= @(get-cache firefox-driver) {:url (current-url firefox-driver)})))
 
 (deftest test-cacheable?
-  (is (cache/cacheable? firefox-driver (find-element firefox-driver {:tag :a, :class "external"})))
-  (is (not (cache/cacheable? firefox-driver {:class "external"})))
+  (is (cache/cacheable? firefox-driver {:tag :a, :class "external"}))
   (is (cache/cacheable? firefox-driver {:css "ol#pages"}))
   (is (not (cache/cacheable? firefox-driver :table)))
-  (is (not (cache/cacheable? firefox-driver {:css "#pages"}))))
+  (is (not (cache/cacheable? firefox-driver {:css "#pages"})))
+  (find-elements firefox-driver {:tag :a, :class "external"})
+  (is (not-empty (dissoc @(get-in firefox-driver [:cache-spec :cache]) :url)))
+  (cache/delete firefox-driver {:tag :a, :class "external"})
+  (is (empty? (dissoc @(get-in firefox-driver [:cache-spec :cache]) :url)))
+  (find-elements firefox-driver {:css "ol#pages"})
+  (is (not-empty (dissoc @(get-in firefox-driver [:cache-spec :cache]) :url))))
 
 (deftest test-cache-excludes
   ;; includes are tested by default
   (let [temp-dr (start {:browser :firefox
                         :cache-spec {:strategy :basic,
                                      :args [{}],
-                                     :exclude [ (fn [element] (= (attribute element :class) "external")),
-                                                {:css "ol#pages"}]}}
+                                     :exclude [ {:css "ol#pages"} ]}}
                        test-base-url)]
-    (is (cache/cacheable? temp-dr (find-element temp-dr {:tag :table})))
-    (is (cache/cacheable? temp-dr (find-element temp-dr {:css "#pages"})))
-    (is (not (cache/cacheable? temp-dr (find-element temp-dr {:tag :a, :class "external"}))))
     (is (not (cache/cacheable? temp-dr {:css "ol#pages"})))
+    (find-elements temp-dr {:css "ol#pages"})
+    (is (empty? (dissoc @(get-in temp-dr [:cache-spec :cache]) :url)))
     (quit temp-dr)))
 
 
