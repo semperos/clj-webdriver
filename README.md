@@ -42,8 +42,6 @@ This is a Clojure library for driving a web browser using Selenium-WebDriver as 
 
 ## Usage ##
 
-This library is compatible with *Clojure 1.3.0*.
- 
 ### Quickstart ###
 
 Here's a complete example of how to log into Github, using the high-level Taxi API:
