@@ -5,41 +5,32 @@
 ;; there is no way to test the equivalence of the element. A new
 ;; object is created every time an element is "discovered" on the page.
 ;;
-;; The PageObject helper in Selenium-WebDriver attacks this problem by
-;; providing a mechanism that sets up a proxy based on "how" you want
-;; to find elements on the page. You determine this "how" at the class level,
-;; which provides Selenium-WebDriver a means of uniquely identifying a
-;; given element and allows it to cache the result based on how you
-;; queried for it.
-;;
-;; While this is understandable, this removes all the flexibility of WebDriver's
-;; page querying methods. So instead, this namespace utilizes a simple
-;; system for caching elements on the page while still allowing you to use
-;; clj-webdriver's find-* functions seemlessly.
-;;
 ;; If you've enabled caching for your Driver and provided a set of cache rules
-;; for the cache to abide by, when you call a find-* function, the cache
-;; system makes the following checks:
+;; for the cache to abide by, when you call `find-element` or `find-elements`,
+;; the cache system makes the following checks:
 ;;
-;;  * Is this find-* request on the same page as the previous? If a new page is loaded, the cache is reset anyway.
-;;  * Is this find-* request already in the cache? If so, return it. If not, find element on page.
+;;  * Is this `find-element` request on the same page as the previous? If a new page is loaded, the cache is reset anyway.
+;;  * Is this `find-element` request already in the cache? If so, return it. If not, find element on page.
 ;;  * Once element is found, does this element conform to a cache rule? If so, cache it.
 ;;
-;; Cache rules can be based on element-level attributes or based on the query
-;; used to acquire the element. The cache rules are defined as a vector of functions
-;; (for element-based rules) or maps (for query-based rules). Here are two examples:
+;; Cache rules must be based on the query used to acquire the element.
+;; The cache rules are defined as a vector of maps that match queries you want
+;; to include/exclude.
 ;;
-;;     {:include [ (fn [element] (= (attribute element class) "foo"))
+;; Here are two examples:
+;;
+;;     {:include [ {:class "foo"}
 ;;                 {:css "ul.menu a"} ]}
 ;;
 ;;     {:exclude [ {:query [:div {:id "content"}, :a {:class "external"}]},
 ;;                 {:xpath "//h1"}  ]}
 ;;
-;; You may either choose a whitelisting approach (`:include`) or a blacklisting approach
-;; (`:exclude`), but not both.
+;; You may either choose a whitelisting approach with `:include` or a blacklisting
+;; approach with `:exclude`, but not both.
 ;; 
 ;; For the sake of API sanity, if you create a cache rule based on css, xpath,
-;; or ancestry-based queries, the match must be exact (whitespace excluded).
+;; or ancestry-based queries, the match must be exact.
+;;
 ;; Cache rules are evaluated in order, so put most-frequently-used cache rules
 ;; at the beginning of the vector.
 ;;
@@ -75,7 +66,7 @@
 
   IElementCache
   (cache-enabled? [driver]
-    (boolean (get-in driver [:cache-spec :strategy])))
+    (get-in driver [:cache-spec :strategy]))
 
   (in-cache? [driver raw-query]
     (let [query (cond
@@ -91,8 +82,12 @@
                  (vector? raw-query)  {:query raw-query}
                  (keyword? raw-query) {:query [raw-query]}
                  :else                raw-query)]
-      (log/debug(str "[x] Inserting " query " entry into cache."))
-      (swap! (get-cache driver) assoc query value)))
+      (log/debug (str "[x] Inserting " query " entry into cache."))
+      (if (or (element? value) (not (seq? value)))
+        ;; value found with find-element, conj onto list
+        (swap! (get-cache driver) update-in [query] conj value)
+        ;; values found with find-elements, concat onto list
+        (swap! (get-cache driver) update-in [query] concat value))))
 
   (retrieve [driver raw-query]
     (let [query (cond
@@ -133,23 +128,11 @@
                  :else                raw-query)]
       (if (contains? (:cache-spec driver) :exclude)
         ;; handle excludes
-        (let [excludes (get-in driver [:cache-spec :exclude])]
-          (if (element? query)
-            ;; WebElement
-            (let [excludes (remove map? excludes)]
-              (not (some #{true} (map (fn [f] (f query)) excludes))))
-            ;; xpath, css or ancestry
-            (let [excludes (remove fn? excludes)]
-              (not (some (fn [exclude-item] (= query exclude-item)) excludes)))))
+        (not (some (fn [exclude-item] (= query exclude-item))
+                   (get-in driver [:cache-spec :exclude])))
         ;; handle includes
-        (let [includes (get-in driver [:cache-spec :include])]
-          (if (element? query)
-            ;; WebElement
-            (let [includes (remove map? includes)]
-              (some #{true} (map (fn [f] (f query)) includes)))
-            ;; xpath, css or ancestry
-            (let [includes (remove fn? includes)]
-              (some (fn [include-item] (= query include-item)) includes))))))))
+        (some (fn [include-item] (= query include-item))
+              (get-in driver [:cache-spec :include]))))))
 
 (defn set-status
   "Change the current cache status"

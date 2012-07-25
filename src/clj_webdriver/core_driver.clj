@@ -9,6 +9,8 @@
 ;;  * IFind
 (in-ns 'clj-webdriver.core)
 
+(declare find-element* find-elements*)
+
 (extend-type Driver
 
   ;; Basic Functions
@@ -231,37 +233,41 @@
 
   (find-elements
     ([driver attr-val]
-       (when-not (and (or
-                       (map? attr-val)
-                       (vector? attr-val))
-                      (empty? attr-val))
-         (try
-           (cond
-            ;; Accept by-clauses
-            (not (or (vector? attr-val)
-                     (map? attr-val)))   (find-elements-by driver attr-val)
-            ;; Accept vectors for hierarchical queries
-                     (vector? attr-val)  (find-by-hierarchy driver attr-val)
-            ;; Build XPath dynamically
-            :else                        (find-elements-by driver (by-query (build-query attr-val))))
-           (catch org.openqa.selenium.NoSuchElementException e
-             ;; NoSuchElementException caught here, so we can have functions like `exist?`
-             (lazy-seq [(init-element nil)]))))))
+       (if (cache/cache-enabled? driver)
+         ;; Deal with caching
+         (if (cache/in-cache? driver attr-val)
+           ;; Return from cache
+           (cache/retrieve driver attr-val)
+           ;; Find, then store, then return
+           (let [els (find-elements* driver attr-val)]
+             (if (and (not (nil? els))
+                      (exists? (first els))
+                      (cache/cacheable? driver attr-val))
+               (do
+                 (cache/insert driver attr-val els)
+                 els)
+               els)))
+         ;; No caching logic
+         (find-elements* driver attr-val))))
 
   (find-element
     ([driver attr-val]
-       ;; Caching only supported for finding of individual elements
-       (if (and (cache/cache-enabled? driver) (cache/in-cache? driver attr-val))
-         (cache/retrieve driver attr-val)
-         (let [el (first (find-elements driver attr-val))]
-           (if (and (cache/cache-enabled? driver)
-                    (and (not (nil? el))
-                         (exists? el))
-                    (or (cache/cacheable? driver attr-val) (cache/cacheable? driver el)))
-             (do
-               (cache/insert driver attr-val el)
-               el)
-             el)))))
+       (if (cache/cache-enabled? driver)
+         ;; Deal with cache logic
+         (if (cache/in-cache? driver attr-val)
+           ;; Return from cache
+           (first (cache/retrieve driver attr-val))
+           ;; Find, then store, then return
+           (let [el (find-element* driver attr-val)]
+             (if (and (not (nil? el))
+                      (exists? el)
+                      (cache/cacheable? driver attr-val))
+               (do
+                 (cache/insert driver attr-val el)
+                 el)
+               el)))
+         ;; No cache logic
+         (find-element* driver attr-val))))
 
   IActions
 
@@ -395,3 +401,24 @@
 
   IActions
   (perform [comp-act] (.perform comp-act)))
+
+(defn find-element* [driver attr-val]
+  (first (find-elements driver attr-val)))
+
+(defn find-elements* [driver attr-val]
+  (when-not (and (or
+                  (map? attr-val)
+                  (vector? attr-val))
+                 (empty? attr-val))
+    (try
+      (cond
+        ;; Accept by-clauses
+        (not (or (vector? attr-val)
+                 (map? attr-val)))   (find-elements-by driver attr-val)
+                 ;; Accept vectors for hierarchical queries
+                 (vector? attr-val)  (find-by-hierarchy driver attr-val)
+                 ;; Build XPath dynamically
+                 :else                        (find-elements-by driver (by-query (build-query attr-val))))
+      (catch org.openqa.selenium.NoSuchElementException e
+        ;; NoSuchElementException caught here, so we can have functions like `exist?`
+        (lazy-seq [(init-element nil)])))))
