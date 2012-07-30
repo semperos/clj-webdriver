@@ -257,10 +257,9 @@
   (find-elements [element by]
     (find-elements-by element by)))
 
-(extend-type clojure.lang.PersistentArrayMap
+(extend-protocol IElement
+  clojure.lang.IPersistentMap
 
-  ;; Element action basics
-  IElement
   (attribute   [m attr] (attribute (map->Element m) attr))
 
   (click       [m] (click (map->Element m)))
@@ -297,9 +296,11 @@
 
   (visible? [m] (visible? (map->Element m)))
 
-  (xpath [m] (xpath (map->Element m)))
+  (xpath [m] (xpath (map->Element m))))
 
-  IFormElement
+(extend-protocol IFormElement
+  clojure.lang.IPersistentMap
+
   (deselect [m] (deselect (map->Element m)))
 
   (enabled? [m] (enabled? (map->Element m)))
@@ -316,9 +317,11 @@
 
   (send-keys [m s] (send-keys (map->Element m) s))
 
-  (toggle [m] (toggle (map->Element m)))
+  (toggle [m] (toggle (map->Element m))))
 
-  ISelectElement
+(extend-protocol ISelectElement
+  clojure.lang.IPersistentMap
+
   (all-options [m] (all-options (map->Element m)))
 
   (all-selected-options [m] (all-selected-options (map->Element m)))
@@ -345,9 +348,11 @@
 
   (select-by-text [m text] (select-by-text (map->Element m) text))
 
-  (select-by-value [m value] (select-by-value (map->Element m) value))
+  (select-by-value [m value] (select-by-value (map->Element m) value)))
 
-  IFind
+(extend-protocol IFormElement
+  clojure.lang.IPersistentMap
+
   (find-element-by [m by] (find-element-by (map->Element m) by))
 
   (find-elements-by [m by] (find-elements-by (map->Element m) by))
