@@ -35,7 +35,3 @@
   "Function to check class of a Driver, to prevent needing to import it"
   [driver]
   (= (class driver) Driver))
-
-(defn get-cache
-  [driver]
-  (get-in driver [:cache-spec :cache]))

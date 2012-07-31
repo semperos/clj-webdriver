@@ -36,8 +36,7 @@
 ;;
 
 (ns clj-webdriver.cache
-  (:use [clj-webdriver.element :only [element?]]
-        [clj-webdriver.driver :only [get-cache]])
+  (:use [clj-webdriver.element :only [element?]])
   (:require [clojure.tools.logging :as log])
   (:import clj_webdriver.driver.Driver))
 
@@ -47,6 +46,10 @@
 ;; Functions we need, but don't want circular deps in namespaces
 (defn- current-url [driver]
     (.getCurrentUrl (:webdriver driver)))
+
+(defn get-cache
+  [driver]
+  (get-in driver [:cache-spec :cache]))
 
 (defprotocol IElementCache
   "Cache for WebElement objects over the lifetime of a Driver on a given page"
@@ -69,11 +72,12 @@
     (get-in driver [:cache-spec :strategy]))
 
   (in-cache? [driver raw-query]
-    (let [query (cond
+    (when (cache-enabled? driver)
+      (let [query (cond
                  (vector? raw-query)  {:query raw-query}
                  (keyword? raw-query) {:query [raw-query]}
                  :else                raw-query)]
-      (contains? @(get-cache driver) query)))
+      (contains? @(get-cache driver) query))))
 
   ;; here the query needs the same normalizing as occurs
   ;; in the cacheable? function below
