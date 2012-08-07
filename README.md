@@ -2,8 +2,6 @@
 
 This is a Clojure library for driving a web browser using Selenium-WebDriver as the backend. For more comprehensive documentation on all of clj-webdriver's features, read the [Github wiki](https://github.com/semperos/clj-webdriver/wiki). You can generate documentation locally with `lein doc` (API docs) or `lein marg` (annotated source).
 
-**NOTE TO LEININGEN 2 USERS:** At least as of Leiningen 2 preview 6, the default behavior for retrieving dependencies that fail a checksum test is *not to download them.* This affect's at least one of Selenium-WebDriver's transitive dependencies, which means you can't download clj-webdriver's dependencies with default Leiningen 2 settings. In order to solve this issue, you need to set the `:checksum` option for either your entire `project.clj` or for a specific Maven `:repositories` entry that contains Selenium-WebDriver's dependencies (e.g., Maven central). See [Leiningen's](https://github.com/technomancy/leiningen) repository README and example `sample.project.clj` file for more information.
-
 <table>
   <thead>
     <tr>
@@ -25,6 +23,8 @@ This is a Clojure library for driving a web browser using Selenium-WebDriver as 
     </tr>
   </tbody>
 </table>
+
+**NOTE TO LEININGEN 2 USERS:** At least as of Leiningen 2 preview 6, the default behavior for retrieving dependencies that fail a checksum test is *not to download them.* This affect's at least one of Selenium-WebDriver's transitive dependencies, which means you can't download clj-webdriver's dependencies with default Leiningen 2 settings. In order to solve this issue, you need to set the `:checksum` option for either your entire `project.clj` or for a specific Maven `:repositories` entry that contains Selenium-WebDriver's dependencies (e.g., Maven central). See [Leiningen's](https://github.com/technomancy/leiningen) repository README and example `sample.project.clj` file for more information.
 
 **clj-webdriver Resources**
 
@@ -81,7 +81,7 @@ The `master` branch of clj-webdriver houses code intended for the next **minor-v
 
 If you want to fix a bug in the **current release**, please pull against the appropriate branch for the current minor version, **0.5.x**.
 
-## Running Tests
+## Running Tests ##
 
 The namespace `clj-webdriver.test.example-app.core` contains a [Ring](https://github.com/mmcgrana/ring) app (routing by [Moustache](https://github.com/cgrand/moustache)) that acts as the "control application" for this project's test suite.
 
@@ -103,7 +103,7 @@ lein test clj-webdriver.test.firefox
  * Evaluate `(use 'clj-webdriver.test.example-app.core 'ring.adapter.jetty)`
  * Evaluate `(defonce my-server (run-jetty #'routes {:port 5744, :join? false}))`, making sure to adjust the `test-port` in `test/clj_webdriver/test/core.clj` to whatever you use here.
 
-## Acknowledgements
+## Acknowledgements ##
 
 Credits to [mikitebeka/webdriver-clj](https://github.com/mikitebeka/webdriver-clj) for the initial code for this project and many of the low-level wrappers around the Selenium-WebDriver API.
 
@@ -117,6 +117,16 @@ Many thanks to those who have contributed so far (in nick-alphabetical order):
 
 See Github for an [up-to-date list of contributors](https://github.com/semperos/clj-webdriver/contributors)
 
-## License
+## YourKit ##
+
+I would also like to thank YourKit, LLC for providing its Java profiler to clj-webdriver developers as part of its contribution to the Open Source community.
+
+YourKit is kindly supporting open source projects with its full-featured Java Profiler.
+YourKit, LLC is the creator of innovative and intelligent tools for profiling
+Java and .NET applications. Take a look at YourKit's leading software products:
+<a href="http://www.yourkit.com/java/profiler/index.jsp">YourKit Java Profiler</a> and
+<a href="http://www.yourkit.com/.net/profiler/index.jsp">YourKit .NET Profiler</a>.
+
+## License ##
 
 Distributed under the [Eclipse Public License](http://opensource.org/licenses/eclipse-1.0.php), the same as Clojure.
