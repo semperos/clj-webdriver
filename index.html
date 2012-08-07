@@ -1,0 +1,158 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>clj-webdriver by semperos</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">clj-webdriver</h1>
+        <p class="header">Clojure API for Selenium-WebDriver</p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/semperos/clj-webdriver/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/semperos/clj-webdriver/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/semperos/clj-webdriver">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/semperos">semperos</a></p>
+
+
+      </header>
+      <section>
+        <h1>Clojure API for Selenium-WebDriver</h1>
+
+<p>This is a Clojure library for driving a web browser using Selenium-WebDriver as the backend. For more comprehensive documentation on all of clj-webdriver's features, read the <a href="https://github.com/semperos/clj-webdriver/wiki">Github wiki</a>. You can generate documentation locally with <code>lein doc</code> (API docs) or <code>lein marg</code> (annotated source).</p>
+
+<table>
+<tr>
+<th>Release Type</th>
+      <th>Date</th>
+      <th>Leiningen/Maven</th>
+    </tr>
+<tr>
+<td>Stable</td>
+      <td>Feb 15 2012</td>
+      <td><code>[clj-webdriver "0.5.1"]</code></td>
+    </tr>
+<tr>
+<td>Pre-Release</td>
+      <td>July 24 2012</td>
+      <td><code>[clj-webdriver "0.6.0-alpha10"]</code></td>
+    </tr>
+</table><p><strong>NOTE TO LEININGEN 2 USERS:</strong> At least as of Leiningen 2 preview 6, the default behavior for retrieving dependencies that fail a checksum test is <em>not to download them.</em> This affect's at least one of Selenium-WebDriver's transitive dependencies, which means you can't download clj-webdriver's dependencies with default Leiningen 2 settings. In order to solve this issue, you need to set the <code>:checksum</code> option for either your entire <code>project.clj</code> or for a specific Maven <code>:repositories</code> entry that contains Selenium-WebDriver's dependencies (e.g., Maven central). See <a href="https://github.com/technomancy/leiningen">Leiningen's</a> repository README and example <code>sample.project.clj</code> file for more information.</p>
+
+<p><strong>clj-webdriver Resources</strong></p>
+
+<ul>
+<li><a href="https://github.com/semperos/clj-webdriver/wiki">Project Wiki</a></li>
+<li><a href="https://groups.google.com/forum/#!forum/clj-webdriver">Google Group</a></li>
+<li><a href="https://github.com/semperos/clj-webdriver/issues">Issue Queue</a></li>
+</ul><p><strong>External Resources</strong></p>
+
+<ul>
+<li><a href="http://selenium.googlecode.com/svn/trunk/docs/api/java/index.html">Selenium-WebDriver API (Javadoc)</a></li>
+<li><a href="http://code.google.com/p/selenium/source/browse/trunk/java/CHANGELOG">Selenium-WebDriver Changelog</a></li>
+<li><a href="http://www.w3.org/TR/css3-selectors/#selectors">CSS Selector Syntax</a></li>
+</ul><p><strong>Please join the Google group if you use this library.</strong> I regularly post announcements about upcoming releases, and although I ensure all tests are passing and try to maintain good test coverage before releases, user testing is invaluable. Thank you!</p>
+
+<h2>Usage</h2>
+
+<h3>Quickstart</h3>
+
+<p>Here's a complete example of how to log into Github, using the high-level Taxi API:</p>
+
+<div class="highlight"><pre><span class="p">(</span><span class="nf">use</span> <span class="ss">'clj-webdriver.taxi</span><span class="p">)</span>
+
+<span class="c1">;; Start up a browser</span>
+<span class="p">(</span><span class="nf">set-driver!</span> <span class="p">{</span><span class="ss">:browser</span> <span class="ss">:firefox</span><span class="p">}</span> <span class="s">"https://github.com"</span><span class="p">)</span>
+
+<span class="p">(</span><span class="nf">click</span> <span class="s">"a[href*='login']"</span><span class="p">)</span>
+
+<span class="p">(</span><span class="nf">input-text</span> <span class="s">"#login_field"</span> <span class="s">"your-username"</span><span class="p">)</span>
+<span class="p">(</span><span class="nf">input-text</span> <span class="s">"#password"</span> <span class="s">"your-password"</span><span class="p">)</span>
+
+<span class="p">(</span><span class="nf">submit</span> <span class="s">"#password"</span><span class="p">)</span>
+<span class="p">(</span><span class="nf">quit</span><span class="p">)</span>
+</pre></div>
+
+<p>Forms can be filled out en masse using the <code>quick-fill-submit</code> function:</p>
+
+<div class="highlight"><pre><span class="p">(</span><span class="nf">quick-fill-submit</span> <span class="p">{</span><span class="s">"#login_field"</span> <span class="s">"your-username"</span><span class="p">}</span>
+                   <span class="p">{</span><span class="s">"#password"</span> <span class="s">"your-password"</span><span class="p">}</span>
+                   <span class="p">{</span><span class="s">"#password"</span> <span class="nv">submit</span><span class="p">})</span>
+</pre></div>
+
+<h2>Documentation</h2>
+
+<p>For API documentation on the high-level Taxi API (shown above), please <a href="https://github.com/semperos/clj-webdriver/wiki/Introduction%3A-Taxi">see its wiki page</a>.</p>
+
+<p>For reference documentation, run <code>lein doc</code> at the root of this repo. For annotated source documentation, run <code>lein marg</code>.</p>
+
+<h2>Contributing</h2>
+
+<p>The <code>master</code> branch of clj-webdriver houses code intended for the next <strong>minor-version release.</strong> If you want to propose new features for the next release, you're welcome to fork, make a topic branch and issue a pull request against the <code>master</code> branch.</p>
+
+<p>If you want to fix a bug in the <strong>current release</strong>, please pull against the appropriate branch for the current minor version, <strong>0.5.x</strong>.</p>
+
+<h2>Running Tests</h2>
+
+<p>The namespace <code>clj-webdriver.test.example-app.core</code> contains a <a href="https://github.com/mmcgrana/ring">Ring</a> app (routing by <a href="https://github.com/cgrand/moustache">Moustache</a>) that acts as the "control application" for this project's test suite.</p>
+
+<p>Use <code>lein test</code> to run this library's test suite. Ensure port 5744 is free, or edit <code>test/clj_webdriver/test/core.clj</code> before running the tests. To run tests for the Taxi API, make sure you have the <code>lein-midje</code> plugin installed and run:</p>
+
+<pre><code>lein midje clj-webdriver.test.taxi
+</code></pre>
+
+<p>It is <strong>highly</strong> recommended that you run the test suite for each browser separately, as otherwise you will see strange errors. Each supported browser has its own namespace, for example:</p>
+
+<pre><code>lein test clj-webdriver.test.firefox
+</code></pre>
+
+<p><em>Note:</em> If you just want to run the example app that clj-webdriver uses for its testing purposes, do the following:</p>
+
+<ul>
+<li>Open a terminal and run <code>lein repl</code> or <code>lein swank</code> at the root of this project</li>
+<li>Evaluate <code>(use 'clj-webdriver.test.example-app.core 'ring.adapter.jetty)</code>
+</li>
+<li>Evaluate <code>(defonce my-server (run-jetty #'routes {:port 5744, :join? false}))</code>, making sure to adjust the <code>test-port</code> in <code>test/clj_webdriver/test/core.clj</code> to whatever you use here.</li>
+</ul><h2>Acknowledgements</h2>
+
+<p>Credits to <a href="https://github.com/mikitebeka/webdriver-clj">mikitebeka/webdriver-clj</a> for the initial code for this project and many of the low-level wrappers around the Selenium-WebDriver API.</p>
+
+<p>Many thanks to those who have contributed so far (in nick-alphabetical order):</p>
+
+<ul>
+<li><a href="https://github.com/mangaohua">mangaohua</a></li>
+<li>
+<a href="https://github.com/maxweber">maxweber</a> (Max Weber)</li>
+<li>
+<a href="https://github.com/RobLally">RobLally</a> (Rob Lally)</li>
+<li>
+<a href="https://github.com/ulsa">ulsa</a> (Ulrik Sandberg)</li>
+<li>
+<a href="https://github.com/xeqi">xeqi</a> (Nelson Morris)</li>
+</ul><p>See Github for an <a href="https://github.com/semperos/clj-webdriver/contributors">up-to-date list of contributors</a></p>
+
+<h2>License</h2>
+
+<p>Distributed under the <a href="http://opensource.org/licenses/eclipse-1.0.php">Eclipse Public License</a>, the same as Clojure.</p>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+		
+  </body>
+</html>
