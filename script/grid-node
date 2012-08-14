@@ -4,6 +4,8 @@
 # Usage: grid-node {start|stop}
 #
 
+source $(dirname $0)/util
+
 EXPECTED_ARGS=1
 E_BADARGS=65
 
@@ -15,6 +17,8 @@ DO_showUsage() {
 if [ $# -ne $EXPECTED_ARGS ]; then
     DO_showUsage
 fi
+
+################################################################################
 
 WEBDRIVER_SERVER_JAR=/opt/selenium-server-standalone.jar
 WEBDRIVER_NODE_PARAMS="-role node -hubHost 127.0.0.1 -hubPort 4444"
@@ -29,13 +33,14 @@ case "$1" in
     start)
         echo "Starting Selenium-WebDriver Grid2 node..."
         if [ -f $WEBDRIVER_NODE_PIDFILE ]; then
-            echo "Selenium-WebDriver Grid2 node already running with PID $(cat $WEBDRIVER_NODE_PIDFILE). Run 'grid-node stop' or 'grid-node restart'."
+            echo "${FAIL_MSG} Selenium-WebDriver Grid2 node already running with PID $(cat $WEBDRIVER_NODE_PIDFILE). Run 'grid-node stop' or 'grid-node restart'."
             exit 1
         else
             START_NODE_CMD="java -jar ${WEBDRIVER_SERVER_JAR} ${WEBDRIVER_NODE_PARAMS}"
             $START_NODE_CMD &
             PID=$!
             echo $PID > "${WEBDRIVER_NODE_PIDFILE}"
+            echo "${SUCCESS_MSG} Selenium-WebDriver Grid2 node started successfully."
         fi
         ;;
     stop)
@@ -46,14 +51,14 @@ case "$1" in
             rm $WEBDRIVER_NODE_PIDFILE
             sleep 1
             if [[ $(ps -A | egrep "^${PID}") ]]; then
-                echo "Tried to kill the node with PID ${PID}, but was unsuccessful. You need to kill it with something stronger, like 'kill -9'"
+                echo "${FAIL_MSG} Tried to kill the node with PID ${PID}, but was unsuccessful. You need to kill it with something stronger, like 'kill -9'"
                 exit 1
             else
-                echo "Selenium-WebDriver Grid2 node stopped successfully."
+                echo "${SUCCESS_MSG} Selenium-WebDriver Grid2 node stopped successfully."
                 exit 0
             fi
         else
-            echo "Selenium-WebDriver Grid2 node has already been stopped."
+            echo "${SUCCESS_MSG} Selenium-WebDriver Grid2 node has already been stopped."
             exit 0
         fi
         ;;
