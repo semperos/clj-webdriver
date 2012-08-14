@@ -21,6 +21,7 @@ fi
 ################################################################################
 
 GRID_HOST_DEFAULT=127.0.0.1
+# 3001 is default for regular API, so for testing we'll default to 3003
 GRID_PORT_DEFAULT=3003
 
 DO_testCore() {
@@ -33,18 +34,18 @@ DO_testCore() {
 }
 
 DO_testRemote() {
-    lein test clj-webdriver.test.remote
-    echo -n "Please enter the ${regblu}host${txtrst} on which your Grid hub is running: [${GRID_HOST_DEFAULT}] > "
+    echo -n "Please enter the ${txtund}${regblu}host${txtrst} on which your Grid hub is running: [${GRID_HOST_DEFAULT}] > "
     read WEBDRIVER_GRID_HOST
     if [ -z $WEBDRIVER_GRID_HOST ]; then
         export WEBDRIVER_GRID_HOST="${GRID_HOST_DEFAULT}"
     fi
-    echo -n "Please enter the ${regblu}port${txtrst} on which your Grid hub is listening: [${GRID_PORT_DEFAULT}] > "
+    echo -n "Please enter the ${txtund}${regblu}port${txtrst} on which your Grid hub is listening: [${GRID_PORT_DEFAULT}] > "
     read WEBDRIVER_GRID_PORT
     if [ -z $WEBDRIVER_GRID_PORT ]; then
         export WEBDRIVER_GRID_PORT="${GRID_PORT_DEFAULT}"
     fi
     lein test clj-webdriver.test.remote-manual
+    lein test clj-webdriver.test.remote
     lein test clj-webdriver.test.wire
 }
 
