@@ -4,6 +4,8 @@
 # Usage: grid-hub {start|stop}
 #
 
+source $(dirname $0)/util
+
 EXPECTED_ARGS=1
 E_BADARGS=65
 
@@ -15,6 +17,8 @@ DO_showUsage() {
 if [ $# -ne $EXPECTED_ARGS ]; then
     DO_showUsage
 fi
+
+################################################################################
 
 WEBDRIVER_SERVER_JAR=/opt/selenium-server-standalone.jar
 WEBDRIVER_HUB_PIDFILE="/tmp/webdriver_hub.pid"
@@ -28,13 +32,14 @@ case "$1" in
     start)
         echo "Starting Selenium-WebDriver Grid2 hub..."
         if [ -f $WEBDRIVER_HUB_PIDFILE ]; then
-            echo "Selenium-WebDriver Grid2 hub already running with PID $(cat $WEBDRIVER_HUB_PIDFILE). Run 'grid-hub stop' or 'grid-hub restart'."
+            echo "${FAIL_MSG} Selenium-WebDriver Grid2 hub already running with PID $(cat $WEBDRIVER_HUB_PIDFILE). Run 'grid-hub stop' or 'grid-hub restart'."
             exit 1
         else
             START_HUB_CMD="java -jar ${WEBDRIVER_SERVER_JAR} -role hub"
             $START_HUB_CMD &
             PID=$!
             echo $PID > "${WEBDRIVER_HUB_PIDFILE}"
+            echo "${SUCCESS_MSG} Selenium-WebDriver Grid2 hub started successfully."
         fi
         ;;
     stop)
@@ -45,14 +50,14 @@ case "$1" in
             rm $WEBDRIVER_HUB_PIDFILE
             sleep 1
             if [[ $(ps -A | egrep "^${PID}") ]]; then
-                echo "Tried to kill the hub with PID ${PID}, but was unsuccessful. You need to kill it with something stronger, like 'kill -9'"
+                echo "${FAIL_MSG} Tried to kill the hub with PID ${PID}, but was unsuccessful. You need to kill it with something stronger, like 'kill -9'"
                 exit 1
             else
-                echo "Selenium-WebDriver Grid2 hub stopped successfully."
+                echo "${SUCCESS_MSG} Selenium-WebDriver Grid2 hub stopped successfully."
                 exit 0
             fi
         else
-            echo "Selenium-WebDriver Grid2 hub has already been stopped."
+            echo "${SUCCESS_MSG} Selenium-WebDriver Grid2 hub has already been stopped."
             exit 0
         fi
         ;;

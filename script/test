@@ -4,6 +4,8 @@
 # Usage: test <case>
 #
 
+source $(dirname $0)/util
+
 EXPECTED_ARGS=1
 E_BADARGS=65
 
@@ -15,6 +17,8 @@ DO_showUsage() {
 if [ $# -ne $EXPECTED_ARGS ]; then
     DO_showUsage
 fi
+
+################################################################################
 
 GRID_HOST_DEFAULT=127.0.0.1
 GRID_PORT_DEFAULT=3003
@@ -30,12 +34,12 @@ DO_testCore() {
 
 DO_testRemote() {
     lein test clj-webdriver.test.remote
-    echo -n "Please enter the host on which your Grid hub is running: [${GRID_HOST_DEFAULT}] > "
+    echo -n "Please enter the ${regblu}host${txtrst} on which your Grid hub is running: [${GRID_HOST_DEFAULT}] > "
     read WEBDRIVER_GRID_HOST
     if [ -z $WEBDRIVER_GRID_HOST ]; then
         export WEBDRIVER_GRID_HOST="${GRID_HOST_DEFAULT}"
     fi
-    echo -n "Please enter the port on which your Grid hub is listening: [${GRID_PORT_DEFAULT}] > "
+    echo -n "Please enter the ${regblu}port${txtrst} on which your Grid hub is listening: [${GRID_PORT_DEFAULT}] > "
     read WEBDRIVER_GRID_PORT
     if [ -z $WEBDRIVER_GRID_PORT ]; then
         export WEBDRIVER_GRID_PORT="${GRID_PORT_DEFAULT}"
