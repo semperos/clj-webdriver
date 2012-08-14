@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+#
+# Usage: grid-node {start|stop}
+#
+
+EXPECTED_ARGS=1
+E_BADARGS=65
+
+DO_showUsage() {
+    echo "Usage: $(basename $0) {start|stop}"
+    exit $E_BADARGS
+}
+
+if [ $# -ne $EXPECTED_ARGS ]; then
+    DO_showUsage
+fi
+
+WEBDRIVER_SERVER_JAR=/opt/selenium-server-standalone.jar
+WEBDRIVER_NODE_PARAMS="-role node -hubHost 127.0.0.1 -hubPort 4444"
+WEBDRIVER_NODE_PIDFILE="/tmp/webdriver_node.pid"
+
+if [ ! -f $WEBDRIVER_SERVER_JAR ]; then
+    echo "You must place the Selenium-WebDriver standalone JAR file at ${WEBDRIVER_SERVER_JAR} before proceeding."
+    exit 1
+fi
+
+case "$1" in
+    start)
+        echo "Starting Selenium-WebDriver Grid2 node..."
+        if [ -f $WEBDRIVER_NODE_PIDFILE ]; then
+            echo "Selenium-WebDriver Grid2 node already running with PID $(cat $WEBDRIVER_NODE_PIDFILE). Run 'grid-node stop' or 'grid-node restart'."
+            exit 1
+        else
+            START_NODE_CMD="java -jar ${WEBDRIVER_SERVER_JAR} ${WEBDRIVER_NODE_PARAMS}"
+            $START_NODE_CMD &
+            PID=$!
+            echo $PID > "${WEBDRIVER_NODE_PIDFILE}"
+        fi
+        ;;
+    stop)
+        echo "Stopping Selenium-WebDriver Grid2 node..."
+        if [ -f $WEBDRIVER_NODE_PIDFILE ]; then
+            PID=$(cat $WEBDRIVER_NODE_PIDFILE)
+            kill $PID
+            rm $WEBDRIVER_NODE_PIDFILE
+            sleep 1
+            if [[ $(ps -A | egrep "^${PID}") ]]; then
+                echo "Tried to kill the node with PID ${PID}, but was unsuccessful. You need to kill it with something stronger, like 'kill -9'"
+                exit 1
+            else
+                echo "Selenium-WebDriver Grid2 node stopped successfully."
+                exit 0
+            fi
+        else
+            echo "Selenium-WebDriver Grid2 node has already been stopped."
+            exit 0
+        fi
+        ;;
+    restart)
+        $0 stop
+        $0 start
+        ;;
+    *)
+        DO_showUsage
+esac
