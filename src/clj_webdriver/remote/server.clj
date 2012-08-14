@@ -46,7 +46,9 @@
         (start remote-server))))
   
   (address [remote-server]
-    (str "http://127.0.0.1:"
+    (str "http://"
+         (get-in remote-server [:connection-params :host])
+         ":"
          (get-in remote-server [:connection-params :port])
          (apply str (drop-last (get-in remote-server [:connection-params :path-spec])))))
   
@@ -79,29 +81,37 @@
 
   (start-remote-driver
     [remote-server browser-spec url]
-     (let [driver (new-remote-driver remote-server browser-spec)]
-       (get-url driver url)
-       driver)))
+    (let [driver (new-remote-driver remote-server browser-spec)]
+      (get-url driver url)
+      driver)))
 
 (defn init-remote-server
-  ([] (let [port 3001
-            path-spec "/wd/*"]
-        (init-remote-server {:port port
-                             :path-spec path-spec})))
-  ([connection-params]
-     (let [default-port 3001
-           default-path-spec "/wd/*"
-           server-record (RemoteServer. (merge {:port default-port :path-spec default-path-spec}
-                                     connection-params)
-                              nil)]
-       (assoc server-record :webdriver-server (start server-record)))))
+  "Initialize a new RemoteServer record, optionally starting the server automatically (enabled by default)."
+  ([connection-params] (init-remote-server connection-params true))
+  ([{:keys [host port path-spec]
+     :as connection-params
+     :or {host "127.0.0.1" port 3001 path-spec "/wd/*"}}
+    start?]
+     (let [server-record (RemoteServer. {:host host
+                                         :port port
+                                         :path-spec path-spec}
+                                        nil)]
+       (if start?
+         (assoc server-record :webdriver-server (start server-record))
+         server-record))))
+
+(defn remote-server?
+  [rs]
+  (= (class rs) RemoteServer))
 
 (defn new-remote-session
-  "Start up a server, start up a driver, return both in that order"
-  ([] (new-remote-session {} {:browser :firefox}))
+  "Start up a server, start up a driver, return both in that order. Pass a final falsey arg to prevent the server from being started for you."
+  ([] (new-remote-session {}))
   ([connection-params] (new-remote-session connection-params {:browser :firefox}))
-  ([connection-params browser-spec]
-     (let [connection-params (merge {:port 3001, :path-spec "/wd/*"} connection-params)
-           new-server (init-remote-server connection-params)
+  ([connection-params browser-spec] (new-remote-session connection-params browser-spec true))
+  ([connection-params browser-spec start?]
+     (let [new-server (if (remote-server? connection-params)
+                        connection-params
+                        (init-remote-server connection-params start?))
            new-driver (new-remote-driver new-server browser-spec)]
        [new-server new-driver])))
