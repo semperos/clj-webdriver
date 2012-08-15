@@ -935,7 +935,7 @@
    (drag-and-drop \"#draggable\" \"#droppable\")"
   ([qa qb] (drag-and-drop *driver* qa qb))
   ([driver qa qb]
-     (core/drag-and-drop *driver* (element driver qa) (element driver qb))))
+     (core/drag-and-drop driver (element driver qa) (element driver qb))))
 
 (defn drag-and-drop-by
   "Drag the first element found with query `q` by `:x` pixels to the right and `:y` pixels down, passed in as a map like `{:x 10, :y 10}`. Values default to zero if excluded. Use negative numbers for `:x` and `:y` to move left or up respectively.
@@ -959,7 +959,7 @@
    (drag-and-drop-by \"#draggable\" {:x -15, :y -5})"
   ([q x-y-map] (drag-and-drop-by *driver* q x-y-map))
   ([driver q x-y-map]
-     (core/drag-and-drop-by *driver* (element driver q) x-y-map)))
+     (core/drag-and-drop-by driver (element driver q) x-y-map)))
 
 (defn exists?
   "Return true if the first element found with query `q` exists on the current page in the browser.
