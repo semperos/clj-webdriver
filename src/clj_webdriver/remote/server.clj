@@ -85,7 +85,7 @@
   "Initialize a new RemoteServer record, optionally starting the server automatically (enabled by default)."
   [connection-params]
   (let [{:keys [host port path-spec existing] :or {host "127.0.0.1"
-                                                   port 3001
+                                                   port 4444
                                                    path-spec "/wd/*"
                                                    existing false}} connection-params
          server-record (RemoteServer. {:host host
