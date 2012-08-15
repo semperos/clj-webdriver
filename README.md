@@ -85,17 +85,13 @@ If you want to fix a bug in the **current release**, please pull against the app
 
 The namespace `clj-webdriver.test.example-app.core` contains a [Ring](https://github.com/mmcgrana/ring) app (routing by [Moustache](https://github.com/cgrand/moustache)) that acts as the "control application" for this project's test suite.
 
-Use `lein test` to run this library's test suite. Ensure port 5744 is free, or edit `test/clj_webdriver/test/core.clj` before running the tests. To run tests for the Taxi API, make sure you have the `lein-midje` plugin installed and run:
+Use the `script/test` script to run clj-webdriver's tests. The usage is as follows:
 
 ```
-lein midje clj-webdriver.test.taxi
+Usage: test {all|core|remote|taxi}
 ```
 
-It is **highly** recommended that you run the test suite for each browser separately, as otherwise you will see strange errors. Each supported browser has its own namespace, for example:
-
-```
-lein test clj-webdriver.test.firefox
-```
+The `core` option runs tests against the core API's using Firefox and Chrome. The `remote` option runs tests for Grid and remote server/driver handling. The `taxi` option tests just the Taxi API. The `all` option runs through each of the other options once.
 
 *Note:* If you just want to run the example app that clj-webdriver uses for its testing purposes, do the following:
 
