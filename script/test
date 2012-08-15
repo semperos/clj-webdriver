@@ -55,8 +55,8 @@ DO_testTaxi() {
 
 case "$1" in
     all)
-        DO_testCore
         DO_testRemote
+        DO_testCore
         DO_testTaxi
         ;;
     core)
