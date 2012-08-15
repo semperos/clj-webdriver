@@ -25,7 +25,7 @@ GRID_HOST_DEFAULT=127.0.0.1
 GRID_PORT_DEFAULT=3333
 
 DO_testCore() {
-    if [ $2 == "single" ]; then
+    if [ "$2" = "single" ]; then
         lein test clj-webdriver.test.chrome
     else
         lein test clj-webdriver.test.firefox
