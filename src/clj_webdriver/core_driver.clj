@@ -294,8 +294,9 @@
 
   (drag-and-drop-by
     [driver element x-y-map]
-    (let [act (:actions driver)]
-      (.perform (.dragAndDropBy act (:webelement element) {:x x-y-map} {:y x-y-map}))))
+    (let [act (:actions driver)
+          {:keys [x y] :or {x 0 y 0}} x-y-map]
+      (.perform (.dragAndDropBy act (:webelement element) x y))))
 
   (key-down
     ([driver k]
