@@ -9,7 +9,8 @@
   (:require 
             [clj-webdriver.remote.driver :as rd]))
 
-(let [[this-server this-driver] (new-remote-session {:port 3003} {:browser :firefox})]
+;; Use port 3004 so we can run this and the remote-manual test without interruption
+(let [[this-server this-driver] (new-remote-session {:port 3004} {:browser :firefox})]
   (def server this-server)
   (def driver this-driver))
 

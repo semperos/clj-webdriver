@@ -19,9 +19,10 @@
   ;; 3001 is default for regular API, so for testing we'll default to 3003
   (int (get (System/getenv) "WEBDRIVER_HUB_PORT" 3003)))
 
-(let [[this-server this-driver] (new-remote-session {:port (hub-port) :host (hub-host)}
-                                                    {:browser :firefox}
-                                                    false)]
+(let [[this-server this-driver] (new-remote-session {:port (hub-port)
+                                                     :host (hub-host)
+                                                     :existing true}
+                                                    {:browser :firefox})]
   (def server this-server)
   (def driver this-driver))
 
@@ -34,8 +35,7 @@
 (defn quit-fixture
   [f]
   (f)
-  (quit driver)
-  (stop server))
+  (quit driver))
 
 (use-fixtures :once start-server quit-fixture)
 (use-fixtures :each reset-browser-fixture)
