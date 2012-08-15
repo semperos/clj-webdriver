@@ -1,7 +1,8 @@
 (ns clj-webdriver.test.firefox
   (:use clojure.test
         [clj-webdriver.core :only [new-driver start current-url find-element find-elements quit get-screenshot with-browser attribute to]]
-        [clj-webdriver.driver :only [get-cache driver?]]
+        [clj-webdriver.driver :only [driver?]]
+        [clj-webdriver.cache :only [get-cache]]
         [clj-webdriver.test.common :only [run-common-tests]]
         [clj-webdriver.test.util :only [start-server]]
         [clj-webdriver.test.config :only [test-base-url]])

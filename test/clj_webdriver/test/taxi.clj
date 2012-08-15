@@ -132,6 +132,24 @@
    (present? "a.external") => truthy
    (present? "a[href='#pages']") => falsey)
 
+  ;; Drag and drop
+  (to "http://jqueryui.com/demos/draggable")
+  (fact
+   ;; since it's an external site, make sure that draggable div is still there
+   (present? "#draggable"))
+  (let [el-to-drag (element {:id "draggable"})
+        old-loc (location el-to-drag)
+        new-loc (do
+                  (drag-and-drop-by el-to-drag {:x 20 :y 20})
+                  (location el-to-drag))
+        [o-x o-y] [(:x old-loc) (:y old-loc)]
+        [n-x n-y] [(:x new-loc) (:y new-loc)]
+        x-diff (Math/abs (- n-x o-x))
+        y-diff (Math/abs (- n-y o-y))]
+    (facts
+     (= x-diff 20)
+     (= y-diff 20)))
+
   ;; Element Intersection
   (go "example-form")
   (facts
