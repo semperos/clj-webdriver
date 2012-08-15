@@ -138,12 +138,10 @@
    ;; since it's an external site, make sure that draggable div is still there
    (present? "#draggable"))
   (let [el-to-drag (element {:id "draggable"})
-        old-loc (location el-to-drag)
-        new-loc (do
-                  (drag-and-drop-by el-to-drag {:x 20 :y 20})
-                  (location el-to-drag))
-        [o-x o-y] [(:x old-loc) (:y old-loc)]
-        [n-x n-y] [(:x new-loc) (:y new-loc)]
+        {o-x :x o-y :y} (location el-to-drag)
+        {n-x :x n-y :y} (do
+                          (drag-and-drop-by el-to-drag {:x 20 :y 20})
+                          (location el-to-drag))
         x-diff (Math/abs (- n-x o-x))
         y-diff (Math/abs (- n-y o-y))]
     (facts
