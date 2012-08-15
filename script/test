@@ -21,8 +21,8 @@ fi
 ################################################################################
 
 GRID_HOST_DEFAULT=127.0.0.1
-# 3001 is default for regular API, so for testing we'll default to 3003
-GRID_PORT_DEFAULT=3003
+# API default is 4444, so for testing we'll use 3333
+GRID_PORT_DEFAULT=3333
 
 DO_testCore() {
     if [ $2 == "single" ]; then
@@ -44,7 +44,7 @@ DO_testRemote() {
     if [ -z $WEBDRIVER_GRID_PORT ]; then
         export WEBDRIVER_GRID_PORT="${GRID_PORT_DEFAULT}"
     fi
-    lein test clj-webdriver.test.remote-manual
+    lein test clj-webdriver.test.remote-existing
     lein test clj-webdriver.test.remote
     lein test clj-webdriver.test.wire
 }

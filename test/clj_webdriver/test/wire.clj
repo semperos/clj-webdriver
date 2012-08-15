@@ -8,7 +8,8 @@
         [clj-webdriver.remote.driver :only [session-id]]
         [clj-webdriver.wire :only [execute]]))
 
-(let [[this-server this-driver] (new-remote-session {:port 3003} {:browser :firefox})]
+;; Non-standard port to avoid conflicts
+(let [[this-server this-driver] (new-remote-session {:port 3004} {:browser :firefox})]
   (def server this-server)
   (def driver this-driver))
 

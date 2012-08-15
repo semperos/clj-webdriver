@@ -16,8 +16,9 @@
 
 (defn hub-port
   []
-  ;; 3001 is default for regular API, so for testing we'll default to 3003
-  (int (get (System/getenv) "WEBDRIVER_HUB_PORT" 3003)))
+  ;; API default is 4444, so for testing we use 3333
+  ;; see scripts/grid-hub and scripts/grid-node
+  (int (get (System/getenv) "WEBDRIVER_HUB_PORT" 3333)))
 
 (let [[this-server this-driver] (new-remote-session {:port (hub-port)
                                                      :host (hub-host)

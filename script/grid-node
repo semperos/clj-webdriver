@@ -21,7 +21,8 @@ fi
 ################################################################################
 
 WEBDRIVER_SERVER_JAR=/opt/selenium-server-standalone.jar
-WEBDRIVER_NODE_PARAMS="-role node -hubHost 127.0.0.1 -hubPort 3003"
+# API default is 4444, so for testing we'll use 3333
+WEBDRIVER_NODE_PARAMS="-role node -hubHost 127.0.0.1 -hubPort 3333"
 WEBDRIVER_NODE_PIDFILE="/tmp/webdriver_node.pid"
 
 if [ ! -f $WEBDRIVER_SERVER_JAR ]; then
