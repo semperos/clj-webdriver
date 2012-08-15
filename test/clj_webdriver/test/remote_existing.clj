@@ -1,5 +1,5 @@
 ;; Tests for RemoteWebDriver server and client (driver) code using manually-started Grid hub
-(ns clj-webdriver.test.remote-manual
+(ns clj-webdriver.test.remote-existing
   (:use clojure.test
         [clj-webdriver.core :only [quit to]]
         [clj-webdriver.test.config :only [test-base-url]]
