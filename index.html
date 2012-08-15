@@ -35,22 +35,28 @@
 <p>This is a Clojure library for driving a web browser using Selenium-WebDriver as the backend. For more comprehensive documentation on all of clj-webdriver's features, read the <a href="https://github.com/semperos/clj-webdriver/wiki">Github wiki</a>. You can generate documentation locally with <code>lein doc</code> (API docs) or <code>lein marg</code> (annotated source).</p>
 
 <table>
-<tr>
-<th>Release</th>
+  <thead>
+    <tr>
+      <th>Release Type</th>
       <th>Date</th>
       <th>Leiningen/Maven</th>
     </tr>
-<tr>
-<td>Stable</td>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Stable</td>
       <td>Feb 15 2012</td>
       <td><code>[clj-webdriver "0.5.1"]</code></td>
     </tr>
-<tr>
-<td>Pre-Release</td>
-      <td>July 24 2012</td>
-      <td><code>[clj-webdriver "0.6.0-alpha10"]</code></td>
+    <tr>
+      <td>Pre-Release</td>
+      <td>August 15 2012</td>
+      <td><code>[clj-webdriver "0.6.0-alpha11"]</code></td>
     </tr>
-</table><p><strong>NOTE TO LEININGEN 2 USERS:</strong> At least as of Leiningen 2 preview 6, the default behavior for retrieving dependencies that fail a checksum test is <em>not to download them.</em> This affect's at least one of Selenium-WebDriver's transitive dependencies, which means you can't download clj-webdriver's dependencies with default Leiningen 2 settings. In order to solve this issue, you need to set the <code>:checksum</code> option for either your entire <code>project.clj</code> or for a specific Maven <code>:repositories</code> entry that contains Selenium-WebDriver's dependencies (e.g., Maven central). See <a href="https://github.com/technomancy/leiningen">Leiningen's</a> repository README and example <code>sample.project.clj</code> file for more information.</p>
+  </tbody>
+</table>
+
+<p><strong>NOTE TO LEININGEN 2 USERS:</strong> At least as of Leiningen 2 preview 6, the default behavior for retrieving dependencies that fail a checksum test is <em>not to download them.</em> This affect's at least one of Selenium-WebDriver's transitive dependencies, which means you can't download clj-webdriver's dependencies with default Leiningen 2 settings. In order to solve this issue, you need to set the <code>:checksum</code> option for either your entire <code>project.clj</code> or for a specific Maven <code>:repositories</code> entry that contains Selenium-WebDriver's dependencies (e.g., Maven central). See <a href="https://github.com/technomancy/leiningen">Leiningen's</a> repository README and example <code>sample.project.clj</code> file for more information.</p>
 
 <p><strong>clj-webdriver Resources</strong></p>
 
