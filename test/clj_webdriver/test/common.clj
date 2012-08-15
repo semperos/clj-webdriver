@@ -190,6 +190,26 @@
            (find-element {:tag :a, :href "#pages"})
            present?))))
 
+(defn drag-and-drop-by-pixels-should-work
+  [driver]
+  (to driver "http://jqueryui.com/demos/draggable")
+  ;; Just check to make sure this page still has the element we expect,
+  ;; since it's an external site
+  (is (-> driver
+          (find-element {:id "draggable"})
+          present?))
+  (let [el-to-drag (find-element driver {:id "draggable"})
+        old-loc (location el-to-drag)
+        new-loc (do
+                  (drag-and-drop-by driver el-to-drag {:x 20 :y 20})
+                  (location el-to-drag))
+        [o-x o-y] [(:x old-loc) (:y old-loc)]
+        [n-x n-y] [(:x new-loc) (:y new-loc)]
+        x-diff (Math/abs (- n-x o-x))
+        y-diff (Math/abs (- n-y o-y))]
+    (is (= x-diff 20))
+    (is (= y-diff 20))))
+
 (defn should-be-able-to-determine-if-elements-intersect-each-other
   [driver]
   (click (find-element driver {:tag :a, :text "example form"}))
@@ -547,6 +567,7 @@
                        exists-should-return-truthy-falsey-and-should-not-throw-an-exception
                        visible-should-return-truthy-falsey-when-visible
                        present-should-return-truthy-falsey-when-exists-and-visible
+                       drag-and-drop-by-pixels-should-work
                        should-be-able-to-determine-if-elements-intersect-each-other
                        generated-xpath-should-wrap-strings-in-double-quotes
                        xpath-function-should-return-string-xpath-of-element
