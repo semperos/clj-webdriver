@@ -1,6 +1,6 @@
 ;; The faster way to use clj-webdriver: take a taxi
 (ns clj-webdriver.taxi
-  (:use [clj-webdriver.element :only [element?]]
+  (:use [clj-webdriver.element :only [element-like?]]
         [clj-webdriver.driver :only [driver?]])
   (:require [clj-webdriver.core :as core]
             [clj-webdriver.util :as util]
@@ -73,7 +73,7 @@
    ;; you get the idea.)
    ;;
    (set-finder! (fn [q]
-                  (if (element? q)
+                  (if (element-like? q)
                     q
                     (css-finder (str \"div#container \" q)))))
 
@@ -86,7 +86,7 @@
    ;; {:css \"query\"} or {:xpath \"query\"} instead of just a string.
    ;;
    (set-finder! (fn [q]
-                  (if (element? q)
+                  (if (element-like? q)
                     q
                     (case (first (keys q))
                       :css   (core/find-elements-by *driver* (by-css (first (values q))))
@@ -161,9 +161,9 @@
   ([q] (css-finder *driver* q))
   ([driver q]
      (cond
-      (element? q) q
-      (map? q)     (core/find-elements driver q)
-      :else        (core/find-elements driver {:css q}))))
+       (element-like? q) q
+       (map? q)     (core/find-elements driver q)
+       :else        (core/find-elements driver {:css q}))))
 
 (set-finder! css-finder)
 
@@ -174,9 +174,9 @@
   ([q] (xpath-finder *driver* q))
   ([driver q]
      (cond
-      (element? q) q
-      (map? q)     (core/find-elements driver q)
-      :else        (core/find-elements driver {:xpath q}))))
+       (element-like? q) q
+       (map? q)     (core/find-elements driver q)
+       :else        (core/find-elements driver {:xpath q}))))
 
 ;; Be able to get actual element/elements when needed
 (defn element
@@ -205,7 +205,7 @@
      submit)"
   ([q] (element *driver* q))
   ([driver q]
-     (if (element? q)
+     (if (element-like? q)
        q
        (first (*finder-fn* driver q)))))
 
@@ -223,7 +223,7 @@
    (def target-elements (elements \"a\"))"
   ([q] (elements *driver* q))
   ([driver q]
-     (if (element? q)
+     (if (element-like? q)
        q
        (*finder-fn* driver q))))
 
@@ -846,7 +846,7 @@
    ;;
    (find-elements-under \"div#container\" (core/by-id \"foo\")"
   [q-parent attr-val]
-  (if (element? q-parent)
+  (if (element-like? q-parent)
     (core/find-elements q-parent attr-val)
     (core/find-elements (element q-parent) attr-val)))
 
@@ -868,7 +868,7 @@
    ;;
    (find-element-under \"div#container\" (core/by-id \"foo\")"
   [q-parent attr-val]
-  (if (element? q-parent)
+  (if (element-like? q-parent)
     (core/find-element q-parent attr-val)
     (core/find-element (element q-parent) attr-val)))
 
