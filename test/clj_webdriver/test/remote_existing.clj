@@ -7,7 +7,9 @@
         [clj-webdriver.test.common :only [run-common-tests]]
         [clj-webdriver.remote.server :only [new-remote-session stop]])
   (:require 
-            [clj-webdriver.remote.driver :as rd]))
+        [clj-webdriver.remote.driver :as rd])
+  (:import
+        [org.openqa.selenium.remote.DesiredCapabilities]))
 
 ;; Utilities
 (defn hub-host
@@ -27,6 +29,16 @@
   (def server this-server)
   (def driver this-driver))
 
+;; Testing with specified DesiredCapabilities
+(let [capabilities (DesiredCapabilities/firefox)
+     [this-server this-driver] (new-remote-session {:port (hub-port)
+                                                    :host (hub-host)
+                                                    :existing true}
+                                                   {:browser :firefox
+                                                    :capabilities capabilities})]
+  (def cap-server this-server)
+  (def cap-driver this-driver))
+
 ;; Fixtures
 (defn reset-browser-fixture
   [f]
@@ -43,4 +55,5 @@
 
 ;; RUN TESTS HERE
 (deftest test-suite-with-remote-driver-attached-to-manually-started
-  (run-common-tests driver))
+  (run-common-tests driver)
+  (run-common-tests cap-driver))
