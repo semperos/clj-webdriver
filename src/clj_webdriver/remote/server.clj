@@ -47,13 +47,14 @@
         (start remote-server))))
   
   (address [remote-server]
-    (str "http://"
-         (get-in remote-server [:connection-params :host])
-         ":"
-         (get-in remote-server [:connection-params :port])
-         (apply str (drop-last (get-in remote-server [:connection-params :path-spec])))
-         (when (get-in remote-server [:connection-params :existing])
-           "hub")))
+    (let [{:keys [host port path-spec existing]} (:connection-params remote-server)]
+      (str "http://"
+           host
+           ":"
+           port
+           (apply str (drop-last path-spec))
+           (when existing
+             "hub"))))
   
   (new-remote-webdriver*
     [remote-server browser-spec]
