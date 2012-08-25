@@ -47,32 +47,38 @@
         (start remote-server))))
   
   (address [remote-server]
-    (str "http://"
-         (get-in remote-server [:connection-params :host])
-         ":"
-         (get-in remote-server [:connection-params :port])
-         (apply str (drop-last (get-in remote-server [:connection-params :path-spec])))
-         (when (get-in remote-server [:connection-params :existing])
-           "hub")))
+    (let [{:keys [host port path-spec existing]} (:connection-params remote-server)]
+      (str "http://"
+           host
+           ":"
+           port
+           (apply str (drop-last path-spec))
+           (when existing
+             "hub"))))
   
   (new-remote-webdriver*
     [remote-server browser-spec]
     (let [wd-url (address remote-server)
-          {:keys [browser profile] :or {browser :firefox
-                                        profile nil}} browser-spec]
-      (if-not profile
-        (RemoteWebDriver. (HttpCommandExecutor. (as-url wd-url))
-                          (call-method DesiredCapabilities browser nil nil))
-        (throw (IllegalArgumentException. "RemoteWebDriver instances do not support custom profiles.")))))
+          {:keys [browser profile capabilities] :or {browser :firefox
+                                                     profile nil 
+                                                     capabilities nil}} browser-spec]
+      (cond
+        profile (throw (IllegalArgumentException. "RemoteWebDriver instances do not support custom profiles."))
+        capabilities (RemoteWebDriver. (HttpCommandExecutor. (as-url wd-url))
+                                       capabilities)
+        :else (RemoteWebDriver. (HttpCommandExecutor. (as-url wd-url))
+                                (call-method DesiredCapabilities browser nil nil)))))
 
   (new-remote-driver
     [remote-server browser-spec]
-    (let [{:keys [browser profile cache-spec] :or {browser :firefox
-                                                   profile nil
-                                                   cache-spec {}}} browser-spec]
+    (let [{:keys [browser profile capabilities cache-spec] :or {browser :firefox
+                                                                profile nil
+                                                                capabilities nil
+                                                                cache-spec {}}} browser-spec]
       (init-driver {:webdriver (new-remote-webdriver* remote-server
                                                       {:browser browser
-                                                       :profile profile})
+                                                       :profile profile
+                                                       :capabilities capabilities})
                     :cache-spec cache-spec})))
 
   (start-remote-driver
