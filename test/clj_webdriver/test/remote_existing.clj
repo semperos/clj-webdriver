@@ -29,8 +29,8 @@
   (def server this-server)
   (def driver this-driver))
 
-;; Testing with specified DesiredCapabilities
-(let [capabilities (DesiredCapabilities/firefox)
+;; Testing with specified DesiredCapabilities map
+(let [capabilities {"browserName" "firefox"}
      [this-server this-driver] (new-remote-session {:port (hub-port)
                                                     :host (hub-host)
                                                     :existing true}
