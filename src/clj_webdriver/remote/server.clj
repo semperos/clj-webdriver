@@ -65,7 +65,7 @@
       (cond
         profile (throw (IllegalArgumentException. "RemoteWebDriver instances do not support custom profiles."))
         capabilities (RemoteWebDriver. (HttpCommandExecutor. (as-url wd-url))
-                                       capabilities)
+                                       (DesiredCapabilities. capabilities))
         :else (RemoteWebDriver. (HttpCommandExecutor. (as-url wd-url))
                                 (call-method DesiredCapabilities browser nil nil)))))
 
