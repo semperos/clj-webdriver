@@ -5,9 +5,7 @@
         [clj-webdriver.test.config :only [test-base-url]]
         [clj-webdriver.test.util :only [start-server]]
         [clj-webdriver.test.common :only [run-common-tests]]
-        [clj-webdriver.remote.server :only [new-remote-session stop]])
-  (:require 
-        [clj-webdriver.remote.driver :as rd]))
+        [clj-webdriver.remote.server :only [new-remote-session stop]]))
 
 ;; Utilities
 (defn hub-host
@@ -20,6 +18,7 @@
   ;; see scripts/grid-hub and scripts/grid-node
   (int (get (System/getenv) "WEBDRIVER_HUB_PORT" 3333)))
 
+(declare driver)
 ;; Fixtures
 (defn reset-browser-fixture
   [f]
@@ -36,16 +35,16 @@
 
 ;; RUN TESTS HERE
 (deftest test-suite-with-remote-driver-attached-to-manually-started
-  (let [[this-server this-driver] (new-remote-session {:port (hub-port)
-                                                       :host (hub-host)
-                                                       :existing true}
-                                                      {:browser :firefox})]
-    (run-common-tests this-driver)))
+  (let [[server driver] (new-remote-session {:port (hub-port)
+                                             :host (hub-host)
+                                             :existing true}
+                                            {:browser :firefox})]
+    (run-common-tests driver)))
 
 (deftest test-suite-with-remote-driver-attached-to-manually-started-with-capabilities
-  (let [capabilities {"browserName" "firefox"}
-       [this-server this-driver] (new-remote-session {:port (hub-port)
-                                                      :host (hub-host)
-                                                      :existing true}
-                                                     {:capabilities capabilities})]
-    (run-common-tests this-driver)))
+  (let [capabilities {"browserName" "firefox", "seleniumProtocol" "Selenium"}
+       [server driver] (new-remote-session {:port (hub-port)
+                                            :host (hub-host)
+                                            :existing true}
+                                           {:capabilities capabilities})]
+    (run-common-tests driver)))
