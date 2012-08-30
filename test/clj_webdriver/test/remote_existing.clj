@@ -22,23 +22,6 @@
   ;; see scripts/grid-hub and scripts/grid-node
   (int (get (System/getenv) "WEBDRIVER_HUB_PORT" 3333)))
 
-(let [[this-server this-driver] (new-remote-session {:port (hub-port)
-                                                     :host (hub-host)
-                                                     :existing true}
-                                                    {:browser :firefox})]
-  (def server this-server)
-  (def driver this-driver))
-
-;; Testing with specified DesiredCapabilities
-(let [capabilities (DesiredCapabilities/firefox)
-     [this-server this-driver] (new-remote-session {:port (hub-port)
-                                                    :host (hub-host)
-                                                    :existing true}
-                                                   {:browser :firefox
-                                                    :capabilities capabilities})]
-  (def cap-server this-server)
-  (def cap-driver this-driver))
-
 ;; Fixtures
 (defn reset-browser-fixture
   [f]
@@ -55,5 +38,16 @@
 
 ;; RUN TESTS HERE
 (deftest test-suite-with-remote-driver-attached-to-manually-started
-  (run-common-tests driver)
-  (run-common-tests cap-driver))
+  (let [[this-server this-driver] (new-remote-session {:port (hub-port)
+                                                       :host (hub-host)
+                                                       :existing true}
+                                                      {:browser :firefox})]
+    (run-common-tests this-driver)))
+
+(deftest test-suite-with-remote-driver-attached-to-manually-started-with-capabilities
+  (let [capabilities {"browserName" "firefox"}
+       [this-server this-driver] (new-remote-session {:port (hub-port)
+                                                      :host (hub-host)
+                                                      :existing true}
+                                                     {:capabilities capabilities})]
+    (run-common-tests this-driver)))
