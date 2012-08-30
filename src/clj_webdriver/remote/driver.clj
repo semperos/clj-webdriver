@@ -1,8 +1,7 @@
-(ns clj-webdriver.remote.driver
-  (:use clj-webdriver.capabilities)
+term(ns clj-webdriver.remote.driver
   (:import [org.openqa.selenium.remote
-            DesiredCapabilities RemoteWebDriver
-            HttpCommandExecutor]
+            DesiredCapabilities
+            RemoteWebDriver]
            clj_webdriver.driver.Driver))
 
 (defprotocol IRemoteWebDriver
@@ -12,6 +11,19 @@
   (command-executor! [driver executor] "Set the CommandExecutor of the given `driver`")
   (session-id [driver] "Get the session id for the given `driver`")
   (session-id! [driver new-id] "Set the session id for the given `driver`"))
+
+(defprotocol IDesiredCapabilities
+  "Way to interact with DesiredCapabilities settings"
+  (browser-name [driver] "Get browser name of remote `driver`")
+  (browser-name! [driver new-name] "Set browser name of remote `driver`")
+  (capability [driver cap-name] "Get capability by name as String of remote `driver`")
+  (capability! [driver cap-name cap-value] "Given a `k` key and `v` value compatible with any of the arities of `setCapability()`, set the value of the given capability for the given remote `driver`")
+  (platform [driver] "Get platform of remote `driver`")
+  (platform! [driver platform-name] "Given the name of a platform as either a keyword or string (case-insensitive), set the platform of the remote `driver` accordingly")
+  (version [driver] "Get version of remote `driver`")
+  (version! [driver version-string] "Set the version of the remote `driver`")
+  (javascript [driver] "Get boolean value if javascript is enabled or not")
+  (javascript! [driver enabled] "Set boolean value to enable or disable javascript"))
 
 (extend-type Driver
   IRemoteWebDriver
@@ -61,4 +73,12 @@
 
   (version! [driver new-version]
     (let [caps (capabilities driver)]
-      (.setVersion caps new-version))))
+      (.setVersion caps new-version)))
+
+  (javascript? [driver]
+    (let [caps (capabilities driver)]
+      (.isJavascriptEnabled caps)))
+
+  (javascript! [driver enabled]
+    (let [caps (capabilities driver)]
+      (.setJavascriptEnabled caps enabled))))

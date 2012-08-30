@@ -19,6 +19,7 @@
   (int (get (System/getenv) "WEBDRIVER_HUB_PORT" 3333)))
 
 (declare driver)
+
 ;; Fixtures
 (defn reset-browser-fixture
   [f]
