@@ -7,9 +7,7 @@
         [clj-webdriver.test.common :only [run-common-tests]]
         [clj-webdriver.remote.server :only [new-remote-session stop]])
   (:require 
-        [clj-webdriver.remote.driver :as rd])
-  (:import
-        [org.openqa.selenium.remote.DesiredCapabilities]))
+        [clj-webdriver.remote.driver :as rd]))
 
 ;; Utilities
 (defn hub-host
