@@ -18,21 +18,7 @@
   ;; see scripts/grid-hub and scripts/grid-node
   (int (get (System/getenv) "WEBDRIVER_HUB_PORT" 3333)))
 
-(declare driver)
-
-;; Fixtures
-(defn reset-browser-fixture
-  [f]
-  (to driver test-base-url)
-  (f))
-
-(defn quit-fixture
-  [f]
-  (f)
-  (quit driver))
-
-(use-fixtures :once start-server quit-fixture)
-(use-fixtures :each reset-browser-fixture)
+(use-fixtures :once start-server)
 
 ;; RUN TESTS HERE
 (deftest test-suite-with-remote-driver-attached-to-manually-started
@@ -40,7 +26,9 @@
                                              :host (hub-host)
                                              :existing true}
                                             {:browser :firefox})]
-    (run-common-tests driver)))
+    (to driver test-base-url)
+    (run-common-tests driver)
+    (quit driver)))
 
 (deftest test-suite-with-remote-driver-attached-to-manually-started-with-capabilities
   (let [capabilities {"browserName" "firefox", "seleniumProtocol" "Selenium"}
@@ -48,4 +36,6 @@
                                             :host (hub-host)
                                             :existing true}
                                            {:capabilities capabilities})]
-    (run-common-tests driver)))
+    (to driver test-base-url)
+    (run-common-tests driver)
+    (quit driver)))
