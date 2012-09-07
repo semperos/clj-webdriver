@@ -97,16 +97,6 @@
     (is (empty? (dissoc @(get-in temp-dr [:cache-spec :cache]) :url)))
     (quit temp-dr)))
 
-
-;; TODO: write tests for screenshot functionality, ensure diff outputs
-(deftest test-screenshot-should-return-different-outputs
-  (is (string? (get-screenshot firefox-driver :base64)))
-  (is (> (count (get-screenshot firefox-driver :bytes)) 0))
-  (is (= (class (get-screenshot firefox-driver :file)) java.io.File))
-  (is (= (class (get-screenshot firefox-driver :file "/tmp/screenshot_test.png")) java.io.File))
-  ;; the following will throw an exception if deletion fails, hence our test
-  (io/delete-file "/tmp/screenshot_test.png"))
-
 ;; Firefox-specific Functionality
 
 (deftest firefox-should-support-custom-profiles
