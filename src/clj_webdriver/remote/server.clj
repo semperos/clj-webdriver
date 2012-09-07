@@ -3,14 +3,15 @@
         [clj-webdriver.driver :only [init-driver]]
         [clj-webdriver.core :only [get-url]]
         [clj-webdriver.util :only [call-method]])
-  (:import [org.mortbay.jetty Connector Server]
+  (:import clj_webdriver.ext.remote.RemoteWebDriverExt
+           [org.mortbay.jetty Connector Server]
            org.mortbay.jetty.nio.SelectChannelConnector
            org.mortbay.jetty.security.SslSocketConnector
            org.mortbay.jetty.webapp.WebAppContext
            javax.servlet.Servlet
            org.openqa.selenium.remote.server.DriverServlet
            [org.openqa.selenium.remote
-            DesiredCapabilities RemoteWebDriver
+            DesiredCapabilities
             HttpCommandExecutor]))
 
 (defprotocol IRemoteServer
@@ -61,8 +62,8 @@
           {:keys [browser profile] :or {browser :firefox
                                         profile nil}} browser-spec]
       (if-not profile
-        (RemoteWebDriver. (HttpCommandExecutor. (as-url wd-url))
-                          (call-method DesiredCapabilities browser nil nil))
+        (RemoteWebDriverExt. (HttpCommandExecutor. (as-url wd-url))
+                             (call-method DesiredCapabilities browser nil nil))
         (throw (IllegalArgumentException. "RemoteWebDriver instances do not support custom profiles.")))))
 
   (new-remote-driver
