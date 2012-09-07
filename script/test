@@ -19,7 +19,7 @@ if [ $# -ne $EXPECTED_ARGS ]; then
 fi
 
 ################################################################################
-
+GRID_RUNNING_DEFAULT=no
 GRID_HOST_DEFAULT=127.0.0.1
 # API default is 4444, so for testing we'll use 3333
 GRID_PORT_DEFAULT=3333
@@ -30,17 +30,22 @@ DO_testCore() {
 }
 
 DO_testRemote() {
-    echo -n "Please enter the ${txtund}${regblu}host${txtrst} on which your Grid hub is running: [${GRID_HOST_DEFAULT}] > "
-    read WEBDRIVER_GRID_HOST
-    if [ -z $WEBDRIVER_GRID_HOST ]; then
-        export WEBDRIVER_GRID_HOST="${GRID_HOST_DEFAULT}"
+    echo -n "Do you have an existing Grid running, yes or no? [${GRID_RUNNING_DEFAULT}] > "
+    read GRID_RUNNING_DEFAULT
+    shopt -s nocasematch
+    if [ "$GRID_RUNNING_DEFAULT" = "yes" ]; then
+        echo -n "Please enter the ${txtund}${regblu}host${txtrst} on which your Grid hub is running: [${GRID_HOST_DEFAULT}] > "
+        read WEBDRIVER_GRID_HOST
+        if [ -z $WEBDRIVER_GRID_HOST ]; then
+            export WEBDRIVER_GRID_HOST="${GRID_HOST_DEFAULT}"
+        fi
+        echo -n "Please enter the ${txtund}${regblu}port${txtrst} on which your Grid hub is listening: [${GRID_PORT_DEFAULT}] > "
+        read WEBDRIVER_GRID_PORT
+        if [ -z $WEBDRIVER_GRID_PORT ]; then
+            export WEBDRIVER_GRID_PORT="${GRID_PORT_DEFAULT}"
+        fi
+        lein test clj-webdriver.test.remote-existing
     fi
-    echo -n "Please enter the ${txtund}${regblu}port${txtrst} on which your Grid hub is listening: [${GRID_PORT_DEFAULT}] > "
-    read WEBDRIVER_GRID_PORT
-    if [ -z $WEBDRIVER_GRID_PORT ]; then
-        export WEBDRIVER_GRID_PORT="${GRID_PORT_DEFAULT}"
-    fi
-    lein test clj-webdriver.test.remote-existing
     lein test clj-webdriver.test.remote
     lein test clj-webdriver.test.wire
 }
