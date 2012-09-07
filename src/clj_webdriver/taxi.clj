@@ -853,8 +853,6 @@
 (defn find-element-under
   "Find the first element that is a child of the element found with query `q-parent`, using the given `attr-val`. If `q-parent` is an `Element`, it will be used as-is. The `attr-val` can either be a find-element-style map of attributes and values, or a by-clause (`by-tag`, `by-class`, etc.)
 
-   Note that this function is intended to fit better with `find-element` by allowing a full `attr-val` map instead of a `by-clause`, which will be implemented pending a re-write of `find-elements`.
-
    Examples:
    =========
 
