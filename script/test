@@ -25,11 +25,21 @@ GRID_HOST_DEFAULT=127.0.0.1
 GRID_PORT_DEFAULT=3333
 
 DO_testCore() {
+    echo ""
+    echo "##################"
+    echo "## Testing Core ##"
+    echo "##################"
+    echo ""
     lein test clj-webdriver.test.firefox
     lein test clj-webdriver.test.chrome
 }
 
 DO_testRemote() {
+    echo ""
+    echo "####################"
+    echo "## Testing Remote ##"
+    echo "####################"
+    echo ""
     echo -n "Do you have an existing Grid running, yes or no? [${GRID_RUNNING_DEFAULT}] > "
     read GRID_RUNNING_DEFAULT
     shopt -s nocasematch
@@ -51,6 +61,11 @@ DO_testRemote() {
 }
 
 DO_testTaxi() {
+    echo ""
+    echo "##################"
+    echo "## Testing Taxi ##"
+    echo "##################"
+    echo ""
     lein midje clj-webdriver.test.taxi
 }
 

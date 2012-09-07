@@ -6,8 +6,7 @@
         [clj-webdriver.test.util :only [start-server]]
         [clj-webdriver.test.common :only [run-common-tests]]
         [clj-webdriver.remote.server :only [new-remote-session stop]])
-  (:require 
-            [clj-webdriver.remote.driver :as rd]))
+  (:require [clj-webdriver.remote.driver :as rd]))
 
 ;; Utilities
 (defn hub-host
