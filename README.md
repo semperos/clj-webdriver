@@ -108,6 +108,7 @@ Many thanks to those who have contributed so far (in nick-alphabetical order):
  * [mangaohua](https://github.com/mangaohua)
  * [maxweber](https://github.com/maxweber) (Max Weber)
  * [RobLally](https://github.com/RobLally) (Rob Lally)
+ * [smidas](https://github.com/smidas) (Nathan Smith)
  * [ulsa](https://github.com/ulsa) (Ulrik Sandberg)
  * [xeqi](https://github.com/xeqi) (Nelson Morris)
 
