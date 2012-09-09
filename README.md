@@ -85,7 +85,7 @@ If you want to fix a bug in the **current release**, please pull against the app
 
 The namespace `clj-webdriver.test.example-app.core` contains a [Ring](https://github.com/mmcgrana/ring) app (routing by [Moustache](https://github.com/cgrand/moustache)) that acts as the "control application" for this project's test suite.
 
-Use the `script/test` script to run clj-webdriver's tests. The usage is as follows:
+First, run `lein compile`, then use the `script/test` script to run clj-webdriver's tests. Its usage is as follows:
 
 ```
 Usage: test {all|core|remote|taxi}

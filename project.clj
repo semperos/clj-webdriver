@@ -20,6 +20,7 @@
                [ring "1.0.2"]
                [enlive "1.0.0"]
                [net.cgrand/moustache "1.0.0"]]}}
+  :aot [#"clj-webdriver\.ext\.*"]
   :scm {:url "git@github.com:semperos/clj-webdriver.git"}
   :pom-addition [:developers [:developer
                               [:id "semperos"

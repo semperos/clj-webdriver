@@ -5,6 +5,7 @@
         [clj-webdriver.test.util :only [thrown?]]
         [clj-webdriver.test.config :only [test-base-url]])
   (:require [clj-webdriver.cache :as cache]
+            [clojure.java.io :as io]
             [clojure.tools.logging :as log])
   (:import [clj_webdriver.driver.Driver]
            [org.openqa.selenium TimeoutException]))
@@ -538,6 +539,15 @@
       (find-element {:tag :a, :text "Moustache"})
       flash))
 
+(defn test-screenshot
+  [driver]
+  (is (string? (get-screenshot driver :base64)))
+  (is (> (count (get-screenshot driver :bytes)) 0))
+  (is (= (class (get-screenshot driver :file)) java.io.File))
+  (is (= (class (get-screenshot driver :file "/tmp/screenshot_test.png")) java.io.File))
+  ;; the following will throw an exception if deletion fails, hence our test
+  (io/delete-file "/tmp/screenshot_test.png"))
+
 ;;; Fixture fn's ;;;
 (defn reset-driver
   [driver]
@@ -581,7 +591,8 @@
                        wait-until-should-throw-on-timeout
                        wait-until-should-allow-timeout-argument
                        implicit-wait-should-cause-find-to-wait
-                       test-flash-helper]]
+                       test-flash-helper
+                       test-screenshot]]
     (reset-driver driver)
     (seed-driver-cache driver)
     (common-test driver)))
