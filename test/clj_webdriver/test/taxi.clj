@@ -36,97 +36,79 @@
   (is (= (title) "Ministache"))
   (is (re-find #"(?i)html>" (page-source))))
 
+(deftest back-forward-should-traverse-browser-history
+  (click (find-element {:tag :a, :text "example form"}))
+  (is (= (current-url) (str test-base-url "example-form")))
+  (back)
+  (is (= (current-url) (str test-base-url)))
+  (forward)
+  (is (= (current-url) (str test-base-url "example-form")))
+  (click (find-element {:tag :a, :text "clojure"}))
+  (back 2)
+  (is (= (current-url) (str test-base-url)))
+  (forward 2)
+  (is (= (current-url) (str test-base-url "clojure"))))
+
+(deftest to-should-open-given-url-in-browser
+  (to (str test-base-url "example-form"))
+  (is (= (current-url) (str test-base-url "example-form")))
+  (is (= (title) "Ministache")))
+
+(deftest test-cookie-handling
+  (add-cookie {:name "my_cookie" :value "my_cookie_value"})
+  (is (> (count (cookies)) 0))
+  (is (= (:value (cookie "my_cookie")) "my_cookie_value"))
+  (delete-cookie "my_cookie")
+  (is (not (some (fn [c] (= (:name c) "my_cookie")) (cookies))))
+  (delete-all-cookies)
+  (is (zero? (count (cookies)))))
+
+(deftest test-finding-elements-with-CSS
+  (click (find-element {:tag :a, :text "example form"}))
+  (is (= (attribute "#first_name" :id) "first_name"))
+  (is (= (attribute "*[type='text']" :id) "first_name"))
+  (is (= (attribute "input[name='first_name']" :id) "first_name"))
+  (is (= (attribute "input[type='text'][name='first_name']" :id) "first_name"))
+  (is (= (attribute "input[type='text'][name^='first_']" :id) "first_name"))
+  (is (= (text "a") "home"))
+  (is (= (text "a.menu-item") "home"))
+  (is (= (attribute {:tag "a", :class "menu-item"} :class) "menu-item"))
+  (is (= (text "#footer a.menu-item") "home"))
+  (is (= (attribute "option[value*='cial_']" :value) "social_media"))
+  (is (= (attribute "option[value^='social_']" :value) "social_media"))
+  (is (= (attribute "option[value$='_media']" :value) "social_media"))
+  (is (= (attribute "option[value]" :value) "france"))
+  (back) ;; on starting page
+  (is (= (attribute "*.first.odd" :class) "first odd"))
+  (is (= (tag {:class "external"}) "a"))
+  (is (= (text (nth (elements "a") 1)) "Moustache"))
+  (is (= (text "*.external") "Moustache"))
+  (is (= (attribute "*.first.odd" :class) "first odd"))
+  (is (= (attribute "li.first.odd" :class) "first odd"))
+  (is (= (count (elements "a")) 8))
+  (is (= (text "a[class^='exter']") "Moustache"))
+  (is (= (text "a.external[href*='github']") "Moustache"))
+  (is (= (text "a[class*='exter'][href*='github']") "Moustache"))
+  (is (= (count (elements "*[class*='-item']")) 3))
+  (is (= (count (elements "a[class*='-item']")) 3))
+  (is (= (count (elements "a[class*='exter'][href*='github']")) 2)))
+
+(deftest test-querying-under-elements
+  ;; Querying "under" elements
+  ;; This is the part that will see more love once #42 is fixed (decouple by-*)
+  ;;
+  ;; You can either use a by-foo function (in clj-webdriver.core), or a map.
+  ;; The map will currently generate a (by-xpath ...) form for you based on the map,
+  ;; but it's not as powerful as the core/find-element map syntax (which handles things
+  ;; like button*, radio, checkbox, etc.).
+  (is (= (text (find-element-under "div#content" (core/by-css "a.external"))) "Moustache")))
+
 (comment
  (with-driver driver
-   ;; Browser Basics ;;
+   
    (go)
    (facts
-    (class clj-webdriver.taxi/*driver*) => clj_webdriver.driver.Driver
-    (current-url) => test-base-url
-    (title) => "Ministache"
-    (page-source) => #"(?i)html>")
-
-   ;; Back, forward ;;
-   (go)
-   (click (find-element {:tag :a, :text "example form"}))
-   (Thread/sleep 500) ;; cross-browser race condition
-   (fact (current-url) => (str test-base-url "example-form"))
-   (back)
-   (fact (current-url) => test-base-url)
-   (forward)
-   (fact (current-url) => (str test-base-url "example-form"))
-   (go "clojure")
-   (back 2)
-   (fact (current-url) => test-base-url)
-   (forward 2)
-   (fact (current-url) => (str test-base-url "clojure"))
-  
-   ;; To function (navigation) ;;
-   (to (str test-base-url "example-form"))
-   (facts
-    (current-url) => (str test-base-url "example-form")
-    (title) => "Ministache")
-
-   ;; Cookie handling ;;
-   (go)
-   (add-cookie {:name "my_cookie" :value "my_cookie_value"})
-   (facts
-    (count (cookies)) => #(> % 0)
-    (:value (cookie "my_cookie")) => "my_cookie_value")
-   (delete-cookie "my_cookie")
-   (fact (some (fn [c] (= (:name c) "my_cookie")) (cookies)) => falsey)
-   (delete-all-cookies)
-   (fact (count (cookies)) => zero?)
-
-   ;; Find capability, CSS default ;;
-   (go "example-form")
-   (facts
-    (attribute "#first_name" :id) => "first_name"
-    (attribute "input[name='first_name']" :id) => "first_name"
-    (text "a") => "home"
-    (text "a.menu-item") => "home"
-    (attribute {:tag "a", :class "menu-item"} :class) => "menu-item"
-    (text "#footer a.menu-item") => "home"
-    (attribute "option[value*='cial_']" :value) => "social_media"
-    (attribute "option[value^='social_']" :value) => "social_media"
-    (attribute "option[value$='_media']" :value) => "social_media"
-    (attribute "option[value]" :value) => "france")
-   (go)
-   (facts
-    (attribute "*.first.odd" :class) => "first odd"
-    (tag {:class "external"}) => "a"
-    (text (nth (elements "a") 1)) => "Moustache"
-    (text "*.external") => "Moustache"
-    (attribute "*.first.odd" :class) => "first odd"
-    (attribute "li.first.odd" :class) => "first odd"
-    (count (elements "a")) => 8)
-
-   ;; Advanced CSS flexible selectors and regex support in clj-webdriver.core
-   (go "example-form")
-   (facts
-    (attribute "*[type='text']" :id) => "first_name"
-    (attribute "input[type='text']" :id) => "first_name"
-    (attribute "input[type='text'][name='first_name']" :id) => "first_name"
-    (attribute "input[type='text'][name^='first_']" :id) => "first_name")
-   (go)
-   (facts
-    (text "a[class^='exter']") => "Moustache"
-    (text "a.external[href*='github']") => "Moustache"
-    (text "a[class*='exter'][href*='github']") => "Moustache"
-    (count (elements "*[class*='-item']")) => 3
-    (count (elements "a[class*='-item']")) => 3
-    (count (elements "a[class*='exter'][href*='github']")) => 2)
-
-   ;; Querying "under" elements
-   ;; This is the part that will see more love once #42 is fixed (decouple by-*)
-   ;;
-   ;; You can either use a by-foo function (in clj-webdriver.core), or a map.
-   ;; The map will currently generate a (by-xpath ...) form for you based on the map,
-   ;; but it's not as powerful as the core/find-element map syntax (which handles things
-   ;; like button*, radio, checkbox, etc.).
-   (go)
-   (facts
-    (text (find-element-under "div#content" (core/by-css "a.external"))) => "Moustache"
+     => "Moustache"
     (text (find-element-under "div#content" {:css "a.external"})) => "Moustache"
     (text (find-element-under "div#content" {:tag :a, :class "external"})) => "Moustache"
     (text (find-element-under "div#content" {:css "a[class*='exter']"})) => "Moustache"

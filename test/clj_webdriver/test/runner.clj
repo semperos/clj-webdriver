@@ -8,7 +8,7 @@
             clj-webdriver.test.firefox
             clj-webdriver.test.remote
             clj-webdriver.test.remote-existing
-            clj-webdriver.test.taxi
+            clj-webdriver.test.taxi :reload
             clj-webdriver.test.wire))
 
 (def log-file "test.log")
