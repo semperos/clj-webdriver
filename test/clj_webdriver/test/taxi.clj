@@ -87,11 +87,7 @@
    (attribute "*[type='text']" :id) => "first_name"
    (attribute "input[type='text']" :id) => "first_name"
    (attribute "input[type='text'][name='first_name']" :id) => "first_name"
-   (attribute "input[type='text'][name^='first_']" :id) => "first_name"
-   ;; (attribute (find-element {:tag :input, :type "text", :name #"first_"}) :id) => "first_name"
-   ;; (attribute (find-element {:tag :input, :type "text", :name #"last_"}) :id) => "last_name"
-   ;; (attribute (find-element {:tag :input, :type "text", :name #"last_"}) :value) => "Smith"
-   )
+   (attribute "input[type='text'][name^='first_']" :id) => "first_name")
   (go)
   (facts
    (text "a[class^='exter']") => "Moustache"
