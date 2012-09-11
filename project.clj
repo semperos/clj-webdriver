@@ -16,6 +16,7 @@
               [[midje "1.3.1"]
                [criterium "0.2.0"]
                [codox "0.3.3"]
+               [clj-time "0.4.4"]
                [marginalia "0.3.2"]
                [ring "1.0.2"]
                [enlive "1.0.0"]
