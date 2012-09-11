@@ -7,6 +7,9 @@
         [clj-webdriver.test.common :only [run-common-tests]]
         [clj-webdriver.remote.server :only [new-remote-session stop]]))
 
+(def server (atom nil))
+(def driver (atom nil))
+
 ;; Utilities
 (defn hub-host
   []
@@ -18,24 +21,39 @@
   ;; see scripts/grid-hub and scripts/grid-node
   (int (get (System/getenv) "WEBDRIVER_HUB_PORT" 3333)))
 
-(use-fixtures :once start-server)
+;; Fixtures
+(defn start-session-fixture
+  [f]
+  (let [[this-server this-driver] (new-remote-session {:port (hub-port)
+                                                       :host (hub-host)
+                                                       :existing true}
+                                                      {:browser :firefox})]
+    (reset! server this-server)
+    (reset! driver this-driver))
+  (f))
+
+(defn reset-browser-fixture
+  [f]
+  (to @driver test-base-url)
+  (f))
+
+(defn quit-fixture
+  [f]
+  (f)
+  (quit @driver))
+
+(use-fixtures :once start-server start-session-fixture quit-fixture)
+(use-fixtures :each reset-browser-fixture)
 
 ;; RUN TESTS HERE
-(deftest test-suite-with-remote-driver-attached-to-manually-started
-  (let [[server driver] (new-remote-session {:port (hub-port)
-                                             :host (hub-host)
-                                             :existing true}
-                                            {:browser :firefox})]
-    (to driver test-base-url)
-    (run-common-tests driver)
-    (quit driver)))
+(deftest test-remote-driver-attached-to-manually-started-grid
+  (run-common-tests @driver))
 
-(deftest test-suite-with-remote-driver-attached-to-manually-started-with-capabilities
+(deftest test-remote-driver-attached-to-manually-started-grid-with-capabilities
   (let [capabilities {"browserName" "firefox", "seleniumProtocol" "Selenium"}
        [server driver] (new-remote-session {:port (hub-port)
                                             :host (hub-host)
                                             :existing true}
                                            {:capabilities capabilities})]
-    (to driver test-base-url)
     (run-common-tests driver)
     (quit driver)))

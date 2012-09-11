@@ -12,39 +12,47 @@
             [clojure.tools.logging :as log]))
 
 ;; Driver definitions
-(def firefox-driver (new-driver {:browser :firefox
-                                 :cache-spec {:strategy :basic,
-                                              :args [{}],
-                                              :include [ {:css "ol#pages"}
-                                                         {:tag :a, :class "external"} ]}}))
+(def firefox-driver (atom nil))
 
-(def firefox-driver-no-cache (new-driver {:browser :firefox}))
+(def firefox-driver-no-cache (atom nil))
 
 ;; Fixtures
+(defn start-browser-fixture
+  [f]
+  (reset! firefox-driver
+          (new-driver {:browser :firefox
+                       :cache-spec {:strategy :basic,
+                                    :args [{}],
+                                    :include [{:css "ol#pages"}
+                                              {:tag :a, :class "external"}]}}))
+  (reset! firefox-driver-no-cache
+          (new-driver {:browser :firefox}))
+  (f))
+
 (defn reset-browser-fixture
   [f]
-  (to firefox-driver test-base-url)
-  (to firefox-driver-no-cache test-base-url)
+  (to @firefox-driver test-base-url)
+  (to @firefox-driver-no-cache test-base-url)
   (f))
 
 (defn quit-browser-fixture
   [f]
   (f)
-  (quit firefox-driver)
-  (quit firefox-driver-no-cache))
+  (quit @firefox-driver)
+  (quit @firefox-driver-no-cache))
 
 (defn seed-driver-cache-fixture
   [f]
-  (cache/seed firefox-driver {:url (current-url firefox-driver)})
+  (cache/seed @firefox-driver {:url (current-url @firefox-driver)})
   (f))
 
-(use-fixtures :once start-server quit-browser-fixture)
+(use-fixtures :once start-server start-browser-fixture quit-browser-fixture)
 (use-fixtures :each reset-browser-fixture seed-driver-cache-fixture)
 
 ;; RUN TESTS HERE
 (deftest test-common-features-for-firefox
-  (doseq [driver [firefox-driver
-                  firefox-driver-no-cache]]
+  (doseq [driver [@firefox-driver
+                  @firefox-driver-no-cache]]
     (run-common-tests driver)))
 
 
@@ -58,32 +66,32 @@
 
 ;; Caching Functionality
 (deftest test-cache-initialization
-  (is (cache/cache-enabled? firefox-driver)))
+  (is (cache/cache-enabled? @firefox-driver)))
 
 (deftest test-cache-insert-retrieve-delete
-  (cache/insert firefox-driver {:query [:alpha]} "beta")
-  (is (cache/in-cache? firefox-driver {:query [:alpha]}))
-  (is (= (cache/retrieve firefox-driver :alpha) '("beta")))
-  (cache/delete firefox-driver :alpha)
-  (is (nil? (cache/retrieve firefox-driver :alpha))))
+  (cache/insert @firefox-driver {:query [:alpha]} "beta")
+  (is (cache/in-cache? @firefox-driver {:query [:alpha]}))
+  (is (= (cache/retrieve @firefox-driver :alpha) '("beta")))
+  (cache/delete @firefox-driver :alpha)
+  (is (nil? (cache/retrieve @firefox-driver :alpha))))
 
 (deftest test-cache-seed
-  (cache/seed firefox-driver {{:query [:foo]} "clojure"})
-  (is (= (cache/retrieve firefox-driver :foo) "clojure"))
-  (cache/seed firefox-driver)
-  (is (= @(get-cache firefox-driver) {:url (current-url firefox-driver)})))
+  (cache/seed @firefox-driver {{:query [:foo]} "clojure"})
+  (is (= (cache/retrieve @firefox-driver :foo) "clojure"))
+  (cache/seed @firefox-driver)
+  (is (= @(get-cache @firefox-driver) {:url (current-url @firefox-driver)})))
 
 (deftest test-cacheable?
-  (is (cache/cacheable? firefox-driver {:tag :a, :class "external"}))
-  (is (cache/cacheable? firefox-driver {:css "ol#pages"}))
-  (is (not (cache/cacheable? firefox-driver :table)))
-  (is (not (cache/cacheable? firefox-driver {:css "#pages"})))
-  (find-elements firefox-driver {:tag :a, :class "external"})
-  (is (not-empty (dissoc @(get-in firefox-driver [:cache-spec :cache]) :url)))
-  (cache/delete firefox-driver {:tag :a, :class "external"})
-  (is (empty? (dissoc @(get-in firefox-driver [:cache-spec :cache]) :url)))
-  (find-elements firefox-driver {:css "ol#pages"})
-  (is (not-empty (dissoc @(get-in firefox-driver [:cache-spec :cache]) :url))))
+  (is (cache/cacheable? @firefox-driver {:tag :a, :class "external"}))
+  (is (cache/cacheable? @firefox-driver {:css "ol#pages"}))
+  (is (not (cache/cacheable? @firefox-driver :table)))
+  (is (not (cache/cacheable? @firefox-driver {:css "#pages"})))
+  (find-elements @firefox-driver {:tag :a, :class "external"})
+  (is (not-empty (dissoc @(get-in @firefox-driver [:cache-spec :cache]) :url)))
+  (cache/delete @firefox-driver {:tag :a, :class "external"})
+  (is (empty? (dissoc @(get-in @firefox-driver [:cache-spec :cache]) :url)))
+  (find-elements @firefox-driver {:css "ol#pages"})
+  (is (not-empty (dissoc @(get-in @firefox-driver [:cache-spec :cache]) :url))))
 
 (deftest test-cache-excludes
   ;; includes are tested by default

@@ -8,8 +8,9 @@
             clj-webdriver.test.firefox
             clj-webdriver.test.remote
             clj-webdriver.test.remote-existing
-            clj-webdriver.test.taxi
-            clj-webdriver.test.wire))
+            ;; clj-webdriver.test.taxi
+            clj-webdriver.test.wire
+            ))
 
 (def log-file "test.log")
 
@@ -21,31 +22,57 @@
 (defn format-test-preface
   [name]
   (let [test-sep "################################################################################\n"]
-    (str test-sep
-         (timestamp)
-         "TEST RUN FOR "
-         name
+    (str "\n"
+         test-sep
+         "## TEST RUN FOR " name "\n"
+         "## " (timestamp) "\n"
          test-sep)))
+
+(defn format-subtitle
+  [name]
+  (str "###\n"
+       "# " name "\n"
+       "###\n"))
 
 (defn run-custom
   "Given a human-readable name and the namespace to test, format stdout and final results as required."
-  [name ns]
-  (str name " Results: "
-       (with-out-str
-         (pp/pprint (run-tests ns)))))
+  [ns]
+  (let [{:keys [test pass fail error]} (run-tests ns)]
+    (format "Total Tests: %d\nPass: %d\nFail: %d\nError: %d\n\n"
+            test pass fail error)))
+;; {:type :summary, :pass 275, :test 8, :error 0, :fail 0}
+
+(defn run-template
+  "Master fn for authoring new custom runners. Given a component name followed by a vector of maps with a descriptive title and test namespace pairings, run the tests and print output to a log file."
+  [name title-ns-pairs]
+  (with-open [w (io/writer log-file :append true)]
+    (.write w (format-test-preface name))
+    (binding [*out* w
+              *err* w]
+      (doseq [{:keys [title ns]} title-ns-pairs]
+        (.write w (str (format-subtitle title)
+                       (run-custom ns)))))))
 
 (defn run-core
   []
-  (with-open [w (io/writer log-file :append true)]
-    (.write w (format-test-preface "core"))
-    (binding [*out* w
-              *err* w]
-      (.write w (run-custom "Firefox" 'clj-webdriver.test.firefox))
-      (.write w (run-custom "Chrome" 'clj-webdriver.test.chrome)))))
+  (run-template "core" [{:title "Firefox Results"
+                         :ns 'clj-webdriver.test.firefox}
+                        {:title "Chrome Results"
+                         :ns 'clj-webdriver.test.chrome}]))
 
-(defn run-core [])
-(defn run-remote [])
-(defn run-taxi [])
+(defn run-remote
+  []
+  (run-template "remote" [{:title "Remote for Existing Grid Results"
+                           :ns 'clj-webdriver.test.remote-existing}
+                          {:title "Remote for Managed Grid Results"
+                           :ns 'clj-webdriver.test.remote}
+                          {:title "Wire API Results"
+                           :ns 'clj-webdriver.test.wire}]))
+
+(defn run-taxi
+  []
+  (run-template "taxi" [{:title "Taxi Results"
+                         :ns 'clj-webdriver.test.taxi}]))
 
 (defn run-all
   []
