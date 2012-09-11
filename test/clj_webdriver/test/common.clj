@@ -100,52 +100,16 @@
   (is (= "first_name"
          (attribute (find-element driver {:tag :input, :type "text"}) "id")))
   (is (= "first_name"
-         (attribute (find-element driver {:tag :input, :type "text", :name "first_name"}) "id")))
-  ;; (is (= "first_name"
-  ;;        (attribute (find-element driver {:tag :input, :type "text", :name #"first_"}) "id")))
-  ;; (is (= "last_name"
-  ;;        (attribute (find-element driver {:tag :input, :type "text", :name #"last_"}) "id")))n
-  ;; (is (= "Smith"
-  ;;        (attribute (find-element driver {:tag :input, :type "text", :name #"last_"}) "value")))
-  )
-
-;; (defn find-element-should-support-regexes-in-attr-val-map
-;;   [driver]
-;;   (is (= "Moustache"
-;;          (text (find-element driver {:tag :a, :class #"exter"}))))
-;;   (is (= "Moustache"
-;;          (text (find-element driver {:tag :a, :text #"Mous"}))))
-;;   (is (= "Moustache"
-;;          (text (find-element driver {:tag :a, :class "external", :href #"github"}))))
-;;   (is (= "Moustache"
-;;          (text (find-element driver {:tag :a, :class #"exter", :href #"github"}))))
-;;   (is (= 3
-;;          (count (find-elements driver {:class #"-item"}))))
-;;   (is (= 3
-;;          (count (find-elements driver {:tag :a, :class #"-item"}))))
-;;   (is (= 1
-;;          (count (find-elements driver {:tag :a, :text #"hom"}))))
-;;   (is (= 1
-;;          (count (find-elements driver {:tag :a, :text #"(?i)HOM"}))))
-;;   (is (= 2
-;;          (count (find-elements driver {:tag :a, :class #"exter", :href #"github"})))))
-
+         (attribute (find-element driver {:tag :input, :type "text", :name "first_name"}) "id"))))
 
 (defn find-element-should-support-hierarchical-querying
   [driver]
   (is (= "Moustache"
          (text (find-element driver [{:tag :div, :id "content"}, {:tag :a, :class "external"}]))))
-  ;; (is (= "Moustache"
-  ;;        (text (find-element driver [{:tag :div, :id "content"}, {:tag :a, :class #"exter"}]))))
-  ;; (is (= "Moustache"
-  ;;        (text (find-element driver [{:tag :div, :id "content"}, {:tag :a, :href #"github"}]))))
   (is (= "home"
          (text (find-element driver [{:tag :*, :id "footer"}, {:tag :a}]))))
   (is (= 3
-         (count (find-elements driver [{:tag :*, :id "footer"}, {:tag :a}]))))
-  ;; (is (= 2
-  ;;        (count (find-elements driver [{:tag :div, :id "content"}, {:tag :a, :class #"exter"}]))))
-  )
+         (count (find-elements driver [{:tag :*, :id "footer"}, {:tag :a}])))))
 
 (defn hierarchical-querying-should-not-support-css-or-xpath-attrs
   [driver]
