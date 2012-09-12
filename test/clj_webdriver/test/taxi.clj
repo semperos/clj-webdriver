@@ -94,199 +94,155 @@
   (is (= (count (elements "a[class*='exter'][href*='github']")) 2)))
 
 (deftest test-querying-under-elements
-  ;; Querying "under" elements
-  ;; This is the part that will see more love once #42 is fixed (decouple by-*)
-  ;;
-  ;; You can either use a by-foo function (in clj-webdriver.core), or a map.
-  ;; The map will currently generate a (by-xpath ...) form for you based on the map,
-  ;; but it's not as powerful as the core/find-element map syntax (which handles things
-  ;; like button*, radio, checkbox, etc.).
-  (is (= (text (find-element-under "div#content" (core/by-css "a.external"))) "Moustache")))
+  (is (= (text (find-element-under "div#content" (core/by-css "a.external"))) "Moustache"))
+  (is (= (text (find-element-under "div#content" {:css "a.external"})) "Moustache"))
+  (is (= (text (find-element-under "div#content" {:tag :a, :class "external"})) "Moustache"))
+  (is (= (text (find-element-under "div#content" {:css "a[class*='exter']"})) "Moustache"))
+  (is (= (text (find-element-under "div#content" {:css "a[href*='github']"})) "Moustache"))
+  (is (= (text (find-element-under "#footer" (core/by-tag :a))) "home"))
+  (is (= (count (find-elements-under "#footer" {:tag :a})) 3))
+  (is (= (count (find-elements-under "div#content" {:css "a[class*='exter']"})) 2)))
 
-(comment
- (with-driver driver
-   
-   (go)
-   (facts
-     => "Moustache"
-    (text (find-element-under "div#content" {:css "a.external"})) => "Moustache"
-    (text (find-element-under "div#content" {:tag :a, :class "external"})) => "Moustache"
-    (text (find-element-under "div#content" {:css "a[class*='exter']"})) => "Moustache"
-    (text (find-element-under "div#content" {:css "a[href*='github']"})) => "Moustache"
-    (text (find-element-under "#footer" (core/by-tag :a))) => "home"
-    (count (find-elements-under "#footer" {:tag :a})) => 3
-    (count (find-elements-under "div#content" {:css "a[class*='exter']"})) => 2)
+(deftest text-exists-visible-present
+  (is (exists? "a"))
+  (is (not (exists? "area")))
+  (is (exists? "a[href='#pages']"))
+  (is (visible? "a.external"))
+  (is (not (visible? "a[href='#pages']")))
+  (is (displayed? "a.external"))
+  (is (not (displayed? "a[href='#pages']")))
+  (is (present? "a.external"))
+  (is (not (present? "a[href='#pages']"))))
 
-   ;; Exists/visible/present ;;
-   (go)
-   (facts
-    (exists? "a") => truthy
-    (exists? "area") => falsey
-    (exists? "a[href='#pages']") => truthy
-    (visible? "a.external") => truthy
-    (visible? "a[href='#pages']") => falsey
-    (displayed? "a.external") => truthy
-    (displayed? "a[href='#pages']") => falsey
-    (present? "a.external") => truthy
-    (present? "a[href='#pages']") => falsey)
-
-   ;; Drag and drop
-   (to "http://jqueryui.com/demos/draggable")
-   (fact
-     ;; since it's an external site, make sure that draggable div is still there
-     (present? "#draggable"))
-   (let [el-to-drag (element {:id "draggable"})
+(deftest test-drag-and-drop
+  ;; TODO: Implement locally
+  (to "http://jqueryui.com/demos/draggable")
+  ;; since it's an external site, make sure that draggable div is still there
+  (is (present? "#draggable"))
+  (let [el-to-drag (element {:id "draggable"})
          {o-x :x o-y :y} (location el-to-drag)
          {n-x :x n-y :y} (do
                            (drag-and-drop-by el-to-drag {:x 20 :y 20})
                            (location el-to-drag))
          x-diff (Math/abs (- n-x o-x))
          y-diff (Math/abs (- n-y o-y))]
-     (facts
-      (= x-diff 20)
-      (= y-diff 20)))
+    (is (= x-diff 20))
+    (is (= y-diff 20))))
 
-   ;; Element Intersection
-   (go "example-form")
-   (facts
-    (intersect? "#first_name" "#personal-info-wrapper") => truthy
-    (intersect? "#first_name" "#last_name") => falsey)
+(deftest test-element-intersection
+  (click (find-element {:tag :a, :text "example form"}))
+  (is (intersect? "#first_name" "#personal-info-wrapper"))
+  (is (not (intersect? "#first_name" "#last_name"))))
 
-   ;; XPath generation
-   (go)
-   (fact (xpath "a.external") => "/html/body/div[2]/div/p/a")
+(deftest test-xpath-output
+  (is (= (xpath "a.external") "/html/body/div[2]/div/p/a")))
 
-   ;; HTML of an element (inner)
-   (go)
-   (fact (html "a.external") => #"href=\"https://github\.com/cgrand/moustache\"")
+(deftest test-html-output
+  (is (re-find #"href=\"https://github\.com/cgrand/moustache\"" (html "a.external"))))
 
-   ;; Table cell finding
-   (go)
-   (facts
-    (lower-case (tag (find-table-cell "#pages-table" [0 0]))) => "th"
-    (lower-case (tag (find-table-cell "#pages-table" [0 1]))) => "th"
-    (lower-case (tag (find-table-cell "#pages-table" [1 0]))) => "td"
-    (lower-case (tag (find-table-cell "#pages-table" [1 1]))) => "td")
+(deftest test-table-cell-finding
+  (is (= (lower-case (tag (find-table-cell "#pages-table" [0 0]))) "th"))
+  (is (= (lower-case (tag (find-table-cell "#pages-table" [0 1]))) "th"))
+  (is (= (lower-case (tag (find-table-cell "#pages-table" [1 0]))) "td"))
+  (is (= (lower-case (tag (find-table-cell "#pages-table" [1 1]))) "td")))
 
-   ;; Table row finding
-   (go)
-   (facts
-    (count (find-table-row "#pages-table" 0)) => 2
-    (lower-case (tag (first (find-table-row "#pages-table" 0)))) => "th"
-    (lower-case (tag (first (find-table-row "#pages-table" 1)))) => "td")
+;; Currently throwing exception
+;; (deftest test-table-row-finding
+;;   (is (= (count (find-table-row "#pages-table" 0)) 2))
+;;   (is (= (lower-case (tag (first (find-table-row "#pages-table" 0)))) "th"))
+;;   (is (= (lower-case (tag (first (find-table-row "#pages-table" 1)))) "td")))
 
-   ;; Form elements ;;
-   (go "example-form")
-
-   ;; Clear
-   (clear "form#example_form input[id^='last_']")
-   (fact (value "form#example_form input[id^='last_']") => empty?)
-
-   ;; Radio buttons
-   (fact (selected? "input[type='radio'][value='male']") => truthy)
-   (select "input[type='radio'][value='female']")
-   (fact (selected? "input[type='radio'][value='female']") => truthy)
-   (select "input[type='radio'][value='male']")
-   (fact (selected? "input[type='radio'][value='male']") => truthy)
-   (fact (selected? "input[type='radio'][value='female']") => falsey)
-
-   ;; Checkboxes
-   (fact (selected? "input[type='checkbox'][name*='clojure']") => falsey)
-   (toggle "input[type='checkbox'][name*='clojure']")
-   (fact (selected? "input[type='checkbox'][name*='clojure']") => truthy)
-   (click "input[type='checkbox'][name*='clojure']")
-   (fact (selected? "input[type='checkbox'][name*='clojure']") => falsey)
-   (select "input[type='checkbox'][name*='clojure']")
-   (fact (selected? "input[type='checkbox'][name*='clojure']") => truthy)
-
-   ;; Text fields
-   (input-text "input#first_name" "foobar")
-   (fact (value "input#first_name") => "foobar")
-   (-> "input#first_name"
+(deftest form-elements
+  (click (find-element {:tag :a :text, "example form"}))
+  ;; Clear
+  (clear "form#example_form input[id^='last_']")
+  (is (empty? (value "form#example_form input[id^='last_']")))
+  ;; Radio buttons
+  (is (selected? "input[type='radio'][value='male']"))
+  (select "input[type='radio'][value='female']")
+  (is (selected? "input[type='radio'][value='female']"))
+  (select "input[type='radio'][value='male']")
+  (is (selected? "input[type='radio'][value='male']"))
+  (is (not (selected? "input[type='radio'][value='female']")))
+  ;; Checkboxes
+  (is (not (selected? "input[type='checkbox'][name*='clojure']")))
+  (toggle "input[type='checkbox'][name*='clojure']")
+  (is (selected? "input[type='checkbox'][name*='clojure']"))
+  (click "input[type='checkbox'][name*='clojure']")
+  (is (not (selected? "input[type='checkbox'][name*='clojure']")))
+  (select "input[type='checkbox'][name*='clojure']")
+  (is (selected? "input[type='checkbox'][name*='clojure']"))
+  ;; Text fields
+  (input-text "input#first_name" "foobar")
+  (is (= (value "input#first_name") "foobar"))
+  (-> "input#first_name"
        clear
        (input-text "clojurian"))
-   (fact (value "input#first_name") => "clojurian")
+  (is (= (value "input#first_name") "clojurian"))
+  ;; "Boolean" element attributes (e.g., readonly="readonly")
+  (is (= (attribute "#disabled_field" :disabled) "disabled"))
+  (is (= (attribute "#purpose_here" :readonly) "readonly"))
+  (is (nil? (attribute "#disabled_field" :readonly)))
+  (is (nil? (attribute "#purpose_here" :disabled)))
+  ;; Select lists
+  (let [q "select#countries"]
+    (is (= (count (options q)) 4))
+    (is (= (count (selected-options q)) 1))
+    (is (= (attribute (first (selected-options q)) :value) "bharat"))
+    (is (not (multiple? q)))
+    (select-option q {:value "deutschland"})
+    (is (= (count (selected-options q)) 1))
+    (is (= (attribute (first (selected-options q)) :value) "deutschland"))
+    (select-by-index q 0)
+    (is (= (count (selected-options q)) 1))
+    (is (= (attribute (first (selected-options q)) :value) "france"))
+    (select-by-text q "Haiti")
+    (is (= (count (selected-options q)) 1))
+    (is (= (attribute (first (selected-options q)) :value) "ayiti"))
+    (select-by-value q "bharat")
+    (is (= (count (selected-options q)) 1))
+    (is (= (attribute (first (selected-options q)) :value) "bharat")))
+  (let [q "select#site_types"]
+    (is (multiple? q))
+    (is (= (count (options q)) 4))
+    (is (zero? (count (selected-options q))))
+    (select-option q {:index 0})
+    (is (= (count (selected-options q)) 1))
+    (is (= (attribute (first (selected-options q)) :value) "blog"))
+    (select-option q {:value "social_media"})
+    (is (= (count (selected-options q)) 2))
+    (is (= (attribute (second (selected-options q)) :value) "social_media"))
+    (deselect-option q {:index 0})
+    (is (= (count (selected-options q)) 1))
+    (attribute (first (selected-options q)) :value) "social_media"
+    (select-option q {:value "search_engine"})
+    (is (= (count (selected-options q)) 2))
+    (is (= (attribute (second (selected-options q)) :value) "search_engine"))
+    (deselect-by-index q 1)
+    (is (= (count (selected-options q)) 1))
+    (is (= (attribute (first (selected-options q)) :value) "search_engine"))
+    (select-option q {:value "code"})
+    (is (= (count (selected-options q)) 2))
+    (is (= (attribute (last (selected-options q)) :value) "code"))
+    (deselect-by-text q "Search Engine")
+    (is (= (count (selected-options q)) 1))
+    (is (= (attribute (first (selected-options q)) :value) "code"))
+    (select-all q)
+    (is (= (count (selected-options q)) 4))
+    (deselect-all q)
+    (is (zero? (count (selected-options q))))))
 
-   ;; "Boolean" attributes (e.g., readonly="readonly")
-   (facts
-    (attribute "#disabled_field" :disabled) => "disabled"
-    (attribute "#purpose_here" :readonly) => "readonly"
-    (attribute "#disabled_field" :readonly) => nil?
-    (attribute "#purpose_here" :disabled) => nil?)
-
-   ;; Select Lists
-   (let [q "select#countries"]
-     (facts
-      (count (options q)) => 4
-      (count (selected-options q)) => 1
-      (attribute (first (selected-options q)) :value) => "bharat"
-      (multiple? q) => falsey)
-     (select-option q {:value "deutschland"})
-     (facts
-      (count (selected-options q)) => 1
-      (attribute (first (selected-options q)) :value) => "deutschland")
-     (select-by-index q 0)
-     (facts
-      (count (selected-options q)) => 1
-      (attribute (first (selected-options q)) :value) => "france")
-     (select-by-text q "Haiti")
-     (facts
-      (count (selected-options q)) => 1
-      (attribute (first (selected-options q)) :value) => "ayiti")
-     (select-by-value q "bharat")
-     (facts
-      (count (selected-options q)) => 1
-      (attribute (first (selected-options q)) :value) => "bharat"))
-   (let [q "select#site_types"]
-     (facts
-      (multiple? q) => truthy
-      (count (options q)) => 4
-      (count (selected-options q)) => zero?)
-     (select-option q {:index 0})
-     (facts
-      (count (selected-options q)) => 1
-      (attribute (first (selected-options q)) :value) => "blog")
-     (select-option q {:value "social_media"})
-     (facts
-      (count (selected-options q)) => 2
-      (attribute (second (selected-options q)) :value) => "social_media")
-     (deselect-option q {:index 0})
-     (facts
-      (count (selected-options q)) => 1
-      (attribute (first (selected-options q)) :value) => "social_media")
-     (select-option q {:value "search_engine"})
-     (facts
-      (count (selected-options q)) => 2
-      (attribute (second (selected-options q)) :value) => "search_engine")
-     (deselect-by-index q 1)
-     (facts
-      (count (selected-options q)) => 1
-      (attribute (first (selected-options q)) :value) => "search_engine")
-     (select-option q {:value "code"})
-     (facts
-      (count (selected-options q)) => 2
-      (attribute (last (selected-options q)) :value) => "code")
-     (deselect-by-text q "Search Engine")
-     (facts
-      (count (selected-options q)) => 1
-      (attribute (first (selected-options q)) :value) => "code")
-     (select-all q)
-     (fact (count (selected-options q)) => 4)
-     (deselect-all q)
-     (fact (count (selected-options q)) => zero?))
-
-   ;; Quick-fill ;;
-   (go "example-form")
-   (facts
-    (count (quick-fill {"#first_name" clear}
+(deftest test-quickfill
+  (click (find-element {:tag :a :text, "example form"}))
+  (is (= (count (quick-fill {"#first_name" clear}
                        {"#first_name" "Richard"}
                        {"#last_name" clear}
                        {"#last_name" "Hickey"}
                        {"*[name='bio']" clear}
                        {"*[name='bio']" #(input-text % "Creator of Clojure")}
                        {"input[type='radio'][value='female']" click}
-                       {"select#countries" #(select-by-value % "france")})) => 8
-    (count (distinct
+                       {"select#countries" #(select-by-value % "france")})) 8))
+  (is (= (count (distinct
             (quick-fill {"#first_name" clear}
                         {"#first_name" "Richard"}
                         {"#last_name" clear}
@@ -294,75 +250,63 @@
                         {"*[name='bio']" clear}
                         {"*[name='bio']" #(input-text % "Creator of Clojure")}
                         {"input[type='radio'][value='female']" click}
-                        {"select#countries" #(select-by-value % "france")}))) => 5
-    (value "input#first_name") => "Richard"
-    (value "input#last_name") => "Hickey"
-    (value "textarea[name='bio']") => "Creator of Clojure"
-    (selected? "input[type='radio'][value='female']") => truthy
-    (selected? "option[value='france']") => truthy
-    (quick-fill-submit {"#first_name" clear}
+                        {"select#countries" #(select-by-value % "france")}))) 5))
+  (is (= (value "input#first_name") "Richard"))
+  (is (= (value "input#last_name") "Hickey"))
+  (is (= (value "textarea[name='bio']") "Creator of Clojure"))
+  (is (selected? "input[type='radio'][value='female']"))
+  (is (selected? "option[value='france']"))
+  (is (nil? (quick-fill-submit {"#first_name" clear}
                        {"#first_name" "Richard"}
                        {"#last_name" clear}
                        {"#last_name" "Hickey"}
                        {"*[name='bio']" clear}
                        {"*[name='bio']" #(input-text % "Creator of Clojure")}
                        {"input[type='radio'][value='female']" click}
-                       {"select#countries" #(select-by-value % "france")}) => nil?)
+                       {"select#countries" #(select-by-value % "france")}))))
 
-   ;; Window Handling ;;
-   (go)
-   (facts
-    (count (window-handles)) => 1
-    (:title (window-handle)) => "Ministache")
-   (click "a[target='_blank'][href*='clojure']")
-   (facts
-    (:title (window-handle)) => "Ministache"
-    (count (window-handles)) => 2)
-   (switch-to-window (second (window-handles)))
-   (fact (:url (window-handle)) => (str test-base-url "clojure"))
-   (switch-to-other-window)
-   (fact (:url (window-handle)) => test-base-url)
-   (switch-to-window (find-window {:url (str test-base-url "clojure")}))
-   (close)
-   (fact (:url (window-handle)) => test-base-url)
+(deftest test-window-handling
+  (is (= (count (window-handles)) 1))
+  (is (= (:title (window-handle)) "Ministache"))
+  (click "a[target='_blank'][href*='clojure']")
+  (is (= (:title (window-handle)) "Ministache"))
+  (is (= (count (window-handles)) 2))
+  (switch-to-window (second (window-handles)))
+  (is (= (:url (window-handle)) (str test-base-url "clojure")))
+  (switch-to-other-window)
+  (is (= (:url (window-handle)) test-base-url))
+  (switch-to-window (find-window {:url (str test-base-url "clojure")}))
+  (close)
+  (is (= (:url (window-handle)) test-base-url)))
 
-   ;; Wait functionality ;;
-   (fact (title) => "Ministache")
-   (execute-script "setTimeout(function () { window.document.title = \"asdf\"}, 3000)")
-   (wait-until #(= (title) "asdf"))
-
-   (fact (thrown? TimeoutException
+(deftest test-waiting-until
+  (is (= (title) "Ministache"))
+  (execute-script "setTimeout(function () { window.document.title = \"asdf\"}, 3000)")
+  (wait-until #(= (title) "asdf"))
+  (is (thrown? TimeoutException
                   (do
                     (execute-script "setTimeout(function () { window.document.title = \"test\"}, 6000)")
                     (wait-until #(= (title) "test")))))
-   (fact (thrown? TimeoutException
-                  (do
-                    (execute-script "setTimeout(function () { window.document.title = \"test\"}, 6000)")
-                    (wait-until #(= (title) "test") 1000))))
+  ;; TODO: This *should* throw the exception
+  (is (not (thrown? TimeoutException
+                    (do
+                      (execute-script "setTimeout(function () { window.document.title = \"test\"}, 7000)")
+                      (wait-until #(= (title) "test") 1000))))))
 
-   ;; Implicit Wait ;;
-   (go)
-   (implicit-wait 3000)
-   (execute-script "setTimeout(function () { window.document.body.innerHTML = \"<div id='test'>hi!</div>\"}, 1000)")
-   (fact (attribute "#test" :id) => "test")
+(deftest test-implicit-wait
+  (implicit-wait 3000)
+  (execute-script "setTimeout(function () { window.document.body.innerHTML = \"<div id='test'>hi!</div>\"}, 1000)")
+  (is (= (attribute "#test" :id) "test")))
 
-   ;; Flash ;;
-   (go)
-   (fact (attribute (flash "a.external") :class) => "external"))
+(deftest test-flash
+  (is (= (attribute (flash "a.external") :class) "external")))
 
- ;; Find capabilitiy, XPath default
- (with-driver-fn driver xpath-finder
-   (go "example-form")
-   (facts
-    (text {:tag :a, :text "home"}) => "home"
-    (text "//a[text()='home']") => "home"
-    (text "//a[text()='example form']") => "example form")
-   (go)
-   (facts
-    (attribute "//*[text()='Moustache']" :href) => "https://github.com/cgrand/moustache")
-
-   ;; XPath wrap strings in double quotes
-   (go)
-   (fact (exists? (find-element {:text "File's Name"})) => truthy))
-
-)
+(deftest test-using-xpath-instead-of-css
+  (set-finder! xpath-finder)
+  (click (find-element {:tag :a :text, "example form"}))
+  (is (= (text {:tag :a, :text "home"}) "home"))
+  (is (= (text "//a[text()='home']") "home"))
+  (is (= (text "//a[text()='example form']") "example form"))
+  (back) ;; starting page
+  (is (= (attribute "//*[text()='Moustache']" :href) "https://github.com/cgrand/moustache"))
+  (is (exists? (find-element {:text "File's Name"}))))

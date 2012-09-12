@@ -39,7 +39,6 @@
   (let [{:keys [test pass fail error]} (run-tests ns)]
     (format "Total Tests: %d\nPass: %d\nFail: %d\nError: %d\n\n"
             test pass fail error)))
-;; {:type :summary, :pass 275, :test 8, :error 0, :fail 0}
 
 (defn run-template
   "Master fn for authoring new custom runners. Given a component name followed by a vector of maps with a descriptive title and test namespace pairings, run the tests and print output to a log file."
