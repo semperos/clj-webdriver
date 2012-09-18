@@ -12,6 +12,11 @@
 (def ^:dynamic *driver*)
 (def ^:dynamic *finder-fn* css-finder)
 
+(def ^{:doc (str "Alias of clj-webdriver.core/new-driver:\n"
+                 (:doc (meta #'clj-webdriver.core/new-driver)))
+       :arglists (:arglists (meta #'clj-webdriver.core/new-driver))}
+  new-driver clj-webdriver.core/new-driver)
+
 (defn- set-driver*
   "Given a `browser-spec`, instantiate a new Driver record and assign to `*driver*`."
   [browser-spec]
