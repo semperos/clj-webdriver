@@ -1,6 +1,6 @@
 (ns clj-webdriver.test.taxi
   (:use clojure.test
-        clj-webdriver.taxi
+        clj-webdriver.taxi :reload
         [clj-webdriver.test.config :only [test-base-url]]
         [clj-webdriver.test.util :only [start-server]]
         [clj-webdriver.test.util :only [thrown?]]
@@ -40,7 +40,7 @@
   (click (find-element {:tag :a, :text "example form"}))
   (is (= (current-url) (str test-base-url "example-form")))
   (back)
-  (is (= (current-url) (str test-base-url)))
+  (is (= (current-url) test-base-url))
   (forward)
   (is (= (current-url) (str test-base-url "example-form")))
   (click (find-element {:tag :a, :text "clojure"}))
@@ -140,17 +140,16 @@
 (deftest test-html-output
   (is (re-find #"href=\"https://github\.com/cgrand/moustache\"" (html "a.external"))))
 
-(deftest test-table-cell-finding
+(deftest test-table-finding
+  (is (= (current-url) test-base-url))
+  (is (exists? "#pages-table"))
   (is (= (lower-case (tag (find-table-cell "#pages-table" [0 0]))) "th"))
   (is (= (lower-case (tag (find-table-cell "#pages-table" [0 1]))) "th"))
   (is (= (lower-case (tag (find-table-cell "#pages-table" [1 0]))) "td"))
-  (is (= (lower-case (tag (find-table-cell "#pages-table" [1 1]))) "td")))
-
-;; Currently throwing exception
-;; (deftest test-table-row-finding
-;;   (is (= (count (find-table-row "#pages-table" 0)) 2))
-;;   (is (= (lower-case (tag (first (find-table-row "#pages-table" 0)))) "th"))
-;;   (is (= (lower-case (tag (first (find-table-row "#pages-table" 1)))) "td")))
+  (is (= (lower-case (tag (find-table-cell "#pages-table" [1 1]))) "td"))
+  (is (= (count (find-table-row "#pages-table" 0)) 2))
+  (is (= (lower-case (tag (first (find-table-row (element "#pages-table") 0)))) "th"))
+  (is (= (lower-case (tag (first (find-table-row (element"#pages-table") 1)))) "td")))
 
 (deftest form-elements
   (click (find-element {:tag :a :text, "example form"}))
@@ -235,13 +234,13 @@
 (deftest test-quickfill
   (click (find-element {:tag :a :text, "example form"}))
   (is (= (count (quick-fill {"#first_name" clear}
-                       {"#first_name" "Richard"}
-                       {"#last_name" clear}
-                       {"#last_name" "Hickey"}
-                       {"*[name='bio']" clear}
-                       {"*[name='bio']" #(input-text % "Creator of Clojure")}
-                       {"input[type='radio'][value='female']" click}
-                       {"select#countries" #(select-by-value % "france")})) 8))
+                            {"#first_name" "Richard"}
+                            {"#last_name" clear}
+                            {"#last_name" "Hickey"}
+                            {"*[name='bio']" clear}
+                            {"*[name='bio']" #(input-text % "Creator of Clojure")}
+                            {"input[type='radio'][value='female']" click}
+                            {"select#countries" #(select-by-value % "france")})) 8))
   (is (= (count (distinct
             (quick-fill {"#first_name" clear}
                         {"#first_name" "Richard"}
