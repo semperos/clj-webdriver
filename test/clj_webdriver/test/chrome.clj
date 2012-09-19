@@ -10,8 +10,6 @@
 (log/debug "WARNING: The Chrome driver requires a separate download. See the Selenium-WebDriver wiki for more information if Chrome fails to start.")
 (def chrome-driver (atom nil))
 
-;; (new-driver {:browser :chrome})
-
 ;; Fixtures
 (defn start-browser-fixture
   [f]
