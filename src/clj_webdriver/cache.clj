@@ -37,7 +37,8 @@
 
 (ns clj-webdriver.cache
   (:use [clj-webdriver.element :only [element?]])
-  (:require [clojure.tools.logging :as log])
+  (:require [clojure.tools.logging :as log]
+            clj-webdriver.driver)
   (:import clj_webdriver.driver.Driver))
 
 ;; Possible values are `:keep`, `:check`, `:flush`

@@ -1,6 +1,5 @@
 (ns clj-webdriver.firefox
-  (:use [clj-webdriver.properties :only [*properties*]]
-        [clj-webdriver.driver :only [init-driver]])
+  (:use [clj-webdriver.properties :only [*properties*]])
   (:require [clojure.java.io :as io])
   (:import org.openqa.selenium.firefox.FirefoxProfile))
 
