@@ -66,7 +66,7 @@ DO_testTaxi() {
     echo "## Testing Taxi ##"
     echo "##################"
     echo ""
-    lein midje clj-webdriver.test.taxi
+    lein test clj-webdriver.test.taxi
 }
 
 case "$1" in
