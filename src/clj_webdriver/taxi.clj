@@ -360,7 +360,7 @@
    ;; Specify a default destination for the file object
    ;;
    (take-screenshot :file \"/path/to/save/screenshot.png\")"
-  ([] (core/get-screenshot *driver*))
+  ([] (core/get-screenshot *driver* :file))
   ([format] (core/get-screenshot *driver* format))
   ([format destination] (core/get-screenshot *driver* format destination))
   ([driver format destination] (core/get-screenshot driver format destination)))
