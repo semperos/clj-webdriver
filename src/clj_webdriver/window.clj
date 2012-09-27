@@ -4,6 +4,7 @@
 		     [clj_webdriver.driver Driver]))
 
 (defprotocol IWindow
+	"Functions to manage browser size and position."
 	(position [driver] "Returns map of X Y coordinates ex. {:x 1 :y 3} relative to the upper left corner of screen.")
 	(reposition! [driver point-map] "Excepts map of X Y coordinates ex. {:x 1 :y 3} repositioning current window relative to screen.")
 	(size [driver] "Get size of current window; returns a map of width and height ex. {:width 480 :height 800}")
