@@ -26,7 +26,7 @@
 (use-fixtures :once start-browser-fixture quit-browser-fixture)
 (use-fixtures :each reset-browser-fixture)
 
-(deftest test-browser-size-management-functions
+(deftest test-browser-window-size-functions
 	(let [small {:width 460 :height 800}
         large {:width 1024 :height 800}]
     (resize! @firefox-driver small)
@@ -36,12 +36,13 @@
 
 (deftest test-browser-window-position-functions
   (let [new-position {:x 245 :y 245}
-        origin {:x 0 :y 22}]
-    (reposition! @firefox-driver origin)
-    (is (= (position @firefox-driver) origin))
+        origin (position @firefox-driver)]
     (reposition! @firefox-driver new-position)
-    (is (= (position @firefox-driver) new-position))))
+    (is (= (position @firefox-driver) new-position))
+    (reposition! @firefox-driver origin)
+    (is (= (position @firefox-driver) origin))))
 
-(deftest test-maximizing-the-browser-window-function
+(deftest test-browser-window-maximizing-function
   (maximize! @firefox-driver)
-  (is (= (position @firefox-driver) {:x 0 :y 22})))
+  (let [{:keys [x]} (position @firefox-driver)]
+    (is (= x 0))))
