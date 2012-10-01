@@ -4,24 +4,24 @@
         [clj-webdriver.test.config :only [test-base-url]]
 			  [clj-webdriver.window]))
 
-(def firefox-driver (atom nil))
+(def driver (atom nil))
 
 ;; Fixtures
 (defn start-browser-fixture
   [f]
-  (reset! firefox-driver
+  (reset! driver
           (new-driver {:browser :firefox}))
   (f))
 
 (defn reset-browser-fixture
   [f]
-  (to @firefox-driver test-base-url)
+  (to @driver test-base-url)
   (f))
 
 (defn quit-browser-fixture
   [f]
   (f)
-  (quit @firefox-driver))
+  (quit @driver))
 
 (use-fixtures :once start-browser-fixture quit-browser-fixture)
 (use-fixtures :each reset-browser-fixture)
@@ -29,20 +29,22 @@
 (deftest test-browser-window-size-functions
 	(let [small {:width 460 :height 800}
         large {:width 1024 :height 800}]
-    (resize! @firefox-driver small)
-    (is (= (size @firefox-driver) small))
-    (resize! @firefox-driver large)
-    (is (= (size @firefox-driver) large))))
+    (resize @driver small)
+    (is (= (size @driver) small))
+    (resize @driver large)
+    (is (= (size @driver) large))))
 
 (deftest test-browser-window-position-functions
   (let [new-position {:x 245 :y 245}
-        origin (position @firefox-driver)]
-    (reposition! @firefox-driver new-position)
-    (is (= (position @firefox-driver) new-position))
-    (reposition! @firefox-driver origin)
-    (is (= (position @firefox-driver) origin))))
+        origin (position @driver)]
+    (reposition @driver new-position)
+    (is (= (position @driver) new-position))
+    (reposition @driver origin)
+    (is (= (position @driver) origin))))
 
 (deftest test-browser-window-maximizing-function
-  (maximize! @firefox-driver)
-  (let [{:keys [x]} (position @firefox-driver)]
-    (is (= x 0))))
+  (let [orig-size (size @driver)
+        max-size (size (maximize @driver))]
+    (are [max orig] (is (> max orig))
+      (:width max-size) (:width orig-size)
+      (:height max-size) (:height orig-size))))
