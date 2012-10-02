@@ -1,8 +1,8 @@
 (ns clj-webdriver.test.window
-		(:use [clojure.test]
-			  [clj-webdriver.taxi :only [new-driver to quit]]
+  (:use [clojure.test]
+        [clj-webdriver.taxi :only [new-driver to quit]]
         [clj-webdriver.test.config :only [test-base-url]]
-			  [clj-webdriver.window]))
+        [clj-webdriver.window]))
 
 (def driver (atom nil))
 
@@ -27,7 +27,7 @@
 (use-fixtures :each reset-browser-fixture)
 
 (deftest test-browser-window-size-functions
-	(let [small {:width 460 :height 800}
+  (let [small {:width 460 :height 800}
         large {:width 1024 :height 800}]
     (resize @driver small)
     (is (= (size @driver) small))
@@ -46,5 +46,5 @@
   (let [orig-size (size @driver)
         max-size (size (maximize @driver))]
     (are [max orig] (is (> max orig))
-      (:width max-size) (:width orig-size)
-      (:height max-size) (:height orig-size))))
+         (:width max-size) (:width orig-size)
+         (:height max-size) (:height orig-size))))
