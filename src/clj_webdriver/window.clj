@@ -67,15 +67,27 @@
          orig-window-handle# (.getWindowHandle webdriver#)
          target-window-handle# (:handle ~window)
          target-current?# (= orig-window-handle# target-window-handle#)]
+     ;; If we're already trying to manipulate the currently active window,
+     ;; immediately call the implementation of the IWindow function with the driver
      (if target-current?#
        (let [return# (~a-fn driver# ~@a-fn-args)]
+         ;; Functions in IWindow that have no logical return value need to return
+         ;; the thing being acted on. Since we proxy to the `Driver` implementation
+         ;; of each function in the `Window` implementations, we have to check
+         ;; for a `Driver` return value and return `Window` instead.
          (if (driver/driver? return#)
            ~window
            return#))
        (do
+         ;; We're trying to work with a window other than the active one; make
+         ;; our target window the active one first.
          (.switchTo (.window webdriver#) target-window-handle#)
+         ;; Then perform the desired action.
          (let [return# (~a-fn driver# ~@a-fn-args)]
+           ;; Switch back to the original active window.
            (.switchTo (.window webdriver#) orig-window-handle#)
+           ;; Make sure `Window` is returned for appropriate functions
+           ;; (see above comment)
            (if (driver/driver? return#)
              ~window
              return#))))))
