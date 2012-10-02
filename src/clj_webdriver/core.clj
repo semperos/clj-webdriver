@@ -18,7 +18,7 @@
   (:require [clj-webdriver.js.browserbot :as browserbot-js]
             [clj-webdriver.cache :as cache]
             [clj-webdriver.firefox :as ff]
-            [clj-webdriver.window :as win] :reload
+            [clj-webdriver.window :as win]
             [clojure.java.io :as io]
             [clojure.string :as string]
             [clojure.tools.logging :as log])

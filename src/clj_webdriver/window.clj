@@ -58,7 +58,7 @@
       (.maximize wnd)
       driver)))
 
-(defmacro ^{;; :private true
+(defmacro ^{:private true
             :doc "Apply the `a-fn` with the `Driver` contained inside the given `window` record and any other `a-fn-args` provided. Before calling the function, switch to the specified window; after calling the function, switch back to the original window."}
   window-switcher
   [window a-fn & a-fn-args]
@@ -96,24 +96,8 @@
   (size [window]
     (window-switcher window size))
 
-  ;; (resize [window dimensions-map]
-  ;;   (window-switcher window resize dimensions-map))
-
   (resize [window dimensions-map]
-    (let [driver (:driver window)
-          webdriver (:webdriver driver)
-          orig-window-handle (.getWindowHandle webdriver)
-          target-window-handle (:handle window)
-          target-current? (= orig-window-handle target-window-handle)]
-      (if target-current?
-        (do
-          (resize driver dimensions-map)
-          window)
-        (do
-          (.switchTo (.window webdriver) target-window-handle)
-          (resize driver dimensions-map)
-          (.switchTo (.window webdriver) orig-window-handle)
-          window))))
+    (window-switcher window resize dimensions-map))
 
   (maximize [window]
     (window-switcher window maximize)))
