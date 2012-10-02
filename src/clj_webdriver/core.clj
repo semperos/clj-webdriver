@@ -13,11 +13,12 @@
 ;; WebDriver API.
 ;;
 (ns clj-webdriver.core
-  (:use [clj-webdriver driver element util window-handle options cookie]
+  (:use [clj-webdriver driver element util options cookie]
         [clojure.walk :only [keywordize-keys]])
   (:require [clj-webdriver.js.browserbot :as browserbot-js]
             [clj-webdriver.cache :as cache]
             [clj-webdriver.firefox :as ff]
+            [clj-webdriver.window :as win] :reload
             [clojure.java.io :as io]
             [clojure.string :as string]
             [clojure.tools.logging :as log])
@@ -55,9 +56,9 @@
 ;; ### Windows and Frames ###
 (defprotocol ITargetLocator
   "Functions that deal with browser windows and frames"
-  (window-handle [driver] "Get the only (or first) window handle, return as a WindowHandler record")
-  (window-handles [driver] "Retrieve a vector of `WindowHandle` records which can be used to switchTo particular open windows")
-  (other-window-handles [driver] "Retrieve window handles for all windows except the current one")
+  (window [driver] "Get the only (or first) window")
+  (windows [driver] "Retrieve a vector of `Window` records which can be used to switch to particular open windows")
+  (other-windows [driver] "Retrieve window handles for all windows except the current one")
   (switch-to-frame [driver frame] "Switch focus to a particular HTML frame")
   (switch-to-window [driver handle] "Switch focus to a particular open window")
   (switch-to-other-window [driver] "Given that two and only two browser windows are open, switch to the one not currently active")
@@ -69,8 +70,8 @@
   "Functions used to locate elements on a given page"
   (find-element-by [this by] "Retrieve the element object of an element described by `by`, optionally limited to elements beneath a parent element (depends on dispatch). Prefer `find-element` to this function unless you know what you're doing.")
   (find-elements-by [this by] "Retrieve a seq of element objects described by `by`, optionally limited to elements beneath a parent element (depends on dispatch). Prefer `find-elements` to this function unless you know what you're doing.")
-  (find-windows [driver attr-val] "Given a browser `driver` and a map of attributes, return the WindowHandles that match")
-  (find-window [driver attr-val] "Given a browser `driver` and a map of attributes, return the WindowHandles that match")
+  (find-windows [driver attr-val] "Given a browser `driver` and a map of attributes, return the windows that match")
+  (find-window [driver attr-val] "Given a browser `driver` and a map of attributes, return the windows that match")
   (find-table-cell [driver table coordinates] "Given a `driver`, a `table` element, and a zero-based set of coordinates for row and column, return the table cell at those coordinates for the given table.")
   (find-table-row [driver table row-index] "Return all cells in the row of the given table element, `row-index` as a zero-based index of the target row.")
   (find-by-hierarchy [driver hierarchy-vector] "Given a Webdriver `driver` and a vector `hierarchy-vector`, return a lazy seq of the described elements in the hierarchy dictated by the order of elements in the `hierarchy-vector`.")
@@ -229,7 +230,7 @@
   [& args]
   `(with-driver ~@args))
 
-;; TODO: verify these functions' necessity
+;; These are used in the implementation of higher-level window functions
 (defn window-handle*
   "For WebDriver API compatibility: this simply wraps `.getWindowHandle`"
   [driver]

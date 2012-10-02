@@ -93,54 +93,54 @@
   ;; Window and Frame Handling
   ITargetLocator
   ;; TODO (possible): multiple arities; only driver, return current window handle; driver and query, return matching window handle
-  (window-handle [driver]
-    (init-window-handle (:webdriver driver)
-                        (.getWindowHandle (:webdriver driver))
-                        (title driver)
-                        (current-url driver)))
+  (window [driver]
+    (win/init-window (:webdriver driver)
+                     (.getWindowHandle (:webdriver driver))
+                     (title driver)
+                     (current-url driver)))
 
-  (window-handles [driver]
+  (windows [driver]
     (let [current-handle (.getWindowHandle (:webdriver driver))
           all-handles (lazy-seq (.getWindowHandles (:webdriver driver)))
           handle-records (for [handle all-handles]
                            (let [b (switch-to-window driver handle)]
-                             (init-window-handle (:webdriver driver)
-                                                 handle
-                                                 (title b)
-                                                 (current-url b))))]
+                             (win/init-window (:webdriver driver)
+                                              handle
+                                              (title b)
+                                              (current-url b))))]
       (switch-to-window driver current-handle)
       handle-records))
 
-  (other-window-handles [driver]
-    (remove #(= (:handle %) (:handle (window-handle driver)))
-            (doall (window-handles driver))))
+  (other-windows [driver]
+    (remove #(= (:handle %) (:handle (window driver)))
+            (doall (windows driver))))
 
   (switch-to-frame [driver frame]
     (.frame (.switchTo (:webdriver driver)) frame)
     driver)
 
-  (switch-to-window [driver handle]
+  (switch-to-window [driver window]
     (cond
-     (string? handle)            (do
-                                   (.window (.switchTo (:webdriver driver)) handle)
+     (string? window)            (do
+                                   (.window (.switchTo (:webdriver driver)) window)
                                    driver)
-     (window-handle? handle)  (do
-                                   (.window (.switchTo (:driver handle)) (:handle handle))
+     (win/window? window)        (do
+                                   (.window (.switchTo (:driver window)) (:handle window))
                                    driver)
-     (number? handle)            (do
-                                   (switch-to-window driver (nth (window-handles driver) handle))
+     (number? window)            (do
+                                   (switch-to-window driver (nth (windows driver) window))
                                    driver)
-     (nil? handle)               (throw (RuntimeException. "No window can be found"))
+     (nil? window)               (throw (RuntimeException. "No window can be found"))
      :else                       (do
-                                   (.window (.switchTo (:webdriver driver)) handle)
+                                   (.window (.switchTo (:webdriver driver)) window)
                                    driver)))
 
   (switch-to-other-window [driver]
-    (if (not= (count (window-handles driver)) 2)
+    (if (not= (count (windows driver)) 2)
       (throw (RuntimeException.
               (str "You may only use this function when two and only two "
                    "browser windows are open.")))
-      (switch-to-window driver (first (other-window-handles driver)))))
+      (switch-to-window driver (first (other-windows driver)))))
 
   (switch-to-default [driver]
     (.defaultContent (.switchTo (:webdriver driver))))
@@ -195,11 +195,11 @@
 
   (find-windows [driver attr-val]
     (if (contains? attr-val :index)
-      [(nth (window-handles driver) (:index attr-val))] ; vector for consistency below
+      [(nth (windows driver) (:index attr-val))] ; vector for consistency below
       (filter #(every? (fn [[k v]] (if (= java.util.regex.Pattern (class v))
                                     (re-find v (k %))
                                     (= (k %) v)))
-                       attr-val) (window-handles driver))))
+                       attr-val) (windows driver))))
 
   (find-window [driver attr-val]
     (first (find-windows driver attr-val)))

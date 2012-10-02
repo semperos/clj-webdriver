@@ -423,38 +423,38 @@
   ([driver]
      (core/title driver)))
 
-(defn window-handle
-  "Return a `WindowHandle` that contains information about the active window and can be used for switching.
+(defn window
+  "Return a `Window` that contains information about the active window and can be used for switching or resizing.
 
    Examples:
    =========
 
-   (window-handle)"
-  ([] (window-handle *driver*))
+   (window)"
+  ([] (window *driver*))
   ([driver]
-     (core/window-handle driver)))
+     (core/window driver)))
 
-(defn window-handles
-  "Return `WindowHandle` records as a seq for all open windows.
+(defn windows
+  "Return `Window` records as a seq for all open windows.
 
    Examples:
    =========
 
-   (window-handles)"
-  ([] (window-handles *driver*))
+   (windows)"
+  ([] (windows *driver*))
   ([driver]
-     (core/window-handles driver)))
+     (core/windows driver)))
 
-(defn other-window-handles
-  "Return a `WindowHandle` for all open windows except the active one.
+(defn other-windows
+  "Return a `Window` for all open windows except the active one.
 
    Examples:
    =========
 
-   (other-window-handles)"
-  ([] (other-window-handles *driver*))
+   (other-windows)"
+  ([] (other-windows *driver*))
   ([driver]
-     (core/other-window-handles driver)))
+     (core/other-windows driver)))
 
 ;; TODO: test coverage
 (defn switch-to-frame
@@ -470,13 +470,13 @@
   ([driver frame-q]
      (core/switch-to-frame driver frame-q)))
 
-;; TODO: accept a handle or an attr-val that would get the handle
+;; TODO: accept a `Window` record or an attr-val that would get the window
 (defn switch-to-window
   "Switch focus to the window for the given one of the following:
 
     * A string representing the target window name (as seen in the application titlebar)
     * A number representing the index (order) of the target window
-    * A `WindowHandle` record
+    * A `Window` record
 
    Examples:
    =========
@@ -492,12 +492,12 @@
    (switch-to-window 2)
 
    ;;
-   ;; Passing a `WindowHandle` record directly (as returned by the `window-handle` function)
+   ;; Passing a `Window` record directly (as returned by the `window` function)
    ;;
-   (switch-to-window a-window-handle)"
-  ([handle] (switch-to-window *driver* handle))
-  ([driver handle]
-     (core/switch-to-window driver handle)))
+   (switch-to-window a-window-record)"
+  ([window] (switch-to-window *driver* window))
+  ([driver window]
+     (core/switch-to-window driver window)))
 
 (defn switch-to-other-window
   "If two windows are open, switch focus to the other.
@@ -687,9 +687,9 @@
      (wait/implicit-wait driver timeout)))
 
 (defn find-windows
-  "Return all `WindowHandle` records that match the given `attr-val` map.
+  "Return all `Window` records that match the given `attr-val` map.
 
-   Attributes can be anything in a `WindowHandle` record (`:title` or `:url`) or you can pass an `:index` key and a number value to select a window by its open order.
+   Attributes can be anything in a `Window` record (`:title` or `:url`) or you can pass an `:index` key and a number value to select a window by its open order.
 
    Examples:
    =========
@@ -713,9 +713,9 @@
      (core/find-windows driver attr-val)))
 
 (defn find-window
-  "Return the first `WindowHandle` record that matches the given `attr-val` map.
+  "Return the first `Window` record that matches the given `attr-val` map.
 
-   Attributes can be anything in a `WindowHandle` record (`:title` or `:url`) or you can pass an `:index` key and a number value to select a window by its open order.
+   Attributes can be anything in a `Window` record (`:title` or `:url`) or you can pass an `:index` key and a number value to select a window by its open order.
 
    Examples:
    =========
@@ -1043,8 +1043,8 @@
   ([driver q]
      (core/present? (element driver q))))
 
-(defn size
-  "Return the size of the first element found with query `q` in pixels as a map of `:width` and `:height`..
+(defn element-size
+  "Return the size of the first element found with query `q` in pixels as a map of `:width` and `:height`.
 
    Examples:
    =========

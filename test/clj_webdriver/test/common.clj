@@ -1,10 +1,11 @@
 ;; Namespace with implementations of test cases
 (ns clj-webdriver.test.common
   (:use clojure.test
-        [clj-webdriver core util window-handle wait options form-helpers]
+        [clj-webdriver core util wait options form-helpers]
         [clj-webdriver.test.util :only [thrown?]]
         [clj-webdriver.test.config :only [test-base-url]])
   (:require [clj-webdriver.cache :as cache]
+            [clj-webdriver.window :as win]
             [clojure.java.io :as io]
             [clojure.tools.logging :as log])
   (:import [clj_webdriver.driver.Driver]
@@ -445,27 +446,27 @@
 (defn should-be-able-to-toggle-between-open-windows
   [driver]
   (is (= 1
-         (count (window-handles driver))))
+         (count (windows driver))))
   (is (= "Ministache"
-         (:title (window-handle driver))))
+         (:title (window driver))))
   (-> driver
       (find-element {:tag :a, :text "is amazing!"})
       click)
   (is (= "Ministache"
-         (:title (window-handle driver))))
+         (:title (window driver))))
   (is (= 2
-         (count (window-handles driver))))
-  (switch-to-window driver (second (window-handles driver)))
+         (count (windows driver))))
+  (switch-to-window driver (second (windows driver)))
   (is (= (str test-base-url "clojure")
-         (:url (window-handle driver))))
+         (:url (window driver))))
   (switch-to-other-window driver)
   (is (= test-base-url
-         (:url (window-handle driver))))
+         (:url (window driver))))
   (-> driver
       (switch-to-window (find-window driver {:url (str test-base-url "clojure")})))
   (close driver)
   (is (= test-base-url
-         (:url (window-handle driver)))))
+         (:url (window driver)))))
 
 (defn wait-until-should-wait-for-condition
   [driver]

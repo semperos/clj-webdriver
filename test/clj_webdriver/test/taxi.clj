@@ -265,18 +265,18 @@
                        {"select#countries" #(select-by-value % "france")}))))
 
 (deftest test-window-handling
-  (is (= (count (window-handles)) 1))
-  (is (= (:title (window-handle)) "Ministache"))
+  (is (= (count (windows)) 1))
+  (is (= (:title (window)) "Ministache"))
   (click "a[target='_blank'][href*='clojure']")
-  (is (= (:title (window-handle)) "Ministache"))
-  (is (= (count (window-handles)) 2))
-  (switch-to-window (second (window-handles)))
-  (is (= (:url (window-handle)) (str test-base-url "clojure")))
+  (is (= (:title (window)) "Ministache"))
+  (is (= (count (windows)) 2))
+  (switch-to-window (second (windows)))
+  (is (= (:url (window)) (str test-base-url "clojure")))
   (switch-to-other-window)
-  (is (= (:url (window-handle)) test-base-url))
+  (is (= (:url (window)) test-base-url))
   (switch-to-window (find-window {:url (str test-base-url "clojure")}))
   (close)
-  (is (= (:url (window-handle)) test-base-url)))
+  (is (= (:url (window)) test-base-url)))
 
 (deftest test-waiting-until
   (is (= (title) "Ministache"))
