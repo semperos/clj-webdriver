@@ -35,14 +35,38 @@
     (resize this large)
     (is (= (size this) large))))
 
+(defn test-window-resize-with-one-dimension
+  [this]
+  (let [orig-size (size this)
+        small {:height 400}
+        large {:width 1024}]
+    (resize this small)
+    (is (= (:width (size this)) (:width orig-size)))
+    (resize this orig-size)
+    (is (= (size this) orig-size))
+    (resize this large)
+    (is (= (:height (size this)) (:height orig-size)))))
+
 (defn test-window-position
   [this]
-  (let [new-position {:x 245 :y 245}
-        origin (position this)]
+  (let [origin (position this)
+        new-position {:x 100 :y 245}]
     (reposition this new-position)
     (is (= (position this) new-position))
     (reposition this origin)
     (is (= (position this) origin))))
+
+(defn test-window-reposition-with-one-coordinate
+  [this]
+  (let [origin (position this)
+        position-y {:y 245}
+        position-x {:x 100}]
+    (reposition this position-y)
+    (is (= (:x (position this)) (:x origin)))
+    (reposition this origin)
+    (is (= (position this) origin))
+    (reposition this position-x)
+    (is (= (:y (position this)) (:y origin)))))
 
 (defn test-window-maximizing
   [this]
@@ -55,7 +79,9 @@
 (defn common-window-tests
   [this]
   (doseq [tst [test-window-size
+               test-window-resize-with-one-dimension
                test-window-position
+               test-window-reposition-with-one-coordinate
                test-window-maximizing]]
     (tst this)))
 

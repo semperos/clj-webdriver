@@ -20,7 +20,7 @@
 (defprotocol IWindow
   "Functions to manage browser size and position."
   (position [this] "Returns map of X Y coordinates ex. {:x 1 :y 3} relative to the upper left corner of screen.")
-  (reposition [this point-map] "Excepts map of X Y coordinates ex. {:x 1 :y 3} repositioning current window relative to screen. Returns driver.")
+  (reposition [this coordinates-map] "Excepts map of X Y coordinates ex. {:x 1 :y 3} repositioning current window relative to screen. Returns driver.")
   (size [this] "Get size of current window. Returns a map of width and height ex. {:width 480 :height 800}")
   (resize [this dimensions-map] "Resize the driver window with a map of width and height ex. {:width 480 :height 800}. Returns driver.")
   (maximize [this] "Maximizes the current window to fit screen if it is not already maximized. Returns driver."))
@@ -39,7 +39,10 @@
       {:x (.getX pnt) :y (.getY pnt)}))
 
   (reposition [driver {:keys [x y]}]
-    (let [wnd (window-obj driver)]
+    (let [wnd (window-obj driver)
+          pnt (.getPosition wnd)
+          x (or x (.getX pnt))
+          y (or y (.getY pnt))]
       (.setPosition wnd (Point. x y))
       driver))
 
@@ -49,7 +52,10 @@
       {:width (.getWidth dim) :height (.getHeight dim)}))
 
   (resize [driver {:keys [width height]}]
-    (let [wnd (window-obj driver)]
+    (let [wnd (window-obj driver)
+          dim (.getSize wnd)
+          width (or width (.getWidth dim))
+          height (or height (.getHeight dim))]
       (.setSize wnd (Dimension. width height))
       driver))
 
@@ -102,8 +108,8 @@
   (position [window]
     (window-switcher window position))
 
-  (reposition [window point-map]
-    (window-switcher window reposition point-map))
+  (reposition [window coordinates-map]
+    (window-switcher window reposition coordinates-map))
 
   (size [window]
     (window-switcher window size))
