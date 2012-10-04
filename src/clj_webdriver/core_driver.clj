@@ -116,7 +116,7 @@
             (doall (windows driver))))
 
   (switch-to-frame [driver frame]
-    (.frame (.switchTo (:webdriver driver)) frame)
+    (.frame (.switchTo (:webdriver driver)) (:webframe frame))
     driver)
 
   (switch-to-window [driver window]
