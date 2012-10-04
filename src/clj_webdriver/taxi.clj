@@ -459,9 +459,7 @@
 
 ;; TODO: test coverage
 (defn switch-to-frame
-  "Switch focus to the frame found by the finder query `frame-q`.
- 
-   If you need the default behavior of `.frame()`, you can use clj-webdriver.core/switch-to-frame. For that function, you can pass either a number (the index of the frame on the page), a string (the `name` or `id` attribute of the target frame), or an `Element` of the frame.
+  "Switch focus to the frame specified by `frame-q`, which is a standard Taxi element query or an integer for the order (index) of the frame on the page.
 
    Examples:
    =========
@@ -469,7 +467,10 @@
    (switch-to-frame \"#target-frame\")"
   ([frame-q] (switch-to-frame *driver* frame-q))
   ([driver frame-q]
-     (core/switch-to-frame driver frame-q)))
+     (let [frame (if (number? frame-q)
+                   frame-q
+                   (element frame-q))]
+       (core/switch-to-frame driver frame))))
 
 ;; TODO: accept a `Window` record or an attr-val that would get the window
 (defn switch-to-window
