@@ -127,6 +127,22 @@
     (is (= x-diff 20))
     (is (= y-diff 20))))
 
+(deftest drag-and-drop-on-elements-should-work
+  (to "http://jqueryui.com/demos/droppable/")
+  ;; Just check to make sure this page still has the element we expect,
+  ;; since it's an external site
+  (is (present? "#draggable"))
+  (is (present? "#droppable"))
+  (let [draggable (element "#draggable")
+        droppable (element "#droppable")
+        {o-x :x o-y :y} (location draggable)
+        {n-x :x n-y :y} (do
+                          (drag-and-drop draggable droppable)
+                          (location draggable))]
+    (is (or (not= o-x n-x)
+            (not= o-y n-y)))
+    (is (re-find #"ui-state-highlight" (attribute droppable :class)))))
+
 (deftest test-element-intersection
   (click (find-element {:tag :a, :text "example form"}))
   (is (intersect? "#first_name" "#personal-info-wrapper"))
