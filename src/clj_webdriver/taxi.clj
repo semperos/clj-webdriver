@@ -459,12 +459,13 @@
 
 ;; TODO: test coverage
 (defn switch-to-frame
-  "Switch focus to the frame specified by `frame-q`, which is a standard Taxi element query or an integer for the order (index) of the frame on the page.
+  "Switch focus to the frame specified by `frame-q`, which is a standard Taxi element query or an integer for the order (zero-based index) of the frame on the page.
 
    Examples:
    =========
 
-   (switch-to-frame \"#target-frame\")"
+   (switch-to-frame \"#target-frame\")
+   (switch-to-frame 1)"
   ([frame-q] (switch-to-frame *driver* frame-q))
   ([driver frame-q]
      (let [frame (if (number? frame-q)

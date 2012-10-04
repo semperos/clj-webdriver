@@ -59,7 +59,7 @@
   (window [driver] "Get the only (or first) window")
   (windows [driver] "Retrieve a vector of `Window` records which can be used to switch to particular open windows")
   (other-windows [driver] "Retrieve window handles for all windows except the current one")
-  (switch-to-frame [driver frame] "Switch focus to a particular HTML frame")
+  (switch-to-frame [driver frame] "Switch focus to a particular HTML frame by supplying an `Element` or an integer for the nth frame on the page (zero-based index)")
   (switch-to-window [driver handle] "Switch focus to a particular open window")
   (switch-to-other-window [driver] "Given that two and only two browser windows are open, switch to the one not currently active")
   (switch-to-default [driver] "Switch focus to the first first frame of the page, or the main document if the page contains iframes")
