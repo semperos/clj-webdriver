@@ -116,14 +116,11 @@
             (doall (windows driver))))
 
   (switch-to-frame [driver frame]
-    (cond
-     (map? frame) (do
-                    (.frame (.switchTo (:webdriver driver))
-                            (find-element driver frame))
-                    driver)
-     :else        (do
-                    (.frame (.switchTo (:webdriver driver)) frame)
-                    driver)))
+    (.frame (.switchTo (:webdriver driver))
+            (if (element? frame)
+              (:webelement frame)
+              frame))
+    driver)
 
   (switch-to-window [driver window]
     (cond

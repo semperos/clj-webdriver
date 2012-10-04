@@ -2,7 +2,7 @@
 (ns clj-webdriver.test.common
   (:use clojure.test
         [clj-webdriver core util wait options form-helpers]
-        [clj-webdriver.test.util :only [thrown?]]
+        [clj-webdriver.test.util :only [thrown? exclusive-between]]
         [clj-webdriver.test.config :only [test-base-url]])
   (:require [clj-webdriver.cache :as cache]
             [clj-webdriver.window :as win]
@@ -521,8 +521,40 @@
   (is (= "test"
          (attribute (find-element-by driver (by-id "test")) :id))))
 
+(defn test-frames-by-index
+  [driver]
+  (to driver "http://selenium.googlecode.com/svn/trunk/docs/api/java/index.html")
+  (is (= (count (find-elements driver {:tag :frame})) 3))
+  (switch-to-frame driver 0)
+  (is (exclusive-between (count (find-elements driver {:tag :a}))
+                         30 50))
+  (switch-to-default driver)
+  (switch-to-frame driver 1)
+  (is (exclusive-between (count (find-elements driver {:tag :a}))
+                         370 400))
+  (switch-to-default driver)
+  (switch-to-frame driver 2)
+  (is (exclusive-between (count (find-elements driver {:tag :a}))
+                         50 100)))
+
+(defn test-frames-by-element
+  [driver]
+  (to driver "http://selenium.googlecode.com/svn/trunk/docs/api/java/index.html")
+  (is (= (count (find-elements driver {:tag :frame})) 3))
+  (switch-to-frame driver (find-element driver {:name "packageListFrame"}))
+  (is (exclusive-between (count (find-elements driver {:tag :a}))
+                         30 50))
+  (switch-to-default driver)
+  (switch-to-frame driver (find-element driver {:name "packageFrame"}))
+  (is (exclusive-between (count (find-elements driver {:tag :a}))
+                         370 400))
+  (switch-to-default driver)
+  (switch-to-frame driver (find-element driver {:name "classFrame"}))
+  (is (exclusive-between (count (find-elements driver {:tag :a}))
+                         50 100)))
+
 ;; Not sure how we'll test that flash in fact flashes,
-;; but at least this will catch changing API's
+;; but at least this exercises the function call.
 (defn test-flash-helper
   [driver]
   (-> driver
@@ -582,6 +614,8 @@
                        wait-until-should-throw-on-timeout
                        wait-until-should-allow-timeout-argument
                        implicit-wait-should-cause-find-to-wait
+                       test-frames-by-index
+                       test-frames-by-element
                        test-flash-helper
                        test-screenshot]]
     (reset-driver driver)

@@ -20,3 +20,9 @@
         false
         (catch ~klass e#
           true)))
+
+(defn exclusive-between
+  "Ensure a number is between a min and a max, both exclusive"
+  [n min max]
+  (and (> n min)
+       (< n max)))
