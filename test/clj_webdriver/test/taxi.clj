@@ -83,12 +83,12 @@
   (is (= (text "*.external") "Moustache"))
   (is (= (attribute "*.first.odd" :class) "first odd"))
   (is (= (attribute "li.first.odd" :class) "first odd"))
-  (is (= (count (elements "a")) 8))
+  (is (= (count (elements "a")) 9))
   (is (= (text "a[class^='exter']") "Moustache"))
   (is (= (text "a.external[href*='github']") "Moustache"))
   (is (= (text "a[class*='exter'][href*='github']") "Moustache"))
-  (is (= (count (elements "*[class*='-item']")) 3))
-  (is (= (count (elements "a[class*='-item']")) 3))
+  (is (= (count (elements "*[class*='-item']")) 4))
+  (is (= (count (elements "a[class*='-item']")) 4))
   (is (= (count (elements "a[class*='exter'][href*='github']")) 2)))
 
 (deftest test-querying-under-elements
@@ -98,7 +98,7 @@
   (is (= (text (find-element-under "div#content" {:css "a[class*='exter']"})) "Moustache"))
   (is (= (text (find-element-under "div#content" {:css "a[href*='github']"})) "Moustache"))
   (is (= (text (find-element-under "#footer" (core/by-tag :a))) "home"))
-  (is (= (count (find-elements-under "#footer" {:tag :a})) 3))
+  (is (= (count (find-elements-under "#footer" {:tag :a})) 4))
   (is (= (count (find-elements-under "div#content" {:css "a[class*='exter']"})) 2)))
 
 (deftest text-exists-visible-present
@@ -114,7 +114,7 @@
 
 (deftest test-drag-and-drop
   ;; TODO: Implement locally
-  (to "http://jqueryui.com/demos/draggable")
+  (click (find-element {:tag :a, :text "javascript playground"}))
   ;; since it's an external site, make sure that draggable div is still there
   (is (present? "#draggable"))
   (let [el-to-drag (element {:id "draggable"})
@@ -128,7 +128,7 @@
     (is (= y-diff 20))))
 
 (deftest drag-and-drop-on-elements-should-work
-  (to "http://jqueryui.com/demos/droppable/")
+  (click (find-element {:tag :a, :text "javascript playground"}))
   ;; Just check to make sure this page still has the element we expect,
   ;; since it's an external site
   (is (present? "#draggable"))

@@ -91,7 +91,7 @@
          (attribute (find-element driver {:tag :li, :class "first odd"}) :class)))
   (is (= "https://github.com/cgrand/moustache"
          (attribute (find-element driver {:text "Moustache"}) "href")))
-  (is (= 8
+  (is (= 9
          (count (find-elements driver {:tag :a}))))
   (-> driver
       (find-element {:tag :a, :text "example form"})
@@ -109,7 +109,7 @@
          (text (find-element driver [{:tag :div, :id "content"}, {:tag :a, :class "external"}]))))
   (is (= "home"
          (text (find-element driver [{:tag :*, :id "footer"}, {:tag :a}]))))
-  (is (= 3
+  (is (= 4
          (count (find-elements driver [{:tag :*, :id "footer"}, {:tag :a}])))))
 
 (defn hierarchical-querying-should-not-support-css-or-xpath-attrs
@@ -158,7 +158,9 @@
 
 (defn drag-and-drop-by-pixels-should-work
   [driver]
-  (to driver "http://jqueryui.com/demos/draggable")
+  (-> driver
+      (find-element {:tag :a, :text "javascript playground"})
+      click)
   ;; Just check to make sure this page still has the element we expect,
   ;; since it's an external site
   (is (-> driver
@@ -176,7 +178,9 @@
 
 (defn drag-and-drop-on-elements-should-work
   [driver]
-  (to driver "http://jqueryui.com/demos/droppable/")
+  (-> driver
+      (find-element {:tag :a, :text "javascript playground"})
+      click)
   ;; Just check to make sure this page still has the element we expect,
   ;; since it's an external site
   (is (-> driver

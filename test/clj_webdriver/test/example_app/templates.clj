@@ -9,3 +9,5 @@
 (defsnippet clojure-page "clojure.html" [:body :> any-node] [])
 
 (defsnippet example-form "form.html" [:body :> any-node] [])
+
+(defsnippet javascript-playground-page "javascript.html" [:body :> any-node] [])

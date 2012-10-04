@@ -18,8 +18,14 @@
   (->> (page nil nil (example-form))
        response))
 
+(defn view-javascript-playground
+  [r]
+  (->> (page nil nil (javascript-playground-page))
+       response))
+
 (def routes
   (app
    [""] view-frontpage
    ["clojure"] view-clojure-page
-   ["example-form"] view-example-form))
+   ["example-form"] view-example-form
+   ["js-playground"] view-javascript-playground))
