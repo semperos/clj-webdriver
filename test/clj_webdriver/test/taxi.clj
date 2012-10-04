@@ -4,9 +4,7 @@
         [clj-webdriver.test.config :only [test-base-url]]
         [clj-webdriver.test.util :only [start-server]]
         [clj-webdriver.test.util :only [thrown?]]
-        [clojure.string :only [lower-case]]
-        ;; midje.sweet
-        )
+        [clojure.string :only [lower-case]])
   (:require [clj-webdriver.core :as core]
             [clj-webdriver.test.example-app.core :as web-app])
   (:import [org.openqa.selenium TimeoutException]))
