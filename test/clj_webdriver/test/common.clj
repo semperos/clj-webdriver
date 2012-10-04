@@ -174,6 +174,27 @@
     (is (= x-diff 20))
     (is (= y-diff 20))))
 
+(defn drag-and-drop-on-elements-should-work
+  [driver]
+  (to driver "http://jqueryui.com/demos/droppable/")
+  ;; Just check to make sure this page still has the element we expect,
+  ;; since it's an external site
+  (is (-> driver
+          (find-element {:id "draggable"})
+          present?))
+  (is (-> driver
+          (find-element {:id "droppable"})
+          present?))
+  (let [draggable (find-element driver {:id "draggable"})
+        droppable (find-element driver {:id "droppable"})
+        {o-x :x o-y :y} (location draggable)
+        {n-x :x n-y :y} (do
+                          (drag-and-drop driver draggable droppable)
+                          (location draggable))]
+    (is (or (not= o-x n-x)
+            (not= o-y n-y)))
+    (is (re-find #"ui-state-highlight" (attribute droppable :class)))))
+
 (defn should-be-able-to-determine-if-elements-intersect-each-other
   [driver]
   (click (find-element driver {:tag :a, :text "example form"}))
@@ -541,6 +562,7 @@
                        visible-should-return-truthy-falsey-when-visible
                        present-should-return-truthy-falsey-when-exists-and-visible
                        drag-and-drop-by-pixels-should-work
+                       drag-and-drop-on-elements-should-work
                        should-be-able-to-determine-if-elements-intersect-each-other
                        generated-xpath-should-wrap-strings-in-double-quotes
                        xpath-function-should-return-string-xpath-of-element
