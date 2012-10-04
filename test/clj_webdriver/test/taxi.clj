@@ -2,7 +2,7 @@
   (:use clojure.test
         clj-webdriver.taxi :reload
         [clj-webdriver.test.config :only [test-base-url]]
-        [clj-webdriver.test.util :only [start-server]]
+        [clj-webdriver.test.util :only [start-server exclusive-between]]
         [clj-webdriver.test.util :only [thrown?]]
         [clojure.string :only [lower-case]])
   (:require [clj-webdriver.core :as core]
@@ -11,7 +11,7 @@
 
 (defn start-browser-fixture
   [f]
-  (set-driver! {:browser :chrome})
+  (set-driver! {:browser :firefox})
   (f))
 
 (defn reset-browser-fixture
@@ -310,6 +310,35 @@
   (implicit-wait 3000)
   (execute-script "setTimeout(function () { window.document.body.innerHTML = \"<div id='test'>hi!</div>\"}, 1000)")
   (is (= (attribute "#test" :id) "test")))
+
+;; For some reason this test behaves differently than the one below
+;; and the one in clj-webdriver.test.common. Even the count of frame elements
+;; is different at page start. Disabling for now, as this usage is not
+;; as cross-browser compatible or reliable.
+;;
+;; (deftest test-frames-by-index
+;;   (to "http://selenium.googlecode.com/svn/trunk/docs/api/java/index.html")
+;;   (is (= (count (elements "frame")) 3))
+;;   (switch-to-frame 0)
+;;   (is (exclusive-between (count (elements "a")) 30 50))
+;;   (switch-to-default)
+;;   (switch-to-frame 1)
+;;   (is (exclusive-between (count (elements "a")) 370 400))
+;;   (switch-to-default)
+;;   (switch-to-frame 2)
+;;   (is (exclusive-between (count (elements "a")) 50 100)))
+
+(deftest test-frames-by-element
+  (to "http://selenium.googlecode.com/svn/trunk/docs/api/java/index.html")
+  (is (= (count (elements "frame")) 3))
+  (switch-to-frame "frame[name='packageListFrame']")
+  (is (exclusive-between (count (elements "a")) 30 50))
+  (switch-to-default)
+  (switch-to-frame "frame[name='packageFrame']")
+  (is (exclusive-between (count (elements "a")) 370 400))
+  (switch-to-default)
+  (switch-to-frame "frame[name='classFrame']")
+  (is (exclusive-between (count (elements "a")) 50 100)))
 
 (deftest test-flash
   (is (= (attribute (flash "a.external") :class) "external")))
