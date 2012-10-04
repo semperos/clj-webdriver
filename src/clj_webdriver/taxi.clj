@@ -3,6 +3,7 @@
   (:use [clj-webdriver.element :only [element-like?]]
         [clj-webdriver.driver :only [driver?]])
   (:require [clj-webdriver.core :as core]
+            [clj-webdriver.window :as win]
             [clj-webdriver.util :as util]
             [clj-webdriver.options :as options]
             [clj-webdriver.wait :as wait])
@@ -1050,7 +1051,7 @@
    =========
 
    (size \"div#container\") ;=> {:width 960, :height 2000} "
-  ([q] (size *driver* q))
+  ([q] (element-size *driver* q))
   ([driver q]
      (core/size (element driver q))))
 
@@ -1460,3 +1461,57 @@
   (doseq [entry query-action-maps
           [k v] entry]
     (quick-fill* k v true)))
+
+(defn window-position
+  "Get the position of the top-left corner of the browser's window relative to the top-left corner of your primary display, returned as a map of `:x` and `:y` integers.
+
+   Examples:
+   =========
+
+   (window-position)"
+  ([] (window-position *driver*))
+  ([driver] (win/position driver)))
+
+(defn window-reposition
+  "Move the top-left corner of the browser `:x` pixels to the right and `:y` pixels down from the top-left of your primary display. If you do not provide a coordinate, it's current value for the browser position will not be changed.
+
+   Examples:
+   =========
+
+   (window-reposition {:x 25, :y 50})
+   (window-reposition {:y 50})"
+  ([coordinates-map] (window-reposition *driver* coordinates-map))
+  ([driver {:keys [x y] :as coordinates-map}]
+     (win/reposition driver coordinates-map)))
+
+(defn window-size
+  "Get the size of the browser's window in pixels, returned as a map of `:width` and `:height`.
+
+   Examples:
+   =========
+
+   (window-size)"
+  ([] (window-size *driver*))
+  ([driver] (win/size driver)))
+
+(defn window-resize
+  "Resize the browser window to the given `:width` and `:height`. If a dimension is not specified, it's current value for the browser size will not be changed.
+
+   Examples:
+   =========
+
+   (window-resize {:width 300 :height 400})
+   (window-resize {:height 400})"
+  ([dimensions-map] (window-resize *driver* dimensions-map))
+  ([driver {:keys [width height] :as dimensions-map}]
+     (win/resize driver dimensions-map)))
+
+(defn window-maximize
+  "Maximize the browser window.
+
+   Examples:
+   =========
+
+   (window-maximize)"
+  ([] (window-maximize *driver*))
+  ([driver] (win/maximize driver)))
