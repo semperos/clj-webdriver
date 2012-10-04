@@ -309,3 +309,50 @@
   (back) ;; starting page
   (is (= (attribute "//*[text()='Moustache']" :href) "https://github.com/cgrand/moustache"))
   (is (exists? (find-element {:text "File's Name"}))))
+
+(deftest test-window-size
+  (let [orig-size (window-size)
+        small {:width 500 :height 400}
+        large {:width 1024 :height 800}]
+    (window-resize small)
+    (is (= (window-size) small))
+    (window-resize large)
+    (is (= (window-size) large))
+    (window-resize orig-size)
+    (is (= (window-size) orig-size))))
+
+(deftest test-window-resize-with-one-dimension
+  (let [orig-size (window-size)
+        small {:height 400}
+        large {:width 1024}]
+    (window-resize small)
+    (is (= (:width (window-size)) (:width orig-size)))
+    (window-resize orig-size)
+    (is (= (window-size) orig-size))
+    (window-resize large)
+    (is (= (:height (window-size)) (:height orig-size)))))
+
+(deftest test-window-position
+  (let [origin (window-position)
+        new-position {:x 100 :y 245}]
+    (window-reposition new-position)
+    (is (= (window-position) new-position))
+    (window-reposition origin)
+    (is (= (window-position) origin))))
+
+(deftest test-window-reposition-with-one-coordinate
+  (let [origin (window-position)
+        position-y {:y 245}
+        position-x {:x 100}]
+    (window-reposition position-y)
+    (is (= (:x (window-position)) (:x origin)))
+    (window-reposition origin)
+    (is (= (window-position) origin))
+    (window-reposition position-x)
+    (is (= (:y (window-position)) (:y origin)))))
+
+(deftest test-window-maximizing
+  (let [orig-size (window-size (window-resize {:width 300 :height 300}))
+        max-size (window-size (window-maximize))]
+    (is (> (:width max-size) (:width orig-size)))
+    (is (> (:height max-size) (:height orig-size)))))

@@ -10,7 +10,7 @@ EXPECTED_ARGS=1
 E_BADARGS=65
 
 DO_showUsage() {
-    echo "Usage: $(basename $0) {all|core|remote|taxi}"
+    echo "Usage: $(basename $0) {all|core|remote|taxi|window}"
     exit $E_BADARGS
 }
 
@@ -69,11 +69,21 @@ DO_testTaxi() {
     lein test clj-webdriver.test.taxi
 }
 
+DO_testWindow() {
+    echo ""
+    echo "#############################"
+    echo "## Testing Window Handling ##"
+    echo "#############################"
+    echo ""
+    lein test clj-webdriver.test.window
+}
+
 case "$1" in
     all)
         DO_testRemote
         DO_testCore
         DO_testTaxi
+        DO_testWindow
         ;;
     core)
         DO_testCore
@@ -83,6 +93,9 @@ case "$1" in
         ;;
     taxi)
         DO_testTaxi
+        ;;
+    window)
+        DO_testWindow
         ;;
     *)
         DO_showUsage

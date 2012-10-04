@@ -28,7 +28,7 @@
 
 (defn test-window-size
   [this]
-  (let [small {:width 460 :height 800}
+  (let [small {:width 500 :height 400}
         large {:width 1024 :height 800}]
     (resize this small)
     (is (= (size this) small))
@@ -70,11 +70,10 @@
 
 (defn test-window-maximizing
   [this]
-  (let [orig-size (size this)
+  (let [orig-size (size (resize this {:width 300 :height 300}))
         max-size (size (maximize this))]
-    (are [max orig] (is (> max orig))
-         (:width max-size) (:width orig-size)
-         (:height max-size) (:height orig-size))))
+    (is (> (:width max-size) (:width orig-size)))
+    (is (> (:height max-size) (:height orig-size)))))
 
 (defn common-window-tests
   [this]
