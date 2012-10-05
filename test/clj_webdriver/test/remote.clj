@@ -13,9 +13,11 @@
 ;; Fixtures
 (defn start-session-fixture
   [f]
-  (let [[this-server this-driver] (new-remote-session {:port 3003} {:browser :firefox})]
+  (let [[this-server this-driver] (new-remote-session {:port 3003}
+                                                      {:browser :firefox})]
     (reset! server this-server)
-    (reset! driver this-driver)))
+    (reset! driver this-driver))
+  (f))
 
 (defn reset-browser-fixture
   [f]

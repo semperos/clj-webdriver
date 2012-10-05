@@ -591,7 +591,6 @@
                        to-should-open-given-url-in-browser
                        should-be-able-to-find-element-bys-using-low-level-by-wrappers
                        find-element-should-support-basic-attr-val-map
-                       ;; find-element-should-support-regexes-in-attr-val-map
                        find-element-should-support-hierarchical-querying
                        hierarchical-querying-should-not-support-css-or-xpath-attrs
                        exists-should-return-truthy-falsey-and-should-not-throw-an-exception
