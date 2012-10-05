@@ -59,16 +59,15 @@
   
   (new-remote-webdriver*
     [remote-server browser-spec]
-    (let [wd-url (address remote-server)
+    (let [http-cmd-exec (HttpCommandExecutor. (as-url (address remote-server)))
           {:keys [browser profile capabilities] :or {browser :firefox
                                                      profile nil 
                                                      capabilities nil}} browser-spec]
-      (cond
-        profile (throw (IllegalArgumentException. "RemoteWebDriver instances do not support custom profiles."))
-        capabilities (RemoteWebDriverExt. (HttpCommandExecutor. (as-url wd-url))
-                                       (DesiredCapabilities. capabilities))
-        :else (RemoteWebDriverExt. (HttpCommandExecutor. (as-url wd-url))
-                                (call-method DesiredCapabilities browser nil nil)))))
+      (if capabilities
+        (RemoteWebDriverExt. http-cmd-exec
+                             (DesiredCapabilities. capabilities))
+        (RemoteWebDriverExt. http-cmd-exec
+                             (call-method DesiredCapabilities browser nil nil)))))
 
   (new-remote-driver
     [remote-server browser-spec]
