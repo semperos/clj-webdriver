@@ -2,7 +2,7 @@
   (:require [clojure.core.cache :as cache])
   (:import org.openqa.selenium.interactions.Actions))
 
-(defrecord Driver [webdriver cache-spec actions])
+(defrecord Driver [webdriver capabilities cache-spec actions])
 
 (defn- init-cache
   "Initialize cache based on given strategy"
@@ -24,10 +24,11 @@
 
    webdriver - WebDriver instance
    cache-spec - map with keys :strategy, :args, :include and :exclude, used to setup caching rules"
-  ([] (Driver. nil nil nil))
+  ([] (init-driver {}))
   ([driver-spec]
-     (let [{:keys [webdriver cache-spec]} driver-spec]
+     (let [{:keys [webdriver capabilities cache-spec]} driver-spec]
        (Driver. webdriver
+                capabilities
                 (assoc cache-spec :cache (init-cache cache-spec))
                 (Actions. webdriver)))))
 
