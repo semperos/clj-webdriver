@@ -1,8 +1,8 @@
 (ns clj-webdriver.remote.server
   (:use [clojure.java.io :only [as-url]]
         [clj-webdriver.driver :only [init-driver]]
-        [clj-webdriver.core :only [get-url]]
-        [clj-webdriver.util :only [call-method]])
+        [clj-webdriver.core :only [get-url]])
+  (:require [clj-webdriver.util :as util])
   (:import clj_webdriver.ext.remote.RemoteWebDriverExt
            [org.mortbay.jetty Connector Server]
            org.mortbay.jetty.nio.SelectChannelConnector
@@ -26,22 +26,21 @@
   "Internal: wire up the `RemoteWebDriverExt` object correctly with a command executor and capabilities."
   ([remote-server browser-spec] (new-remote-webdriver* remote-server
                                                        browser-spec
-                                                       {} ;; will be custom deftype
-                                                       ))
+                                                       {}))
   ([remote-server browser-spec capabilities]
      (let [http-cmd-exec (HttpCommandExecutor. (as-url (address remote-server)))
-           {:keys [browser] :or {browser :firefox}} browser-spec]
-       (if (seq capabilities)
-         (RemoteWebDriverExt. http-cmd-exec
-                              (DesiredCapabilities. capabilities))
-         (RemoteWebDriverExt. http-cmd-exec
-                              (call-method DesiredCapabilities browser nil nil))))))
+           {:keys [browser]} browser-spec
+           desired-caps (if (seq capabilities)
+                          (DesiredCapabilities. (util/java-keys capabilities))
+                          (util/call-method DesiredCapabilities browser nil nil))
+           remote-webdriver (RemoteWebDriverExt. http-cmd-exec desired-caps)]
+       [remote-webdriver, desired-caps])))
 
 (defrecord RemoteServer [connection-params webdriver-server]
   IRemoteServer
   (stop [remote-server]
     (.stop (:webdriver-server remote-server)))
-  
+
   (start [remote-server]
     (try
       (let [port (get-in remote-server [:connection-params :port])
@@ -60,7 +59,7 @@
       (catch java.net.BindException _
         (stop remote-server)
         (start remote-server))))
-  
+
   (address [remote-server]
     (let [{:keys [host port path-spec existing]} (:connection-params remote-server)]
       (str "http://"
@@ -73,14 +72,25 @@
 
   (new-remote-driver
     [remote-server browser-spec]
-    (let [{:keys [browser profile capabilities cache-spec] :or {browser :firefox
-                                                                profile nil
-                                                                capabilities nil
-                                                                cache-spec {}}} browser-spec]
-      (init-driver {:webdriver (new-remote-webdriver* remote-server
-                                                      {:browser browser
-                                                       :profile profile})
-                    :capabilities capabilities
+    (let [{:keys [browser profile capabilities cache-spec]
+           :or {browser :firefox cache-spec {}}} browser-spec
+           ;; WebDriver object, DesiredCapabilities object based on capabilities map passed in
+           [webdriver desired-caps] (new-remote-webdriver* remote-server
+                                                           {:browser browser
+                                                            :profile profile}
+                                                           capabilities)
+           ;; DesiredCapabilities as a Clojure map
+           desired-capabilities (util/clojure-keys (into {} (.asMap desired-caps)))
+           ;; actual capabilities (Java object) supported by the driver, despite your desired ones
+           caps (.. webdriver getCapabilities)
+           ;; actual capabilities as Clojure map, since once capabilities are
+           ;; assigned to a driver you can't do anything but read them
+           capabilities (util/clojure-keys (into {} (.asMap caps)))]
+      (init-driver {:webdriver webdriver
+                    :capabilities {:desired desired-capabilities
+                                   :desired-obj desired-caps
+                                   :actual capabilities
+                                   :actual-obj caps}
                     :cache-spec cache-spec})))
 
   (start-remote-driver
