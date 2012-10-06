@@ -19,9 +19,23 @@
   (start [server] "Start the server. Will try to run stop if a bind exception occurs.")
   (stop [server] "Stop the server")
   (address [server] "Get address of the server")
-  (new-remote-webdriver* [server browser-spec] "Internal: start a new instance of RemoteWebDriver, used by `new-remote-driver`.")
   (new-remote-driver [server browser-spec] "Instantiate a new RemoteDriver record.")
   (start-remote-driver [server browser-spec target-url] "Start a new RemoteDriver record and go to `target-url`."))
+
+(defn new-remote-webdriver*
+  "Internal: wire up the `RemoteWebDriverExt` object correctly with a command executor and capabilities."
+  ([remote-server browser-spec] (new-remote-webdriver* remote-server
+                                                       browser-spec
+                                                       {} ;; will be custom deftype
+                                                       ))
+  ([remote-server browser-spec capabilities]
+     (let [http-cmd-exec (HttpCommandExecutor. (as-url (address remote-server)))
+           {:keys [browser] :or {browser :firefox}} browser-spec]
+       (if (seq capabilities)
+         (RemoteWebDriverExt. http-cmd-exec
+                              (DesiredCapabilities. capabilities))
+         (RemoteWebDriverExt. http-cmd-exec
+                              (call-method DesiredCapabilities browser nil nil))))))
 
 (defrecord RemoteServer [connection-params webdriver-server]
   IRemoteServer
@@ -56,18 +70,6 @@
            (apply str (drop-last path-spec))
            (when existing
              "hub"))))
-  
-  (new-remote-webdriver*
-    [remote-server browser-spec]
-    (let [http-cmd-exec (HttpCommandExecutor. (as-url (address remote-server)))
-          {:keys [browser profile capabilities] :or {browser :firefox
-                                                     profile nil 
-                                                     capabilities nil}} browser-spec]
-      (if capabilities
-        (RemoteWebDriverExt. http-cmd-exec
-                             (DesiredCapabilities. capabilities))
-        (RemoteWebDriverExt. http-cmd-exec
-                             (call-method DesiredCapabilities browser nil nil)))))
 
   (new-remote-driver
     [remote-server browser-spec]
@@ -77,8 +79,8 @@
                                                                 cache-spec {}}} browser-spec]
       (init-driver {:webdriver (new-remote-webdriver* remote-server
                                                       {:browser browser
-                                                       :profile profile
-                                                       :capabilities capabilities})
+                                                       :profile profile})
+                    :capabilities capabilities
                     :cache-spec cache-spec})))
 
   (start-remote-driver
