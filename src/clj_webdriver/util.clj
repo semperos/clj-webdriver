@@ -1,6 +1,7 @@
 (ns clj-webdriver.util
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
+            [clojure.walk :as walk]
             [clj-webdriver.cache :as cache])
   (:import clj_webdriver.driver.Driver
            [org.openqa.selenium WebDriver WebElement]
@@ -284,3 +285,35 @@
   [f]
   (with-open [r (io/reader f)]
     (read (PushbackReader. r))))
+
+(defn dashes-to-camel-case
+  "A simple conversion of `-x` to `X` for the given string."
+  [s]
+  (reduce (fn [state item]
+             (.replaceAll state item
+                          (str/upper-case (str (second item)))))
+           s
+           (distinct (re-seq #"-[^-]" s))))
+
+(defn camel-case-to-dashes
+  "Convert Pascal-case to dashes. This takes into account edge cases like `fooJSBar` and `fooBarB`, where dashed versions will be `foo-jS-bar` and `foo-barB` respectively."
+  [s]
+  (reduce (fn [state item]
+            (.replaceFirst state item
+                           (str "-" (str/lower-case (first item)) (second item))))
+          s
+          (re-seq #"[A-Z](?![A-Z]|$)" s)))
+
+(defn clojure-keys
+  "Recursively transforms all map keys from strings to keywords, converting Pascal-case to dash-separated."
+  [m]
+  (let [f (fn [[k v]] (if (string? k) [(keyword (camel-case-to-dashes k)) v] [k v]))]
+    ;; only apply to maps
+    (walk/postwalk (fn [x] (if (map? x) (into {} (map f x)) x)) m)))
+
+(defn java-keys
+  "Recursively transforms all map keys from keywords into strings, converting dash-separated to Pascal-case."
+  [m]
+  (let [f (fn [[k v]] (if (keyword? k) [(dashes-to-camel-case (name k)) v] [k v]))]
+    ;; only apply to maps
+    (walk/postwalk (fn [x] (if (map? x) (into {} (map f x)) x)) m)))
