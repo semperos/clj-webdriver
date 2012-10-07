@@ -1,5 +1,5 @@
-;; Tests for RemoteWebDriver server and client (driver) code
-(ns clj-webdriver.test.remote
+(ns ^{:doc "Tests for RemoteWebDriver server and client (driver) code"}
+  clj-webdriver.test.remote
   (:use clojure.test
         [clj-webdriver.core :only [quit to]]
         [clj-webdriver.test.config :only [test-base-url]]
