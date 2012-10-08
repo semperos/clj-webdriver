@@ -30,6 +30,7 @@ DO_testCore() {
     echo "## Testing Core ##"
     echo "##################"
     echo ""
+    lein test clj-webdriver.test.util-test
     lein test clj-webdriver.test.firefox
     lein test clj-webdriver.test.chrome
 }
@@ -57,6 +58,7 @@ DO_testRemote() {
         lein test clj-webdriver.test.remote-existing
     fi
     lein test clj-webdriver.test.remote
+    lein test clj-webdriver.test.remote-capabilities
     lein test clj-webdriver.test.wire
 }
 
