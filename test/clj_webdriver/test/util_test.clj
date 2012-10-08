@@ -101,3 +101,139 @@
             (clojure-keys j-map))
            j-map))))
 
+(def desired-capabilities
+  [;; Browser selection
+   "browserName" "version" "platform"
+   ;; Read-only capabilities
+   "takesScreenshot" "handlesAlerts" "cssSelectorsEnabled"
+   ;; Read-write capabilities
+   "javascriptEnabled" "databaseEnabled" "locationContextEnabled"
+   "applicationCacheEnabled" "browserConnectionEnabled" "webStorageEnabled"
+   "acceptSslCerts" "rotatable" "nativeEvents" "proxy" "unexpectedAlertBehaviour"
+   ;; RemoteWebDriver specific
+   "webdriver.remote.sessionid" "webdriver.remote.quietExceptions"
+   ;; Grid-specific
+   "path" "seleniumProtocol" "maxInstances" "environment"
+   ;; Selenium RC (1.0) only
+   "proxy_pac" "commandLineFlags" "executablePath" "timeoutInSeconds"
+   "onlyProxySeleniumTraffic" "avoidProxy" "proxyEverything" "proxyRequired"
+   "browserSideLog" "optionsSet" "singleWindow" "dontInjectRegex"
+   "userJSInjection" "userExtensions"
+   ;; Selenese-backed-WebDriver specific
+   "selenium.server.url"
+   ;; Browser-specific Capabilities
+   ;;
+   ;; Opera specific
+   "opera.binary" "opera.guess_binary_path" "opera.no_restart" "opera.product"
+   "opera.no_quit" "opera.autostart" "opera.display" "opera.idle" "opera.profile"
+   "opera.launcher" "opera.port" "opera.host" "opera.arguments"
+   "opera.logging.file" "opera.logging.level"
+   ;; Chrome specific
+   "chrome.chromedriverVersion" "chrome.binary" "chrome.switches" "chrome.extensions"
+   ;; Firefox specific
+   ;;
+   ;; WebDriver
+   "firefox_profile" "loggingPrefs" "firefox_binary"
+   ;; RC
+   "mode" "captureNetworkTraffic" "addCustomRequestHeaders" "trustAllSSLCertificates"
+   "changeMaxConnections" "firefoxProfileTemplate" "profile"
+   ;; IE specific
+   ;;
+   ;; WebDriver
+   "ignoreProtectedModeSettings" "initialBrowserUrl" 
+   "useLegacyInternalServer" "elementScrollBehavior"
+   ;; RC
+   "mode" "killProcessesByName" "honorSystemProxy" "ensureCleanSession"
+   ;; Safari specific
+   ;;
+   ;; WebDriver
+   "safari.cleanSession"
+   ;; RC
+   "mode" "honorSystemProxy" "ensureCleanSession"
+   ;; Object structures
+   ;;
+   ;; Proxy JSON Object
+   "proxyType" "proxyAutoconfigUrl" "ftpProxy" "httpProxy" "sslProxy"
+   ;; LoggingPreferences JSON Object
+   "driver"
+   ;; FirefoxProfile settings
+   "webdriver_accept_untrusted_certs" "webdriver_assume_untrusted_issuer"
+   "webdriver.log.driver" "webdriver.log.file" "webdriver_enable_native_events"
+   "webdriver.load.strategy" "webdriver_firefox_port"])
+
+(def desired-capabilities-clj
+  [;; Browser selection
+   :browser-name :version :platform
+   ;; Read-only capabilities
+   :takes-screenshot :handles-alerts :css-selectors-enabled
+   ;; Read-write capabilities
+   :javascript-enabled :database-enabled :location-context-enabled
+   :application-cache-enabled :browser-connection-enabled :web-storage-enabled
+   :accept-ssl-certs :rotatable :native-events :proxy :unexpected-alert-behaviour
+   ;; RemoteWebDriver specific
+   :webdriver.remote.sessionid :webdriver.remote.quiet-exceptions
+   ;; Grid-specific
+   :path :selenium-protocol :max-instances :environment
+   ;; Selenium RC (1.0) only
+   :proxy_pac :command-line-flags :executable-path :timeout-in-seconds
+   :only-proxy-selenium-traffic :avoid-proxy :proxy-everything :proxy-required
+   :browser-side-log :options-set :single-window :dont-inject-regex
+   :user-JS-injection :user-extensions
+   ;; Selenese-backed-WebDriver specific
+   :selenium.server.url
+   ;; Browser-specific Capabilities
+   ;;
+   ;; Opera specific
+   :opera.binary :opera.guess_binary_path :opera.no_restart :opera.product
+   :opera.no_quit :opera.autostart :opera.display :opera.idle :opera.profile
+   :opera.launcher :opera.port :opera.host :opera.arguments
+   :opera.logging.file :opera.logging.level
+   ;; Chrome specific
+   :chrome.chromedriver-version :chrome.binary :chrome.switches :chrome.extensions
+   ;; Firefox specific
+   ;;
+   ;; WebDriver
+   :firefox_profile :logging-prefs :firefox_binary
+   ;; RC
+   :mode :capture-network-traffic :add-custom-request-headers :trust-all-SSL-certificates
+   :change-max-connections :firefox-profile-template :profile
+   ;; IE specific
+   ;;
+   ;; WebDriver
+   :ignore-protected-mode-settings :initial-browser-url 
+   :use-legacy-internal-server :element-scroll-behavior
+   ;; RC
+   :mode :kill-processes-by-name :honor-system-proxy :ensure-clean-session
+   ;; Safari specific
+   ;;
+   ;; WebDriver
+   :safari.clean-session
+   ;; RC
+   :mode :honor-system-proxy :ensure-clean-session
+   ;; Object structures
+   ;;
+   ;; Proxy JSON Object
+   :proxy-type :proxy-autoconfig-url :ftp-proxy :http-proxy :ssl-proxy
+   ;; LoggingPreferences JSON Object
+   :driver
+   ;; FirefoxProfile settings
+   :webdriver_accept_untrusted_certs :webdriver_assume_untrusted_issuer
+   :webdriver.log.driver :webdriver.log.file :webdriver_enable_native_events
+   :webdriver.load.strategy :webdriver_firefox_port])
+
+(deftest test-desired-capabilities-java-clojure-java
+  (let [caps-map (apply hash-map
+                        (interleave (distinct desired-capabilities)
+                                    (repeat true)))
+        clojurized-map (clojure-keys caps-map)]
+    (is (= (java-keys clojurized-map) caps-map))))
+
+(deftest test-desired-capabilities-clojure-java
+  (let [clj-caps-map (apply hash-map
+                            (interleave (distinct desired-capabilities-clj)
+                                        (repeat true)))
+        caps-map (apply hash-map
+                        (interleave (distinct desired-capabilities)
+                                    (repeat true)))
+        javaized-map (java-keys clj-caps-map)]
+    (is (= javaized-map caps-map))))
