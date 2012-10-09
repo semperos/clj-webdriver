@@ -5,8 +5,9 @@
 ;;
 (ns clj-webdriver.form-helpers
   (:use [clj-webdriver.core :only [input-text find-elements]])
-  (:import clj_webdriver.driver.Driver)
-  (:import org.openqa.selenium.WebDriver))
+  (:require clj-webdriver.driver)
+  (:import clj_webdriver.driver.Driver
+           org.openqa.selenium.WebDriver))
 
 (defn- quick-fill*
   ([driver k v] (quick-fill* driver k v false))

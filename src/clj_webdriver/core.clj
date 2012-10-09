@@ -19,6 +19,7 @@
             [clj-webdriver.cache :as cache]
             [clj-webdriver.firefox :as ff]
             [clj-webdriver.window :as win]
+            clj-webdriver.driver
             [clojure.java.io :as io]
             [clojure.string :as string]
             [clojure.tools.logging :as log])

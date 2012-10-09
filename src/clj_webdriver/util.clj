@@ -2,7 +2,8 @@
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [clojure.walk :as walk]
-            [clj-webdriver.cache :as cache])
+            [clj-webdriver.cache :as cache]
+            clj-webdriver.driver)
   (:import clj_webdriver.driver.Driver
            [org.openqa.selenium WebDriver WebElement]
            [java.io PushbackReader Writer]))
