@@ -5,12 +5,12 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.4.0"]
+                 [org.clojure/core.cache "0.5.0"]
+                 [org.clojure/tools.logging "0.2.3"]
                  [clj-http "0.3.0"]
                  [cheshire "2.1.0"]
                  [org.mortbay.jetty/jetty "6.1.25"]
-                 [org.seleniumhq.selenium/selenium-server "2.25.0"]
-                 [org.clojure/core.cache "0.5.0"]
-                 [org.clojure/tools.logging "0.2.3"]]
+                 [org.seleniumhq.selenium/selenium-server "2.25.0"]]
   :profiles {:dev
              {:dependencies
               [[midje "1.3.1"]
@@ -23,7 +23,4 @@
                [net.cgrand/moustache "1.0.0"]]}}
   :aot [#"clj-webdriver\.ext\.*"]
   :scm {:url "git@github.com:semperos/clj-webdriver.git"}
-  :pom-addition [:developers [:developer
-                              [:id "semperos"
-                               :name "Daniel Gregoire"
-                               :url "http://techylinguist.com"]]])
+  :pom-addition [:developers [:developer [:name "Daniel Gregoire"]]])
