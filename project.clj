@@ -13,8 +13,7 @@
                  [org.seleniumhq.selenium/selenium-server "2.25.0"]]
   :profiles {:dev
              {:dependencies
-              [[midje "1.3.1"]
-               [criterium "0.2.0"]
+              [[criterium "0.2.0"]
                [codox "0.3.3"]
                [clj-time "0.4.4"]
                [marginalia "0.3.2"]
