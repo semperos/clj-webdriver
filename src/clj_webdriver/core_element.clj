@@ -59,7 +59,8 @@
 
   (focus [element]
     (execute-script*
-     (.getWrappedDriver (:webelement element)) "return arguments[0].focus()" (:webelement element)))
+     (.getWrappedDriver (:webelement element)) "return arguments[0].focus()" (:webelement element))
+    element)
 
   (html [element]
     (browserbot (.getWrappedDriver (:webelement element)) "getOuterHTML" (:webelement element)))
