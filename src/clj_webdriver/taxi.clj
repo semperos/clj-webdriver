@@ -277,7 +277,8 @@
   ([n] (back *driver* n))
   ([driver n]
      (dotimes [m n]
-       (core/back driver))))
+       (core/back driver))
+     driver))
 
 (defn close
   "Close the browser. If multiple windows are open, this only closes the active window.
@@ -319,7 +320,8 @@
   ([n] (forward *driver* n))
   ([driver n]
      (dotimes [m n]
-       (core/forward *driver*))))
+       (core/forward *driver*))
+     driver))
 
 (defn get-url
   "Navigate the browser to `url`.
