@@ -5,6 +5,7 @@
 
 ;;  * IDriver
 ;;  * ITargetLocator
+;;  * IAlert
 ;;  * IOptions
 ;;  * IFind
 (in-ns 'clj-webdriver.core)
@@ -178,7 +179,21 @@
     (let [cookie-obj (.getCookieNamed (.manage (:webdriver driver)) cookie-name)]
       (init-cookie {:cookie cookie-obj})))
 
+  ;; Alert dialogs
+  IAlert
+  (accept [driver]
+    (-> driver :webdriver .switchTo .alert .accept))
 
+  (alert [driver]
+    (-> driver :webdriver .switchTo .alert))
+
+  (dismiss [driver]
+    (-> driver :webdriver .switchTo .alert .dismiss))
+
+  (alert-text [driver]
+    (-> driver :webdriver .switchTo .alert .getText))
+
+  
   ;; Find Functions
   IFind
   (find-element-by [driver by-value]

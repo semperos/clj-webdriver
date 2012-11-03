@@ -9,7 +9,7 @@
             [clojure.java.io :as io]
             [clojure.tools.logging :as log])
   (:import [clj_webdriver.driver.Driver]
-           [org.openqa.selenium TimeoutException]))
+           [org.openqa.selenium TimeoutException NoAlertPresentException]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;                  ;;;
@@ -493,6 +493,22 @@
   (is (= test-base-url
          (:url (window driver)))))
 
+(defn test-alert-dialog-handling
+  [driver]
+  (click (find-element driver {:text "example form"}))
+  (let [act (fn [] (click (find-element driver {:tag :button})))]
+    (act)    
+    (is (alert driver) "No alert dialog could be located")
+    (accept driver)
+    (is (thrown? NoAlertPresentException
+                 (alert driver)))
+    (act)
+    (is (= (alert-text driver)
+           "Testing alerts."))
+    (dismiss driver)
+    (is (thrown? NoAlertPresentException
+                 (alert driver)))))
+
 (defn wait-until-should-wait-for-condition
   [driver]
   (is (= "Ministache" (title driver)))
@@ -612,6 +628,7 @@
                        quick-fill-should-accept-special-seq-and-perform-batch-actions-on-form
                        quick-fill-submit-should-always-return-nil
                        should-be-able-to-toggle-between-open-windows
+                       test-alert-dialog-handling
                        wait-until-should-wait-for-condition
                        wait-until-should-throw-on-timeout
                        wait-until-should-allow-timeout-argument

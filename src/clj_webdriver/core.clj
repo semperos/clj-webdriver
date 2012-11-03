@@ -66,6 +66,14 @@
   (switch-to-default [driver] "Switch focus to the first first frame of the page, or the main document if the page contains iframes")
   (switch-to-active [driver] "Switch to element that currently has focus, or to the body if this cannot be detected"))
 
+;; ### Alert Popups ###
+(defprotocol IAlert
+  "Simple interactions with alert popups"
+  (accept [driver] "Accept the dialog. Equivalent to pressing 'Ok'")
+  (alert [driver] "Return the underlying Java object that can be used with the Alert Java API (exposed until all functionality is ported)")
+  (dismiss [driver] "Dismiss the dialog. Equivalent to pressing 'Cancel'")
+  (alert-text [driver] "Get the text of the popup dialog's message"))
+
 ;; ### Finding Elements on Page ###
 (defprotocol IFind
   "Functions used to locate elements on a given page"
