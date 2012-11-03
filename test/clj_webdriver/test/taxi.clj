@@ -7,7 +7,7 @@
         [clojure.string :only [lower-case]])
   (:require [clj-webdriver.core :as core]
             [clj-webdriver.test.example-app.core :as web-app])
-  (:import [org.openqa.selenium TimeoutException]))
+  (:import [org.openqa.selenium TimeoutException NoAlertPresentException]))
 
 (defn start-browser-fixture
   [f]
@@ -352,6 +352,21 @@
   (back) ;; starting page
   (is (= (attribute "//*[text()='Moustache']" :href) "https://github.com/cgrand/moustache"))
   (is (exists? (find-element {:text "File's Name"}))))
+
+(deftest test-alert-dialog-handling
+  (click (find-element {:tag :a, :text "example form"}))
+  (let [act (fn [] (click "button"))]
+    (act)    
+    (is (alert-obj) "No alert dialog could be located")
+    (accept)
+    (is (thrown? NoAlertPresentException
+                 (alert-obj)))
+    (act)
+    (is (= (alert-text)
+           "Testing alerts."))
+    (dismiss)
+    (is (thrown? NoAlertPresentException
+                 (alert-obj)))))
 
 (deftest test-window-size
   (let [orig-size (window-size)

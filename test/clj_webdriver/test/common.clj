@@ -498,16 +498,16 @@
   (click (find-element driver {:text "example form"}))
   (let [act (fn [] (click (find-element driver {:tag :button})))]
     (act)    
-    (is (alert driver) "No alert dialog could be located")
+    (is (alert-obj driver) "No alert dialog could be located")
     (accept driver)
     (is (thrown? NoAlertPresentException
-                 (alert driver)))
+                 (alert-obj driver)))
     (act)
     (is (= (alert-text driver)
            "Testing alerts."))
     (dismiss driver)
     (is (thrown? NoAlertPresentException
-                 (alert driver)))))
+                 (alert-obj driver)))))
 
 (defn wait-until-should-wait-for-condition
   [driver]

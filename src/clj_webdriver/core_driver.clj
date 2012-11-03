@@ -184,7 +184,7 @@
   (accept [driver]
     (-> driver :webdriver .switchTo .alert .accept))
 
-  (alert [driver]
+  (alert-obj [driver]
     (-> driver :webdriver .switchTo .alert))
   
   (alert-text [driver]
