@@ -7,6 +7,15 @@
 ;;  * ISelectElement
 (in-ns 'clj-webdriver.core)
 
+(defn rectangle
+  [element]
+  (let [loc (location element)
+        el-size (size element)]
+    (java.awt.Rectangle. (:x loc)
+                         (:y loc)
+                         (:width el-size)
+                         (:height el-size))))
+
 (extend-type Element
 
   ;; Element action basics
@@ -85,14 +94,6 @@
           w (.width size-obj)
           h (.height size-obj)]
       {:width w, :height h}))
-
-  (rectangle [element]
-    (let [loc (location element)
-          el-size (size element)]
-      (java.awt.Rectangle. (:x loc)
-                           (:y loc)
-                           (:width el-size)
-                           (:height el-size))))
 
   (intersects*? [element-a element-b]
     (let [rect-a (rectangle element-a)

@@ -94,7 +94,6 @@
   (location [element] "Given an element object, return its location as a map of its x/y coordinates")
   (location-once-visible [element] "Given an element object, return its location on the screen once it is scrolled into view as a map of its x/y coordinates. The window will scroll as much as possible until the element hits the top of the page; thus even visible elements will be scrolled until they reach that point.")
   (present? [element] "Returns true if the element exists and is visible")
-  (rectangle [element] "Given an `element`, return a `java.awt.Rectangle` with the same dimensions.")
   (size [element] "Return the size of the given `element` as a map containing `:width` and `:height` values in pixels.")
   (tag [element] "Retrieve the name of the HTML tag of the given element object (returned as a keyword)")
   (text [element] "Retrieve the content, or inner HTML, of a given element object")
