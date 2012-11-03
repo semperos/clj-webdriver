@@ -28,6 +28,7 @@
                                                        :host (hub-host)
                                                        :existing true}
                                                       {:browser :firefox})]
+    (-> this-driver :webdriver (.setLogLevel Level/OFF))
     (reset! server this-server)
     (reset! driver this-driver))
   (f))

@@ -1080,7 +1080,7 @@
    (intersect? \"#login_field\" \"#password\") ;=> false"
   ([qa qb] (intersect? *driver* qa qb))
   ([driver qa qb]
-     (core/intersect*? (element driver qa) (element driver qb))))
+     (core/intersects*? (element driver qa) (element driver qb))))
 
 (defn tag
   "Return the HTML tag for the first element found with query `q`.

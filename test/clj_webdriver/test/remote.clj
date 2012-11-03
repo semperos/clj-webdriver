@@ -5,7 +5,8 @@
         [clj-webdriver.test.config :only [test-base-url]]
         [clj-webdriver.test.util :only [start-server]]
         [clj-webdriver.test.common :only [run-common-tests]]
-        [clj-webdriver.remote.server :only [new-remote-session stop]]))
+        [clj-webdriver.remote.server :only [new-remote-session stop]])
+  (:import [java.util.logging Level]))
 
 (def server (atom nil))
 (def driver (atom nil))
@@ -15,6 +16,7 @@
   [f]
   (let [[this-server this-driver] (new-remote-session {:port 3003}
                                                       {:browser :firefox})]
+    (-> this-driver :webdriver (.setLogLevel Level/OFF))
     (reset! server this-server)
     (reset! driver this-driver))
   (f))
@@ -34,5 +36,5 @@
 (use-fixtures :each reset-browser-fixture)
 
 ;; RUN TESTS HERE
-(deftest test-common-features-for-firefox-via-remote-server
+(deftest test-common-features-via-remote-server
   (run-common-tests @driver))

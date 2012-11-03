@@ -91,7 +91,7 @@
          (attribute (find-element driver {:tag :li, :class "first odd"}) :class)))
   (is (= "https://github.com/cgrand/moustache"
          (attribute (find-element driver {:text "Moustache"}) "href")))
-  (is (= 9
+  (is (= 10
          (count (find-elements driver {:tag :a}))))
   (-> driver
       (find-element {:tag :a, :text "example form"})
@@ -109,7 +109,7 @@
          (text (find-element driver [{:tag :div, :id "content"}, {:tag :a, :class "external"}]))))
   (is (= "home"
          (text (find-element driver [{:tag :*, :id "footer"}, {:tag :a}]))))
-  (is (= 4
+  (is (= 5
          (count (find-elements driver [{:tag :*, :id "footer"}, {:tag :a}])))))
 
 (defn hierarchical-querying-should-not-support-css-or-xpath-attrs

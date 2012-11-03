@@ -186,13 +186,16 @@
 
   (alert [driver]
     (-> driver :webdriver .switchTo .alert))
-
-  (dismiss [driver]
-    (-> driver :webdriver .switchTo .alert .dismiss))
-
+  
   (alert-text [driver]
     (-> driver :webdriver .switchTo .alert .getText))
 
+  ;; (authenticate-using [driver username password]
+  ;;   (let [creds (UserAndPassword. username password)]
+  ;;     (-> driver :webdriver .switchTo .alert (.authenticateUsing creds))))
+
+  (dismiss [driver]
+    (-> driver :webdriver .switchTo .alert .dismiss))
   
   ;; Find Functions
   IFind

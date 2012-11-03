@@ -32,6 +32,7 @@
            [org.openqa.selenium.chrome ChromeDriver]
            ;; [com.opera.core.systems OperaDriver]
            [org.openqa.selenium.htmlunit HtmlUnitDriver]
+           ;; [org.openqa.selenium.security UserAndPassword]
            [org.openqa.selenium.support.ui Select]
            [org.openqa.selenium.interactions Actions CompositeAction]
            [java.util Date]
@@ -71,8 +72,9 @@
   "Simple interactions with alert popups"
   (accept [driver] "Accept the dialog. Equivalent to pressing 'Ok'")
   (alert [driver] "Return the underlying Java object that can be used with the Alert Java API (exposed until all functionality is ported)")
-  (dismiss [driver] "Dismiss the dialog. Equivalent to pressing 'Cancel'")
-  (alert-text [driver] "Get the text of the popup dialog's message"))
+  (alert-text [driver] "Get the text of the popup dialog's message")
+  ;; (authenticate-using [driver username password] "Enter `username` and `password` into fields from a Basic Access Authentication popup dialog")
+  (dismiss [driver] "Dismiss the dialog. Equivalent to pressing 'Cancel'"))
 
 ;; ### Finding Elements on Page ###
 (defprotocol IFind

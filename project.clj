@@ -18,6 +18,7 @@
                [clj-time "0.4.4"]
                [marginalia "0.3.2"]
                [ring "1.0.2"]
+               [ring-http-basic-auth "0.0.2"]
                [enlive "1.0.0"]
                [net.cgrand/moustache "1.0.0"]]}}
   :aot [#"clj-webdriver\.ext\.*"]

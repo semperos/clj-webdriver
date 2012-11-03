@@ -11,3 +11,5 @@
 (defsnippet example-form "form.html" [:body :> any-node] [])
 
 (defsnippet javascript-playground-page "javascript.html" [:body :> any-node] [])
+
+(defsnippet admin-page "admin.html" [:body :> any-node] [])

@@ -83,12 +83,12 @@
   (is (= (text "*.external") "Moustache"))
   (is (= (attribute "*.first.odd" :class) "first odd"))
   (is (= (attribute "li.first.odd" :class) "first odd"))
-  (is (= (count (elements "a")) 9))
+  (is (= (count (elements "a")) 10))
   (is (= (text "a[class^='exter']") "Moustache"))
   (is (= (text "a.external[href*='github']") "Moustache"))
   (is (= (text "a[class*='exter'][href*='github']") "Moustache"))
-  (is (= (count (elements "*[class*='-item']")) 4))
-  (is (= (count (elements "a[class*='-item']")) 4))
+  (is (= (count (elements "*[class*='-item']")) 5))
+  (is (= (count (elements "a[class*='-item']")) 5))
   (is (= (count (elements "a[class*='exter'][href*='github']")) 2)))
 
 (deftest test-querying-under-elements
@@ -98,7 +98,7 @@
   (is (= (text (find-element-under "div#content" {:css "a[class*='exter']"})) "Moustache"))
   (is (= (text (find-element-under "div#content" {:css "a[href*='github']"})) "Moustache"))
   (is (= (text (find-element-under "#footer" (core/by-tag :a))) "home"))
-  (is (= (count (find-elements-under "#footer" {:tag :a})) 4))
+  (is (= (count (find-elements-under "#footer" {:tag :a})) 5))
   (is (= (count (find-elements-under "div#content" {:css "a[class*='exter']"})) 2)))
 
 (deftest text-exists-visible-present
