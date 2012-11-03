@@ -104,17 +104,17 @@
 ;; original active window back into focus.
 (extend-type Window
   IWindow
+  (maximize [window]
+    (window-switcher window maximize))
+  
   (position [window]
     (window-switcher window position))
 
   (reposition [window coordinates-map]
     (window-switcher window reposition coordinates-map))
-
-  (size [window]
-    (window-switcher window size))
-
+  
   (resize [window dimensions-map]
     (window-switcher window resize dimensions-map))
 
-  (maximize [window]
-    (window-switcher window maximize)))
+  (size [window]
+    (window-switcher window size)))
