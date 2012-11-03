@@ -19,20 +19,21 @@
 
 (defprotocol IWindow
   "Functions to manage browser size and position."
+  (maximize [this] "Maximizes the current window to fit screen if it is not already maximized. Returns driver.")
   (position [this] "Returns map of X Y coordinates ex. {:x 1 :y 3} relative to the upper left corner of screen.")
   (reposition [this coordinates-map] "Excepts map of X Y coordinates ex. {:x 1 :y 3} repositioning current window relative to screen. Returns driver.")
-  (size [this] "Get size of current window. Returns a map of width and height ex. {:width 480 :height 800}")
   (resize [this dimensions-map] "Resize the driver window with a map of width and height ex. {:width 480 :height 800}. Returns driver.")
-  (maximize [this] "Maximizes the current window to fit screen if it is not already maximized. Returns driver."))
-
-(defn- window-obj
-  [driver]
-  (-> (:webdriver driver)
-      (.manage)
-      (.window)))
+  (size [this] "Get size of current window. Returns a map of width and height ex. {:width 480 :height 800}")
+  (window-obj [this] "Return the underlying Java Window object used for manipulating the browser window."))
 
 (extend-type Driver
   IWindow
+
+  (maximize [driver]
+    (let [wnd (window-obj driver)]
+      (.maximize wnd)
+      driver))
+
   (position [driver]
     (let [wnd (window-obj driver)
           pnt (.getPosition wnd)]
@@ -46,11 +47,6 @@
       (.setPosition wnd (Point. x y))
       driver))
 
-  (size [driver]
-    (let [wnd (window-obj driver)
-          dim (.getSize wnd)]
-      {:width (.getWidth dim) :height (.getHeight dim)}))
-
   (resize [driver {:keys [width height]}]
     (let [wnd (window-obj driver)
           dim (.getSize wnd)
@@ -59,10 +55,13 @@
       (.setSize wnd (Dimension. width height))
       driver))
 
-  (maximize [driver]
-    (let [wnd (window-obj driver)]
-      (.maximize wnd)
-      driver)))
+  (size [driver]
+    (let [wnd (window-obj driver)
+          dim (.getSize wnd)]
+      {:width (.getWidth dim) :height (.getHeight dim)}))
+
+  (window-obj [driver]
+    (-> driver :webdriver .manage .window)))
 
 (defmacro ^{:private true
             :doc "Apply the `a-fn` with the `Driver` contained inside the given `window` record and any other `a-fn-args` provided. Before calling the function, switch to the specified window; after calling the function, switch back to the original window."}
