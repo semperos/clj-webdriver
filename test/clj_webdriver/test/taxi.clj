@@ -145,8 +145,8 @@
 
 (deftest test-element-intersection
   (click (find-element {:tag :a, :text "example form"}))
-  (is (intersect? "#first_name" "#personal-info-wrapper"))
-  (is (not (intersect? "#first_name" "#last_name"))))
+  (is (intersects? "#first_name" "#personal-info-wrapper"))
+  (is (not (intersects? "#first_name" "#last_name"))))
 
 (deftest test-xpath-output
   (is (= (xpath "a.external") "/html/body/div[2]/div/p/a")))

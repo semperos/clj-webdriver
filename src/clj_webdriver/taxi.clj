@@ -1059,18 +1059,7 @@
   ([driver q]
      (core/size (element driver q))))
 
-(defn rectangle
-  "Return a `java.awt.Rectangle` with the position and dimensions of the first element found with query `q` (using the `location` and `size` functions).
-
-   Examples:
-   =========
-
-   (rectangle \"div#login\") ;=> #<Rectangle java.awt.Rectangle[x=279,y=132,width=403,height=265]>"
-  ([q] (rectangle *driver* q))
-  ([driver q]
-     (core/rectangle (element driver q))))
-
-(defn intersect?
+(defn intersects?
   "Return true if the first element found with query `qa` intersects with the first element found with query `qb`.
 
    Examples:
@@ -1078,9 +1067,9 @@
 
    (intersect? \"#login\" \"#login_field\")    ;=> true
    (intersect? \"#login_field\" \"#password\") ;=> false"
-  ([qa qb] (intersect? *driver* qa qb))
+  ([qa qb] (intersects? *driver* qa qb))
   ([driver qa qb]
-     (core/intersects*? (element driver qa) (element driver qb))))
+     (core/intersects? (element driver qa) (element driver qb))))
 
 (defn tag
   "Return the HTML tag for the first element found with query `q`.

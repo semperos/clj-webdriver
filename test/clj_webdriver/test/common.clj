@@ -202,11 +202,11 @@
 (defn should-be-able-to-determine-if-elements-intersect-each-other
   [driver]
   (click (find-element driver {:tag :a, :text "example form"}))
-  (is (intersect? (find-element driver {:id "first_name"})
-                  (find-element driver {:id "personal-info-wrapper"})))
+  (is (intersects? (find-element driver {:id "first_name"})
+                   (find-element driver {:id "personal-info-wrapper"})))
   (is (not
-       (intersect? (find-element driver {:id "first_name"})
-                   (find-element driver {:id "last_name"})))))
+       (intersects? (find-element driver {:id "first_name"})
+                    (find-element driver {:id "last_name"})))))
 
 ;; Default wrap for strings is double quotes
 (defn generated-xpath-should-wrap-strings-in-double-quotes

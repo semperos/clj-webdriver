@@ -95,7 +95,7 @@
           h (.height size-obj)]
       {:width w, :height h}))
 
-  (intersects*? [element-a element-b]
+  (intersects? [element-a element-b]
     (let [rect-a (rectangle element-a)
           rect-b (rectangle element-b)]
       (.intersects rect-a rect-b)))
@@ -288,7 +288,7 @@
 
   (rectangle [m] (rectangle (map->Element m)))
 
-  (intersects*? [m-a m-b] (intersects*? (map->Element m-a) (map->Element m-b)))
+  (intersects? [m-a m-b] (intersects? (map->Element m-a) (map->Element m-b)))
 
   (tag [m] (tag (map->Element m)))
 

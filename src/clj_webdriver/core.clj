@@ -100,7 +100,7 @@
   (flash [element] "Flash the element in question, to verify you're looking at the correct element")
   (focus [element] "Apply focus to the given element")
   (html [element] "Retrieve the outer HTML of an element")
-  (intersects*? [element-a element-b] "Return true if `element-a` intersects with `element-b`. This mirrors the Selenium-WebDriver API method, but see the `intersect?` function to compare an element against multiple other elements for intersection.")
+  (intersects? [element-a element-b] "Return true if `element-a` intersects with `element-b`. This mirrors the Selenium-WebDriver API method, but see the `intersect?` function to compare an element against multiple other elements for intersection.")
   (location [element] "Given an element object, return its location as a map of its x/y coordinates")
   (location-once-visible [element] "Given an element object, return its location on the screen once it is scrolled into view as a map of its x/y coordinates. The window will scroll as much as possible until the element hits the top of the page; thus even visible elements will be scrolled until they reach that point.")
   (present? [element] "Returns true if the element exists and is visible")
@@ -273,12 +273,6 @@
 
 ;; Implementations of the above IElement and IFormElement protocols
 (load "core_element")
-
-;; Higher-level functions on top of the IElement protocol
-(defn intersect?
-  "Return truthy based on whether or not the first element intersects with any of the subsequent elements."
-  [element & elements]
-  (some true? (map #(intersects*? element %) elements)))
 
 ;; Key codes for non-representable keys
 (defn key-code
