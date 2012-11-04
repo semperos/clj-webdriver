@@ -1458,22 +1458,22 @@
 (defn accept
   "Accept an alert popup dialog. Equivalent to pressing its 'Ok' button."
   ([] (accept *driver*))
-  ([driver] (core/accept *driver*)))
+  ([driver] (core/accept driver)))
 
 (defn alert-obj
   "Retrieve the underlying Java object used to identify an alert popup dialog. Exposed to allow you to use methods not yet exposed via clj-webdriver's API's."
   ([] (alert-obj *driver*))
-  ([driver] (core/alert-obj *driver*)))
+  ([driver] (core/alert-obj driver)))
 
 (defn alert-text
   "Get the text of the alert popup dialog's message."
   ([] (alert-text *driver*))
-  ([driver] (core/alert-text *driver*)))
+  ([driver] (core/alert-text driver)))
 
 (defn dismiss
   "Dismiss the alert popup dialog. Equivalent to pressing its 'Cancel' button."
   ([] (dismiss *driver*))
-  ([driver] (core/dismiss *driver*)))
+  ([driver] (core/dismiss driver)))
 
 (defn window-position
   "Get the position of the top-left corner of the browser's window relative to the top-left corner of your primary display, returned as a map of `:x` and `:y` integers.
