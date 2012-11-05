@@ -24,8 +24,6 @@ This is a Clojure library for driving a web browser using Selenium-WebDriver as 
   </tbody>
 </table>
 
-**NOTE TO LEININGEN 2 USERS:** At least as of Leiningen 2 preview 6, the default behavior for retrieving dependencies that fail a checksum test is *not to download them.* This affect's at least one of Selenium-WebDriver's transitive dependencies, which means you can't download clj-webdriver's dependencies with default Leiningen 2 settings. In order to solve this issue, you need to set the `:checksum` option for either your entire `project.clj` or for a specific Maven `:repositories` entry that contains Selenium-WebDriver's dependencies (e.g., Maven central). See [Leiningen's](https://github.com/technomancy/leiningen) repository README and example `sample.project.clj` file for more information.
-
 **clj-webdriver Resources**
 
  * [Project Wiki](https://github.com/semperos/clj-webdriver/wiki)
