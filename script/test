@@ -10,7 +10,7 @@ EXPECTED_ARGS=1
 E_BADARGS=65
 
 DO_showUsage() {
-    echo "Usage: $(basename $0) {all|core|remote|taxi|window}"
+    echo "Usage: $(basename $0) {all|core|firefox|remote|taxi|window}"
     exit $E_BADARGS
 }
 
@@ -23,6 +23,15 @@ GRID_RUNNING_DEFAULT=no
 GRID_HOST_DEFAULT=127.0.0.1
 # API default is 4444, so for testing we'll use 3333
 GRID_PORT_DEFAULT=3333
+
+DO_testFirefox() {
+    echo ""
+    echo "#####################"
+    echo "## Testing Firefox ##"
+    echo "#####################"
+    echo ""
+    lein test clj-webdriver.test.firefox
+}
 
 DO_testCore() {
     echo ""
@@ -89,6 +98,9 @@ case "$1" in
         ;;
     core)
         DO_testCore
+        ;;
+    firefox)
+        DO_testFirefox
         ;;
     remote)
         DO_testRemote
