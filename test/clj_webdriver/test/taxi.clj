@@ -56,9 +56,9 @@
 
 (deftest-template-param
   to-should-open-given-url-in-browser @alt-driver
-  (to (str test-base-url "example-form"))
-  (is (= (current-url) (str test-base-url "example-form")))
-  (is (= (title) "Ministache")))
+  (to __ (str test-base-url "example-form"))
+  (is (= (current-url __) (str test-base-url "example-form")))
+  (is (= (title __) "Ministache")))
 
 (deftest-template-param
   test-cookie-handling @alt-driver
