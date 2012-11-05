@@ -274,7 +274,9 @@
    ;;
    (back 2)"
   ([] (back *driver* 1))
-  ([n] (back *driver* n))
+  ([driver-or-n] (if (driver? driver-or-n)
+                   (back driver-or-n 1)
+                   (back *driver* driver-or-n)))
   ([driver n]
      (dotimes [m n]
        (core/back driver))
@@ -317,10 +319,12 @@
    ;;
    (forward 2)"
   ([] (forward *driver* 1))
-  ([n] (forward *driver* n))
+  ([driver-or-n] (if (driver? driver-or-n)
+                   (forward driver-or-n 1)
+                   (forward *driver* driver-or-n)))
   ([driver n]
      (dotimes [m n]
-       (core/forward *driver*))
+       (core/forward driver))
      driver))
 
 (defn get-url
@@ -613,7 +617,7 @@
      (options/cookie-named driver cookie-name)))
 
 (defn execute-script
-  "Execute the JavaScript code `js` with arguments `js-args`.
+  "Execute the JavaScript code `js` with arguments `js-args` which must be passed in as a vector (for arity reasons).
 
    Within the script, use document to refer to the current document. Note that local variables will not be available once the script has finished executing, though global variables will persist.
 
@@ -643,8 +647,12 @@
    ;; Return an element. Note that this currently returns a raw WebElement Java object.
    ;;
    (execute-script \"var myElement = document.getElementById('elementId'); return myElement;\")"
-  ([js & js-args]
-     (apply (partial core/execute-script *driver* js) js-args)))
+  ([js] (execute-script *driver* js))
+  ([driver-or-js js-or-args] (if (driver? driver-or-js)
+                               (execute-script driver-or-js js-or-args [])
+                               (execute-script *driver* driver-or-js js-or-args)))
+  ([driver js js-args]
+     (apply (partial core/execute-script driver js) js-args)))
 
 (defn wait-until
   "Make the browser wait until the predicate `pred` returns true, providing an optional `timeout` in milliseconds and an optional `interval` in milliseconds on which to attempt the predicate. If the timeout is exceeded, an exception is thrown.
@@ -671,7 +679,7 @@
   ([pred] (wait/wait-until *driver* (fn [_] pred)))
   ([pred timeout] (wait/wait-until *driver* (fn [_] pred) timeout))
   ([pred timeout interval] (wait/wait-until *driver* (fn [_] pred) timeout interval))
-  ([driver pred timeout interval] (wait/wait-until driver (fn [_] pred) timeout interval)))
+  ([driver pred timeout interval] (wait/wait-until driver (fn [d] (pred d)) timeout interval)))
 
 (defn implicit-wait
   "Set the global `timeout` that the browser should wait when attempting to find elements on the page, before timing out with an exception.
@@ -855,10 +863,11 @@
    ;; Example using by-clause, find an element with id \"foo\" within a div with id \"container\"
    ;;
    (find-elements-under \"div#container\" (core/by-id \"foo\")"
-  [q-parent attr-val]
-  (if (element-like? q-parent)
-    (core/find-elements q-parent attr-val)
-    (core/find-elements (element q-parent) attr-val)))
+  ([q-parent attr-val] (find-elements-under *driver* q-parent attr-val))
+  ([driver q-parent attr-val]
+     (if (element-like? q-parent)
+       (core/find-elements q-parent attr-val)
+       (core/find-elements (element driver q-parent) attr-val))))
 
 (defn find-element-under
   "Find the first element that is a child of the element found with query `q-parent`, using the given `attr-val`. If `q-parent` is an `Element`, it will be used as-is. The `attr-val` can either be a find-element-style map of attributes and values, or a by-clause (`by-tag`, `by-class`, etc.)
@@ -875,10 +884,11 @@
    ;; Example using by-clause, find an element with id \"foo\" within a div with id \"container\"
    ;;
    (find-element-under \"div#container\" (core/by-id \"foo\")"
-  [q-parent attr-val]
-  (if (element-like? q-parent)
-    (core/find-element q-parent attr-val)
-    (core/find-element (element q-parent) attr-val)))
+  ([q-parent attr-val] (find-element-under *driver* q-parent attr-val))
+  ([driver q-parent attr-val]
+     (if (element-like? q-parent)
+       (core/find-element q-parent attr-val)
+       (core/find-element (element driver q-parent) attr-val))))
 
 
 
