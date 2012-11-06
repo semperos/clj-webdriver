@@ -114,15 +114,15 @@
 
 (deftest-template-param
   text-exists-visible-present @alt-driver
-  (is (exists? "a"))
-  (is (not (exists? "area")))
-  (is (exists? "a[href='#pages']"))
-  (is (visible? "a.external"))
-  (is (not (visible? "a[href='#pages']")))
-  (is (displayed? "a.external"))
-  (is (not (displayed? "a[href='#pages']")))
-  (is (present? "a.external"))
-  (is (not (present? "a[href='#pages']"))))
+  (is (exists? __ "a"))
+  (is (not (exists? __ "area")))
+  (is (exists? __ "a[href='#pages']"))
+  (is (visible? __ "a.external"))
+  (is (not (visible? __ "a[href='#pages']")))
+  (is (displayed? __ "a.external"))
+  (is (not (displayed? __ "a[href='#pages']")))
+  (is (present? __ "a.external"))
+  (is (not (present? __ "a[href='#pages']"))))
 
 (deftest-template-param
   test-drag-and-drop @alt-driver
