@@ -94,7 +94,7 @@
   "Basic actions on elements"
   (attribute [element attr] "Retrieve the value of the attribute of the given element object")
   (click [element] "Click a particular HTML element")
-	(css-value [element property] "Return the value of the given CSS property")
+  (css-value [element property] "Return the value of the given CSS property")
   (displayed? [element] "Returns true if the given element object is visible/displayed")
   (exists? [element] "Returns true if the given element exists")
   (flash [element] "Flash the element in question, to verify you're looking at the correct element")
