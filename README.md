@@ -112,9 +112,17 @@ Many thanks to those who have contributed so far (in nick-alphabetical order):
 
 See Github for an [up-to-date list of contributors](https://github.com/semperos/clj-webdriver/contributors)
 
-## YourKit ##
+## Open Source Tools ##
 
-I would also like to thank YourKit, LLC for providing its Java profiler to clj-webdriver developers as part of its contribution to the Open Source community.
+I would like to thank the following companies for providing their tools free of charge to clj-webdriver developers as part of their contribution to the Open Source community.
+
+### JetBrains: Intellij IDEA ###
+
+When I need to do Java, Scala, or even JRuby development, I rely on Intellij IDEA's excellent support for JVM languages. I would like to thank JetBrains for granting clj-webdriver developers a free license to Intellij IDEA Ultimate, now for two years running.
+
+<a href="http://www.jetbrains.com/idea/features/javascript.html" style="display:block; background:#0d3a9e url(http://www.jetbrains.com/idea/opensource/img/all/banners/idea468x60_blue.gif) no-repeat 10px 50%; border:solid 1px #0d3a9e; margin:0;padding:0;text-decoration:none;text-indent:0;letter-spacing:-0.001em; width:466px; height:58px" alt="Java IDE with advanced HTML/CSS/JS editor for hardcore web-developers" title="Java IDE with advanced HTML/CSS/JS editor for hardcore web-developers"><span style="margin: 5px 0 0 52px;padding: 0;float: left;font-size: 12px;cursor:pointer;  background-image:none;border:0;color: #acc4f9; font-family: trebuchet ms,arial,sans-serif;font-weight: normal;text-align:left;">Proud to use</span><span style="margin:0 0 0 205px;padding:18px 0 2px 0; line-height:13px;font-size:11px;cursor:pointer;  background-image:none;border:0;display:block; width:255px; color: #acc4f9; font-family: trebuchet ms,arial,sans-serif;font-weight: normal;text-align:left;">Java IDE with advanced HTML/CSS/JS<br/>editor for hardcore web-developers</span></a>
+
+### YourKit ###
 
 YourKit is kindly supporting open source projects with its full-featured Java Profiler.
 YourKit, LLC is the creator of innovative and intelligent tools for profiling
@@ -124,4 +132,4 @@ Java and .NET applications. Take a look at YourKit's leading software products:
 
 ## License ##
 
-Distributed under the [Eclipse Public License](http://opensource.org/licenses/eclipse-1.0.php), the same as Clojure.
+Clj-webdriver is distributed under the [Eclipse Public License](http://opensource.org/licenses/eclipse-1.0.php), the same as Clojure.
