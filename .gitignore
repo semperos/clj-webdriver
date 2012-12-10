@@ -16,3 +16,4 @@ chromedriver.log
 *.tar.gz
 /target/
 /test.log
+/resources/properties.clj
