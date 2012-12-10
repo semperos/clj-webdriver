@@ -81,9 +81,19 @@ If you want to fix a bug in the **current release**, please pull against the app
 
 ## Running Tests ##
 
-The namespace `clj-webdriver.test.example-app.core` contains a [Ring](https://github.com/mmcgrana/ring) app (routing by [Moustache](https://github.com/cgrand/moustache)) that acts as the "control application" for this project's test suite.
+Follow these steps from the root of this project to run clj-webdriver's tests locally:
 
-First, run `lein compile`, then use the `script/test` script to run clj-webdriver's tests. Its usage is as follows:
+```bash
+cp resources/properties-example.clj resources/properties.clj
+
+# Now edit that `properties.clj` file according to your local setup
+
+lein compile
+
+./script/test all
+```
+
+Note that you can run subsets of the test suite with the `script/test` script as follows:
 
 ```
 Usage: test {all|core|remote|taxi}
