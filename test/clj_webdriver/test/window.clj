@@ -1,7 +1,7 @@
 (ns clj-webdriver.test.window
   (:use [clojure.test]
         [clj-webdriver.core :only [new-driver title current-url to quit]]
-        [clj-webdriver.test.config :only [test-base-url]]
+        [clj-webdriver.test.config :only [base-url]]
         clj-webdriver.window))
 
 (def driver (atom nil))
@@ -15,7 +15,7 @@
 
 (defn reset-browser-fixture
   [f]
-  (to @driver test-base-url)
+  (to @driver (base-url))
   (f))
 
 (defn quit-browser-fixture

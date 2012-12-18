@@ -2,7 +2,7 @@
   clj-webdriver.test.remote
   (:use clojure.test
         [clj-webdriver.core :only [quit to]]
-        [clj-webdriver.test.config :only [test-base-url]]
+        [clj-webdriver.test.config :only [base-url]]
         [clj-webdriver.test.util :only [start-server]]
         [clj-webdriver.test.common :only [run-common-tests]]
         [clj-webdriver.remote.server :only [new-remote-session stop]])
@@ -23,7 +23,7 @@
 
 (defn reset-browser-fixture
   [f]
-  (to @driver test-base-url)
+  (to @driver (base-url))
   (f))
 
 (defn quit-fixture

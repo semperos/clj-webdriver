@@ -1,7 +1,7 @@
 (ns clj-webdriver.test.taxi
   (:use clojure.test
         clj-webdriver.taxi
-        [clj-webdriver.test.config :only [test-base-url]]
+        [clj-webdriver.test.config :only [base-url]]
         [clj-webdriver.test.util :only [deftest-template-param start-server exclusive-between thrown?]]
         [clojure.string :only [lower-case]])
   (:require [clj-webdriver.core :as core]
@@ -15,7 +15,7 @@
 
 (defn reset-browser-fixture
   [f]
-  (to test-base-url)
+  (to (base-url))
   (f))
 
 (defn quit-browser-fixture
@@ -29,26 +29,26 @@
 ;; RUN TESTS HERE
 (deftest test-browser-basics
   (is (= (class *driver*) clj_webdriver.driver.Driver))
-  (is (= (current-url) test-base-url))
+  (is (= (current-url) (base-url)))
   (is (= (title) "Ministache"))
   (is (re-find #"(?i)html>" (page-source))))
 
 (deftest back-forward-should-traverse-browser-history
   (click (find-element {:tag :a, :text "example form"}))
-  (is (= (current-url) (str test-base-url "example-form")))
+  (is (= (current-url) (str (base-url) "example-form")))
   (back)
-  (is (= (current-url) test-base-url))
+  (is (= (current-url) (base-url)))
   (forward)
-  (is (= (current-url) (str test-base-url "example-form")))
+  (is (= (current-url) (str (base-url) "example-form")))
   (click (find-element {:tag :a, :text "clojure"}))
   (back 2)
-  (is (= (current-url) (str test-base-url)))
+  (is (= (current-url) (str (base-url))))
   (forward 2)
-  (is (= (current-url) (str test-base-url "clojure"))))
+  (is (= (current-url) (str (base-url) "clojure"))))
 
 (deftest to-should-open-given-url-in-browser
-  (to (str test-base-url "example-form"))
-  (is (= (current-url) (str test-base-url "example-form")))
+  (to (str (base-url) "example-form"))
+  (is (= (current-url) (str (base-url) "example-form")))
   (is (= (title) "Ministache")))
 
 (deftest test-cookie-handling
@@ -152,7 +152,7 @@
   (is (re-find #"href=\"https://github\.com/cgrand/moustache\"" (html "a.external"))))
 
 (deftest test-table-finding
-  (is (= (current-url) test-base-url))
+  (is (= (current-url) (base-url)))
   (is (exists? "#pages-table"))
   (is (= (lower-case (tag (find-table-cell "#pages-table" [0 0]))) "th"))
   (is (= (lower-case (tag (find-table-cell "#pages-table" [0 1]))) "th"))
@@ -284,12 +284,12 @@
   (is (= (:title (window)) "Ministache"))
   (is (= (count (windows)) 2))
   (switch-to-window (second (windows)))
-  (is (= (:url (window)) (str test-base-url "clojure")))
+  (is (= (:url (window)) (str (base-url) "clojure")))
   (switch-to-other-window)
-  (is (= (:url (window)) test-base-url))
-  (switch-to-window (find-window {:url (str test-base-url "clojure")}))
+  (is (= (:url (window)) (base-url)))
+  (switch-to-window (find-window {:url (str (base-url) "clojure")}))
   (close)
-  (is (= (:url (window)) test-base-url)))
+  (is (= (:url (window)) (base-url))))
 
 (deftest test-waiting-until
   (is (= (title) "Ministache"))

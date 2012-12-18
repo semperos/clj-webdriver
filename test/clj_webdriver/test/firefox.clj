@@ -5,7 +5,7 @@
         [clj-webdriver.cache :only [get-cache]]
         [clj-webdriver.test.common :only [run-common-tests]]
         [clj-webdriver.test.util :only [start-server]]
-        [clj-webdriver.test.config :only [test-base-url]])
+        [clj-webdriver.test.config :only [base-url]])
   (:require [clj-webdriver.cache :as cache]
             [clj-webdriver.firefox :as ff]
             [clojure.java.io :as io]
@@ -31,8 +31,8 @@
 
 (defn reset-browser-fixture
   [f]
-  (to @firefox-driver test-base-url)
-  (to @firefox-driver-no-cache test-base-url)
+  (to @firefox-driver (base-url))
+  (to @firefox-driver-no-cache (base-url))
   (f))
 
 (defn quit-browser-fixture
@@ -99,7 +99,7 @@
                         :cache-spec {:strategy :basic,
                                      :args [{}],
                                      :exclude [ {:css "ol#pages"} ]}}
-                       test-base-url)]
+                       (base-url))]
     (is (not (cache/cacheable? temp-dr {:css "ol#pages"})))
     (find-elements temp-dr {:css "ol#pages"})
     (is (empty? (dissoc @(get-in temp-dr [:cache-spec :cache]) :url)))
@@ -110,7 +110,7 @@
 (deftest firefox-should-support-custom-profiles
   (is (with-browser [tmp-dr (start {:browser :firefox
                                     :profile (ff/new-profile)}
-                                   test-base-url)]
+                                   (base-url))]
         (log/info "[x] Starting Firefox with custom profile.")
         (driver? tmp-dr))))
 
@@ -118,6 +118,6 @@
   (is (with-browser [tmp-dr (start {:browser :firefox
                                     :profile (doto (ff/new-profile)
                                                (ff/enable-extension :firebug))}
-                                   test-base-url)]
+                                   (base-url))]
         (log/info "[x] Starting Firefox with extensions.")
         (driver? tmp-dr))))

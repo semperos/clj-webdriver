@@ -3,7 +3,7 @@
         [clj-webdriver.core :only [start new-driver to quit]]
         [clj-webdriver.test.common :only [run-common-tests]]
         [clj-webdriver.test.util :only [start-server]]
-        [clj-webdriver.test.config :only [test-base-url]])
+        [clj-webdriver.test.config :only [base-url]])
   (:require [clojure.tools.logging :as log]))
 
 ;; Driver definitions
@@ -19,7 +19,7 @@
 
 (defn reset-browser-fixture
   [f]
-  (to @chrome-driver test-base-url)
+  (to @chrome-driver (base-url))
   (f))
 
 (defn quit-browser-fixture

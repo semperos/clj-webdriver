@@ -3,7 +3,7 @@
   (:use clojure.test
         [clj-webdriver core util wait options form-helpers]
         [clj-webdriver.test.util :only [thrown? exclusive-between]]
-        [clj-webdriver.test.config :only [test-base-url]])
+        [clj-webdriver.test.config :only [base-url]])
   (:require [clj-webdriver.cache :as cache]
             [clj-webdriver.window :as win]
             [clojure.java.io :as io]
@@ -19,7 +19,7 @@
 (defn test-browser-basics
   [driver]
   (is (= clj_webdriver.driver.Driver (class driver)))
-  (is (= test-base-url (current-url driver)))
+  (is (= (base-url) (current-url driver)))
   (is (= "Ministache" (title driver)))
   (is (boolean (re-find #"(?i)html>" (page-source driver)))))
 
@@ -29,16 +29,16 @@
       (find-element {:tag :a, :text "example form"})
       click)
   (Thread/sleep 500) ;; race condition issue with OperaDriver (on my machine, at least)
-  (is (= (str test-base-url "example-form") (current-url driver)))
+  (is (= (str (base-url) "example-form") (current-url driver)))
   (back driver)
-  (is (= test-base-url (current-url driver)))
+  (is (= (base-url) (current-url driver)))
   (forward driver)
-  (is (= (str test-base-url "example-form") (current-url driver))))
+  (is (= (str (base-url) "example-form") (current-url driver))))
 
 (defn to-should-open-given-url-in-browser
   [driver]
-  (to driver (str test-base-url "example-form"))
-  (is (= (str test-base-url "example-form") (current-url driver)))
+  (to driver (str (base-url) "example-form"))
+  (is (= (str (base-url) "example-form") (current-url driver)))
   (is (= "Ministache" (title driver))))
 
 (defn should-be-able-to-find-element-bys-using-low-level-by-wrappers
@@ -70,7 +70,7 @@
          (attribute (find-element-by driver (by-attr-ends :option :value "_media")) :value)))
   (is (= "france"
          (attribute (find-element-by driver (by-has-attr :option :value)) :value)))
-  (to driver test-base-url)
+  (to driver (base-url))
   (is (= "first odd"
          (attribute (find-element-by driver (by-class-name "first odd")) :class)))
   ;; (is (= "http://clojure.blip.tv/file/4824610/"
@@ -257,7 +257,7 @@
 
 (defn test-form-elements
   [driver]
-  (to driver (str test-base-url "example-form"))
+  (to driver (str (base-url) "example-form"))
   ;; Clear element
   ;; (-> driver
   ;;     (find-element [{:tag :form, :id "example_form"}, {:tag :input, :name #"last_"}])
@@ -332,7 +332,7 @@
 
 (defn select-element-functions-should-behave-as-expected
   [driver]
-  (to driver (str test-base-url "example-form"))
+  (to driver (str (base-url) "example-form"))
   (let [select-el (find-element driver {:tag "select", :id "countries"})]
     (is (= 4
            (count (all-options select-el))))
@@ -433,7 +433,7 @@
 
 (defn quick-fill-should-accept-special-seq-and-perform-batch-actions-on-form
   [driver]
-  (to driver (str test-base-url "example-form"))
+  (to driver (str (base-url) "example-form"))
   (quick-fill driver
               [{"first_name" clear}
                {"first_name" "Richard"}
@@ -456,7 +456,7 @@
 
 (defn quick-fill-submit-should-always-return-nil
   [driver]
-  (to driver (str test-base-url "example-form"))
+  (to driver (str (base-url) "example-form"))
   (is (nil?
        (quick-fill-submit driver
                           [{"first_name" clear}
@@ -482,22 +482,22 @@
   (is (= 2
          (count (windows driver))))
   (switch-to-window driver (second (windows driver)))
-  (is (= (str test-base-url "clojure")
+  (is (= (str (base-url) "clojure")
          (:url (window driver))))
   (switch-to-other-window driver)
-  (is (= test-base-url
+  (is (= (base-url)
          (:url (window driver))))
   (-> driver
-      (switch-to-window (find-window driver {:url (str test-base-url "clojure")})))
+      (switch-to-window (find-window driver {:url (str (base-url) "clojure")})))
   (close driver)
-  (is (= test-base-url
+  (is (= (base-url)
          (:url (window driver)))))
 
 (defn test-alert-dialog-handling
   [driver]
   (click (find-element driver {:text "example form"}))
   (let [act (fn [] (click (find-element driver {:tag :button})))]
-    (act)    
+    (act)
     (is (alert-obj driver) "No alert dialog could be located")
     (accept driver)
     (is (thrown? NoAlertPresentException
@@ -592,7 +592,7 @@
 ;;; Fixture fn's ;;;
 (defn reset-driver
   [driver]
-  (to driver test-base-url))
+  (to driver (base-url)))
 
 (defn seed-driver-cache
   [driver]

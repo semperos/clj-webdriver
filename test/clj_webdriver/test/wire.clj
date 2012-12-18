@@ -2,7 +2,7 @@
 (ns clj-webdriver.test.wire
   (:use clojure.test
         [clj-webdriver.core :only [quit to]]
-        [clj-webdriver.test.config :only [test-base-url]]
+        [clj-webdriver.test.config :only [base-url]]
         [clj-webdriver.test.util :only [start-server]]
         [clj-webdriver.remote.server :only [new-remote-session stop]]
         [clj-webdriver.remote.driver :only [session-id]]
@@ -21,7 +21,7 @@
 
 (defn reset-browser-fixture
   [f]
-  (to @driver test-base-url)
+  (to @driver (base-url))
   (f))
 
 (defn quit-fixture
@@ -46,5 +46,5 @@
 (deftest execute-url-should-return-successfully
   (let [sessid (session-id @driver)
         resp (execute @server ["session" sessid "url"])]
-    (is (= test-base-url
+    (is (= (base-url)
            (get-in resp [:body :value])))))
