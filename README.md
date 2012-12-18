@@ -96,12 +96,12 @@ lein compile
 Note that you can run subsets of the test suite with the `script/test` script as follows:
 
 ```
-Usage: test {all|core|remote|taxi}
+Usage: test {all|core|firefox|remote|saucelabs|taxi|window}
 ```
 
 The `core` option runs tests against the core API's using Firefox and Chrome. The `remote` option runs tests for Grid and remote server/driver handling. The `taxi` option tests just the Taxi API. The `all` option runs through each of the other options once.
 
-*Note:* If you just want to run the example app that clj-webdriver uses for its testing purposes, do the following:
+*Note:* If you just want to run the example app that clj-webdriver uses for its testing purposes, you can find the app [on Heroku](http://vast-brushlands-4998.herokuapp.com) or can run it locally as follows:
 
  * Open a terminal and run `lein repl` or `lein swank` at the root of this project
  * Evaluate `(use 'clj-webdriver.test.example-app.core 'ring.adapter.jetty)`
