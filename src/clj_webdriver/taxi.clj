@@ -211,9 +211,10 @@
      submit)"
   ([q] (element *driver* q))
   ([driver q]
-     (if (element-like? q)
-       q
-       (first (*finder-fn* driver q)))))
+     (let [elem (if (element-like? q)
+               q
+               (first (*finder-fn* driver q)))]
+       (when (:webelement elem) elem))))
 
 (defn elements
   "Given a query `q`, return the elements that the default finder function returns.
@@ -229,9 +230,12 @@
    (def target-elements (elements \"a\"))"
   ([q] (elements *driver* q))
   ([driver q]
-     (if (element-like? q)
+     (let [elems (if (element-like? q)
        q
-       (*finder-fn* driver q))))
+       (*finder-fn* driver q))]
+       (if (-> elems first :webelement)
+         elems
+         []))))
 
 ;; ## Driver functions ##
 (defn to
@@ -865,9 +869,9 @@
    (find-elements-under \"div#container\" (core/by-id \"foo\")"
   ([q-parent attr-val] (find-elements-under *driver* q-parent attr-val))
   ([driver q-parent attr-val]
-     (if (element-like? q-parent)
-       (core/find-elements q-parent attr-val)
-       (core/find-elements (element driver q-parent) attr-val))))
+     (when-let [elem (or (element-like? q-parent)
+                         (element driver q-parent))] 
+       (core/find-elements elem attr-val))))
 
 (defn find-element-under
   "Find the first element that is a child of the element found with query `q-parent`, using the given `attr-val`. If `q-parent` is an `Element`, it will be used as-is. The `attr-val` can either be a find-element-style map of attributes and values, or a by-clause (`by-tag`, `by-class`, etc.)
@@ -886,9 +890,9 @@
    (find-element-under \"div#container\" (core/by-id \"foo\")"
   ([q-parent attr-val] (find-element-under *driver* q-parent attr-val))
   ([driver q-parent attr-val]
-     (if (element-like? q-parent)
-       (core/find-element q-parent attr-val)
-       (core/find-element (element driver q-parent) attr-val))))
+     (when-let [elem (or (element-like? q-parent)
+                         (element driver q-parent))] 
+       (core/find-element elem attr-val))))
 
 
 
@@ -901,6 +905,22 @@
 ;; If a CSS query string is not passed in, it's assumed you're trying to use these
 ;; functions like their core counterparts, in which case each function will default
 ;; back to core functionality (expecting that you're passing in an Element record)
+
+
+(defmacro defquery [fn-name & opts]
+  "Used for defining wrapper functions for core-fns acting on element-queries.
+   Always return nil if the query produces a webelement containing nil.
+   Functions returning nil from core are assumed to mean completion and therefore returns true."
+  (let [args (butlast opts)
+        docstring (last opts)
+        qualified-fn (symbol (str "core/" (name fn-name)))]
+    `(defn ~fn-name
+       ~docstring
+       ([~'q ~@args] (~fn-name *driver* ~'q ~@args))
+       ([~'driver ~'q ~@args] ~docstring
+          (when-let [~'e (element ~'driver ~'q)]
+            (let [~'result (~qualified-fn ~'e ~@args)]
+              (or (nil? ~'result) ~'result)))))))
 
 (defn attribute
   "For the first element found with query `q`, return the value of the given `attribute`.
@@ -916,33 +936,29 @@
    (attribute \"a#foo\" :target) ;=> \"_blank\""
   ([q attr] (attribute *driver* q attr))
   ([driver q attr]
-     (core/attribute (element driver q) attr)))
+     (when-let [e (element driver q)]
+       (core/attribute e attr))))
 
-(defn click
+(defquery click
   "Click the first element found with query `q`.
-
+   Return true if successful.
    Examples:
    =========
 
-   (click \"a#foo\")"
-  ([q] (click *driver* q))
-  ([driver q]
-     (core/click (element driver q))))
+   (click \"a#foo\")")
 
-(defn displayed?
+(defquery displayed?
   "Return true if the first element found with query `q` is visible on the page.
 
    Examples:
    =========
 
    (displayed? \"div#container\") ;=> true
-   (displayed? \"a.hidden\")      ;=> false"
-  ([q] (displayed? *driver* q))
-  ([driver q]
-     (core/displayed? (element driver q))))
+   (displayed? \"a.hidden\")      ;=> false")
 
 (defn drag-and-drop
   "Drag the first element found with query `qa` onto the first element found with query `qb`.
+   Returns true on completion.
 
    Examples:
    =========
@@ -953,10 +969,14 @@
    (drag-and-drop \"#draggable\" \"#droppable\")"
   ([qa qb] (drag-and-drop *driver* qa qb))
   ([driver qa qb]
-     (core/drag-and-drop driver (element driver qa) (element driver qb))))
+     (let [ea (element driver qa) eb (element driver qb)]
+       (when (and ea eb)
+         (core/drag-and-drop driver ea eb)
+         true))))
 
-(defn drag-and-drop-by
+(defn drag-and-drop-by 
   "Drag the first element found with query `q` by `:x` pixels to the right and `:y` pixels down, passed in as a map like `{:x 10, :y 10}`. Values default to zero if excluded. Use negative numbers for `:x` and `:y` to move left or up respectively.
+   Returns true on completion.
 
    Examples:
    =========
@@ -977,97 +997,77 @@
    (drag-and-drop-by \"#draggable\" {:x -15, :y -5})"
   ([q x-y-map] (drag-and-drop-by *driver* q x-y-map))
   ([driver q x-y-map]
-     (core/drag-and-drop-by driver (element driver q) x-y-map)))
+     (when-let [e (element driver q)]
+       (core/drag-and-drop-by driver e x-y-map)
+       true)))
 
-(defn exists?
+(defquery exists?
   "Return true if the first element found with query `q` exists on the current page in the browser.
 
    Examples:
    =========
 
    (exists? \"a#foo\")   ;=> true
-   (exists? \"footer\")  ;=> false"
-  ([q] (exists? *driver* q))
-  ([driver q]
-     (core/exists? (element driver q))))
+   (exists? \"footer\")  ;=> false")
 
-(defn flash
+(defquery flash
   "Flash the background color of the first element found with query `q`.
 
    Examples:
    =========
 
-   (flash \"a.hard-to-see\")"
-  ([q] (flash *driver* q))
-  ([driver q]
-     (core/flash (element driver q))))
+   (flash \"a.hard-to-see\")")
 
-(defn focus
+(defquery focus
   "Explicitly give the first element found with query `q` focus on the page.
 
    Examples:
    =========
 
-   (focus \"input.next-element\")"
-  ([q] (focus *driver* q))
-  ([driver q]
-     (core/focus (element driver q))))
+   (focus \"input.next-element\")")
 
-(defn html
+(defquery html
   "Return the inner html of the first element found with query `q`.
 
    Examples:
    =========
 
-   (html \"div.with-interesting-html\")"
-  ([q] (html *driver* q))
-  ([driver q]
-     (core/html (element driver q))))
+   (html \"div.with-interesting-html\")")
 
-(defn location
+(defquery location
   "Return a map of `:x` and `:y` coordinates for the first element found with query `q`.
 
    Examples:
    =========
 
-   (location \"a#foo\") ;=> {:x 240, :y 300}"
-  ([q] (location *driver* q))
-  ([driver q]
-     (core/location (element driver q))))
+   (location \"a#foo\") ;=> {:x 240, :y 300}")
 
-(defn location-once-visible
+(defquery location-once-visible
   "Return a map of `:x` and `:y` coordinates for the first element found with query `q` once the page has been scrolled enough to be visible in the viewport.
 
    Examples:
    =========
 
-   (location-once-visible \"a#foo\") ;=> {:x 240, :y 300}"
-  ([q] (location-once-visible *driver* q))
-  ([driver q]
-     (core/location-once-visible (element driver q))))
+   (location-once-visible \"a#foo\") ;=> {:x 240, :y 300}")
 
-(defn present?
+(defquery present?
   "Return true if the first element found with query `q` both exists and is visible on the page.
 
    Examples:
    =========
 
    (present? \"div#container\")        ;=> true
-   (present? \"a#skip-to-navigation\") ;=> false"
-  ([q] (present? *driver* q))
-  ([driver q]
-     (core/present? (element driver q))))
+   (present? \"a#skip-to-navigation\") ;=> false")
 
-(defn element-size
+(defquery size
   "Return the size of the first element found with query `q` in pixels as a map of `:width` and `:height`.
 
    Examples:
    =========
 
-   (size \"div#container\") ;=> {:width 960, :height 2000} "
-  ([q] (element-size *driver* q))
-  ([driver q]
-     (core/size (element driver q))))
+   (size \"div#container\") ;=> {:width 960, :height 2000} ")
+
+(def element-size size)
 
 (defn intersects?
   "Return true if the first element found with query `qa` intersects with the first element found with query `qb`.
@@ -1079,188 +1079,149 @@
    (intersect? \"#login_field\" \"#password\") ;=> false"
   ([qa qb] (intersects? *driver* qa qb))
   ([driver qa qb]
-     (core/intersects? (element driver qa) (element driver qb))))
+     (let [ea (element driver qa)
+           eb (element driver qb)]
+       (when (and ea eb)
+         (core/intersects? ea eb)))))
 
-(defn tag
+(defquery tag
   "Return the HTML tag for the first element found with query `q`.
 
    Examples:
    =========
 
-   (tag \"#foo\") ;=> \"a\""
-  ([q] (tag *driver* q))
-  ([driver q]
-     (core/tag (element driver q))))
+   (tag \"#foo\") ;=> \"a\"")
 
-(defn text
+(defquery text
   "Return the text within the first element found with query `q`.
 
    Examples:
    =========
 
-   (text \"#message\") ;=> \"An error occurred.\""
-  ([q] (text *driver* q))
-  ([driver q]
-     (core/text (element driver q))))
+   (text \"#message\") ;=> \"An error occurred.\"")
 
-(defn value
+(defquery value
   "Return the value of the HTML value attribute for the first element found with query `q`. The is identical to `(attribute q :value)`
 
    Examples:
    =========
 
-   (value \"#my-button\") ;=> \"submit\" "
-  ([q] (value *driver* q))
-  ([driver q]
-     (core/value (element driver q))))
+   (value \"#my-button\") ;=> \"submit\" ")
 
-(defn visible?
+(defquery visible?
   "Return true if the first element found with query `q` is visible on the current page in the browser.
 
    Examples:
    =========
 
    (visible? \"div#container\") ;=> true
-   (visible? \"a.hidden\")      ;=> false"
-  ([q] (visible? *driver* q))
-  ([driver q]
-     (core/visible? (element driver q))))
+   (visible? \"a.hidden\")      ;=> false")
 
-(defn xpath
+(defquery xpath
   "Return an absolute XPath path for the first element found with query `q`. NOTE: This function relies on executing JavaScript in the browser, and is therefore not as dependable as other functions.
 
    Examples:
    =========
 
-   (xpath \"#login_field\") ;=> \"/html/body/div[2]/div/div/form/div[2]/label/input\""
-  ([q] (xpath *driver* q))
-  ([driver q]
-     (core/xpath (element driver q))))
+   (xpath \"#login_field\") ;=> \"/html/body/div[2]/div/div/form/div[2]/label/input\"")
 
-(defn deselect
+(defquery deselect
   "If the first form element found with query `q` is selected, click the element to deselect it. Otherwise, do nothing and just return the element found.
 
    Examples:
    =========
 
    (deselect \"input.already-selected\") ;=> click
-   (deselect \"input.not-selected\")     ;=> do nothing"
-  ([q] (deselect *driver* q))
-  ([driver q]
-     (core/deselect (element driver q))))
+   (deselect \"input.not-selected\")     ;=> do nothing")
 
-(defn enabled?
+(defquery enabled?
   "Return true if the first form element found with query `q` is enabled (not disabled).
 
    Examples:
    =========
 
    (enabled? \"input\")                      ;=> true
-   (enabled? \"input[disabled='disabled']\") ;=> false"
-  ([q] (enabled? *driver* q))
-  ([driver q] (core/enabled? (element driver q))))
+   (enabled? \"input[disabled='disabled']\") ;=> false")
 
-(defn input-text
+(defquery input-text s
   "Type the string `s` into the first form element found with query `q`.
 
    Examples:
    =========
 
-   (input-text \"input#login_field\" \"semperos\")"
-  ([q s] (input-text *driver* q s))
-  ([driver q s]
-     (core/input-text (element driver q) s)))
+   (input-text \"input#login_field\" \"semperos\")")
 
-(defn submit
+(defquery submit
   "Submit the form that the first form element found with query `q` belongs to (this is equivalent to pressing ENTER in a text field while filling out a form).
 
    Examples:
    =========
 
-   (submit \"input#password\")"
-  ([q] (submit *driver* q))
-  ([driver q]
-     (core/submit (element driver q))))
+   (submit \"input#password\")")
 
-(defn clear
+(defquery clear
   "Clear the contents (the HTML value attribute) of the first form element found with query `q`.
 
    Examples:
    =========
 
-   (clear \"input.with-default-text\")"
-  ([q] (clear *driver* q))
-  ([driver q]
-     (core/clear (element driver q))))
+   (clear \"input.with-default-text\")")
 
-(defn select
+(defquery select
   "If the first form element found with query `q` is not selected, click the element to select it. Otherwise, do nothing and just return the element found.
 
    Examples:
    =========
 
    (select \"input.already-selected\") ;=> do nothing
-   (select \"input.not-selected\")     ;=> click"
-  ([q] (select *driver* q))
-  ([driver q]
-     (core/select (element driver q))))
+   (select \"input.not-selected\")     ;=> click")
 
-(defn selected?
+(defquery selected?
   "Return true if the first element found with the query `q` is selected (works for radio buttons, checkboxes, and option tags within select lists).
 
    Examples:
    =========
 
    (selected? \"input[type='radio'][value='foo']\") ;=> true
-   (selected? \"option[value='foo']\")              ;=> false "
-  ([q] (selected? *driver* q))
-  ([driver q] (core/selected? (element driver q))))
+   (selected? \"option[value='foo']\")              ;=> false ")
 
-(defn send-keys
+(defquery send-keys s
   "Type the string `s` into the first form element found with query `q`.
 
    Examples:
    =========
 
-   (input-text \"input#login_field\" \"semperos\")"
-  ([q s] (send-keys *driver* q s))
-  ([driver q s]
-     (core/send-keys (element driver q) s)))
+   (input-text \"input#login_field\" \"semperos\")")
 
-(defn toggle
+(defquery toggle
   "Toggle is a synonym for click. Click the first element found with query `q`.
 
    Examples:
    =========
 
-   (toggle \"input[type='checkbox'][value='foo']\")"
-  ([q] (toggle *driver* q))
-  ([driver q]
-     (core/toggle (element driver q))))
+   (toggle \"input[type='checkbox'][value='foo']\")")
 
-(defn options
+(defquery all-options
   "Return all option elements within the first select list found with query `q`.
 
    Examples:
    =========
 
-   (options \"#my-select-list\")"
-  ([q] (options *driver* q))
-  ([driver q]
-     (core/all-options (element driver q))))
+   (all-options \"#my-select-list\")")
 
-(defn selected-options
+(def options all-options)
+
+(defquery all-selected-options
   "Return all selected option elements within the first select list found with query `q`.
 
    Examples:
    =========
 
-   (selected-options \"#my-select-list\")"
-  ([q] (selected-options *driver* q))
-  ([driver q]
-     (core/all-selected-options (element driver q))))
+   (all-selected-options \"#my-select-list\")")
 
-(defn deselect-option
+(def selected-options all-selected-options)
+
+(defquery deselect-option attr-val
   "Deselect the option element matching `attr-val` within the first select list found with query `q`. 
 
    The `attr-val` can contain `:index`, `:value`, or `:text` keys to find the target option element. Index is the zero-based order of the option element in the list, value is the value of the HTML value attribute, and text is the visible text of the option element on the page.
@@ -1281,22 +1242,17 @@
    ;;
    ;; By visible text of option element
    ;;
-   (deselect-option \"#my-select-list\" {:value \"Foo\"})"
-  ([q attr-val] (deselect-option *driver* q attr-val))
-  ([driver q attr-val]
-     (core/deselect-option (element driver q) attr-val)))
+   (deselect-option \"#my-select-list\" {:value \"Foo\"})")
 
-(defn deselect-all
+(defquery deselect-all
   "Deselect all options within the first select list found with query `q`.
 
    Examples:
    =========
 
-   (deselect-all \"#my-select-list\")"
-  ([q] (deselect-all *driver* q))
-  ([driver q] (core/deselect-all (element driver q))))
+   (deselect-all \"#my-select-list\")")
 
-(defn deselect-by-index
+(defquery deselect-by-index idx
   "Deselect the option element at index `idx` (zero-based) within the first select list found with query `q`.
 
    Examples:
@@ -1305,44 +1261,34 @@
    ;;
    ;; Deselect by index, deselect 2nd element
    ;;
-   (deselect-by-index \"#my-select-list\" 1)"
-  ([q idx] (deselect-by-index *driver* q idx))
-  ([driver q idx] (core/deselect-by-index (element driver q) idx)))
+   (deselect-by-index \"#my-select-list\" 1)")
 
-(defn deselect-by-text
+(defquery deselect-by-text text
   "Deselect the option element with visible text `text` within the first select list found with query `q`.
 
    Examples:
    =========
 
-   (deselect-by-text \"#my-select-list\" \"Foo\")"
-  ([q text] (deselect-by-text *driver* q text))
-  ([driver q text]
-     (core/deselect-by-text (element driver q) text)))
+   (deselect-by-text \"#my-select-list\" \"Foo\")")
 
-(defn deselect-by-value
+(defquery deselect-by-value value
   "Deselect the option element with `value` within the first select list found with query `q`.
 
    Examples:
    =========
 
-   (deselect-by-value \"#my-select-list\" \"foo\")"
-  ([q value] (deselect-by-value *driver* q value))
-  ([driver q value]
-     (core/deselect-by-value (element driver q) value)))
+   (deselect-by-value \"#my-select-list\" \"foo\")")
 
-(defn multiple?
+(defquery multiple?
   "Return true if the first select list found with query `q` allows multiple selections.
 
    Examples:
    =========
 
    (multiple? \"select.multiple\")     ;=> true
-   (multiple? \"select.not-multiple\") ;=> false "
-  ([q] (multiple? *driver* q))
-  ([driver q] (core/multiple? (element driver q))))
+   (multiple? \"select.not-multiple\") ;=> false ")
 
-(defn select-option
+(defquery select-option attr-val
   "Select the option element matching `attr-val` within the first select list found with query `q`. 
 
    The `attr-val` can contain `:index`, `:value`, or `:text` keys to find the target option element. Index is the zero-based order of the option element in the list, value is the value of the HTML value attribute, and text is the visible text of the option element on the page.
@@ -1363,23 +1309,17 @@
    ;;
    ;; By visible text of option element
    ;;
-   (select-option \"#my-select-list\" {:value \"Foo\"})"
-  ([q attr-val] (select-option *driver* q attr-val))
-  ([driver q attr-val]
-     (core/select-option (element driver q) attr-val)))
+   (select-option \"#my-select-list\" {:value \"Foo\"})")
 
-(defn select-all
+(defquery select-all
   "Select all options within the first select list found with query `q`.
 
    Examples:
    =========
 
-   (deselect-all \"#my-select-list\")"
-  ([q] (select-all *driver* q))
-  ([driver q]
-     (core/select-all (element driver q))))
+   (deselect-all \"#my-select-list\")")
 
-(defn select-by-index
+(defquery select-by-index idx
   "Select the option element at index `idx` (zero-based) within the first select list found with query `q`.
 
    Examples:
@@ -1388,32 +1328,23 @@
    ;;
    ;; Select by index, select 2nd element
    ;;
-   (select-by-index \"#my-select-list\" 1)"
-  ([q idx] (select-by-index *driver* q idx))
-  ([driver q idx]
-     (core/select-by-index (element driver q) idx)))
+   (select-by-index \"#my-select-list\" 1)")
 
-(defn select-by-text
+(defquery select-by-text text
   "Select the option element with visible text `text` within the first select list found with query `q`.
 
    Examples:
    =========
 
-   (select-by-text \"#my-select-list\" \"foo\")"
-  ([q text] (select-by-text *driver* q text))
-  ([driver q text]
-     (core/select-by-text (element driver q) text)))
+   (select-by-text \"#my-select-list\" \"foo\")")
 
-(defn select-by-value
+(defquery select-by-value value
   "Deselect the option element with `value` within the first select list found with query `q`.
 
    Examples:
    =========
 
-   (deselect-by-value \"#my-select-list\" \"foo\")"
-  ([q value] (select-by-value *driver* q value))
-  ([driver q value]
-     (core/select-by-value (element driver q) value)))
+   (deselect-by-value \"#my-select-list\" \"foo\")")
 
 ;; Helpers
 (defn- quick-fill*

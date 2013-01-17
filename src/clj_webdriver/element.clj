@@ -19,8 +19,9 @@
   (= (class element) Element))
 
 (defn element-like?
-  "Return true if parameter is either an Element record or a map with a :webelement entry"
+  "Return element if parameter is either an Element record or a map with a :webelement entry"
   [element]
-  (or (element? element)
-      (and (map? element)
-           (contains? element :webelement))))
+  (when (or (element? element)
+            (and (map? element)
+                 (contains? element :webelement)))
+    element))
