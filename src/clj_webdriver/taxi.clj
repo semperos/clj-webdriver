@@ -230,7 +230,7 @@
   ([q] (elements *driver* q))
   ([driver q]
      (if (element-like? q)
-       q
+       (lazy-seq (list q))
        (*finder-fn* driver q))))
 
 ;; ## Driver functions ##
