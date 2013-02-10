@@ -131,7 +131,7 @@
   (deselect-all [select-element] "Deselect all options for a given select list. Does not leverage WebDriver method because WebDriver's isMultiple method is faulty.")
   (deselect-by-index [select-element idx] "Deselect the option at index `idx` for the select list described by `by`. Indeces begin at 0")
   (deselect-by-text [select-element text] "Deselect all options with visible text `text` for the select list described by `by`")
-  (deselect-by-value [select-element value] "Deselect all options with value `value` for the select list described by `by`")  
+  (deselect-by-value [select-element value] "Deselect all options with value `value` for the select list described by `by`")
   (first-selected-option [select-element] "Retrieve the first selected option (or the only one for single-select lists) from the given select list")
   (multiple? [select-element] "Return true if the given select list allows for multiple selections")
   (select-option [select-element attr-val] "Select an option from a select list, either by `:value`, `:index` or `:text`")
@@ -309,7 +309,7 @@
 
    Unless you need to wait to execute your composite actions, you should prefer `->actions` to this macro."
   [driver & body]
-  `(let [acts# (doto (:actions ~driver) 
+  `(let [acts# (doto (:actions ~driver)
                  ~@body)]
      (.build acts#)))
 
