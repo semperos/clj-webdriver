@@ -27,12 +27,15 @@
         (let [this-handle (window-handle* (:webdriver driver))
               idx (.indexOf handles this-handle)]
           (cond
-           (zero? idx) (do ; if first window, switch to next
-                         (.close (:webdriver driver))
-                         (switch-to-window driver (nth handles (inc idx))))
-           :else (do ; otherwise, switch back one window
-                   (.close (:webdriver driver))
-                   (switch-to-window driver (nth handles (dec idx)))))
+           (zero? idx)
+           (do                       ; if first window, switch to next
+             (.close (:webdriver driver))
+             (switch-to-window driver (nth handles (inc idx))))
+
+           :else
+           (do                     ; otherwise, switch back one window
+             (.close (:webdriver driver))
+             (switch-to-window driver (nth handles (dec idx)))))
           (cache/seed driver {}))
         (do
           (.close (:webdriver driver))
@@ -125,19 +128,28 @@
 
   (switch-to-window [driver window]
     (cond
-     (string? window)            (do
-                                   (.window (.switchTo (:webdriver driver)) window)
-                                   driver)
-     (win/window? window)        (do
-                                   (.window (.switchTo (:driver window)) (:handle window))
-                                   driver)
-     (number? window)            (do
-                                   (switch-to-window driver (nth (windows driver) window))
-                                   driver)
-     (nil? window)               (throw (RuntimeException. "No window can be found"))
-     :else                       (do
-                                   (.window (.switchTo (:webdriver driver)) window)
-                                   driver)))
+     (string? window)
+     (do
+       (.window (.switchTo (:webdriver driver)) window)
+       driver)
+
+     (win/window? window)
+     (do
+       (.window (.switchTo (:driver window)) (:handle window))
+       driver)
+
+     (number? window)
+     (do
+       (switch-to-window driver (nth (windows driver) window))
+       driver)
+
+     (nil? window)
+     (throw (RuntimeException. "No window can be found"))
+
+     :else
+     (do
+       (.window (.switchTo (:webdriver driver)) window)
+       driver)))
 
   (switch-to-other-window [driver]
     (if (not= (count (windows driver)) 2)
@@ -158,23 +170,23 @@
   (add-cookie [driver cookie-spec]
     (.addCookie (.manage (:webdriver driver)) (:cookie (init-cookie cookie-spec)))
     driver)
-  
+
   (delete-cookie-named [driver cookie-name]
     (.deleteCookieNamed (.manage (:webdriver driver)) cookie-name)
     driver)
-  
+
   (delete-cookie [driver cookie-spec]
     (.deleteCookie (.manage (:webdriver driver)) (:cookie (init-cookie cookie-spec)))
     driver)
-  
+
   (delete-all-cookies [driver]
     (.deleteAllCookies (.manage (:webdriver driver)))
     driver)
-  
+
   (cookies [driver]
     (set (map #(init-cookie {:cookie %})
                    (.getCookies (.manage (:webdriver driver))))))
-  
+
   (cookie-named [driver cookie-name]
     (let [cookie-obj (.getCookieNamed (.manage (:webdriver driver)) cookie-name)]
       (init-cookie {:cookie cookie-obj})))
@@ -186,7 +198,7 @@
 
   (alert-obj [driver]
     (-> driver :webdriver .switchTo .alert))
-  
+
   (alert-text [driver]
     (-> driver :webdriver .switchTo .alert .getText))
 
@@ -196,7 +208,7 @@
 
   (dismiss [driver]
     (-> driver :webdriver .switchTo .alert .dismiss))
-  
+
   ;; Find Functions
   IFind
   (find-element-by [driver by-value]
@@ -307,7 +319,7 @@
     ([driver element]
        (let [act (:actions driver)]
          (.perform (.doubleClick act (:webelement element))))))
-  
+
   (drag-and-drop
     [driver element-a element-b]
     (let [act (:actions driver)]
@@ -436,11 +448,18 @@
       (cond
         ;; Accept by-clauses
         (not (or (vector? attr-val)
-                 (map? attr-val)))   (find-elements-by driver attr-val)
-                 ;; Accept vectors for hierarchical queries
-                 (vector? attr-val)  (find-by-hierarchy driver attr-val)
-                 ;; Build XPath dynamically
-                 :else                        (find-elements-by driver (by-query (build-query attr-val))))
+                 (map? attr-val)))
+        (find-elements-by driver attr-val)
+
+        ;; Accept vectors for hierarchical queries
+        (vector? attr-val)
+        (find-by-hierarchy driver attr-val)
+
+        ;; Build XPath dynamically
+        :else
+        (find-elements-by driver (by-query (build-query attr-val))))
       (catch org.openqa.selenium.NoSuchElementException e
-        ;; NoSuchElementException caught here, so we can have functions like `exist?`
-        (lazy-seq [(init-element nil)])))))
+        ;; NoSuchElementException caught here to mimic Clojure behavior like
+        ;; (get {:foo "bar"} :baz) since the page can be thought of as a kind of associative
+        ;; data structure with unique selectors as keys and HTML elements as values
+        (lazy-seq nil)))))

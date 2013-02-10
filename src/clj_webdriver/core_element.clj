@@ -37,12 +37,12 @@
           (when (= webdriver-result "true")
             attr)
           webdriver-result))))
-  
+
   (click [element]
     (.click (:webelement element))
     (cache/set-status :check)
     nil)
-  
+
   (css-value [element property]
     (.getCssValue (:webelement element) property))
 
@@ -99,13 +99,13 @@
     (let [rect-a (rectangle element-a)
           rect-b (rectangle element-b)]
       (.intersects rect-a rect-b)))
-  
+
   (tag [element]
     (.getTagName (:webelement element)))
 
   (text [element]
     (.getText (:webelement element)))
-  
+
   (value [element]
     (.getAttribute (:webelement element) "value"))
 
@@ -114,42 +114,42 @@
 
   (xpath [element]
     (browserbot (.getWrappedDriver (:webelement element)) "getXPath" (:webelement element) []))
-  
+
 
   IFormElement
   (deselect [element]
     (if (.isSelected (:webelement element))
       (toggle (:webelement element))
       element))
-  
+
   (enabled? [element]
     (.isEnabled (:webelement element)))
-  
+
   (input-text [element s]
     (.sendKeys (:webelement element) (into-array CharSequence (list s)))
     element)
-  
+
   (submit [element]
     (.submit (:webelement element))
     (cache/set-status :flush)
     nil)
-  
+
   (clear [element]
     (.clear (:webelement element))
     element)
-  
+
   (select [element]
     (if-not (.isSelected (:webelement element))
       (.click (:webelement element))
       element))
-  
+
   (selected? [element]
     (.isSelected (:webelement element)))
 
   (send-keys [element s]
     (.sendKeys (:webelement element) (into-array CharSequence (list s)))
     element)
-  
+
   (toggle [element]
     (.click (:webelement element))
     element)
