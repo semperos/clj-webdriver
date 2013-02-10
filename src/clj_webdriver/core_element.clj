@@ -352,7 +352,7 @@
 
   (select-by-value [m value] (select-by-value (map->Element m) value)))
 
-(extend-protocol IFormElement
+(extend-protocol IFind
   clojure.lang.IPersistentMap
 
   (find-element-by [m by] (find-element-by (map->Element m) by))
