@@ -259,6 +259,10 @@
   (find-elements [element by]
     (find-elements-by element by)))
 
+;;
+;; Extend the protocol to regular Clojure maps
+;;
+
 (extend-protocol IElement
   clojure.lang.IPersistentMap
 
@@ -362,3 +366,116 @@
   (find-element [m by] (find-element (map->Element m) by))
 
   (find-elements [m by] (find-elements (map->Element m) by)))
+
+;;
+;; Extend Element-related protocols to `nil`,
+;; so our nil-handling is clear.
+;;
+
+(defn throw-nse
+  []
+  (throw (NoSuchElementException. "When an element cannot be found in clj-webdriver, nil is returned. You've just tried to perform an action on an element that returned as nil for the search query you used. Please verify the query used to locate this element; it is not on the current page.")))
+
+(extend-protocol IElement
+  nil
+
+  (attribute   [m attr] (throw-nse))
+
+  (click       [m] (throw-nse))
+
+  (css-value   [m property] (throw-nse))
+
+  (displayed?  [m] (throw-nse))
+
+  (exists?     [m] (throw-nse))
+
+  (flash       [m] (throw-nse))
+
+  (focus [m] (throw-nse))
+
+  (html [m] (throw-nse))
+
+  (location [m] (throw-nse))
+
+  (location-once-visible [m] (throw-nse))
+
+  (present? [m] (throw-nse))
+
+  (size [m] (throw-nse))
+
+  (rectangle [m] (throw-nse))
+
+  (intersects? [m-a m-b] (throw-nse))
+
+  (tag [m] (throw-nse))
+
+  (text [m] (throw-nse))
+
+  (value [m] (throw-nse))
+
+  (visible? [m] (throw-nse))
+
+  (xpath [m] (throw-nse)))
+
+(extend-protocol IFormElement
+  nil
+
+  (deselect [m] (throw-nse))
+
+  (enabled? [m] (throw-nse))
+
+  (input-text [m s] (throw-nse))
+
+  (submit [m] (throw-nse))
+
+  (clear [m] (throw-nse))
+
+  (select [m] (throw-nse))
+
+  (selected? [m] (throw-nse))
+
+  (send-keys [m s] (throw-nse))
+
+  (toggle [m] (throw-nse)))
+
+(extend-protocol ISelectElement
+  nil
+
+  (all-options [m] (throw-nse))
+
+  (all-selected-options [m] (throw-nse))
+
+  (deselect-option [m attr-val] (throw-nse))
+
+  (deselect-all [m] (throw-nse))
+
+  (deselect-by-index [m idx] (throw-nse))
+
+  (deselect-by-text [m text] (throw-nse))
+
+  (deselect-by-value [m value] (throw-nse))
+
+  (first-selected-option [m] (throw-nse))
+
+  (multiple? [m] (throw-nse))
+
+  (select-option [m attr-val] (throw-nse))
+
+  (select-all [m] (throw-nse))
+
+  (select-by-index [m idx] (throw-nse))
+
+  (select-by-text [m text] (throw-nse))
+
+  (select-by-value [m value] (throw-nse)))
+
+(extend-protocol IFind
+  nil
+
+  (find-element-by [m by] (throw-nse))
+
+  (find-elements-by [m by] (throw-nse))
+
+  (find-element [m by] (throw-nse))
+
+  (find-elements [m by] (throw-nse)))
