@@ -198,6 +198,19 @@
                                                  :profile profile})
                      :cache-spec cache-spec}))))
 
+(defn new-from-webdriver
+  ([webdriver]
+     (Driver. webdriver nil nil nil)))
+
+;; Chrome binary, common location of Chromium on Linux
+(comment
+  (do
+    (import 'org.openqa.selenium.remote.DesiredCapabilities)
+    (let [cap (DesiredCapabilities/chrome)]
+      (.setCapability cap "chrome.binary" "/usr/lib/chromium-browser/chromium-browser")
+      (new-from-webdriver (ChromeDriver. cap))))
+)
+
 (defn start
   "Shortcut to instantiate a driver, navigate to a URL, and return the driver for further use"
   ([browser-spec url]
