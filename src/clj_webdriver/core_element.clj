@@ -243,15 +243,15 @@
                (by-query (build-query by :local))
                by)]
       (init-element (.findElement (:webelement element) by))))
-  
+
   (find-elements-by [element by]
     (let [by (if (map? by)
                (by-query (build-query by :local))
                by)
           els (.findElements (:webelement element) by)]
       (if (seq els)
-        (lazy-seq (map init-element els))
-        (lazy-seq (map init-element [nil])))))
+        (map init-element els)
+        (map init-element [nil]))))
 
   (find-element [element by]
     (find-element-by element by))
