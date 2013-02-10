@@ -224,7 +224,7 @@
           els (.findElements (:webdriver driver) by-value)]
       (if (seq els)
         (lazy-seq (map init-element els))
-        (lazy-seq (map init-element [nil])))))
+        (lazy-seq nil))))
 
   (find-windows [driver attr-val]
     (if (contains? attr-val :index)
