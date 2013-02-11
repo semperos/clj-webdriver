@@ -322,14 +322,24 @@
 
   (drag-and-drop
     [driver element-a element-b]
-    (let [act (:actions driver)]
-      (.perform (.dragAndDrop act (:webelement element-a) (:webelement element-b)))))
+    (cond
+     (nil? element-a) (throw-nse "The first element does not exist.")
+     (nil? element-b) (throw-nse "The second element does not exist.")
+     :else (let [act (:actions driver)]
+             (.perform (.dragAndDrop act
+                                     (:webelement element-a)
+                                     (:webelement element-b))))))
 
   (drag-and-drop-by
     [driver element x-y-map]
-    (let [act (:actions driver)
-          {:keys [x y] :or {x 0 y 0}} x-y-map]
-      (.perform (.dragAndDropBy act (:webelement element) x y))))
+    (if (nil? element)
+      (throw-nse)
+      (let [act (:actions driver)
+            {:keys [x y] :or {x 0 y 0}} x-y-map]
+        (.perform
+         (.dragAndDropBy act
+                         (:webelement element)
+                         x y)))))
 
   (key-down
     ([driver k]

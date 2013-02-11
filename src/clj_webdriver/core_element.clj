@@ -372,110 +372,106 @@
 ;; so our nil-handling is clear.
 ;;
 
-(defn throw-nse
-  []
-  (throw (NoSuchElementException. "When an element cannot be found in clj-webdriver, nil is returned. You've just tried to perform an action on an element that returned as nil for the search query you used. Please verify the query used to locate this element; it is not on the current page.")))
-
 (extend-protocol IElement
   nil
 
-  (attribute   [m attr] (throw-nse))
+  (attribute   [n attr] (throw-nse))
 
-  (click       [m] (throw-nse))
+  (click       [n] (throw-nse))
 
-  (css-value   [m property] (throw-nse))
+  (css-value   [n property] (throw-nse))
 
-  (displayed?  [m] (throw-nse))
+  (displayed?  [n] (throw-nse))
 
-  (exists?     [m] (throw-nse))
+  (exists?     [n] false)
 
-  (flash       [m] (throw-nse))
+  (flash       [n] (throw-nse))
 
-  (focus [m] (throw-nse))
+  (focus [n] (throw-nse))
 
-  (html [m] (throw-nse))
+  (html [n] (throw-nse))
 
-  (location [m] (throw-nse))
+  (location [n] (throw-nse))
 
-  (location-once-visible [m] (throw-nse))
+  (location-once-visible [n] (throw-nse))
 
-  (present? [m] (throw-nse))
+  (present? [n] (throw-nse))
 
-  (size [m] (throw-nse))
+  (size [n] (throw-nse))
 
-  (rectangle [m] (throw-nse))
+  (rectangle [n] (throw-nse))
 
-  (intersects? [m-a m-b] (throw-nse))
+  (intersects? [n m-b] (throw-nse))
 
-  (tag [m] (throw-nse))
+  (tag [n] (throw-nse))
 
-  (text [m] (throw-nse))
+  (text [n] (throw-nse))
 
-  (value [m] (throw-nse))
+  (value [n] (throw-nse))
 
-  (visible? [m] (throw-nse))
+  (visible? [n] (throw-nse))
 
-  (xpath [m] (throw-nse)))
+  (xpath [n] (throw-nse)))
 
 (extend-protocol IFormElement
   nil
 
-  (deselect [m] (throw-nse))
+  (deselect [n] (throw-nse))
 
-  (enabled? [m] (throw-nse))
+  (enabled? [n] (throw-nse))
 
-  (input-text [m s] (throw-nse))
+  (input-text [n s] (throw-nse))
 
-  (submit [m] (throw-nse))
+  (submit [n] (throw-nse))
 
-  (clear [m] (throw-nse))
+  (clear [n] (throw-nse))
 
-  (select [m] (throw-nse))
+  (select [n] (throw-nse))
 
-  (selected? [m] (throw-nse))
+  (selected? [n] (throw-nse))
 
-  (send-keys [m s] (throw-nse))
+  (send-keys [n s] (throw-nse))
 
-  (toggle [m] (throw-nse)))
+  (toggle [n] (throw-nse)))
 
 (extend-protocol ISelectElement
   nil
 
-  (all-options [m] (throw-nse))
+  (all-options [n] (throw-nse))
 
-  (all-selected-options [m] (throw-nse))
+  (all-selected-options [n] (throw-nse))
 
-  (deselect-option [m attr-val] (throw-nse))
+  (deselect-option [n attr-val] (throw-nse))
 
-  (deselect-all [m] (throw-nse))
+  (deselect-all [n] (throw-nse))
 
-  (deselect-by-index [m idx] (throw-nse))
+  (deselect-by-index [n idx] (throw-nse))
 
-  (deselect-by-text [m text] (throw-nse))
+  (deselect-by-text [n text] (throw-nse))
 
-  (deselect-by-value [m value] (throw-nse))
+  (deselect-by-value [n value] (throw-nse))
 
-  (first-selected-option [m] (throw-nse))
+  (first-selected-option [n] (throw-nse))
 
-  (multiple? [m] (throw-nse))
+  (multiple? [n] (throw-nse))
 
-  (select-option [m attr-val] (throw-nse))
+  (select-option [n attr-val] (throw-nse))
 
-  (select-all [m] (throw-nse))
+  (select-all [n] (throw-nse))
 
-  (select-by-index [m idx] (throw-nse))
+  (select-by-index [n idx] (throw-nse))
 
-  (select-by-text [m text] (throw-nse))
+  (select-by-text [n text] (throw-nse))
 
-  (select-by-value [m value] (throw-nse)))
+  (select-by-value [n value] (throw-nse)))
 
 (extend-protocol IFind
   nil
 
-  (find-element-by [m by] (throw-nse))
+  (find-element-by [n by] (throw-nse))
 
-  (find-elements-by [m by] (throw-nse))
+  (find-elements-by [n by] (throw-nse))
 
-  (find-element [m by] (throw-nse))
+  (find-element [n by] (throw-nse))
 
-  (find-elements [m by] (throw-nse)))
+  (find-elements [n by] (throw-nse)))

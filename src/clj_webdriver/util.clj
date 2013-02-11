@@ -5,7 +5,7 @@
             [clj-webdriver.cache :as cache]
             clj-webdriver.driver)
   (:import clj_webdriver.driver.Driver
-           [org.openqa.selenium WebDriver WebElement]
+           [org.openqa.selenium WebDriver WebElement NoSuchElementException]
            [java.io PushbackReader Writer]))
 
 (declare build-query)
@@ -47,7 +47,7 @@
                                     :textfield
                                     :password
                                     :filefield]) (throw (IllegalArgumentException. "Hierarchical queries do not support the use of \"meta\" tags such as :button*, :radio, :checkbox, :textfield, :password or :filefield. "))
-                                    
+
                                     :else (:css (build-query attr-val :css))))))
 
 (defn build-xpath-with-hierarchy
@@ -336,3 +336,8 @@
   (let [f (fn [[k v]] (if (keyword? k) [(dashes-to-camel-case (name k)) v] [k v]))]
     ;; only apply to maps
     (walk/postwalk (fn [x] (if (map? x) (into {} (map f x)) x)) m)))
+
+(defn throw-nse
+  ([] (throw-nse ""))
+  ([msg]
+     (throw (NoSuchElementException. (str msg "\n" "When an element cannot be found in clj-webdriver, nil is returned. You've just tried to perform an action on an element that returned as nil for the search query you used. Please verify the query used to locate this element; it is not on the current page.")))))
