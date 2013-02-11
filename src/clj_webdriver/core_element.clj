@@ -37,12 +37,12 @@
           (when (= webdriver-result "true")
             attr)
           webdriver-result))))
-  
+
   (click [element]
     (.click (:webelement element))
     (cache/set-status :check)
     nil)
-  
+
   (css-value [element property]
     (.getCssValue (:webelement element) property))
 
@@ -99,13 +99,13 @@
     (let [rect-a (rectangle element-a)
           rect-b (rectangle element-b)]
       (.intersects rect-a rect-b)))
-  
+
   (tag [element]
     (.getTagName (:webelement element)))
 
   (text [element]
     (.getText (:webelement element)))
-  
+
   (value [element]
     (.getAttribute (:webelement element) "value"))
 
@@ -114,42 +114,42 @@
 
   (xpath [element]
     (browserbot (.getWrappedDriver (:webelement element)) "getXPath" (:webelement element) []))
-  
+
 
   IFormElement
   (deselect [element]
     (if (.isSelected (:webelement element))
       (toggle (:webelement element))
       element))
-  
+
   (enabled? [element]
     (.isEnabled (:webelement element)))
-  
+
   (input-text [element s]
     (.sendKeys (:webelement element) (into-array CharSequence (list s)))
     element)
-  
+
   (submit [element]
     (.submit (:webelement element))
     (cache/set-status :flush)
     nil)
-  
+
   (clear [element]
     (.clear (:webelement element))
     element)
-  
+
   (select [element]
     (if-not (.isSelected (:webelement element))
       (.click (:webelement element))
       element))
-  
+
   (selected? [element]
     (.isSelected (:webelement element)))
 
   (send-keys [element s]
     (.sendKeys (:webelement element) (into-array CharSequence (list s)))
     element)
-  
+
   (toggle [element]
     (.click (:webelement element))
     element)
@@ -243,21 +243,25 @@
                (by-query (build-query by :local))
                by)]
       (init-element (.findElement (:webelement element) by))))
-  
+
   (find-elements-by [element by]
     (let [by (if (map? by)
                (by-query (build-query by :local))
                by)
           els (.findElements (:webelement element) by)]
       (if (seq els)
-        (lazy-seq (map init-element els))
-        (lazy-seq (map init-element [nil])))))
+        (map init-element els)
+        (map init-element [nil]))))
 
   (find-element [element by]
     (find-element-by element by))
 
   (find-elements [element by]
     (find-elements-by element by)))
+
+;;
+;; Extend the protocol to regular Clojure maps
+;;
 
 (extend-protocol IElement
   clojure.lang.IPersistentMap
@@ -352,7 +356,7 @@
 
   (select-by-value [m value] (select-by-value (map->Element m) value)))
 
-(extend-protocol IFormElement
+(extend-protocol IFind
   clojure.lang.IPersistentMap
 
   (find-element-by [m by] (find-element-by (map->Element m) by))
@@ -362,3 +366,112 @@
   (find-element [m by] (find-element (map->Element m) by))
 
   (find-elements [m by] (find-elements (map->Element m) by)))
+
+;;
+;; Extend Element-related protocols to `nil`,
+;; so our nil-handling is clear.
+;;
+
+(extend-protocol IElement
+  nil
+
+  (attribute   [n attr] (throw-nse))
+
+  (click       [n] (throw-nse))
+
+  (css-value   [n property] (throw-nse))
+
+  (displayed?  [n] (throw-nse))
+
+  (exists?     [n] false)
+
+  (flash       [n] (throw-nse))
+
+  (focus [n] (throw-nse))
+
+  (html [n] (throw-nse))
+
+  (location [n] (throw-nse))
+
+  (location-once-visible [n] (throw-nse))
+
+  (present? [n] (throw-nse))
+
+  (size [n] (throw-nse))
+
+  (rectangle [n] (throw-nse))
+
+  (intersects? [n m-b] (throw-nse))
+
+  (tag [n] (throw-nse))
+
+  (text [n] (throw-nse))
+
+  (value [n] (throw-nse))
+
+  (visible? [n] (throw-nse))
+
+  (xpath [n] (throw-nse)))
+
+(extend-protocol IFormElement
+  nil
+
+  (deselect [n] (throw-nse))
+
+  (enabled? [n] (throw-nse))
+
+  (input-text [n s] (throw-nse))
+
+  (submit [n] (throw-nse))
+
+  (clear [n] (throw-nse))
+
+  (select [n] (throw-nse))
+
+  (selected? [n] (throw-nse))
+
+  (send-keys [n s] (throw-nse))
+
+  (toggle [n] (throw-nse)))
+
+(extend-protocol ISelectElement
+  nil
+
+  (all-options [n] (throw-nse))
+
+  (all-selected-options [n] (throw-nse))
+
+  (deselect-option [n attr-val] (throw-nse))
+
+  (deselect-all [n] (throw-nse))
+
+  (deselect-by-index [n idx] (throw-nse))
+
+  (deselect-by-text [n text] (throw-nse))
+
+  (deselect-by-value [n value] (throw-nse))
+
+  (first-selected-option [n] (throw-nse))
+
+  (multiple? [n] (throw-nse))
+
+  (select-option [n attr-val] (throw-nse))
+
+  (select-all [n] (throw-nse))
+
+  (select-by-index [n idx] (throw-nse))
+
+  (select-by-text [n text] (throw-nse))
+
+  (select-by-value [n value] (throw-nse)))
+
+(extend-protocol IFind
+  nil
+
+  (find-element-by [n by] (throw-nse))
+
+  (find-elements-by [n by] (throw-nse))
+
+  (find-element [n by] (throw-nse))
+
+  (find-elements [n by] (throw-nse)))

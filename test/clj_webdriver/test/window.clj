@@ -4,6 +4,9 @@
         [clj-webdriver.test.config :only [base-url]]
         clj-webdriver.window))
 
+;; This part of the test suite is system-specific
+;; and probably will not pass on your machine.
+
 (def driver (atom nil))
 
 ;; Fixtures
