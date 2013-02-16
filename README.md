@@ -67,6 +67,8 @@ Forms can be filled out en masse using the `quick-fill-submit` function:
                    {"#password" submit})
 ```
 
+Please note that the high-level Taxi API is only available in the 0.6.0 release series.
+
 ## Documentation ##
 
 For API documentation on the high-level Taxi API (shown above), please [see its wiki page](https://github.com/semperos/clj-webdriver/wiki/Introduction%3A-Taxi).
