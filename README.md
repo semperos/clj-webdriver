@@ -33,7 +33,7 @@ This is a Clojure library for driving a web browser using Selenium-WebDriver as 
 **External Resources**
 
  * [Selenium-WebDriver API (Javadoc)](http://selenium.googlecode.com/svn/trunk/docs/api/java/index.html)
- * [Selenium-WebDriver Changelog](http://code.google.com/p/selenium/source/browse/trunk/java/CHANGELOG)
+ * [Selenium-WebDriver Changelog](https://code.google.com/p/selenium/source/browse/java/CHANGELOG)
  * [CSS Selector Syntax](http://www.w3.org/TR/css3-selectors/#selectors)
 
 **Please join the Google group if you use this library.** I regularly post announcements about upcoming releases, and although I ensure all tests are passing and try to maintain good test coverage before releases, user testing is invaluable. Thank you!
