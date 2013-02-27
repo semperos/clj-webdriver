@@ -7,10 +7,14 @@
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [org.clojure/core.cache "0.5.0"]
                  [org.clojure/tools.logging "0.2.3"]
-                 [clj-http "0.3.0"]
+                 ;; Exclude these, giving preference to Selenium-WebDriver's
+                 ;; dependence on them.
+                 [clj-http "0.3.0" :exclusions [org.apache.httpcomponents/httpclient
+                                                org.apache.httpcomponents/httpcore
+                                                org.apache.httpcomponents/httpmime]]
                  [cheshire "2.1.0"]
                  [org.mortbay.jetty/jetty "6.1.25"]
-                 [org.seleniumhq.selenium/selenium-server "2.26.0"]]
+                 [org.seleniumhq.selenium/selenium-server "2.30.0"]]
   :profiles {:dev
              {:dependencies
               [[criterium "0.2.0"]
