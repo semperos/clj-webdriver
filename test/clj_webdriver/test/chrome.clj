@@ -3,21 +3,15 @@
         [clj-webdriver.core :only [start new-driver to quit]]
         [clj-webdriver.driver :only [init-driver]]
         [clj-webdriver.test.common :only [run-common-tests]]
-        [clj-webdriver.test.util :only [start-server]]
+        [clj-webdriver.test.util :only [chromium-installed? start-server]]
         [clj-webdriver.test.config :only [base-url]])
   (:require [clojure.tools.logging :as log])
   (:import org.openqa.selenium.remote.DesiredCapabilities
-           org.openqa.selenium.chrome.ChromeDriver
-           java.io.File))
+           org.openqa.selenium.chrome.ChromeDriver))
 
 ;; Driver definitions
 (log/debug "WARNING: The Chrome driver requires a separate download. See the Selenium-WebDriver wiki for more information if Chrome fails to start.")
 (def chrome-driver (atom nil))
-
-(defn chromium-installed?
-  []
-  (log/info "Chromium installation detected. Using Chromium instead of Chrome.")
-  (.exists (File. "/usr/lib/chromium-browser/chromium-browser")))
 
 ;; Fixtures
 (defn start-browser-fixture
