@@ -762,7 +762,7 @@
    (find-table-cell \"table#my-table\" [1 1])"
   ([table-q coords] (find-table-cell *driver* table-q coords))
   ([driver table-q coords]
-     (core/find-table-cell driver (element table-q) coords)))
+     (core/find-table-cell driver (element driver table-q) coords)))
 
 (defn find-table-row
   "Within the table found with query `table-q`, return a seq of all cells at row number `row`. The top-most row is row `0` (zero-based index).
@@ -776,7 +776,7 @@
    (find-table-row \"table#my-table\" 1)"
   ([table-q row] (find-table-row *driver* table-q row))
   ([driver table-q row]
-     (core/find-table-row driver (element table-q) row)))
+     (core/find-table-row driver (element driver table-q) row)))
 
 ;; Need to explain difference between element and find-element fn's
 (defn find-elements
