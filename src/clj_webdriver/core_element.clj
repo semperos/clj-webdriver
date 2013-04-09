@@ -21,22 +21,7 @@
   ;; Element action basics
   IElement
   (attribute [element attr]
-    (if (= attr :text)
-      (text element)
-      (let [attr (name attr)
-            boolean-attrs ["async", "autofocus", "autoplay", "checked", "compact", "complete",
-                           "controls", "declare", "defaultchecked", "defaultselected", "defer",
-                           "disabled", "draggable", "ended", "formnovalidate", "hidden",
-                           "indeterminate", "iscontenteditable", "ismap", "itemscope", "loop",
-                           "multiple", "muted", "nohref", "noresize", "noshade", "novalidate",
-                           "nowrap", "open", "paused", "pubdate", "readonly", "required",
-                           "reversed", "scoped", "seamless", "seeking", "selected", "spellcheck",
-                           "truespeed", "willvalidate"]
-            webdriver-result (.getAttribute (:webelement element) (name attr))]
-        (if (some #{attr} boolean-attrs)
-          (when (= webdriver-result "true")
-            attr)
-          webdriver-result))))
+    (element-attribute element attr))
 
   (click [element]
     (.click (:webelement element))
@@ -104,7 +89,7 @@
     (.getTagName (:webelement element)))
 
   (text [element]
-    (.getText (:webelement element)))
+    (element-text element))
 
   (value [element]
     (.getAttribute (:webelement element) "value"))

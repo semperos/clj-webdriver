@@ -2,7 +2,7 @@
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [clojure.walk :as walk]
-            [clj-webdriver.cache :as cache]
+            ;; [clj-webdriver.cache :as cache]
             clj-webdriver.driver)
   (:import clj_webdriver.driver.Driver
            [org.openqa.selenium WebDriver WebElement NoSuchElementException]
@@ -236,7 +236,7 @@
 ;; isn't interrupted at every page load with exceptions due to
 ;; missing WebElement's from the WebDriver's default cache
 (defmethod print-method clj_webdriver.driver.Driver [r, ^Writer w]
-  (cache/check-status r)
+  ;; (cache/check-status r)
   (print-meta r w)
   (.write w "#")
   (.write w (.getName (class r)))
@@ -341,3 +341,30 @@
   ([] (throw-nse ""))
   ([msg]
      (throw (NoSuchElementException. (str msg "\n" "When an element cannot be found in clj-webdriver, nil is returned. You've just tried to perform an action on an element that returned as nil for the search query you used. Please verify the query used to locate this element; it is not on the current page.")))))
+
+;;
+;; These are definitions needed across multiple files
+;;
+
+(defn element-text
+  [element]
+  (.getText (:webelement element)))
+
+(defn element-attribute
+  [element attr]
+  (if (= attr :text)
+    (element-text element)
+    (let [attr (name attr)
+          boolean-attrs ["async", "autofocus", "autoplay", "checked", "compact", "complete",
+                         "controls", "declare", "defaultchecked", "defaultselected", "defer",
+                         "disabled", "draggable", "ended", "formnovalidate", "hidden",
+                         "indeterminate", "iscontenteditable", "ismap", "itemscope", "loop",
+                         "multiple", "muted", "nohref", "noresize", "noshade", "novalidate",
+                         "nowrap", "open", "paused", "pubdate", "readonly", "required",
+                         "reversed", "scoped", "seamless", "seeking", "selected", "spellcheck",
+                         "truespeed", "willvalidate"]
+          webdriver-result (.getAttribute (:webelement element) (name attr))]
+      (if (some #{attr} boolean-attrs)
+        (when (= webdriver-result "true")
+          attr)
+        webdriver-result))))
