@@ -20,8 +20,7 @@ fi
 
 ################################################################################
 #
-# Set WEBDRIVER_CI_MODE to some non-null value in order not to be prompted
-# during the running of this script.
+# Set WEBDRIVER_CI_MODE to true to avoid prompts
 #
 GRID_RUNNING_DEFAULT=no
 GRID_HOST_DEFAULT=127.0.0.1
