@@ -5,7 +5,7 @@
         [clj-webdriver.test.config :only [base-url]]
         [clj-webdriver.test.util :only [deftest-template-param
                                         start-server exclusive-between thrown?
-                                        chromium-installed?]]
+                                        chromium-preferred?]]
         [clojure.string :only [lower-case]])
   (:require [clj-webdriver.core :as core]
             [clj-webdriver.test.example-app.core :as web-app])
@@ -15,7 +15,7 @@
 
 (defn start-browser-fixture
   [f]
-  (if (chromium-installed?)
+  (if (chromium-preferred?)
     (set-driver!
      (init-driver
       (ChromeDriver. (doto (DesiredCapabilities/chrome)

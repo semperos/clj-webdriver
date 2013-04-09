@@ -3,7 +3,7 @@
         [clj-webdriver.core :only [start new-driver to quit]]
         [clj-webdriver.driver :only [init-driver]]
         [clj-webdriver.test.common :only [run-common-tests]]
-        [clj-webdriver.test.util :only [chromium-installed? start-server]]
+        [clj-webdriver.test.util :only [chromium-preferred? start-server]]
         [clj-webdriver.test.config :only [base-url]])
   (:require [clojure.tools.logging :as log])
   (:import org.openqa.selenium.remote.DesiredCapabilities
@@ -16,7 +16,7 @@
 ;; Fixtures
 (defn start-browser-fixture
   [f]
-  (if (chromium-installed?)
+  (if (chromium-preferred?)
     (reset! chrome-driver
             (init-driver
              (ChromeDriver. (doto (DesiredCapabilities/chrome)

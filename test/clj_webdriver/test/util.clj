@@ -11,8 +11,14 @@
 ;; System checks
 (defn chromium-installed?
   []
-  (log/info "Chromium installation detected. Using Chromium instead of Chrome.")
   (.exists (File. "/usr/lib/chromium-browser/chromium-browser")))
+
+(defn chromium-preferred?
+  "If a Chromium installation can be detected and the `WEBDRIVER_USE_CHROMIUM` environment variable is defined, return true."
+  []
+  (log/info "Chromium installation detected. Using Chromium instead of Chrome.")
+  (and (chromium-installed?)
+       (get (System/getenv) "WEBDRIVER_USE_CHROMIUM")))
 
 ;; Fixtures
 (defn start-server [f]
