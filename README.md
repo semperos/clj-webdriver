@@ -79,7 +79,7 @@ For reference documentation, run `lein doc` at the root of this repo. For annota
 
 The `master` branch of clj-webdriver houses code intended for the next **minor-version release.** If you want to propose new features for the next release, you're welcome to fork, make a topic branch and issue a pull request against the `master` branch.
 
-If you want to fix a bug in the **current release**, please pull against the appropriate branch for the current minor version, **0.5.x**.
+If you want to fix a bug in the **current release**, please pull against the appropriate branch for the current minor version, **0.6.x**.
 
 ## Running Tests ##
 
