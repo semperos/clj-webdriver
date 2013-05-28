@@ -35,26 +35,22 @@
 <p>This is a Clojure library for driving a web browser using Selenium-WebDriver as the backend. For more comprehensive documentation on all of clj-webdriver's features, read the <a href="https://github.com/semperos/clj-webdriver/wiki">Github wiki</a>. You can generate documentation locally with <code>lein doc</code> (API docs) or <code>lein marg</code> (annotated source).</p>
 
 <table>
-  <thead>
-    <tr>
-      <th>Release Type</th>
+<tr>
+<th>Release Type</th>
       <th>Date</th>
       <th>Leiningen/Maven</th>
     </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Stable</td>
+<tr>
+<td>Stable</td>
       <td>April 9 2013</td>
       <td><code>[clj-webdriver "0.6.0"]</code></td>
     </tr>
-    <tr>
-      <td>Pre-Release</td>
+<tr>
+<td>Pre-Release</td>
       <td>(Build locally)</td>
       <td><code>[clj-webdriver "0.7.0-SNAPSHOT"]</code></td>
     </tr>
-  </tbody>
-</table>
+</table><p><strong>NOTE TO LEININGEN 2 USERS:</strong> At least as of Leiningen 2 preview 6, the default behavior for retrieving dependencies that fail a checksum test is <em>not to download them.</em> This affect's at least one of Selenium-WebDriver's transitive dependencies, which means you can't download clj-webdriver's dependencies with default Leiningen 2 settings. In order to solve this issue, you need to set the <code>:checksum</code> option for either your entire <code>project.clj</code> or for a specific Maven <code>:repositories</code> entry that contains Selenium-WebDriver's dependencies (e.g., Maven central). See <a href="https://github.com/technomancy/leiningen">Leiningen's</a> repository README and example <code>sample.project.clj</code> file for more information.</p>
 
 <p><strong>clj-webdriver Resources</strong></p>
 
@@ -148,33 +144,15 @@
 <a href="https://github.com/xeqi">xeqi</a> (Nelson Morris)</li>
 </ul><p>See Github for an <a href="https://github.com/semperos/clj-webdriver/contributors">up-to-date list of contributors</a></p>
 
-<h2 id="open-source-thank-you">Open Source Tools</h2>
-
-<p>I would like to thank the following companies for providing their tools free of charge to clj-webdriver developers as part of their contribution to the Open Source community.</p>
-
-<h3>JetBrains: Intellij IDEA</h3>
-
-<p>When I need to do Java, Scala, or even JRuby development, I rely on Intellij IDEA's excellent support for JVM languages. I would like to thank JetBrains for granting clj-webdriver developers a free license to Intellij IDEA Ultimate, now for two years running.</p>
-
-<a href="http://www.jetbrains.com/idea/features/javascript.html" style="display:block; background:#0d3a9e url(http://www.jetbrains.com/idea/opensource/img/all/banners/idea468x60_blue.gif) no-repeat 10px 50%; border:solid 1px #0d3a9e; margin:0;padding:0;text-decoration:none;text-indent:0;letter-spacing:-0.001em; width:466px; height:58px" alt="Java IDE with advanced HTML/CSS/JS editor for hardcore web-developers" title="Java IDE with advanced HTML/CSS/JS editor for hardcore web-developers"><span style="margin: 5px 0 0 52px;padding: 0;float: left;font-size: 12px;cursor:pointer;  background-image:none;border:0;color: #acc4f9; font-family: trebuchet ms,arial,sans-serif;font-weight: normal;text-align:left;">Proud to use</span><span style="margin:0 0 0 205px;padding:18px 0 2px 0; line-height:13px;font-size:11px;cursor:pointer;  background-image:none;border:0;display:block; width:255px; color: #acc4f9; font-family: trebuchet ms,arial,sans-serif;font-weight: normal;text-align:left;">Java IDE with advanced HTML/CSS/JS<br/>editor for hardcore web-developers</span></a>
-
-<h3>YourKit</h3>
-
-<p>YourKit is kindly supporting open source projects with its full-featured Java Profiler.
-YourKit, LLC is the creator of innovative and intelligent tools for profiling
-Java and .NET applications. Take a look at YourKit’s leading software products:
-<a href="http://www.yourkit.com/java/profiler/index.jsp">YourKit Java Profiler</a> and
-<a href="http://www.yourkit.com/.net/profiler/index.jsp">YourKit .NET Profiler</a>.</p>
-
 <h2>License</h2>
 
-<p>Clj-webdriver is distributed under the <a href="http://opensource.org/licenses/eclipse-1.0.php">Eclipse Public License</a>, the same as Clojure.</p>
+<p>Distributed under the <a href="http://opensource.org/licenses/eclipse-1.0.php">Eclipse Public License</a>, the same as Clojure.</p>
       </section>
       <footer>
         <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
       </footer>
     </div>
-    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
 		
   </body>
 </html>
