@@ -99,6 +99,9 @@
   (is (= (text "a[class*='exter'][href*='github']") "Moustache"))
   (is (= (count (elements "*[class*='-item']")) 5))
   (is (= (count (elements "a[class*='-item']")) 5))
+  (is (= (count (elements {:text "Moustache"})) 1))
+  (is (= (count (elements {:partial-text "Mousche"})) 0))
+  (is (= (count (elements {:partial-text "Moust"})) 1))
   (is (= (count (elements "a[class*='exter'][href*='github']")) 2)))
 
 (deftest test-querying-under-elements

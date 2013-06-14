@@ -807,6 +807,7 @@
    (find-elements {:tag :radio, :class \"choice\"})
    (find-elements [{:tag :div, :id \"container\"},
                    {:tag :a, :class \"external\"}])
+   (find-elements {:tag :a, :partial-text \"foo\"})
 "
   ([attr-val] (find-elements *driver* attr-val))
   ([driver attr-val]
