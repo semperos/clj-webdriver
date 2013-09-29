@@ -315,7 +315,7 @@
    (forward)
 
    ;;
-   ;; Specify number of times to go back
+   ;; Specify number of times to go forward
    ;;
    (forward 2)"
   ([] (forward *driver* 1))
