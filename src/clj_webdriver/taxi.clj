@@ -1405,12 +1405,12 @@
      (core/select-by-text (element driver q) text)))
 
 (defn select-by-value
-  "Deselect the option element with `value` within the first select list found with query `q`.
+  "Select the option element with `value` within the first select list found with query `q`.
 
    Examples:
    =========
 
-   (deselect-by-value \"#my-select-list\" \"foo\")"
+   (select-by-value \"#my-select-list\" \"foo\")"
   ([q value] (select-by-value *driver* q value))
   ([driver q value]
      (core/select-by-value (element driver q) value)))
