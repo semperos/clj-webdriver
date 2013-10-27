@@ -628,7 +628,7 @@
                        quick-fill-should-accept-special-seq-and-perform-batch-actions-on-form
                        quick-fill-submit-should-always-return-nil
                        should-be-able-to-toggle-between-open-windows
-                       test-alert-dialog-handling
+                       test-alert-dialog-handling  ; fails for phantomjs
                        wait-until-should-wait-for-condition
                        wait-until-should-throw-on-timeout
                        wait-until-should-allow-timeout-argument

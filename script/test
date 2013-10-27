@@ -10,7 +10,7 @@ EXPECTED_ARGS=1
 E_BADARGS=65
 
 DO_showUsage() {
-    echo "Usage: $(basename $0) {all|core|firefox|remote|saucelabs|taxi|window}"
+    echo "Usage: $(basename $0) {all|core|firefox|phantomjs|remote|saucelabs|taxi|window}"
     exit $E_BADARGS
 }
 
@@ -34,6 +34,15 @@ DO_testFirefox() {
     echo "#####################"
     echo ""
     lein test clj-webdriver.test.firefox
+}
+
+DO_testPhantomjs() {
+    echo ""
+    echo "#######################"
+    echo "## Testing PhantomJS ##"
+    echo "#######################"
+    echo ""
+    lein test clj-webdriver.test.phantomjs
 }
 
 DO_testCore() {
@@ -115,6 +124,9 @@ case "$1" in
         ;;
     firefox)
         DO_testFirefox
+        ;;
+    phantomjs)
+        DO_testPhantomjs
         ;;
     remote)
         DO_testRemote
