@@ -34,6 +34,8 @@
            [org.openqa.selenium.htmlunit HtmlUnitDriver]
            [org.openqa.selenium.support.ui Select]
            [org.openqa.selenium.interactions Actions CompositeAction]
+           [org.openqa.selenium Capabilities]
+           [org.openqa.selenium.remote DesiredCapabilities]
            [java.util Date]
            [java.io File]))
 
@@ -196,6 +198,7 @@
      (let [{:keys [browser profile cache-spec] :or {browser :firefox
                                                     profile nil
                                                     cache-spec {}}} browser-spec]
+
        (init-driver {:webdriver (new-webdriver* {:browser browser
                                                  :profile profile})
                      :cache-spec cache-spec}))))
