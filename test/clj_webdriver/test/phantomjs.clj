@@ -2,7 +2,7 @@
   (:use clojure.test
         [clj-webdriver.core :only [start new-driver to quit]]
         [clj-webdriver.driver :only [init-driver]]
-        [clj-webdriver.test.common :only [run-common-tests]]
+        [clj-webdriver.test.common :only [run-common-tests run-phantomjs-tests]]
         [clj-webdriver.test.util :only [start-server]]
         [clj-webdriver.test.config :only [base-url]])
   (:require [clojure.tools.logging :as log])
@@ -34,4 +34,4 @@
 
 ;; RUN TESTS HERE
 (deftest test-common-features-for-phantomjs
-  (run-common-tests @phantomjs-driver))
+  (run-phantomjs-tests @phantomjs-driver))
