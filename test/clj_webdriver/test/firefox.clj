@@ -115,10 +115,9 @@
         (driver? tmp-dr))))
 
 (deftest firefox-should-support-extensions
-  (when-not (System/getProperty "TRAVIS")
-    (is (with-browser [tmp-dr (start {:browser :firefox
-                                      :profile (doto (ff/new-profile)
-                                                 (ff/enable-extension :firebug))}
-                                     (base-url))]
-          (log/info "[x] Starting Firefox with extensions.")
-          (driver? tmp-dr)))))
+  (is (with-browser [tmp-dr (start {:browser :firefox
+                                    :profile (doto (ff/new-profile)
+                                               (ff/enable-extension :firebug))}
+                                   (base-url))]
+        (log/info "[x] Starting Firefox with extensions.")
+        (driver? tmp-dr))))
