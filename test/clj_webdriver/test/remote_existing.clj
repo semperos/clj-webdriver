@@ -5,7 +5,8 @@
         [clj-webdriver.test.config :only [base-url]]
         [clj-webdriver.test.util :only [start-server]]
         [clj-webdriver.test.common :only [run-common-tests]]
-        [clj-webdriver.remote.server :only [new-remote-session stop]]))
+        [clj-webdriver.remote.server :only [new-remote-session stop]])
+  (:import [java.util.logging Level]))
 
 (def server (atom nil))
 (def driver (atom nil))
@@ -19,7 +20,7 @@
   []
   ;; API default is 4444, so for testing we use 3333
   ;; see scripts/grid-hub and scripts/grid-node
-  (int (get (System/getenv) "WEBDRIVER_HUB_PORT" 3333)))
+  (Integer/parseInt (get (System/getenv) "WEBDRIVER_HUB_PORT" 3333)))
 
 ;; Fixtures
 (defn start-session-fixture
