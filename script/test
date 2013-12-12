@@ -100,11 +100,12 @@ DO_testRemote() {
                 export WEBDRIVER_HUB_PORT="${WEBDRIVER_GRID_PORT}"
             fi
             lein test clj-webdriver.test.remote-existing
+        else
+	    lein test clj-webdriver.test.remote
+	    #lein test clj-webdriver.test.remote-capabilities
+	    lein test clj-webdriver.test.wire
         fi
     fi
-    lein test clj-webdriver.test.remote
-    lein test clj-webdriver.test.remote-capabilities
-    lein test clj-webdriver.test.wire
 }
 
 DO_testTaxi() {
@@ -158,4 +159,5 @@ case "$1" in
         ;;
     *)
         DO_showUsage
+	;;
 esac
