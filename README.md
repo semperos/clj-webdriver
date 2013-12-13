@@ -1,3 +1,15 @@
+# Added support for [browserstack.com remote service](http://www.browserstack.com/automate/java). Code sample:
+
+```
+  (rs/new-remote-session {:host "hub.browserstack.com"
+                          :port 4444
+                          :path-spec "/wd/hub"
+                          :username "USERNAME"
+                          :automate_key "AUTOMATE_KEY"
+                        }
+                        capabilities)
+```
+
 # Clojure API for Selenium-WebDriver #
 
 This is a Clojure library for driving a web browser using Selenium-WebDriver as the backend. For more comprehensive documentation on all of clj-webdriver's features, read the [Github wiki](https://github.com/semperos/clj-webdriver/wiki). You can generate documentation locally with `lein doc` (API docs) or `lein marg` (annotated source).
