@@ -18,7 +18,7 @@
   "Functions for managing a RemoteServer instance."
   (start [server] "Start the server. Will try to run stop if a bind exception occurs.")
   (stop [server] "Stop the server")
-  (bs-address [server] "Get bs-address of the server")
+  (address [server] "Get address of the server")
   (new-remote-driver [server browser-spec] "Instantiate a new RemoteDriver record.")
   (start-remote-driver [server browser-spec target-url] "Start a new RemoteDriver record and go to `target-url`."))
 
@@ -28,15 +28,14 @@
                                                        browser-spec
                                                        {}))
   ([remote-server browser-spec capabilities]
-     (let [http-cmd-exec (HttpCommandExecutor. (as-url (bs-address remote-server)))
+    (println (str "remote-server: "remote-server))
+     (let [http-cmd-exec (HttpCommandExecutor. (as-url (address remote-server)))
            {:keys [browser]} browser-spec
            desired-caps (if (seq capabilities)
                           (DesiredCapabilities. (util/java-keys capabilities))
                           (util/call-method DesiredCapabilities browser nil nil))
            remote-webdriver (RemoteWebDriverExt. http-cmd-exec desired-caps)]
        [remote-webdriver, desired-caps])))
-
-
 
 (defrecord RemoteServer [connection-params webdriver-server]
   IRemoteServer
@@ -62,26 +61,14 @@
         (stop remote-server)
         (start remote-server))))
 
-  (bs-address [remote-server]
-    ;"http://" + USERNAME + ":" + AUTOMATE_KEY + "@hub.browserstack.com/wd/hub";
-    (let [tail "@hub.browserstack.com/wd/hub"
-          {:keys [username automate_key]} (:connection-params remote-server)]
-      (str "http://"
-           username
-           ":"
-           automate_key
-           tail)))
-
-
-  ; (bs-address [remote-server]
-  ;   (let [{:keys [host port path-spec existing]} (:connection-params remote-server)]
-  ;     (str "http://"
-  ;          host
-  ;          ":"
-  ;          port
-  ;          (apply str (drop-last path-spec))
-  ;          (when existing
-  ;            "hub"))))
+  (address
+    [remote-server]
+    (let [{:keys [host port path-spec existing username automate_key]} (:connection-params remote-server)
+                  s-address (if (nil? (re-find #"browserstack" host))
+                                (str "http://" host ":" port (apply str (drop-last path-spec)) (when existing "hub"))
+                                (str "http://" username ":" automate_key "@" host path-spec))]
+        ;(prn s-address)
+        s-address))
 
   (new-remote-driver
     [remote-server browser-spec]
@@ -112,14 +99,32 @@
       (get-url driver url)
       driver)))
 
-(defn bs-init-remote-server
-  "Initialize a new RemoteServer record, optionally starting the server automatically (enabled by default)."
+(defn init-remote-server
+  "Initialize a new RemoteServer record, optionally starting the server automatically (enabled by default). It also accepts username and automate_key for www.browserstack.com remote service"
   [connection-params]
-  (let [{:keys [username automate_key]} connection-params
-         server-record (RemoteServer. {:username username
-                                       :automate_key automate_key}
-                                      nil)]
-    (if (get-in server-record [:connection-params ])
+    (let [
+          {:keys [host port path-spec existing username automate_key] :or {host "127.0.0.1"
+                                                                           port 4444
+                                                                           path-spec "/wd/*"
+                                                                           existing false
+                                                                           username nil
+                                                                           automate_key nil
+                                                                           }} connection-params
+          ; Added support for http://www.browserstack.com/automate/java
+          server-record (if (nil? (re-find #"browserstack" host))
+                             (RemoteServer. {:host host
+                                             :port port
+                                             :path-spec path-spec
+                                             :existing existing}
+                                        nil)
+                             (RemoteServer. {:host host
+                                             :port port
+                                             :username username
+                                             :automate_key automate_key
+                                             :path-spec path-spec
+                                             :existing true}
+                                        nil))]
+    (if (get-in server-record [:connection-params :existing])
       server-record
       (assoc server-record :webdriver-server (start server-record)))))
 
@@ -134,6 +139,6 @@
   ([connection-params browser-spec]
      (let [new-server (if (remote-server? connection-params)
                         connection-params
-                        (bs-init-remote-server connection-params))
+                        (init-remote-server connection-params))
            new-driver (new-remote-driver new-server browser-spec)]
        [new-server new-driver])))
