@@ -1,4 +1,4 @@
-# Added support for [browserstack.com remote service](http://www.browserstack.com/automate/java). Code sample:
+# Added support for [browserstack.com remote hub service](http://www.browserstack.com/automate/java). Code sample:
 
 ```
   (rs/new-remote-session {:host "hub.browserstack.com"
@@ -7,8 +7,13 @@
                           :username "USERNAME"
                           :automate_key "AUTOMATE_KEY"
                         }
-                        capabilities)
+                        {:capabilities { :browser-name "ie",
+                                         :version "10"
+                                         :platform "WINDOWS"}})
 ```
+
+Selenium library upgraded to [org.seleniumhq.selenium/selenium-server "2.38.0"]
+
 
 # Clojure API for Selenium-WebDriver #
 

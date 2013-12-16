@@ -1,4 +1,4 @@
-(defproject clj-webdriver "0.7.2-SNAPSHOT"
+(defproject clj-webdriver "0.7.3-SNAPSHOT"
   :description "Clojure API for Selenium-WebDriver"
   :url "https://github.com/semperos/clj-webdriver"
   :license {:name "Eclipse Public License"
@@ -14,7 +14,8 @@
                                                 org.apache.httpcomponents/httpmime]]
                  [cheshire "2.1.0"]
                  [org.mortbay.jetty/jetty "6.1.25"]
-                 [org.seleniumhq.selenium/selenium-server "2.35.0"]]
+                 [org.seleniumhq.selenium/selenium-server "2.38.0"]
+                 ]
   :profiles {:dev
              {:dependencies
               [[criterium "0.2.0"]
@@ -26,5 +27,5 @@
                [enlive "1.0.0"]
                [net.cgrand/moustache "1.0.0"]]}}
   :aot [#"clj-webdriver\.ext\.*"]
-  :scm {:url "git@github.com:semperos/clj-webdriver.git"}
+  :scm {:url "git@github.com:jaimeagudo/clj-webdriver.git"}
   :pom-addition [:developers [:developer [:name "Daniel Gregoire"]]])
