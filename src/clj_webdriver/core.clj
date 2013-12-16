@@ -33,6 +33,9 @@
            [org.openqa.selenium.htmlunit HtmlUnitDriver]
            [org.openqa.selenium.support.ui Select]
            [org.openqa.selenium.interactions Actions CompositeAction]
+           [org.openqa.selenium.interactions.internal Coordinates]
+           [org.openqa.selenium.internal Locatable]
+
            [java.util Date]
            [java.io File]))
 

@@ -75,16 +75,24 @@
     (browserbot (.getWrappedDriver (:webelement element)) "getOuterHTML" (:webelement element)))
 
   (location [element]
-    (let [loc (.getLocation (:webelement element))
+    (let [loc (.onPage (.getCoordinates (:webelement element)))
           x   (.x loc)
           y   (.y loc)]
       {:x x, :y y}))
 
   (location-once-visible [element]
-    (let [loc (.getLocationOnScreenOnceScrolledIntoView (:webelement element))
+    (let [coords (.getCoordinates (:webelement element))]
+      (try
+        (let [loc (.onScreen coords)
           x   (.x loc)
           y   (.y loc)]
-      {:x x, :y y}))
+           {:x x, :y y})
+      (catch Exception ex ; while not implemented it will throw java.lang.UnsupportedOperationException:
+        (let [loc (.onPage coords)
+          x   (.x loc)
+          y   (.y loc)]
+           {:x x, :y y})
+          ))))
 
   (present? [element]
     (and (exists? element) (visible? element)))

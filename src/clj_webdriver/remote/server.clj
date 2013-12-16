@@ -28,6 +28,7 @@
                                                        browser-spec
                                                        {}))
   ([remote-server browser-spec capabilities]
+    (println (str "remote-server: "remote-server))
      (let [http-cmd-exec (HttpCommandExecutor. (as-url (address remote-server)))
            {:keys [browser]} browser-spec
            desired-caps (if (seq capabilities)
@@ -60,15 +61,14 @@
         (stop remote-server)
         (start remote-server))))
 
-  (address [remote-server]
-    (let [{:keys [host port path-spec existing]} (:connection-params remote-server)]
-      (str "http://"
-           host
-           ":"
-           port
-           (apply str (drop-last path-spec))
-           (when existing
-             "hub"))))
+  (address
+    [remote-server]
+    (let [{:keys [host port path-spec existing username automate_key]} (:connection-params remote-server)
+                  s-address (if (nil? (re-find #"browserstack" host))
+                                (str "http://" host ":" port (apply str (drop-last path-spec)) (when existing "hub"))
+                                (str "http://" username ":" automate_key "@" host path-spec))]
+        ;(prn s-address)
+        s-address))
 
   (new-remote-driver
     [remote-server browser-spec]
@@ -100,17 +100,30 @@
       driver)))
 
 (defn init-remote-server
-  "Initialize a new RemoteServer record, optionally starting the server automatically (enabled by default)."
+  "Initialize a new RemoteServer record, optionally starting the server automatically (enabled by default). It also accepts username and automate_key for www.browserstack.com remote service"
   [connection-params]
-  (let [{:keys [host port path-spec existing] :or {host "127.0.0.1"
-                                                   port 4444
-                                                   path-spec "/wd/*"
-                                                   existing false}} connection-params
-         server-record (RemoteServer. {:host host
-                                       :port port
-                                       :path-spec path-spec
-                                       :existing existing}
-                                      nil)]
+    (let [
+          {:keys [host port path-spec existing username automate_key] :or {host "127.0.0.1"
+                                                                           port 4444
+                                                                           path-spec "/wd/*"
+                                                                           existing false
+                                                                           username nil
+                                                                           automate_key nil
+                                                                           }} connection-params
+          ; Added support for http://www.browserstack.com/automate/java
+          server-record (if (nil? (re-find #"browserstack" host))
+                             (RemoteServer. {:host host
+                                             :port port
+                                             :path-spec path-spec
+                                             :existing existing}
+                                        nil)
+                             (RemoteServer. {:host host
+                                             :port port
+                                             :username username
+                                             :automate_key automate_key
+                                             :path-spec path-spec
+                                             :existing true}
+                                        nil))]
     (if (get-in server-record [:connection-params :existing])
       server-record
       (assoc server-record :webdriver-server (start server-record)))))
