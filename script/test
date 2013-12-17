@@ -103,7 +103,7 @@ DO_testRemote() {
         else
 	    lein test clj-webdriver.test.remote
 	    #lein test clj-webdriver.test.remote-capabilities
-	    lein test clj-webdriver.test.wire
+	    #lein test clj-webdriver.test.wire
         fi
     fi
 }
