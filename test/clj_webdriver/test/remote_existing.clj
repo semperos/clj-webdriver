@@ -5,9 +5,11 @@
         [clj-webdriver.test.config :only [base-url]]
         [clj-webdriver.test.util :only [start-server]]
         [clj-webdriver.test.common :only [run-common-tests]]
-        [clj-webdriver.remote.server :only [new-remote-session stop]])
+        [clj-webdriver.remote.server :only [new-remote-session stop]]
+        [clj-webdriver.test.common :only [run-common-tests run-phantomjs-tests]])
   (:import [java.util.logging Level]))
 
+(def BROWSERS [:firefox :phantomjs :chrome])
 (def server (atom nil))
 (def driver (atom nil))
 
@@ -45,6 +47,7 @@
   (if @driver (quit @driver)))
 
 (use-fixtures :once start-server quit-fixture)
+;(use-fixtures :each reset-browser-fixture)
 
 ;; RUN TESTS HERE
 
