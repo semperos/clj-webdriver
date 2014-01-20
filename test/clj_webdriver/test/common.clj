@@ -603,40 +603,50 @@
 ;;; RUN ACTUAL TESTS HERE ;;;
 ;;;                       ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(def common-tests [test-browser-basics
+                   back-forward-should-traverse-browser-history
+                   to-should-open-given-url-in-browser
+                   should-be-able-to-find-element-bys-using-low-level-by-wrappers
+                   find-element-should-support-basic-attr-val-map
+                   find-element-should-support-hierarchical-querying
+                   hierarchical-querying-should-not-support-css-or-xpath-attrs
+                   exists-should-return-truthy-falsey-and-should-not-throw-an-exception
+                   visible-should-return-truthy-falsey-when-visible
+                   present-should-return-truthy-falsey-when-exists-and-visible
+                   drag-and-drop-by-pixels-should-work
+                   drag-and-drop-on-elements-should-work
+                   should-be-able-to-determine-if-elements-intersect-each-other
+                   generated-xpath-should-wrap-strings-in-double-quotes
+                   xpath-function-should-return-string-xpath-of-element
+                   html-function-should-return-string-html-of-element
+                   find-table-cell-should-find-cell-with-coords
+                   find-table-row-should-find-all-cells-for-row
+                   test-form-elements
+                   select-element-functions-should-behave-as-expected
+                   quick-fill-should-accept-special-seq-and-perform-batch-actions-on-form
+                   quick-fill-submit-should-always-return-nil
+                   should-be-able-to-toggle-between-open-windows
+                   wait-until-should-wait-for-condition
+                   wait-until-should-throw-on-timeout
+                   wait-until-should-allow-timeout-argument
+                   implicit-wait-should-cause-find-to-wait
+                   ;; test-frames-by-index
+                   test-frames-by-element
+                   test-flash-helper
+                   test-screenshot])
+
+(def alert-tests [test-alert-dialog-handling])
+
 (defn run-common-tests
   [driver]
-  (doseq [common-test [test-browser-basics
-                       back-forward-should-traverse-browser-history
-                       to-should-open-given-url-in-browser
-                       should-be-able-to-find-element-bys-using-low-level-by-wrappers
-                       find-element-should-support-basic-attr-val-map
-                       find-element-should-support-hierarchical-querying
-                       hierarchical-querying-should-not-support-css-or-xpath-attrs
-                       exists-should-return-truthy-falsey-and-should-not-throw-an-exception
-                       visible-should-return-truthy-falsey-when-visible
-                       present-should-return-truthy-falsey-when-exists-and-visible
-                       drag-and-drop-by-pixels-should-work
-                       drag-and-drop-on-elements-should-work
-                       should-be-able-to-determine-if-elements-intersect-each-other
-                       generated-xpath-should-wrap-strings-in-double-quotes
-                       xpath-function-should-return-string-xpath-of-element
-                       html-function-should-return-string-html-of-element
-                       find-table-cell-should-find-cell-with-coords
-                       find-table-row-should-find-all-cells-for-row
-                       test-form-elements
-                       select-element-functions-should-behave-as-expected
-                       quick-fill-should-accept-special-seq-and-perform-batch-actions-on-form
-                       quick-fill-submit-should-always-return-nil
-                       should-be-able-to-toggle-between-open-windows
-                       test-alert-dialog-handling
-                       wait-until-should-wait-for-condition
-                       wait-until-should-throw-on-timeout
-                       wait-until-should-allow-timeout-argument
-                       implicit-wait-should-cause-find-to-wait
-                       ;; test-frames-by-index
-                       test-frames-by-element
-                       test-flash-helper
-                       test-screenshot]]
+  (doseq [common-test (concat common-tests alert-tests)]
+    (reset-driver driver)
+    (seed-driver-cache driver)
+    (common-test driver)))
+
+(defn run-phantomjs-tests
+  [driver]
+  (doseq [common-test common-tests]
     (reset-driver driver)
     (seed-driver-cache driver)
     (common-test driver)))

@@ -100,32 +100,35 @@
       driver)))
 
 (defn init-remote-server
-  "Initialize a new RemoteServer record, optionally starting the server automatically (enabled by default)."
+  "Initialize a new RemoteServer record, optionally starting the
+  server automatically (enabled by default)."
   [connection-params]
   (let [{:keys [host port path-spec existing] :or {host "127.0.0.1"
                                                    port 4444
                                                    path-spec "/wd/*"
                                                    existing false}} connection-params
-         server-record (RemoteServer. {:host host
-                                       :port port
-                                       :path-spec path-spec
-                                       :existing existing}
-                                      nil)]
+                                                   server-record (RemoteServer. {:host host
+                                                                                 :port port
+                                                                                 :path-spec path-spec
+                                                                                 :existing existing}
+                                                                                nil)]
     (if (get-in server-record [:connection-params :existing])
       server-record
       (assoc server-record :webdriver-server (start server-record)))))
 
 (defn remote-server?
   [rs]
-  (= (class rs) RemoteServer))
+  (:existing rs)
+  ;(= (class rs) RemoteServer)
+  )
 
 (defn new-remote-session
-  "Start up a server, start up a driver, return both in that order. Pass a final falsey arg to prevent the server from being started for you."
+  "Start up a server, start up a driver, return both in that
+order. Pass a final falsey arg to prevent the server from being
+started for you."
   ([] (new-remote-session {}))
   ([connection-params] (new-remote-session connection-params {:browser :firefox}))
   ([connection-params browser-spec]
-     (let [new-server (if (remote-server? connection-params)
-                        connection-params
-                        (init-remote-server connection-params))
+     (let [new-server (init-remote-server connection-params)
            new-driver (new-remote-driver new-server browser-spec)]
        [new-server new-driver])))

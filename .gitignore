@@ -17,3 +17,5 @@ chromedriver.log
 /target/
 /test.log
 /resources/properties.clj
+.vagrant
+*.log
