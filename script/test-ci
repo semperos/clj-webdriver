@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+lein2 test clj-webdriver.test.firefox
