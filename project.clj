@@ -1,4 +1,4 @@
-(defproject clj-webdriver "0.7.1"
+(defproject clj-webdriver "0.6.1"
   :description "Clojure API for Selenium-WebDriver"
   :url "https://github.com/semperos/clj-webdriver"
   :license {:name "Eclipse Public License"
