@@ -1,3 +1,5 @@
 #!/usr/bin/env sh
 
-lein2 test clj-webdriver.test.firefox
+# The executable used is 'lein2' for compatiblity with Travis CI.
+# Make a local symlink if yours is just named 'lein'
+lein2 test clj-webdriver.test.firefox && lein2 test clj-webdriver.test.phantomjs
