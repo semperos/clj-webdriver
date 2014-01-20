@@ -10,7 +10,7 @@ EXPECTED_ARGS=1
 E_BADARGS=65
 
 DO_showUsage() {
-    echo "Usage: $(basename $0) {all|core|firefox|remote|saucelabs|taxi|window}"
+    echo "Usage: $(basename $0) {all|core|firefox|chrome|phantomjs|remote|saucelabs|taxi|window}"
     exit $E_BADARGS
 }
 
@@ -34,6 +34,24 @@ DO_testFirefox() {
     echo "#####################"
     echo ""
     lein test clj-webdriver.test.firefox
+}
+
+DO_testChrome() {
+    echo ""
+    echo "####################"
+    echo "## Testing Chrome ##"
+    echo "####################"
+    echo ""
+    lein test clj-webdriver.test.chrome
+}
+
+DO_testPhantomjs() {
+    echo ""
+    echo "#######################"
+    echo "## Testing PhantomJS ##"
+    echo "#######################"
+    echo ""
+    lein test clj-webdriver.test.phantomjs
 }
 
 DO_testCore() {
@@ -69,20 +87,25 @@ DO_testRemote() {
         if [ "$GRID_RUNNING_DEFAULT" = "yes" ]; then
             echo -n "Please enter the ${txtund}${regblu}host${txtrst} on which your Grid hub is running: [${GRID_HOST_DEFAULT}] > "
             read WEBDRIVER_GRID_HOST
-            if [ -z $WEBDRIVER_GRID_HOST ]; then
-                export WEBDRIVER_GRID_HOST="${GRID_HOST_DEFAULT}"
+            if [ -z "$WEBDRIVER_GRID_HOST" ]; then
+                export WEBDRIVER_HUB_HOST="${GRID_HOST_DEFAULT}"
+	    else
+                export WEBDRIVER_HUB_HOST="${WEBDRIVER_GRID_HOST}"
             fi
             echo -n "Please enter the ${txtund}${regblu}port${txtrst} on which your Grid hub is listening: [${GRID_PORT_DEFAULT}] > "
             read WEBDRIVER_GRID_PORT
-            if [ -z $WEBDRIVER_GRID_PORT ]; then
-                export WEBDRIVER_GRID_PORT="${GRID_PORT_DEFAULT}"
+            if [ -z "$WEBDRIVER_GRID_PORT" ]; then
+                export WEBDRIVER_HUB_PORT="${GRID_PORT_DEFAULT}"
+	    else
+                export WEBDRIVER_HUB_PORT="${WEBDRIVER_GRID_PORT}"
             fi
             lein test clj-webdriver.test.remote-existing
+        else
+	    lein test clj-webdriver.test.remote
+	    #lein test clj-webdriver.test.remote-capabilities
+	    lein test clj-webdriver.test.wire
         fi
     fi
-    lein test clj-webdriver.test.remote
-    lein test clj-webdriver.test.remote-capabilities
-    lein test clj-webdriver.test.wire
 }
 
 DO_testTaxi() {
@@ -116,6 +139,12 @@ case "$1" in
     firefox)
         DO_testFirefox
         ;;
+    chrome)
+        DO_testChrome
+        ;;
+    phantomjs)
+        DO_testPhantomjs
+        ;;
     remote)
         DO_testRemote
         ;;
@@ -130,4 +159,5 @@ case "$1" in
         ;;
     *)
         DO_showUsage
+	;;
 esac

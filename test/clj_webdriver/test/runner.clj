@@ -6,6 +6,7 @@
             [clojure.pprint :as pp]
             clj-webdriver.test.chrome
             clj-webdriver.test.firefox
+            clj-webdriver.test.phantomjs
             clj-webdriver.test.remote
             clj-webdriver.test.remote-existing
             clj-webdriver.test.taxi :reload
@@ -57,6 +58,11 @@
                          :ns 'clj-webdriver.test.firefox}
                         {:title "Chrome Results"
                          :ns 'clj-webdriver.test.chrome}]))
+
+(defn run-phantomjs
+  []
+  (run-template "phantomjs" [{:title "PhantomJS Results"
+                              :ns 'clj-webdriver.test.phantomjs}]))
 
 (defn run-remote
   []

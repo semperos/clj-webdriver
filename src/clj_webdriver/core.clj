@@ -30,9 +30,12 @@
            [org.openqa.selenium.firefox FirefoxDriver]
            [org.openqa.selenium.ie InternetExplorerDriver]
            [org.openqa.selenium.chrome ChromeDriver]
+           [org.openqa.selenium.phantomjs PhantomJSDriver]
            [org.openqa.selenium.htmlunit HtmlUnitDriver]
            [org.openqa.selenium.support.ui Select]
            [org.openqa.selenium.interactions Actions CompositeAction]
+           [org.openqa.selenium Capabilities]
+           [org.openqa.selenium.remote DesiredCapabilities]
            [java.util Date]
            [java.io File]))
 
@@ -172,6 +175,7 @@
   {:firefox FirefoxDriver
    :ie InternetExplorerDriver
    :chrome ChromeDriver
+   :phantomjs PhantomJSDriver
    ;; :opera OperaDriver
    :htmlunit HtmlUnitDriver})
 
@@ -187,13 +191,14 @@
 (defn new-driver
   "Start a new Driver instance. The `browser-spec` can include `:browser`, `:profile`, and `:cache-spec` keys.
 
-   The `:browser` can be one of `:firefox`, `:ie`, `:chrome` or `:htmlunit`.
+   The `:browser` can be one of `:firefox`, `:ie`, `:chrome`, `phantomjs` or `:htmlunit`.
    The `:profile` should be an instance of FirefoxProfile you wish to use.
    The `:cache-spec` can contain `:strategy`, `:args`, `:include` and/or `:exclude keys. See documentation on caching for more details."
   ([browser-spec]
      (let [{:keys [browser profile cache-spec] :or {browser :firefox
                                                     profile nil
                                                     cache-spec {}}} browser-spec]
+
        (init-driver {:webdriver (new-webdriver* {:browser browser
                                                  :profile profile})
                      :cache-spec cache-spec}))))
