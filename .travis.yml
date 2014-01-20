@@ -6,8 +6,7 @@ jdk:
   - openjdk6
 branches:
   only:
-    - travis-ci-reattempt
-    - cmiles74-master
+    - master
 before_install:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
