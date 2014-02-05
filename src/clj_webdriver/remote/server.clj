@@ -31,7 +31,10 @@
      (let [http-cmd-exec (HttpCommandExecutor. (as-url (address remote-server)))
            {:keys [browser]} browser-spec
            desired-caps (if (seq capabilities)
-                          (DesiredCapabilities. (util/java-keys capabilities))
+                          (let [result (DesiredCapabilities. (util/java-keys capabilities))]
+                            (when (:platform-override capabilities)
+                              (.. result (setCapability "platform" (:platform-override capabilities))))
+                            result)
                           (util/call-method DesiredCapabilities browser nil nil))
            remote-webdriver (RemoteWebDriverExt. http-cmd-exec desired-caps)]
        [remote-webdriver, desired-caps])))
