@@ -679,7 +679,7 @@
   ([pred] (wait/wait-until *driver* (fn [_] pred)))
   ([pred timeout] (wait/wait-until *driver* (fn [_] pred) timeout))
   ([pred timeout interval] (wait/wait-until *driver* (fn [_] pred) timeout interval))
-  ([driver pred timeout interval] (wait/wait-until driver (fn [d] (pred d)) timeout interval)))
+  ([driver pred timeout interval] (wait/wait-until driver (fn [_] pred) timeout interval)))
 
 (defn implicit-wait
   "Set the global `timeout` that the browser should wait when attempting to find elements on the page, before timing out with an exception.
