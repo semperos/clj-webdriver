@@ -25,6 +25,7 @@
   (apply str (for [[attr value] attr-val]
                (cond
                 (= :text attr) (str "[text()=\"" value "\"]")
+                (= :partial-text attr) (str "[contains(text(), \"" value "\")]")
                 (= :index attr) (str "[" (inc value) "]") ; in clj-webdriver,
                 :else (str "[@"                           ; all indices 0-based
                            (name attr)
