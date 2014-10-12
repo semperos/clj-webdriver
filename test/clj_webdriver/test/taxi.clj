@@ -67,7 +67,7 @@
   (is (> (count (cookies)) 0))
   (is (= (:value (cookie "my_cookie")) "my_cookie_value"))
   (delete-cookie "my_cookie")
-  (is (not (some (fn [c] (= (:name c) "my_cookie")) (cookies))))
+  (is (not-any? (fn [c] (= (:name c) "my_cookie")) (cookies)))
   (delete-all-cookies)
   (is (zero? (count (cookies)))))
 

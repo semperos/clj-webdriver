@@ -118,9 +118,9 @@
   "Checks if all values of a map are regexes"
   [m]
   (and (not (empty? m))
-       (not (some (fn [entry]
-                    (let [[k v] entry]
-                      (not= java.util.regex.Pattern (class v)))) m))))
+       (not-any? (fn [entry]
+                   (let [[k v] entry]
+                     (not= java.util.regex.Pattern (class v)))) m)))
 
 (defn filter-regex-entries
   "Given a map `m`, return a map containing only entries whose values are regular expressions."

@@ -27,7 +27,7 @@
 ;;
 ;; You may either choose a whitelisting approach with `:include` or a blacklisting
 ;; approach with `:exclude`, but not both.
-;; 
+;;
 ;; For the sake of API sanity, if you create a cache rule based on css, xpath,
 ;; or ancestry-based queries, the match must be exact.
 ;;
@@ -133,8 +133,8 @@
                  :else                raw-query)]
       (if (contains? (:cache-spec driver) :exclude)
         ;; handle excludes
-        (not (some (fn [exclude-item] (= query exclude-item))
-                   (get-in driver [:cache-spec :exclude])))
+        (not-any? (fn [exclude-item] (= query exclude-item))
+                   (get-in driver [:cache-spec :exclude]))
         ;; handle includes
         (some (fn [include-item] (= query include-item))
               (get-in driver [:cache-spec :include]))))))
