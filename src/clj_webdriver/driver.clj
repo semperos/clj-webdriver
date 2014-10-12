@@ -8,7 +8,7 @@
   "Initialize cache based on given strategy"
   ([cache-spec]
      (when (and (map? cache-spec)
-                (not (empty? cache-spec)))
+                (seq cache-spec))
        (let [strategy-legend {:basic cache/basic-cache-factory,
                               :fifo cache/fifo-cache-factory,
                               :lru cache/lru-cache-factory,

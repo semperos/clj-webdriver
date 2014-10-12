@@ -13,23 +13,23 @@
 (defn build-css-attrs
   "Given a map of attribute-value pairs, build the latter portion of a CSS query that follows the tag."
   [attr-val]
-  (apply str (for [[attr value] attr-val]
-               (cond
-                 (= :text attr) (throw (IllegalArgumentException. "CSS queries do not support checking against the text of an element."))
-                 (= :index attr) (str ":nth-child(" (inc value) ")") ;; CSS is 1-based
-                 :else (str "[" (name attr) "='" value "']")))))
+  (clojure.string/join (for [[attr value] attr-val]
+                         (cond
+                           (= :text attr) (throw (IllegalArgumentException. "CSS queries do not support checking against the text of an element."))
+                           (= :index attr) (str ":nth-child(" (inc value) ")") ;; CSS is 1-based
+                           :else (str "[" (name attr) "='" value "']")))))
 
 (defn build-xpath-attrs
   "Given a map of attribute-value pairs, build the bracketed portion of an XPath query that follows the tag"
   [attr-val]
-  (apply str (for [[attr value] attr-val]
-               (cond
-                (= :text attr) (str "[text()=\"" value "\"]")
-                (= :index attr) (str "[" (inc value) "]") ; in clj-webdriver,
-                :else (str "[@"                           ; all indices 0-based
-                           (name attr)
-                           "="
-                           "'" (name value) "']")))))
+  (clojure.string/join (for [[attr value] attr-val]
+                         (cond
+                          (= :text attr) (str "[text()=\"" value "\"]")
+                          (= :index attr) (str "[" (inc value) "]") ; in clj-webdriver,
+                          :else (str "[@"                           ; all indices 0-based
+                                     (name attr)
+                                     "="
+                                     "'" (name value) "']")))))
 
 (defn build-css-with-hierarchy
   "Given a vector of queries in hierarchical order, create a CSS query.
@@ -55,17 +55,16 @@
    For example: `[{:tag :div, :id \"content\"}, {:tag :a, :class \"external\"}]` would
    produce the XPath \"//div[@id='content']//a[@class='external']"
   [v-of-attr-vals]
-  (apply str
-         (for [attr-val v-of-attr-vals]
-           (cond
-             (or (contains? attr-val :css)
-                 (contains? attr-val :xpath)) (throw (IllegalArgumentException. "Hierarhical queries do not support the use of :css or :xpath entries."))
-                 (some #{(:tag attr-val)} [:radio
-                                           :checkbox
-                                           :textfield
-                                           :password
-                                           :filefield]) (throw (IllegalArgumentException. "Hierarchical queries do not support the use of \"meta\" tags such as :button*, :radio, :checkbox, :textfield, :password or :filefield. "))
-                                           :else (:xpath (build-query attr-val))))))
+  (clojure.string/join (for [attr-val v-of-attr-vals]
+                         (cond
+                           (or (contains? attr-val :css)
+                               (contains? attr-val :xpath)) (throw (IllegalArgumentException. "Hierarhical queries do not support the use of :css or :xpath entries."))
+                               (some #{(:tag attr-val)} [:radio
+                                                         :checkbox
+                                                         :textfield
+                                                         :password
+                                                         :filefield]) (throw (IllegalArgumentException. "Hierarchical queries do not support the use of \"meta\" tags such as :button*, :radio, :checkbox, :textfield, :password or :filefield. "))
+                                                         :else (:xpath (build-query attr-val))))))
 
 
 (declare remove-regex-entries)
@@ -96,12 +95,12 @@
                    (if (= output :xpath)
                      (let [query-str (str (prefix-legend prefix) "//"
                                           (name tag)
-                                          (when-not (empty? attr-val)
+                                          (when (seq attr-val)
                                             (build-xpath-attrs attr-val)))]
                        {:xpath query-str})
                      ;; else, CSS
                      (let [query-str (str (name tag)
-                                          (when-not (empty? attr-val)
+                                          (when (seq attr-val)
                                             (build-css-attrs attr-val)))]
                        {:css query-str}))))))))
 
@@ -117,7 +116,7 @@
 (defn all-regex?
   "Checks if all values of a map are regexes"
   [m]
-  (and (not (empty? m))
+  (and (seq m)
        (not-any? (fn [entry]
                    (let [[k v] entry]
                      (not= java.util.regex.Pattern (class v)))) m)))
@@ -314,7 +313,7 @@
                              (str (first item)
                                   "-"
                                   (str/lower-case (second item))
-                                  (.substring item 2 (- (count item) 1))
+                                  (.substring item 2 (dec (count item)))
                                   "-"
                                   (str/lower-case (last item))))))
           s

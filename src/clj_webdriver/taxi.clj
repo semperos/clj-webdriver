@@ -555,7 +555,7 @@
    ;;
    ;; Full example
    ;;
-   (add-cookie {:name \"foo\", :value \"bar\", 
+   (add-cookie {:name \"foo\", :value \"bar\",
                 :domain \"example.com\", :path \"a-path\",
                 :expiry (java.util.Date.), :secure? false}) "
   ([cookie-spec] (add-cookie *driver* cookie-spec))
@@ -679,7 +679,7 @@
   ([pred] (wait/wait-until *driver* (fn [_] pred)))
   ([pred timeout] (wait/wait-until *driver* (fn [_] pred) timeout))
   ([pred timeout interval] (wait/wait-until *driver* (fn [_] pred) timeout interval))
-  ([driver pred timeout interval] (wait/wait-until driver (fn [d] (pred d)) timeout interval)))
+  ([driver pred timeout interval] (wait/wait-until driver pred timeout interval)))
 
 (defn implicit-wait
   "Set the global `timeout` that the browser should wait when attempting to find elements on the page, before timing out with an exception.
@@ -1261,7 +1261,7 @@
      (core/all-selected-options (element driver q))))
 
 (defn deselect-option
-  "Deselect the option element matching `attr-val` within the first select list found with query `q`. 
+  "Deselect the option element matching `attr-val` within the first select list found with query `q`.
 
    The `attr-val` can contain `:index`, `:value`, or `:text` keys to find the target option element. Index is the zero-based order of the option element in the list, value is the value of the HTML value attribute, and text is the visible text of the option element on the page.
 
@@ -1343,7 +1343,7 @@
   ([driver q] (core/multiple? (element driver q))))
 
 (defn select-option
-  "Select the option element matching `attr-val` within the first select list found with query `q`. 
+  "Select the option element matching `attr-val` within the first select list found with query `q`.
 
    The `attr-val` can contain `:index`, `:value`, or `:text` keys to find the target option element. Index is the zero-based order of the option element in the list, value is the value of the HTML value attribute, and text is the visible text of the option element on the page.
 

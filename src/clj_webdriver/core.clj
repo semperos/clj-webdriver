@@ -226,6 +226,7 @@
   Evaluates body in a try expression with names bound to the values
   of the inits, and a finally clause that calls (.close name) on each
   name in reverse order."
+  [bindings & body]
   (assert-args
      (vector? bindings) "a vector for its binding"
      (even? (count bindings)) "an even number of forms in binding vector")

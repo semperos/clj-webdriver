@@ -66,7 +66,7 @@
            host
            ":"
            port
-           (apply str (drop-last path-spec))
+           (clojure.string/join (drop-last path-spec))
            (when existing
              "hub"))))
 
