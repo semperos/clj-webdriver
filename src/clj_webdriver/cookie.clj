@@ -11,7 +11,7 @@
 
 (defn- nn
   [& sexprs]
-  (not (some nil? sexprs)))
+  (not-any? nil? sexprs))
 
 (defn init-cookie
   "Instantiate a Cookie record. Keys can be: `:name`, `:value`, `:domain`, `:path`, `:expiry`, or `:secure?`. The keys `:name` and `:value` are not optional."

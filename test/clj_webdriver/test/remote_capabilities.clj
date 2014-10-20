@@ -42,7 +42,7 @@
 (deftest test-capabilities-in-driver-record
   (is (= (count (:capabilities @driver)) 4))
   (is (= (set (keys (:capabilities @driver))) #{:desired :desired-obj :actual :actual-obj}))
-  (is (= (get-in @driver [:capabilities :desired])) {:browser-name "firefox"})
+  (is (= (get-in @driver [:capabilities :desired]) {:browser-name "firefox"}))
   (is (> (count (get-in @driver [:capabilities :actual]))
          (count (get-in @driver [:capabilities :desired]))))
   (is (= (class (get-in @driver [:capabilities :desired-obj]))

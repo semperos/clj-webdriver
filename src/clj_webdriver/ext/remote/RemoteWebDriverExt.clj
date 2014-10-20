@@ -9,8 +9,8 @@
 (defn -getScreenshotAs
   [this target]
   (let [base64 (->> DriverCommand/SCREENSHOT
-                    (. this execute)
+                    (.execute this)
                     .getValue
                     str)]
-    (. target convertFromBase64Png base64)))
-    
+    (.convertFromBase64Png target base64)))
+

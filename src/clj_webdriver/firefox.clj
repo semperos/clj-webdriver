@@ -9,7 +9,7 @@
   ([profile-dir] (FirefoxProfile. (io/file profile-dir))))
 
 (defn enable-extension
-  "Given a `FirefoxProfile` object, enable an extension. 
+  "Given a `FirefoxProfile` object, enable an extension.
 
    The `extension` parameter should either be (1) a File object pointing to an extension, (2) a String representation of the full path to an object, or (3) a keyword like `:firebug` which, by convention, will make clj-webdriver check an environment variable `FIREFOX_EXTENSION_FIREBUG`, hence `FIREFOX_EXTENSION_` plus the name of the plugin (keyword to string, dashes to underscores and uppercase)"
   [profile extension]
@@ -19,7 +19,7 @@
                                    (.replace "-" "_")
                                    .toUpperCase)))
         ext-file (if (keyword? extension)
-                   (if (not (empty? *properties*))
+                   (if-not (empty? *properties*)
                      (io/file (*properties* property))
                      (io/file (System/getenv (name property))))
                    (io/file extension))]
