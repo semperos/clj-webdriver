@@ -1,12 +1,12 @@
 (ns clj-webdriver.firefox
-  (:use [clj-webdriver.properties :only [*properties*]])
-  (:require [clojure.java.io :as io])
+  (:require [clojure.java.io :refer [file]]
+            [clj-webdriver.properties :refer [*properties*]])
   (:import org.openqa.selenium.firefox.FirefoxProfile))
 
 (defn new-profile
   "Create an instance of `FirefoxProfile`"
   ([] (FirefoxProfile.))
-  ([profile-dir] (FirefoxProfile. (io/file profile-dir))))
+  ([profile-dir] (FirefoxProfile. (file profile-dir))))
 
 (defn enable-extension
   "Given a `FirefoxProfile` object, enable an extension.
@@ -19,10 +19,10 @@
                                    (.replace "-" "_")
                                    .toUpperCase)))
         ext-file (if (keyword? extension)
-                   (if-not (empty? *properties*)
-                     (io/file (*properties* property))
-                     (io/file (System/getenv (name property))))
-                   (io/file extension))]
+                   (if (seq *properties*)
+                     (file (get *properties* property))
+                     (file (System/getenv (name property))))
+                   (file extension))]
     (.addExtension profile ext-file)))
 
 (defn set-preferences
@@ -44,7 +44,7 @@
 (defn is-running
   "Return true if the profile in the given `profile-dir` is the one running"
   [profile profile-dir]
-  (.isRunning profile (io/file profile-dir)))
+  (.isRunning profile (file profile-dir)))
 
 (defn write-to-disk
   "Write the given profile to disk. Makes sense when building up an anonymous profile via clj-webdriver."
