@@ -33,7 +33,7 @@
 (defn set-driver!
   "Set a default `Driver` for this thread, optionally sending it to a starting `url`.
 
-   Available browsers are `:firefox`, `:chrome`, `:ie`, `:opera`, and `:htmlunit`.
+   Available browsers are `:firefox`, `:chrome`, `:ie`, `:opera`, `:phantomjs` and `:htmlunit`.
 
    Examples:
    =========
