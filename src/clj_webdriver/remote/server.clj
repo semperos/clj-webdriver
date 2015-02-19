@@ -22,6 +22,16 @@
   (new-remote-driver [server browser-spec] "Instantiate a new RemoteDriver record.")
   (start-remote-driver [server browser-spec target-url] "Start a new RemoteDriver record and go to `target-url`."))
 
+(defn- desired-capabilities
+  "Build a DesiredCapabilities instance from `browser` and `capabilities`."
+  [browser capabilities]
+  (if (seq capabilities)
+    (let [instance (DesiredCapabilities.)]
+      (doseq [[k v] (util/java-keys capabilities)]
+        (.setCapability instance (name k) (str v)))
+      instance)
+    (util/call-method DesiredCapabilities browser nil nil)))
+
 (defn new-remote-webdriver*
   "Internal: wire up the `RemoteWebDriverExt` object correctly with a command executor and capabilities."
   ([remote-server browser-spec] (new-remote-webdriver* remote-server
@@ -30,9 +40,7 @@
   ([remote-server browser-spec capabilities]
      (let [http-cmd-exec (HttpCommandExecutor. (as-url (address remote-server)))
            {:keys [browser]} browser-spec
-           desired-caps (if (seq capabilities)
-                          (DesiredCapabilities. (util/java-keys capabilities))
-                          (util/call-method DesiredCapabilities browser nil nil))
+           desired-caps (desired-capabilities browser capabilities)
            remote-webdriver (RemoteWebDriverExt. http-cmd-exec desired-caps)]
        [remote-webdriver, desired-caps])))
 
