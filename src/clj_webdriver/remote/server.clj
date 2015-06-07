@@ -4,10 +4,10 @@
         [clj-webdriver.core :only [get-url]])
   (:require [clj-webdriver.util :as util])
   (:import clj_webdriver.ext.remote.RemoteWebDriverExt
-           [org.mortbay.jetty Connector Server]
-           org.mortbay.jetty.nio.SelectChannelConnector
-           org.mortbay.jetty.security.SslSocketConnector
-           org.mortbay.jetty.webapp.WebAppContext
+           [org.eclipse.jetty.server Connector Server]
+           org.eclipse.jetty.server.nio.SelectChannelConnector
+           org.eclipse.jetty.server.ssl.SslSocketConnector
+           org.eclipse.jetty.webapp.WebAppContext
            javax.servlet.Servlet
            org.openqa.selenium.remote.server.DriverServlet
            [org.openqa.selenium.remote
