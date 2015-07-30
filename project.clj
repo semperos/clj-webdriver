@@ -4,8 +4,7 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :min-lein-version "2.0.0"
-  :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/core.cache "0.5.0"]
+  :dependencies [[org.clojure/core.cache "0.5.0"]
                  [org.clojure/tools.logging "0.2.3"]
                  ;; Exclude these, giving preference to Selenium-WebDriver's
                  ;; dependence on them.
@@ -21,7 +20,8 @@
                   :exclusion [org.seleniumhq.selenium/selenium-java
                               org.seleniumhq.selenium/selenium-server
                               org.seleniumhq.selenium/selenium-remote-driver]]]
-  :profiles {:dev {:dependencies [[criterium "0.2.0"]
+  :profiles {:dev {:dependencies [[org.clojure/clojure "1.6.0"]
+                                  [criterium "0.2.0"]
                                   [codox "0.3.3"]
                                   [clj-time "0.4.4"]
                                   [marginalia "0.3.2"]
