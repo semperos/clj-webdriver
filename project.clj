@@ -12,7 +12,7 @@
                  [clj-http "0.3.0" :exclusions [org.apache.httpcomponents/httpclient
                                                 org.apache.httpcomponents/httpcore
                                                 org.apache.httpcomponents/httpmime]]
-                 [cheshire "2.1.0"]
+                 [cheshire "5.5.0"]
                  [org.mortbay.jetty/jetty "6.1.25"]
                  [org.seleniumhq.selenium/selenium-server "2.43.0"]
                  [org.seleniumhq.selenium/selenium-java "2.43.0"]
