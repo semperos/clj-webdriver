@@ -21,16 +21,14 @@
                   :exclusion [org.seleniumhq.selenium/selenium-java
                               org.seleniumhq.selenium/selenium-server
                               org.seleniumhq.selenium/selenium-remote-driver]]]
-  :profiles {:dev
-             {:dependencies
-              [[criterium "0.2.0"]
-               [codox "0.3.3"]
-               [clj-time "0.4.4"]
-               [marginalia "0.3.2"]
-               [ring "1.0.2"]
-               [ring-http-basic-auth "0.0.2"]
-               [enlive "1.0.0"]
-               [net.cgrand/moustache "1.0.0"]]}}
+  :profiles {:dev {:dependencies [[criterium "0.2.0"]
+                                  [codox "0.3.3"]
+                                  [clj-time "0.4.4"]
+                                  [marginalia "0.3.2"]
+                                  [ring "1.0.2"]
+                                  [ring-http-basic-auth "0.0.2"]
+                                  [enlive "1.0.0"]
+                                  [net.cgrand/moustache "1.0.0"]]}}
   :aot [#"clj-webdriver\.ext\.*"]
   :scm {:url "git@github.com:semperos/clj-webdriver.git"}
   :pom-addition [:developers [:developer [:name "Daniel Gregoire"]]])
