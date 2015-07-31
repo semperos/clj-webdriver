@@ -1,4 +1,4 @@
-(ns clj-webdriver.test.firefox
+(ns clj-webdriver.firefox-test
   (:require [clojure.test :refer :all]
             [clj-webdriver.core :refer [new-driver start current-url find-element find-elements quit get-screenshot with-browser attribute to]]
             [clj-webdriver.driver :refer [driver?]]
@@ -16,7 +16,7 @@
 (def firefox-driver-no-cache (atom nil))
 
 ;; Fixtures
-(defn start-browser-fixture
+(defn restart-browser
   [f]
   (reset! firefox-driver
           (new-driver {:browser :firefox
@@ -24,29 +24,21 @@
                                     :args [{}],
                                     :include [{:css "ol#pages"}
                                               {:tag :a, :class "external"}]}}))
+  (to @firefox-driver (base-url))
   (reset! firefox-driver-no-cache
           (new-driver {:browser :firefox}))
-  (f))
-
-(defn reset-browser-fixture
-  [f]
-  (to @firefox-driver (base-url))
   (to @firefox-driver-no-cache (base-url))
-  (f))
-
-(defn quit-browser-fixture
-  [f]
   (f)
   (quit @firefox-driver)
   (quit @firefox-driver-no-cache))
 
-(defn seed-driver-cache-fixture
+(defn seed-driver-cache
   [f]
   (cache/seed @firefox-driver {:url (current-url @firefox-driver)})
   (f))
 
-(use-fixtures :once start-system! stop-system! start-browser-fixture quit-browser-fixture)
-(use-fixtures :each reset-browser-fixture seed-driver-cache-fixture)
+(use-fixtures :once start-system! stop-system!)
+(use-fixtures :each restart-browser seed-driver-cache)
 
 ;; RUN TESTS HERE
 (deftest test-common-features-for-firefox
