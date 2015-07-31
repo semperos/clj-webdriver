@@ -12,16 +12,15 @@
   :profiles {:dev {:dependencies [[org.clojure/clojure "1.6.0"]
                                   [com.stuartsierra/component "0.2.3"]
                                   [ring/ring-jetty-adapter "1.4.0"]
-                                  [enlive "1.0.0"]
-                                  [net.cgrand/moustache "1.0.0"]
+                                  [enlive "1.0.0" :exclusions [org.clojure/clojure]]
+                                  [net.cgrand/moustache "1.0.0" :exclusions [org.clojure/clojure ring/ring-core]]
                                   [org.seleniumhq.selenium/selenium-server "2.47.1"]
                                   ;; [org.seleniumhq.selenium/selenium-java "2.43.0"]
-                                  ;; [org.seleniumhq.selenium/selenium-remote-driver "2.43.0"]
+                                  [org.seleniumhq.selenium/selenium-remote-driver "2.47.1"]
                                   [com.github.detro/phantomjsdriver "1.2.0"
                                    :exclusion [org.seleniumhq.selenium/selenium-java
                                                org.seleniumhq.selenium/selenium-server
-                                               org.seleniumhq.selenium/selenium-remote-driver]]
-]}}
+                                               org.seleniumhq.selenium/selenium-remote-driver]]]}}
   :aot [#"clj-webdriver\.ext\.*"]
   :scm {:url "git@github.com:semperos/clj-webdriver.git"}
   :pom-addition [:developers [:developer [:name "Daniel Gregoire"]]])
