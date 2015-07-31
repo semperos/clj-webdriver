@@ -114,7 +114,7 @@ DO_testTaxi() {
     echo "## Testing Taxi ##"
     echo "##################"
     echo ""
-    lein test clj-webdriver.test.taxi
+    lein test clj-webdriver.taxi-test
 }
 
 DO_testWindow() {

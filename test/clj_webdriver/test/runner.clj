@@ -8,7 +8,7 @@
             clj-webdriver.test.phantomjs
             clj-webdriver.test.remote
             clj-webdriver.test.remote-existing
-            clj-webdriver.test.taxi :reload
+            clj-webdriver.taxi-test :reload
             clj-webdriver.test.wire)
   (:import java.util.Date))
 
@@ -76,7 +76,7 @@
 (defn run-taxi
   []
   (run-template "taxi" [{:title "Taxi Results"
-                         :ns 'clj-webdriver.test.taxi}]))
+                         :ns 'clj-webdriver.taxi-test}]))
 
 (defn run-all
   []
