@@ -4,41 +4,23 @@
             [clj-webdriver.core :as core]
             [clj-webdriver.test.example-app :as web-app]
             [clj-webdriver.driver :refer [init-driver]]
-            [clj-webdriver.test.helpers :refer [base-url start-system! stop-system!
-                                                exclusive-between thrown?
-                                                chromium-preferred?]]
+            [clj-webdriver.test.helpers :refer :all]
             [clojure.string :refer [lower-case]])
-  (:import [org.openqa.selenium TimeoutException NoAlertPresentException]
-           org.openqa.selenium.remote.DesiredCapabilities
-           org.openqa.selenium.chrome.ChromeDriver))
+  (:import [org.openqa.selenium TimeoutException NoAlertPresentException]))
 
-(defn start-browser-fixture
+(defn restart-browser
   [f]
-  (if (chromium-preferred?)
-    (set-driver!
-     (init-driver
-      (ChromeDriver. (doto (DesiredCapabilities/chrome)
-                       (.setCapability "chrome.binary"
-                                       "/usr/lib/chromium-browser/chromium-browser")))))
-    (set-driver! (new-driver {:browser :chrome})))
-  (f))
-
-(defn reset-browser-fixture
-  [f]
+  (set-driver! (new-driver {:browser :firefox}))
   (to (base-url))
-  (f))
-
-(defn quit-browser-fixture
-  [f]
   (f)
   (quit))
 
-(use-fixtures :once start-system! stop-system! start-browser-fixture quit-browser-fixture)
-(use-fixtures :each reset-browser-fixture)
+(use-fixtures :once start-system! stop-system!)
+(use-fixtures :each restart-browser)
 
 ;; RUN TESTS HERE
 (deftest test-browser-basics
-  (is (= (class *driver*) clj_webdriver.driver.Driver))
+  (is (instance? clj_webdriver.driver.Driver *driver*))
   (is (= (current-url) (base-url)))
   (is (= (title) "Ministache"))
   (is (re-find #"(?i)html>" (page-source))))
@@ -110,7 +92,7 @@
   (is (= (count (find-elements-under "#footer" {:tag :a})) 5))
   (is (= (count (find-elements-under "div#content" {:css "a[class*='exter']"})) 2)))
 
-(deftest text-exists-visible-present
+(deftest test-exists-visible-present
   (is (exists? "a"))
   (is (not (exists? "area")))
   (is (exists? "a[href='#pages']"))
@@ -170,7 +152,7 @@
   (is (= (lower-case (tag (find-table-cell "#pages-table" [1 1]))) "td"))
   (is (= (count (find-table-row "#pages-table" 0)) 2))
   (is (= (lower-case (tag (first (find-table-row (element "#pages-table") 0)))) "th"))
-  (is (= (lower-case (tag (first (find-table-row (element"#pages-table") 1)))) "td")))
+  (is (= (lower-case (tag (first (find-table-row (element "#pages-table") 1)))) "td")))
 
 (deftest form-elements
   (click (find-element {:tag :a :text, "example form"}))
@@ -363,7 +345,8 @@
   (is (= (text "//a[text()='example form']") "example form"))
   (back) ;; starting page
   (is (= (attribute "//*[text()='Moustache']" :href) "https://github.com/cgrand/moustache"))
-  (is (exists? (find-element {:text "File's Name"}))))
+  (is (exists? (find-element {:text "File's Name"})))
+  (set-finder! css-finder))
 
 (deftest test-alert-dialog-handling
   (click (find-element {:tag :a, :text "example form"}))
