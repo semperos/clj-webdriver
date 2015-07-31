@@ -1,13 +1,16 @@
 ;; Namespace with implementations of test cases
 (ns clj-webdriver.test.common
-  (:use clojure.test
-        [clj-webdriver core util wait options form-helpers]
-        [clj-webdriver.test.util :only [thrown? exclusive-between]]
-        [clj-webdriver.test.config :only [base-url]])
-  (:require [clj-webdriver.cache :as cache]
-            [clj-webdriver.window :as win]
+  (:require [clojure.test :refer :all]
             [clojure.java.io :as io]
-            [clojure.tools.logging :as log])
+            [clojure.tools.logging :as log]
+            [clj-webdriver.core :refer :all]
+            [clj-webdriver.util :refer :all]
+            [clj-webdriver.wait :refer :all]
+            [clj-webdriver.options :refer :all]
+            [clj-webdriver.form-helpers :refer :all]
+            [clj-webdriver.test.helpers :refer [base-url thrown? exclusive-between]]
+            [clj-webdriver.cache :as cache]
+            [clj-webdriver.window :as win])
   (:import [clj_webdriver.driver.Driver]
            [org.openqa.selenium TimeoutException NoAlertPresentException]))
 

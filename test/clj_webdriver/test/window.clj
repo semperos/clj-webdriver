@@ -1,8 +1,8 @@
 (ns clj-webdriver.test.window
-  (:use [clojure.test]
-        [clj-webdriver.core :only [new-driver title current-url to quit]]
-        [clj-webdriver.test.config :only [base-url]]
-        clj-webdriver.window))
+  (:require [clojure.test :refer :all]
+            [clj-webdriver.window :refer :all]
+            [clj-webdriver.core :refer [new-driver title current-url to quit]]
+            [clj-webdriver.test.helpers :refer [base-url]]))
 
 ;; This part of the test suite is system-specific
 ;; and probably will not pass on your machine.

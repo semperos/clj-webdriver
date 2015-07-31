@@ -1,14 +1,13 @@
 (ns clj-webdriver.test.taxi
-  (:use clojure.test
-        clj-webdriver.taxi
-        [clj-webdriver.driver :only [init-driver]]
-        [clj-webdriver.test.config :only [base-url]]
-        [clj-webdriver.test.util :only [deftest-template-param
-                                        start-server exclusive-between thrown?
-                                        chromium-preferred?]]
-        [clojure.string :only [lower-case]])
-  (:require [clj-webdriver.core :as core]
-            [clj-webdriver.test.example-app.core :as web-app])
+  (:require [clojure.test :refer :all]
+            [clj-webdriver.taxi :refer :all]
+            [clj-webdriver.core :as core]
+            [clj-webdriver.test.example-app :as web-app]
+            [clj-webdriver.driver :refer [init-driver]]
+            [clj-webdriver.test.helpers :refer [base-url start-system! stop-system!
+                                                exclusive-between thrown?
+                                                chromium-preferred?]]
+            [clojure.string :refer [lower-case]])
   (:import [org.openqa.selenium TimeoutException NoAlertPresentException]
            org.openqa.selenium.remote.DesiredCapabilities
            org.openqa.selenium.chrome.ChromeDriver))
@@ -34,7 +33,7 @@
   (f)
   (quit))
 
-(use-fixtures :once start-server start-browser-fixture quit-browser-fixture)
+(use-fixtures :once start-system! stop-system! start-browser-fixture quit-browser-fixture)
 (use-fixtures :each reset-browser-fixture)
 
 ;; RUN TESTS HERE

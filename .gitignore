@@ -19,3 +19,5 @@ chromedriver.log
 /resources/properties.clj
 .vagrant
 *.log
+
+.nrepl-port

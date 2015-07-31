@@ -3,7 +3,7 @@
   (:require [clojure.test :refer [deftest use-fixtures]]
             [clj-webdriver.core :refer [quit to]]
             [clj-webdriver.properties :refer [*properties*]]
-            [clj-webdriver.test.config :refer [base-url]]
+            [clj-webdriver.test.helpers :refer [base-url]]
             [clj-webdriver.test.common :refer [run-common-tests]]
             [clj-webdriver.remote.server :refer [new-remote-session stop]])
   (:import [java.util.logging Level]))

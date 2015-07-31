@@ -1,7 +1,6 @@
 (ns ^{:doc "Custom Clojure test runner; writes results to log"}
   clj-webdriver.test.runner
-  (:use clojure.test)
-  (:require [clj-time.local :as t]
+  (:require [clojure.test :refer :all]
             [clojure.java.io :as io]
             [clojure.pprint :as pp]
             clj-webdriver.test.chrome
@@ -10,14 +9,15 @@
             clj-webdriver.test.remote
             clj-webdriver.test.remote-existing
             clj-webdriver.test.taxi :reload
-            clj-webdriver.test.wire))
+            clj-webdriver.test.wire)
+  (:import java.util.Date))
 
 (def log-file "test.log")
 
 (defn timestamp
   "Return string timestamp for printing to log file for each test run."
   []
-  (str (t/local-now)))
+  (str (Date.)))
 
 (defn format-test-preface
   [name]

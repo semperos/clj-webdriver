@@ -1,7 +1,6 @@
-(ns ^{:doc "Isn't it time we started testing `clj-webdriver.util` ?"}
-  clj-webdriver.test.util-test
-  (:use clojure.test
-        clj-webdriver.util))
+(ns clj-webdriver.test.util-test
+  (:require [clojure.test :refer :all]
+            [clj-webdriver.util :refer :all]))
 
 ;; Functions to test:
 ;;
@@ -140,7 +139,7 @@
    ;; IE specific
    ;;
    ;; WebDriver
-   "ignoreProtectedModeSettings" "initialBrowserUrl" 
+   "ignoreProtectedModeSettings" "initialBrowserUrl"
    "useLegacyInternalServer" "elementScrollBehavior"
    ;; RC
    "mode" "killProcessesByName" "honorSystemProxy" "ensureCleanSession"
@@ -200,7 +199,7 @@
    ;; IE specific
    ;;
    ;; WebDriver
-   :ignore-protected-mode-settings :initial-browser-url 
+   :ignore-protected-mode-settings :initial-browser-url
    :use-legacy-internal-server :element-scroll-behavior
    ;; RC
    :mode :kill-processes-by-name :honor-system-proxy :ensure-clean-session

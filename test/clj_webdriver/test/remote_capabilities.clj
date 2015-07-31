@@ -1,11 +1,10 @@
 (ns ^{:doc "Tests for RemoteWebDriver server and client (driver) code"}
   clj-webdriver.test.remote-capabilities
-  (:use clojure.test
-        [clj-webdriver.core :only [quit to]]
-        [clj-webdriver.test.config :only [base-url]]
-        [clj-webdriver.test.util :only [start-server]]
-        [clj-webdriver.test.common :only [run-common-tests]]
-        [clj-webdriver.remote.server :only [new-remote-session stop]])
+  (:require [clojure.test :refer :all]
+            [clj-webdriver.core :refer [quit to]]
+            [clj-webdriver.test.helpers :refer [base-url start-system! stop-system!]]
+            [clj-webdriver.test.common :refer [run-common-tests]]
+            [clj-webdriver.remote.server :refer [new-remote-session stop]])
   (:import org.openqa.selenium.remote.DesiredCapabilities))
 
 (def server (atom nil))
@@ -32,7 +31,7 @@
   (quit @driver)
   (stop @server))
 
-(use-fixtures :once start-server start-session-fixture quit-fixture)
+(use-fixtures :once start-system! stop-system! start-session-fixture quit-fixture)
 (use-fixtures :each reset-browser-fixture)
 
 ;; RUN TESTS HERE

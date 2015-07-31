@@ -174,7 +174,9 @@
   webdriver-drivers
   {:firefox FirefoxDriver
    :ie InternetExplorerDriver
+   :internet-explorer InternetExplorerDriver
    :chrome ChromeDriver
+   :chromium ChromeDriver
    :phantomjs PhantomJSDriver
    ;; :opera OperaDriver
    :htmlunit HtmlUnitDriver})

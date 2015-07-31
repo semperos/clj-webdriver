@@ -1,12 +1,11 @@
 ;; Tests for RemoteWebDriver server and client (driver) code using manually-started Grid hub
 (ns clj-webdriver.test.remote-existing
-  (:use clojure.test
-        [clj-webdriver.core :only [quit to]]
-        [clj-webdriver.test.config :only [base-url]]
-        [clj-webdriver.test.util :only [start-server]]
-        [clj-webdriver.test.common :only [run-common-tests]]
-        [clj-webdriver.remote.server :only [new-remote-session stop]]
-        [clj-webdriver.test.common :only [run-common-tests run-phantomjs-tests]])
+  (:require [clojure.test :refer :all]
+        [clj-webdriver.core :refer [quit to]]
+        [clj-webdriver.test.helpers :refer [base-url start-system! stop-system!]]
+        [clj-webdriver.test.common :refer [run-common-tests]]
+        [clj-webdriver.remote.server :refer [new-remote-session stop]]
+        [clj-webdriver.test.common :refer [run-common-tests run-phantomjs-tests]])
   (:import [java.util.logging Level]))
 
 (def BROWSERS [:firefox :phantomjs :chrome])
@@ -46,7 +45,7 @@
   (f)
   (if @driver (quit @driver)))
 
-(use-fixtures :once start-server quit-fixture)
+(use-fixtures :once start-system! stop-system! quit-fixture)
 ;(use-fixtures :each reset-browser-fixture)
 
 ;; RUN TESTS HERE

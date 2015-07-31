@@ -1,11 +1,10 @@
 (ns clj-webdriver.test.phantomjs
-  (:use clojure.test
-        [clj-webdriver.core :only [start new-driver to quit]]
-        [clj-webdriver.driver :only [init-driver]]
-        [clj-webdriver.test.common :only [run-common-tests run-phantomjs-tests]]
-        [clj-webdriver.test.util :only [start-server]]
-        [clj-webdriver.test.config :only [base-url]])
-  (:require [clojure.tools.logging :as log])
+  (:require [clojure.tools.logging :as log]
+            [clojure.test :refer :all]
+            [clj-webdriver.core :refer [start new-driver to quit]]
+            [clj-webdriver.driver :refer [init-driver]]
+            [clj-webdriver.test.common :refer [run-common-tests run-phantomjs-tests]]
+            [clj-webdriver.test.helpers :refer [base-url start-system! stop-system!]])
   (:import org.openqa.selenium.remote.DesiredCapabilities))
 
 ;; Driver definitions
@@ -29,7 +28,7 @@
   (f)
   (quit @phantomjs-driver))
 
-(use-fixtures :once start-server start-browser-fixture quit-browser-fixture)
+(use-fixtures :once start-system! stop-system! start-browser-fixture quit-browser-fixture)
 (use-fixtures :each reset-browser-fixture)
 
 ;; RUN TESTS HERE
