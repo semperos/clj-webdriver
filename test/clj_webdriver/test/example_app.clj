@@ -1,5 +1,6 @@
 (ns clj-webdriver.test.example-app
-  (:require [net.cgrand.moustache :refer [app]]
+  (:require [clojure.java.io :as io]
+            [net.cgrand.moustache :refer [app]]
             [net.cgrand.enlive-html :refer [content defsnippet deftemplate any-node]]
             [ring.util.response :refer [response]]))
 
@@ -24,10 +25,17 @@
 (def view-javascript-playground (view-page javascript-playground-page))
 (def view-admin-page (view-page admin-page))
 
+(defn static-resource
+  [req]
+  (when-let [path (:uri req)]
+    (when (.startsWith path "/public")
+      (response (slurp (io/resource (subs path 1)))))))
+
 (def routes
   (app
    [""] view-frontpage
    ["clojure"] view-clojure-page
    ["example-form"] view-example-form
    ["js-playground"] view-javascript-playground
-   ["admin" &] view-admin-page))
+   ["admin" &] view-admin-page
+   [&] static-resource))
