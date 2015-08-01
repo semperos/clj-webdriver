@@ -3,12 +3,12 @@
   (:require [clojure.test :refer :all]
             [clojure.java.io :as io]
             [clojure.tools.logging :as log]
+            [clj-webdriver.test.helpers :refer :all]
             [clj-webdriver.core :refer :all]
             [clj-webdriver.util :refer :all]
             [clj-webdriver.wait :refer :all]
             [clj-webdriver.options :refer :all]
             [clj-webdriver.form-helpers :refer :all]
-            [clj-webdriver.test.helpers :refer [base-url thrown? exclusive-between]]
             [clj-webdriver.cache :as cache]
             [clj-webdriver.window :as win])
   (:import [clj_webdriver.driver.Driver]
@@ -31,7 +31,7 @@
   (-> driver
       (find-element {:tag :a, :text "example form"})
       click)
-  (Thread/sleep 500) ;; race condition issue with OperaDriver (on my machine, at least)
+  (wait-until driver (fn [d] (= (str base-url "example-form") (current-url d))))
   (is (= (str base-url "example-form") (current-url driver)))
   (back driver)
   (is (= base-url (current-url driver)))
@@ -49,6 +49,7 @@
   (-> driver
       (find-element {:tag :a, :text "example form"})
       click)
+  (wait-until driver (fn [d] (immortal (find-element-by d (by-id "first_name")))))
   (is (= "first_name"
          (attribute (find-element-by driver (by-id "first_name")) :id)))
   (is (= "home"
@@ -75,12 +76,7 @@
          (attribute (find-element-by driver (by-has-attr :option :value)) :value)))
   (to driver base-url)
   (is (= "first odd"
-         (attribute (find-element-by driver (by-class-name "first odd")) :class)))
-  ;; (is (= "http://clojure.blip.tv/file/4824610/"
-  ;;        (attribute (find-element-by (find-element driver {:tag :li, :text #"simple"}) (by-tag :a)) :href)))
-  ;; (is (= "http://clojure.blip.tv/file/4824610/"
-  ;;        (attribute (find-element-by (find-element driver {:tag :li, :text #"simple"}) {:tag :a}) :href)))
-  )
+         (attribute (find-element-by driver (by-class-name "first odd")) :class))))
 
 (defn find-element-should-support-basic-attr-val-map
   [driver]
@@ -99,6 +95,7 @@
   (-> driver
       (find-element {:tag :a, :text "example form"})
       click)
+  (wait-until driver (fn [d] (immortal (find-element d {:type "text"}))))
   (is (= "first_name"
          (attribute (find-element driver {:type "text"}) "id")))
   (is (= "first_name"
@@ -166,6 +163,7 @@
       click)
   ;; Just check to make sure this page still has the element we expect,
   ;; since it's an external site
+  (wait-until driver (fn [d] (immortal (find-element d {:id "draggable"}))))
   (is (-> driver
           (find-element {:id "draggable"})
           present?))
@@ -186,6 +184,7 @@
       click)
   ;; Just check to make sure this page still has the element we expect,
   ;; since it's an external site
+  (wait-until driver (fn [d] (immortal (find-element d {:id "draggable"}))))
   (is (-> driver
           (find-element {:id "draggable"})
           present?))
@@ -205,6 +204,7 @@
 (defn should-be-able-to-determine-if-elements-intersect-each-other
   [driver]
   (click (find-element driver {:tag :a, :text "example form"}))
+  (wait-until driver (fn [d] (immortal (find-element d {:id "first_name"}))))
   (is (intersects? (find-element driver {:id "first_name"})
                    (find-element driver {:id "personal-info-wrapper"})))
   (is (not
@@ -480,6 +480,7 @@
   (-> driver
       (find-element {:tag :a, :text "is amazing!"})
       click)
+  (wait-until driver (fn [d] (immortal (= "Ministache" (:title (window d))))))
   (is (= "Ministache"
          (:title (window driver))))
   (is (= 2
@@ -499,6 +500,7 @@
 (defn alert-dialog-handling
   [driver]
   (click (find-element driver {:text "example form"}))
+  (wait-until driver (fn [d] (immortal (find-element d {:tag :button}))))
   (let [act (fn [] (click (find-element driver {:tag :button})))]
     (act)
     (is (alert-obj driver) "No alert dialog could be located")
@@ -638,6 +640,7 @@
                    #'take-screenshot])
 
 (defmacro defcommontests
+  "This can be run from within another namespace to have this suite defined and run there. This gives a separate deftest for each test, which makes it much easier to understand what broke, and run individual tests within those namespaces more easily."
   [prefix driver]
   (let [test-names (mapv #(symbol (str prefix (:name (meta %)))) common-tests)
         ts (mapv (fn [v n]
@@ -648,17 +651,3 @@
        ~@ts)))
 
 (def alert-tests [#'alert-dialog-handling])
-
-(defn run-common-tests
-  [driver]
-  (doseq [common-test (concat common-tests alert-tests)]
-    (reset-driver driver)
-    (seed-driver-cache driver)
-    (common-test driver)))
-
-(defn run-phantomjs-tests
-  [driver]
-  (doseq [common-test common-tests]
-    (reset-driver driver)
-    (seed-driver-cache driver)
-    (common-test driver)))
