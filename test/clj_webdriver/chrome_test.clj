@@ -15,13 +15,18 @@
 ;; Fixtures
 (defn restart-browser
   [f]
-  (reset! chrome-driver
-          (new-driver {:browser :chrome}))
+  (when-not @chrome-driver
+    (reset! chrome-driver
+            (new-driver {:browser :chrome})))
   (to @chrome-driver base-url)
+  (f))
+
+(defn quit-browser
+  [f]
   (f)
   (quit @chrome-driver))
 
-(use-fixtures :once start-system! stop-system!)
+(use-fixtures :once start-system! stop-system! quit-browser)
 (use-fixtures :each restart-browser)
 
 (c/defcommontests "test-" @chrome-driver)
