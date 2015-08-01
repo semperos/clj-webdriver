@@ -20,7 +20,7 @@
 
 (defn reset-browser-fixture
   [f]
-  (to @phantomjs-driver (base-url))
+  (to @phantomjs-driver base-url)
   (f))
 
 (defn quit-browser-fixture

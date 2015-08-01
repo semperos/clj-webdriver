@@ -7,10 +7,7 @@
 
 (def ^:const test-port 5744)
 
-(defn base-url
-  "Allow overriding base URL for testing from command line."
-  []
-  (get (System/getenv) "TEST_BASE_URL" (str "http://127.0.0.1:" test-port "/")))
+(def base-url (get (System/getenv) "TEST_BASE_URL" (str "http://127.0.0.1:" test-port "/")))
 
 ;; System checks
 (defn chromium-installed?

@@ -37,7 +37,7 @@
 
 (defn reset-browser-fixture
   [f]
-  (if @driver (to @driver (base-url)))
+  (if @driver (to @driver base-url))
   (f))
 
 (defn quit-fixture
@@ -58,7 +58,7 @@
     (-> this-driver :webdriver (.setLogLevel Level/OFF))
     (reset! server this-server)
     (reset! driver this-driver)
-    (to @driver (base-url))
+    (to @driver base-url)
     (run-common-tests @driver)
     (quit @driver)))
 
@@ -70,7 +70,7 @@
     (-> this-driver :webdriver (.setLogLevel Level/OFF))
     (reset! server this-server)
     (reset! driver this-driver)
-    (to @driver (base-url))
+    (to @driver base-url)
     (run-common-tests @driver)))
 
 (deftest test-remote-driver-attached-to-manually-started-grid-phantomjs
@@ -81,7 +81,7 @@
     (-> this-driver :webdriver (.setLogLevel Level/OFF))
     (reset! server this-server)
     (reset! driver this-driver)
-    (to @driver (base-url))
+    (to @driver base-url)
     (run-phantomjs-tests @driver)
     (quit @driver)))
 

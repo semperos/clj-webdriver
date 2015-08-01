@@ -19,10 +19,10 @@
 ;;; Test Definitions ;;;
 ;;;                  ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;
-(defn test-browser-basics
+(defn browser-basics
   [driver]
-  (is (= clj_webdriver.driver.Driver (class driver)))
-  (is (= (base-url) (current-url driver)))
+  (is (instance? clj_webdriver.driver.Driver driver))
+  (is (= base-url (current-url driver)))
   (is (= "Ministache" (title driver)))
   (is (boolean (re-find #"(?i)html>" (page-source driver)))))
 
@@ -32,16 +32,16 @@
       (find-element {:tag :a, :text "example form"})
       click)
   (Thread/sleep 500) ;; race condition issue with OperaDriver (on my machine, at least)
-  (is (= (str (base-url) "example-form") (current-url driver)))
+  (is (= (str base-url "example-form") (current-url driver)))
   (back driver)
-  (is (= (base-url) (current-url driver)))
+  (is (= base-url (current-url driver)))
   (forward driver)
-  (is (= (str (base-url) "example-form") (current-url driver))))
+  (is (= (str base-url "example-form") (current-url driver))))
 
 (defn to-should-open-given-url-in-browser
   [driver]
-  (to driver (str (base-url) "example-form"))
-  (is (= (str (base-url) "example-form") (current-url driver)))
+  (to driver (str base-url "example-form"))
+  (is (= (str base-url "example-form") (current-url driver)))
   (is (= "Ministache" (title driver))))
 
 (defn should-be-able-to-find-element-bys-using-low-level-by-wrappers
@@ -73,7 +73,7 @@
          (attribute (find-element-by driver (by-attr-ends :option :value "_media")) :value)))
   (is (= "france"
          (attribute (find-element-by driver (by-has-attr :option :value)) :value)))
-  (to driver (base-url))
+  (to driver base-url)
   (is (= "first odd"
          (attribute (find-element-by driver (by-class-name "first odd")) :class)))
   ;; (is (= "http://clojure.blip.tv/file/4824610/"
@@ -258,9 +258,9 @@
                                                    (find-element driver {:id "pages-table"})
                                                    1)))))))
 
-(defn test-form-elements
+(defn form-elements
   [driver]
-  (to driver (str (base-url) "example-form"))
+  (to driver (str base-url "example-form"))
   ;; Clear element
   ;; (-> driver
   ;;     (find-element [{:tag :form, :id "example_form"}, {:tag :input, :name #"last_"}])
@@ -335,7 +335,7 @@
 
 (defn select-element-functions-should-behave-as-expected
   [driver]
-  (to driver (str (base-url) "example-form"))
+  (to driver (str base-url "example-form"))
   (let [select-el (find-element driver {:tag "select", :id "countries"})]
     (is (= 4
            (count (all-options select-el))))
@@ -436,7 +436,7 @@
 
 (defn quick-fill-should-accept-special-seq-and-perform-batch-actions-on-form
   [driver]
-  (to driver (str (base-url) "example-form"))
+  (to driver (str base-url "example-form"))
   (quick-fill driver
               [{"first_name" clear}
                {"first_name" "Richard"}
@@ -459,7 +459,7 @@
 
 (defn quick-fill-submit-should-always-return-nil
   [driver]
-  (to driver (str (base-url) "example-form"))
+  (to driver (str base-url "example-form"))
   (is (nil?
        (quick-fill-submit driver
                           [{"first_name" clear}
@@ -485,18 +485,18 @@
   (is (= 2
          (count (windows driver))))
   (switch-to-window driver (second (windows driver)))
-  (is (= (str (base-url) "clojure")
+  (is (= (str base-url "clojure")
          (:url (window driver))))
   (switch-to-other-window driver)
-  (is (= (base-url)
+  (is (= base-url
          (:url (window driver))))
   (-> driver
-      (switch-to-window (find-window driver {:url (str (base-url) "clojure")})))
+      (switch-to-window (find-window driver {:url (str base-url "clojure")})))
   (close driver)
-  (is (= (base-url)
+  (is (= base-url
          (:url (window driver)))))
 
-(defn test-alert-dialog-handling
+(defn alert-dialog-handling
   [driver]
   (click (find-element driver {:text "example form"}))
   (let [act (fn [] (click (find-element driver {:tag :button})))]
@@ -543,7 +543,7 @@
 ;; This behavior is so inconsistent, I'm almost inclined to take it out
 ;; of clj-webdriver entirely.
 ;;
-;; (defn test-frames-by-index
+;; (defn frames-by-index
 ;;   [driver]
 ;;   (to driver "http://selenium.googlecode.com/svn/trunk/docs/api/java/index.html")
 ;;   (is (= (count (find-elements driver {:tag :frame})) 3))
@@ -559,7 +559,7 @@
 ;;   (is (exclusive-between (count (find-elements driver {:tag :a}))
 ;;                          30 50)))
 
-(defn test-frames-by-element
+(defn frames-by-element
   [driver]
   (to driver "http://selenium.googlecode.com/svn/trunk/docs/api/java/index.html")
   (is (= (count (find-elements driver {:tag :frame})) 3))
@@ -577,13 +577,13 @@
 
 ;; Not sure how we'll test that flash in fact flashes,
 ;; but at least this exercises the function call.
-(defn test-flash-helper
+(defn flash-helper
   [driver]
   (-> driver
       (find-element {:tag :a, :text "Moustache"})
       flash))
 
-(defn test-screenshot
+(defn take-screenshot
   [driver]
   (is (string? (get-screenshot driver :base64)))
   (is (> (count (get-screenshot driver :bytes)) 0))
@@ -595,7 +595,7 @@
 ;;; Fixture fn's ;;;
 (defn reset-driver
   [driver]
-  (to driver (base-url)))
+  (to driver base-url))
 
 (defn seed-driver-cache
   [driver]

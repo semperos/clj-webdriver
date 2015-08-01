@@ -25,7 +25,7 @@
 
 (defn reset-browser-fixture
   [f]
-  (to @driver (base-url))
+  (to @driver base-url)
   (f))
 
 (defn quit-fixture

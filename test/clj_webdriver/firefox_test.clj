@@ -3,7 +3,7 @@
             [clj-webdriver.core :refer [new-driver start current-url find-element find-elements quit get-screenshot with-browser attribute to]]
             [clj-webdriver.driver :refer [driver?]]
             [clj-webdriver.cache :refer [get-cache]]
-            [clj-webdriver.test.common :refer [run-common-tests]]
+            [clj-webdriver.test.common :as c]
             [clojure.java.io :as io]
             [clojure.tools.logging :as log]
             [clj-webdriver.cache :as cache]
@@ -24,10 +24,10 @@
                                     :args [{}],
                                     :include [{:css "ol#pages"}
                                               {:tag :a, :class "external"}]}}))
-  (to @firefox-driver (base-url))
+  (to @firefox-driver base-url)
   (reset! firefox-driver-no-cache
           (new-driver {:browser :firefox}))
-  (to @firefox-driver-no-cache (base-url))
+  (to @firefox-driver-no-cache base-url)
   (f)
   (quit @firefox-driver)
   (quit @firefox-driver-no-cache))
@@ -90,7 +90,7 @@
                         :cache-spec {:strategy :basic,
                                      :args [{}],
                                      :exclude [ {:css "ol#pages"} ]}}
-                       (base-url))]
+                       base-url)]
     (is (not (cache/cacheable? temp-dr {:css "ol#pages"})))
     (find-elements temp-dr {:css "ol#pages"})
     (is (empty? (dissoc @(get-in temp-dr [:cache-spec :cache]) :url)))
@@ -101,7 +101,7 @@
 (deftest firefox-should-support-custom-profiles
   (is (with-browser [tmp-dr (start {:browser :firefox
                                     :profile (ff/new-profile)}
-                                   (base-url))]
+                                   base-url)]
         (log/info "[x] Starting Firefox with custom profile.")
         (driver? tmp-dr))))
 
@@ -109,6 +109,6 @@
 ;;   (is (with-browser [tmp-dr (start {:browser :firefox
 ;;                                     :profile (doto (ff/new-profile)
 ;;                                                (ff/enable-extension :firebug))}
-;;                                    (base-url))]
+;;                                    base-url)]
 ;;         (log/info "[x] Starting Firefox with extensions.")
 ;;         (driver? tmp-dr))))

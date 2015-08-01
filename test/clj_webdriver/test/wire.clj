@@ -20,7 +20,7 @@
 
 (defn reset-browser-fixture
   [f]
-  (to @driver (base-url))
+  (to @driver base-url)
   (f))
 
 (defn quit-fixture
@@ -45,5 +45,5 @@
 (deftest execute-url-should-return-successfully
   (let [sessid (session-id @driver)
         resp (execute @server ["session" sessid "url"])]
-    (is (= (base-url)
+    (is (= base-url
            (get-in resp [:body :value])))))
