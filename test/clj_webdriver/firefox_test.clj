@@ -18,16 +18,22 @@
 ;; Fixtures
 (defn restart-browser
   [f]
-  (reset! firefox-driver
-          (new-driver {:browser :firefox
-                       :cache-spec {:strategy :basic,
-                                    :args [{}],
-                                    :include [{:css "ol#pages"}
-                                              {:tag :a, :class "external"}]}}))
+  (when-not @firefox-driver
+    (reset! firefox-driver
+            (new-driver {:browser :firefox
+                         :cache-spec {:strategy :basic,
+                                      :args [{}],
+                                      :include [{:css "ol#pages"}
+                                                {:tag :a, :class "external"}]}})))
   (to @firefox-driver base-url)
-  (reset! firefox-driver-no-cache
-          (new-driver {:browser :firefox}))
+  (when-not @firefox-driver-no-cache
+    (reset! firefox-driver-no-cache
+            (new-driver {:browser :firefox})))
   (to @firefox-driver-no-cache base-url)
+  (f))
+
+(defn quit-browser
+  [f]
   (f)
   (quit @firefox-driver)
   (quit @firefox-driver-no-cache))
@@ -37,7 +43,7 @@
   (cache/seed @firefox-driver {:url (current-url @firefox-driver)})
   (f))
 
-(use-fixtures :once start-system! stop-system!)
+(use-fixtures :once start-system! stop-system! quit-browser)
 (use-fixtures :each restart-browser seed-driver-cache)
 
 (c/defcommontests "test-cache-" @firefox-driver)
