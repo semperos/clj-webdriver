@@ -4,7 +4,7 @@
             [clj-webdriver.test.helpers :refer :all]
             [clj-webdriver.core :refer [start new-driver to quit]]
             [clj-webdriver.driver :refer [init-driver]]
-            [clj-webdriver.test.common :refer [run-common-tests]])
+            [clj-webdriver.test.common :as c])
   (:import org.openqa.selenium.remote.DesiredCapabilities
            org.openqa.selenium.chrome.ChromeDriver))
 
@@ -24,6 +24,4 @@
 (use-fixtures :once start-system! stop-system!)
 (use-fixtures :each restart-browser)
 
-;; RUN TESTS HERE
-(deftest test-common-features-for-chrome
-  (run-common-tests @chrome-driver))
+(c/defcommontests "test-" @chrome-driver)
