@@ -30,6 +30,13 @@
         (catch ~klass e#
           true)))
 
+(defmacro immortal
+  "Run `body` regardless of any error or exception. Useful for wait-until, where you expect the first N invocations to produce some kind of error, especially if you're waiting for an Element to appear."
+  [& body]
+  `(try
+     ~@body
+     (catch Throwable _#)))
+
 (defn exclusive-between
   "Ensure a number is between a min and a max, both exclusive"
   [n min max]
