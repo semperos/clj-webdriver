@@ -40,12 +40,8 @@
 (use-fixtures :once start-system! stop-system!)
 (use-fixtures :each restart-browser seed-driver-cache)
 
-;; RUN TESTS HERE
-(deftest test-common-features-for-firefox
-  (doseq [driver [@firefox-driver
-                  @firefox-driver-no-cache]]
-    (run-common-tests driver)))
-
+(c/defcommontests "test-cache-" @firefox-driver)
+(c/defcommontests "test-" @firefox-driver-no-cache)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;                            ;;;
