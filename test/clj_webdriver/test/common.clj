@@ -638,15 +638,14 @@
                    #'take-screenshot])
 
 (defmacro defcommontests
-  ([driver] (defcommontests ["test-" driver]))
-  ([prefix driver]
-   (let [test-names (mapv #(symbol (str prefix (:name (meta %)))) common-tests)
-         ts (mapv (fn [v n]
-                    `(deftest ~n
-                       (~v ~driver)))
-                  common-tests test-names)]
-     `(do
-        ~@ts))))
+  [prefix driver]
+  (let [test-names (mapv #(symbol (str prefix (:name (meta %)))) common-tests)
+        ts (mapv (fn [v n]
+                   `(deftest ~n
+                      (~v ~driver)))
+                 common-tests test-names)]
+    `(do
+       ~@ts)))
 
 (def alert-tests [#'alert-dialog-handling])
 
