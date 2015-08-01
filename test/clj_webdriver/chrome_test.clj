@@ -1,6 +1,7 @@
-(ns clj-webdriver.test.chrome
+(ns clj-webdriver.chrome-test
   (:require [clojure.test :refer :all]
             [clojure.tools.logging :as log]
+            [clj-webdriver.test.helpers :refer :all]
             [clj-webdriver.core :refer [start new-driver to quit]]
             [clj-webdriver.driver :refer [init-driver]]
             [clj-webdriver.test.common :refer [run-common-tests]])
@@ -12,30 +13,16 @@
 (def chrome-driver (atom nil))
 
 ;; Fixtures
-(defn start-browser-fixture
+(defn restart-browser
   [f]
-  (if (chromium-preferred?)
-    (reset! chrome-driver
-            (init-driver
-             (ChromeDriver. (doto (DesiredCapabilities/chrome)
-                              (.setCapability "chrome.binary"
-                                              "/usr/lib/chromium-browser/chromium-browser")))))
-    (reset! chrome-driver
-          (new-driver {:browser :chrome})))
-  (f))
-
-(defn reset-browser-fixture
-  [f]
-  (to @chrome-driver (base-url))
-  (f))
-
-(defn quit-browser-fixture
-  [f]
+  (reset! chrome-driver
+          (new-driver {:browser :chrome}))
+  (to @chrome-driver base-url)
   (f)
   (quit @chrome-driver))
 
-(use-fixtures :once start-server start-browser-fixture quit-browser-fixture)
-(use-fixtures :each reset-browser-fixture)
+(use-fixtures :once start-system! stop-system!)
+(use-fixtures :each restart-browser)
 
 ;; RUN TESTS HERE
 (deftest test-common-features-for-chrome
