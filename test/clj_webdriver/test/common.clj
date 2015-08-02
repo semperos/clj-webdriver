@@ -563,6 +563,7 @@
 
 (defn frames-by-element
   [driver]
+  ;; TODO Implement page with frames
   (to driver "http://selenium.googlecode.com/svn/trunk/docs/api/java/index.html")
   (is (= (count (find-elements driver {:tag :frame})) 3))
   (switch-to-frame driver (find-element driver {:name "packageListFrame"}))
