@@ -1,8 +1,8 @@
 ;; Tests for JsonWireProtocol (IWire) support
-(ns clj-webdriver.test.wire
+(ns clj-webdriver.wire-test
   (:require [clojure.test :refer :all]
             [clj-webdriver.core :refer [quit to]]
-            [clj-webdriver.test.helpers :refer [base-url start-system! stop-system!]]
+            [clj-webdriver.test.helpers :refer :all]
             [clj-webdriver.remote.server :refer [new-remote-session stop]]
             [clj-webdriver.remote.driver :refer [session-id]]
             [clj-webdriver.wire :refer [execute]]))
@@ -11,26 +11,23 @@
 (def driver (atom nil))
 
 ;; Fixtures
-(defn start-session-fixture
+(defn restart-session
   [f]
-  (let [[this-server this-driver] (new-remote-session {:port 3004} {:browser :firefox})]
-    (reset! server this-server)
-    (reset! driver this-driver))
-  (f))
-
-(defn reset-browser-fixture
-  [f]
+  (when (and (not @server) (not @driver))
+    (let [[this-server this-driver] (new-remote-session {:port 3004} {:browser :firefox})]
+      (reset! server this-server)
+      (reset! driver this-driver)))
   (to @driver base-url)
   (f))
 
-(defn quit-fixture
+(defn quit-session
   [f]
   (f)
   (quit @driver)
   (stop @server))
 
-(use-fixtures :once start-system! stop-system! start-session-fixture quit-fixture)
-(use-fixtures :each reset-browser-fixture)
+(use-fixtures :once start-system! stop-system! quit-session)
+(use-fixtures :each restart-session)
 
 ;; RUN TESTS HERE
 (deftest execute-status-should-return-successfully
