@@ -1,11 +1,12 @@
 (ns ^{:doc "Tests for RemoteWebDriver server and client (driver) code"}
-  clj-webdriver.test.remote-capabilities
+  clj-webdriver.remote-capabilities-test
   (:require [clojure.test :refer :all]
             [clj-webdriver.core :refer [quit to]]
             [clj-webdriver.test.helpers :refer [base-url start-system! stop-system!]]
-            [clj-webdriver.test.common :refer [run-common-tests]]
+            [clj-webdriver.test.common :refer [defcommontests]]
             [clj-webdriver.remote.server :refer [new-remote-session stop]])
-  (:import org.openqa.selenium.remote.DesiredCapabilities))
+  (:import org.openqa.selenium.Platform
+           org.openqa.selenium.remote.DesiredCapabilities))
 
 (def server (atom nil))
 (def driver (atom nil))
@@ -30,13 +31,14 @@
 (use-fixtures :each restart-session)
 
 ;; RUN TESTS HERE
-(deftest test-common-features-for-firefox-via-remote-server-with-capabilities
-  (run-common-tests @driver))
+(defcommontests "test-" @driver)
 
 (deftest test-capabilities-in-driver-record
   (is (= (count (:capabilities @driver)) 4))
   (is (= (set (keys (:capabilities @driver))) #{:desired :desired-obj :actual :actual-obj}))
-  (is (= (get-in @driver [:capabilities :desired]) {:browser-name "firefox"}))
+  (is (every? (partial (get-in @driver [:capabilities :desired]) contains?)
+              [:platform :browser :version] ))
+  (is (= "firefox" (get-in @driver [:capabilities :desired :browser-name])))
   (is (> (count (get-in @driver [:capabilities :actual]))
          (count (get-in @driver [:capabilities :desired]))))
   (is (= (class (get-in @driver [:capabilities :desired-obj]))
