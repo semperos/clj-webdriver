@@ -11,28 +11,23 @@
 (def driver (atom nil))
 
 ;; Fixtures
-(defn start-session-fixture
+(defn restart-session
   [f]
-  (let [[this-server this-driver] (new-remote-session {:port 3003}
-                                                      {:capabilities
-                                                       {:browser-name "firefox"}})]
-    (reset! server this-server)
-    (reset! driver this-driver))
-  (f))
-
-(defn reset-browser-fixture
-  [f]
+  (when (and (not @server) (not @driver))
+    (let [[this-server this-driver] (new-remote-session {:port 3004} {:browser :firefox})]
+      (reset! server this-server)
+      (reset! driver this-driver)))
   (to @driver base-url)
   (f))
 
-(defn quit-fixture
+(defn quit-session
   [f]
   (f)
   (quit @driver)
   (stop @server))
 
-(use-fixtures :once start-system! stop-system! start-session-fixture quit-fixture)
-(use-fixtures :each reset-browser-fixture)
+(use-fixtures :once start-system! stop-system! quit-session)
+(use-fixtures :each restart-session)
 
 ;; RUN TESTS HERE
 (deftest test-common-features-for-firefox-via-remote-server-with-capabilities
