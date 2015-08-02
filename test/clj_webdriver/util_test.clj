@@ -1,4 +1,4 @@
-(ns clj-webdriver.test.util-test
+(ns clj-webdriver.util-test
   (:require [clojure.test :refer :all]
             [clj-webdriver.util :refer :all]))
 
@@ -45,7 +45,7 @@
   (is (re-matches #"foo bar\s+" (elim-breaks "foo bar\r\n"))))
 
 (deftest test-read-config
-  (let [conf (read-config "resources/properties.clj")]
+  (let [conf (read-config "resources/properties-example.clj")]
     (is (map? conf))
     (is (contains? conf :this-file))
     (is (>= (count conf) 2))))
