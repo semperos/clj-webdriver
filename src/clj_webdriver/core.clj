@@ -29,7 +29,7 @@
                                 OutputType NoSuchElementException Keys]
            [org.openqa.selenium.firefox FirefoxDriver]
            [org.openqa.selenium.ie InternetExplorerDriver]
-           [org.openqa.selenium.chrome ChromeDriver]
+           [org.openqa.selenium.chrome ChromeDriver ChromeOptions]
            [org.openqa.selenium.phantomjs PhantomJSDriver]
            [org.openqa.selenium.htmlunit HtmlUnitDriver]
            [org.openqa.selenium.support.ui Select]
@@ -179,14 +179,30 @@
    ;; :opera OperaDriver
    :htmlunit HtmlUnitDriver})
 
+(defn new-firefoxdriver*
+  [firefox-profile]
+  (if-not firefox-profile
+    (FirefoxDriver.)
+    (FirefoxDriver. firefox-profile)))
+
+(defn new-chromedriver*
+  [chrome-options]
+  (if-not chrome-options
+    (ChromeDriver.)
+    (let [capabilities (DesiredCapabilities.)]
+      (.setCapability capabilities ChromeOptions/CAPABILITY chrome-options)
+      (ChromeDriver. capabilities))))
+
 (defn new-webdriver*
   "Return a Selenium-WebDriver WebDriver instance, optionally configured to leverage a custom FirefoxProfile."
   ([browser-spec]
-     (let [{:keys [browser profile] :or {browser :firefox
-                                         profile nil}} browser-spec]
-       (if-not profile
-         (.newInstance (webdriver-drivers (keyword browser)))
-         (FirefoxDriver. profile)))))
+     (let [{:keys [browser profile chrome-options]
+            :or {browser :firefox
+                 profile nil}} browser-spec]
+       (case (keyword browser)
+         :chrome (new-chromedriver* chrome-options)
+         :firefox (new-firefoxdriver* profile)
+         (.newInstance (webdriver-drivers (keyword browser)))))))
 
 (defn new-driver
   "Start a new Driver instance. The `browser-spec` can include `:browser`, `:profile`, and `:cache-spec` keys.
@@ -195,12 +211,13 @@
    The `:profile` should be an instance of FirefoxProfile you wish to use.
    The `:cache-spec` can contain `:strategy`, `:args`, `:include` and/or `:exclude keys. See documentation on caching for more details."
   ([browser-spec]
-     (let [{:keys [browser profile cache-spec] :or {browser :firefox
+     (let [{:keys [browser profile cache-spec chrome-options] :or {browser :firefox
                                                     profile nil
                                                     cache-spec {}}} browser-spec]
 
        (init-driver {:webdriver (new-webdriver* {:browser browser
-                                                 :profile profile})
+                                                 :profile profile
+                                                 :chrome-options chrome-options})
                      :cache-spec cache-spec}))))
 
 ;; Chrome binary, common location of Chromium on Linux
