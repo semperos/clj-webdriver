@@ -22,7 +22,7 @@ fi
 
 WEBDRIVER_SERVER_JAR=$HOME/opt/selenium-server-standalone.jar
 # API default is 4444, so for testing we'll use 3333
-WEBDRIVER_NODE_PARAMS="-role node -hubHost 127.0.0.1 -hubPort 3333"
+WEBDRIVER_NODE_PARAMS="-role webdriver -hubHost 127.0.0.1 -hubPort 3333 -host 127.0.0.1 -browserName=firefox"
 WEBDRIVER_NODE_PIDFILE="/tmp/webdriver_node.pid"
 
 if [ ! -f $WEBDRIVER_SERVER_JAR ]; then
@@ -37,11 +37,12 @@ case "$1" in
             echo "${FAIL_MSG} Selenium-WebDriver Grid2 node already running with PID $(cat $WEBDRIVER_NODE_PIDFILE). Run 'grid-node stop' or 'grid-node restart'."
             exit 1
         else
-            START_NODE_CMD="java -jar ${WEBDRIVER_SERVER_JAR} ${WEBDRIVER_NODE_PARAMS}"
+            START_NODE_CMD="java -Djava.util.logging.config.file=test/logging.properties -jar ${WEBDRIVER_SERVER_JAR} ${WEBDRIVER_NODE_PARAMS}"
             $START_NODE_CMD &
             PID=$!
             echo $PID > "${WEBDRIVER_NODE_PIDFILE}"
             echo "${SUCCESS_MSG} Selenium-WebDriver Grid2 node started successfully."
+            echo "To see full log output, remove the java.util.logging.config.file parameter from script/grid-node"
         fi
         ;;
     stop)
