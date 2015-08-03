@@ -1,9 +1,15 @@
 (ns clj-webdriver.test.helpers
-  (:require [clojure.tools.logging :as log]
+  (:require [clojure.java.io :as io]
+            [clojure.tools.logging :as log]
             [ring.adapter.jetty :refer [run-jetty]]
             [com.stuartsierra.component :as component]
             [clj-webdriver.test.example-app :as web-app])
-  (:import java.io.File))
+  (:import java.io.File
+           [org.apache.log4j PropertyConfigurator]))
+
+(let [prop-file (io/file "test/log4j.properties")]
+  (when (.exists prop-file)
+    (PropertyConfigurator/configure (.getPath prop-file))))
 
 (def ^:const test-port 5744)
 
