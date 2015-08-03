@@ -1,9 +1,9 @@
 (ns ^{:doc "Tests for RemoteWebDriver server and client (driver) code"}
-  clj-webdriver.test.remote
+  clj-webdriver.remote-test
   (:require [clojure.test :refer :all]
             [clj-webdriver.core :refer [quit to]]
-            [clj-webdriver.test.helpers :refer [base-url start-system! stop-system!]]
-            [clj-webdriver.test.common :refer [run-common-tests]]
+            [clj-webdriver.test.helpers :refer :all]
+            [clj-webdriver.test.common :refer [defcommontests]]
             [clj-webdriver.remote.server :refer [new-remote-session stop]])
   (:import [java.util.logging Level]))
 
@@ -11,29 +11,23 @@
 (def driver (atom nil))
 
 ;; Fixtures
-(defn start-session-fixture
+(defn restart-session
   [f]
-  (let [[this-server this-driver] (new-remote-session {:port 3003}
-                                                      {:browser :firefox})]
-    (-> this-driver :webdriver (.setLogLevel Level/OFF))
-    (reset! server this-server)
-    (reset! driver this-driver))
-  (f))
-
-(defn reset-browser-fixture
-  [f]
+  (when (and (not @server) (not @driver))
+    (let [[this-server this-driver] (new-remote-session {:port 3004} {:browser :firefox})]
+      (reset! server this-server)
+      (reset! driver this-driver)))
   (to @driver base-url)
   (f))
 
-(defn quit-fixture
+(defn quit-session
   [f]
   (f)
   (quit @driver)
   (stop @server))
 
-(use-fixtures :once start-server start-session-fixture quit-fixture)
-(use-fixtures :each reset-browser-fixture)
+(use-fixtures :once start-system! stop-system! quit-session)
+(use-fixtures :each restart-session)
 
 ;; RUN TESTS HERE
-(deftest test-common-features-via-remote-server
-  (run-common-tests @driver))
+(defcommontests "test-" @driver)
