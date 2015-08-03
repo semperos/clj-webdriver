@@ -1,5 +1,6 @@
 (ns clj-webdriver.remote.server
   (:use [clojure.java.io :only [as-url]]
+        [clojure.tools.logging :as log]
         [clj-webdriver.driver :only [init-driver]]
         [clj-webdriver.core :only [get-url]])
   (:require [clj-webdriver.util :as util])
@@ -47,7 +48,11 @@
 (defrecord RemoteServer [connection-params webdriver-server]
   IRemoteServer
   (stop [remote-server]
-    (.stop (:webdriver-server remote-server)))
+    ;; Existing uses an externally-started Jetty
+    (when-not (:existing connection-params)
+      (if-let [s (:webdriver-server remote-server)]
+        (.stop s)
+        (log/warn "You tried to stop a RemoteServer but the underlying server was `nil`."))))
 
   (start [remote-server]
     (try
