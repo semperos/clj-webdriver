@@ -20,7 +20,7 @@ fi
 
 ################################################################################
 
-WEBDRIVER_SERVER_JAR=/opt/selenium-server-standalone.jar
+WEBDRIVER_SERVER_JAR=$HOME/opt/selenium-server-standalone.jar
 # API default is 4444, so for testing we'll use 3333
 WEBDRIVER_HUB_PARAMS="-role hub -port 3333"
 WEBDRIVER_HUB_PIDFILE="/tmp/webdriver_hub.pid"
