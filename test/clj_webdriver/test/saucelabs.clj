@@ -2,41 +2,41 @@
   clj-webdriver.test.saucelabs
   (:require [clojure.test :refer [deftest use-fixtures]]
             [clj-webdriver.core :refer [quit to]]
-            [clj-webdriver.properties :refer [*properties*]]
-            [clj-webdriver.test.helpers :refer [base-url]]
-            [clj-webdriver.test.common :refer [run-common-tests]]
-            [clj-webdriver.remote.server :refer [new-remote-session stop]])
-  (:import [java.util.logging Level]))
+            [clj-webdriver.test.helpers :refer :all]
+            [clj-webdriver.test.common :refer [defcommontests]]
+            [clj-webdriver.remote.server :refer [init-remote-server new-remote-driver stop]])
+  (:import [java.util.logging Level]
+           org.openqa.selenium.Platform
+           org.openqa.selenium.remote.DesiredCapabilities))
 
 (def server (atom nil))
 (def driver (atom nil))
 
-(defn start-session-fixture
+(defn restart-session
   [f]
-  (let [{:keys [host port]} (:saucelabs *properties*)
-        [this-server this-driver] (new-remote-session {:host host
-                                                       :port port
-                                                       :existing true}
-                                                      {:browser :firefox})]
-    (-> this-driver :webdriver (.setLogLevel Level/OFF))
-    (reset! server this-server)
-    (reset! driver this-driver))
-  (f))
-
-(defn reset-browser-fixture
-  [f]
+  (when (not @server)
+    (let [{:keys [host port]} (:saucelabs system)
+          this-server (init-remote-server {:host host
+                                           :port port
+                                           :existing true})
+          caps {:version "39"
+                :platform Platform/MAC
+                :browser-name "firefox"}
+          this-driver (new-remote-driver this-server {:browser :firefox
+                                                      :capabilities caps})]
+      (reset! server this-server)
+      (reset! driver this-driver)))
   (to @driver base-url)
   (f))
 
-(defn quit-fixture
+(defn quit-session
   [f]
   (f)
   (quit @driver)
   (stop @server))
 
-(use-fixtures :once start-session-fixture quit-fixture)
-(use-fixtures :each reset-browser-fixture)
+(use-fixtures :once start-system! stop-system! quit-session)
+(use-fixtures :each restart-session)
 
 ;; RUN TESTS HERE
-(deftest test-common-features-via-remote-server
-  (run-common-tests @driver))
+(defcommontests "test-" @driver)

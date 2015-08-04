@@ -1,6 +1,7 @@
 (ns clj-webdriver.test.helpers
   (:require [clojure.java.io :as io]
             [clojure.tools.logging :as log]
+            [clojure.tools.reader.edn :as edn]
             [ring.adapter.jetty :refer [run-jetty]]
             [com.stuartsierra.component :as component]
             [clj-webdriver.test.example-app :as web-app])
@@ -66,11 +67,14 @@
 
 (defn test-system
   "Return a system map that the component library can use."
-  []
-  (component/system-map
-   :web (WebServerComponent. test-port)))
+  ([] (test-system nil))
+  ([configuration-map]
+   (component/map->SystemMap
+    (merge {:web (WebServerComponent. test-port)}
+           configuration-map))))
 
-(def system (test-system))
+;; You'll need test/settings.edn this to run the test suite.
+(def system (test-system (edn/read-string (slurp (io/as-file "test/settings.edn")))))
 
 (defn start-system! [f]
   (alter-var-root #'system component/start)
