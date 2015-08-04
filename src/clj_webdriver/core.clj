@@ -30,7 +30,7 @@
            [org.openqa.selenium.firefox FirefoxDriver]
            [org.openqa.selenium.ie InternetExplorerDriver]
            [org.openqa.selenium.chrome ChromeDriver]
-           [org.openqa.selenium.phantomjs PhantomJSDriver]
+           [org.openqa.selenium.phantomjs PhantomJSDriver PhantomJSDriverService]
            [org.openqa.selenium.htmlunit HtmlUnitDriver]
            [org.openqa.selenium.support.ui Select]
            [org.openqa.selenium.interactions Actions CompositeAction]
@@ -181,14 +181,35 @@
    ;; :opera OperaDriver
    :htmlunit HtmlUnitDriver})
 
-(defn new-webdriver*
-  "Return a Selenium-WebDriver WebDriver instance, optionally configured to leverage a custom FirefoxProfile."
-  ([browser-spec]
-     (let [{:keys [browser profile] :or {browser :firefox
-                                         profile nil}} browser-spec]
-       (if-not profile
-         (.newInstance (webdriver-drivers (keyword browser)))
-         (FirefoxDriver. profile)))))
+(defmulti new-webdriver
+  "Return a Selenium-WebDriver WebDriver instance, with particularities of each browser supported."
+  :browser)
+
+(defmethod new-webdriver :default
+  [{:keys [browser]}]
+  ;; Allow driver classes unknown to this library as a fallback
+  (.newInstance (or (browser webdriver-drivers) browser)))
+
+(defmethod new-webdriver :firefox
+  [{:keys [browser profile]}]
+  (if profile
+    (FirefoxDriver. profile)
+    (FirefoxDriver.)))
+
+(defmethod new-webdriver :phantomjs
+  [{:keys [javascript-enabled? phantomjs-executable takes-screenshot?] :as browser-spec}]
+  (let [caps (DesiredCapabilities.)]
+    ;; Default is true
+    (when-not javascript-enabled?
+      (.setJavascriptEnabled caps false))
+    (when takes-screenshot?
+      (.setCapability caps "takesScreenshot" true))
+    ;; Seems to be able to find it if on PATH by default, like Chrome's driver
+    (when phantomjs-executable
+      (.setCapability caps
+                      PhantomJSDriverService/PHANTOMJS_EXECUTABLE_PATH_PROPERTY
+                      phantomjs-executable))
+    (PhantomJSDriver. caps)))
 
 (defn new-driver
   "Start a new Driver instance. The `browser-spec` can include `:browser`, `:profile`, and `:cache-spec` keys.
@@ -201,8 +222,8 @@
                                                     profile nil
                                                     cache-spec {}}} browser-spec]
 
-       (init-driver {:webdriver (new-webdriver* {:browser browser
-                                                 :profile profile})
+       (init-driver {:webdriver (new-webdriver {:browser browser
+                                                :profile profile})
                      :cache-spec cache-spec}))))
 
 ;; Chrome binary, common location of Chromium on Linux
