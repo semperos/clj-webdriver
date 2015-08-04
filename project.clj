@@ -15,8 +15,10 @@
                                   [ring/ring-jetty-adapter "1.4.0"]
                                   [enlive "1.0.0" :exclusions [org.clojure/clojure]]
                                   [net.cgrand/moustache "1.0.0" :exclusions [org.clojure/clojure ring/ring-core]]
+                                  ;; Needed by "remote" code
                                   [org.seleniumhq.selenium/selenium-server "2.47.1"]
-                                  ;; [org.seleniumhq.selenium/selenium-java "2.43.0"]
+                                  ;; Needed by core code
+                                  [org.seleniumhq.selenium/selenium-java "2.47.0"]
                                   [org.seleniumhq.selenium/selenium-remote-driver "2.47.1"]
                                   [com.codeborne/phantomjsdriver "1.2.1"
                                    :exclusion [org.seleniumhq.selenium/selenium-java
