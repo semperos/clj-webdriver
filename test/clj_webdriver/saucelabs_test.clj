@@ -19,7 +19,8 @@
           this-server (init-remote-server {:host host
                                            :port port
                                            :existing true})
-          caps {:version "39"
+          caps {:name "clj-webdriver-test-suite"
+                :version "39"
                 :platform Platform/MAC
                 :browser-name "firefox"}
           this-driver (new-remote-driver this-server {:browser :firefox
