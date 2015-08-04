@@ -18,7 +18,7 @@
                                   [org.seleniumhq.selenium/selenium-server "2.47.1"]
                                   ;; [org.seleniumhq.selenium/selenium-java "2.43.0"]
                                   [org.seleniumhq.selenium/selenium-remote-driver "2.47.1"]
-                                  [com.github.detro/phantomjsdriver "1.2.0"
+                                  [com.codeborne/phantomjsdriver "1.2.1"
                                    :exclusion [org.seleniumhq.selenium/selenium-java
                                                org.seleniumhq.selenium/selenium-server
                                                org.seleniumhq.selenium/selenium-remote-driver]]]}}
