@@ -193,7 +193,7 @@
 (defn new-driver
   "Start a new Driver instance. The `browser-spec` can include `:browser`, `:profile`, and `:cache-spec` keys.
 
-   The `:browser` can be one of `:firefox`, `:ie`, `:chrome`, `phantomjs` or `:htmlunit`.
+   The `:browser` can be one of `:firefox`, `:ie`, `:chrome`, `:phantomjs` or `:htmlunit`.
    The `:profile` should be an instance of FirefoxProfile you wish to use.
    The `:cache-spec` can contain `:strategy`, `:args`, `:include` and/or `:exclude keys. See documentation on caching for more details."
   ([browser-spec]
