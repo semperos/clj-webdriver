@@ -21,3 +21,4 @@ chromedriver.log
 *.log
 
 .nrepl-port
+test/settings.edn
