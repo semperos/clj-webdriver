@@ -33,10 +33,8 @@
   (when (not @drivers)
     (reset! drivers
             {:firefox (new-remote-driver @server {:browser :firefox})
-             :chrome (new-remote-driver @server {:browser :chrome})})
-    ;; (doseq [d (vals @drivers)]
-    ;;   (.setLogLevel Level/OFF (:webdriver d)))
-    )
+             :chrome (new-remote-driver @server {:browser :chrome})
+             :phantomjs (new-remote-driver @server {:browser :phantomjs})}))
   (doseq [d (vals @drivers)] (to d base-url))
   (f))
 
@@ -51,24 +49,3 @@
 
 (defcommontests "test-firefox-" (:firefox @drivers))
 (defcommontests "test-chrome-" (:chrome @drivers))
-
-;; (deftest test-remote-driver-attached-to-manually-started-grid-phantomjs
-;;   (let  [[this-server this-driver] (new-remote-session {:port (hub-port)
-;;                                                         :host (hub-host)
-;;                                                         :existing true}
-;;                                                       {:browser :phantomjs})]
-;;     (-> this-driver :webdriver (.setLogLevel Level/OFF))
-;;     (reset! server this-server)
-;;     (reset! driver this-driver)
-;;     (to @driver base-url)
-;;     ;; (run-phantomjs-tests @driver)
-;;     (quit @driver)))
-
-;; (deftest test-remote-driver-attached-to-manually-started-grid-with-capabilities
-;;   (let [capabilities {"browserName" "firefox", "seleniumProtocol" "Selenium"}
-;;        [server driver] (new-remote-session {:port (hub-port)
-;;                                             :host (hub-host)
-;;                                             :existing true}
-;;                                            {:capabilities capabilities})]
-;;     (run-common-tests driver)
-;;     (quit driver)))
