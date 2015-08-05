@@ -3,6 +3,7 @@ script: lein with-profile dev:+1.6 test
 jdk:
   - oraclejdk8
   - oraclejdk7
+sudo: false
 branches:
   only:
     - master
