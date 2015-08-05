@@ -1,5 +1,5 @@
 language: clojure
-script: lein with-profile dev:+1.6 test
+script: lein with-profile dev:+1.6 test :ci
 jdk:
   - oraclejdk8
   - oraclejdk7
