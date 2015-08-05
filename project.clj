@@ -33,4 +33,5 @@
   :test-selectors {:default (complement (some-fn :manual-setup :saucelabs))
                    :manual-setup :manual-setup
                    :saucelabs :saucelabs
+                   :ci (complement (some-fn :chrome :manual-setup :saucelabs))
                    :all (fn [m] true)})
