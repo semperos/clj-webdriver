@@ -1,5 +1,4 @@
 (ns clj-webdriver.firefox
-  (:use [clj-webdriver.properties :only [*properties*]])
   (:require [clojure.java.io :as io])
   (:import org.openqa.selenium.firefox.FirefoxProfile))
 
@@ -9,21 +8,9 @@
   ([profile-dir] (FirefoxProfile. (io/file profile-dir))))
 
 (defn enable-extension
-  "Given a `FirefoxProfile` object, enable an extension.
-
-   The `extension` parameter should either be (1) a File object pointing to an extension, (2) a String representation of the full path to an object, or (3) a keyword like `:firebug` which, by convention, will make clj-webdriver check an environment variable `FIREFOX_EXTENSION_FIREBUG`, hence `FIREFOX_EXTENSION_` plus the name of the plugin (keyword to string, dashes to underscores and uppercase)"
+  "Given a `FirefoxProfile` object, enable an extension. The `extension` argument should be something clojure.java.io/as-file will accept."
   [profile extension]
-  (let [property (keyword (str "FIREFOX_EXTENSION_"
-                               (-> extension
-                                   name
-                                   (.replace "-" "_")
-                                   .toUpperCase)))
-        ext-file (if (keyword? extension)
-                   (if-not (empty? *properties*)
-                     (io/file (*properties* property))
-                     (io/file (System/getenv (name property))))
-                   (io/file extension))]
-    (.addExtension profile ext-file)))
+  (.addExtension profile (io/as-file extension)))
 
 (defn set-preferences
   "Given a `FirefoxProfile` object and a map of preferences, set the preferences for the profile."

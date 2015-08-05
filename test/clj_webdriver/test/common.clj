@@ -1,13 +1,16 @@
 ;; Namespace with implementations of test cases
 (ns clj-webdriver.test.common
-  (:use clojure.test
-        [clj-webdriver core util wait options form-helpers]
-        [clj-webdriver.test.util :only [thrown? exclusive-between]]
-        [clj-webdriver.test.config :only [base-url]])
-  (:require [clj-webdriver.cache :as cache]
-            [clj-webdriver.window :as win]
+  (:require [clojure.test :refer :all]
             [clojure.java.io :as io]
-            [clojure.tools.logging :as log])
+            [clojure.tools.logging :as log]
+            [clj-webdriver.test.helpers :refer :all]
+            [clj-webdriver.core :refer :all]
+            [clj-webdriver.util :refer :all]
+            [clj-webdriver.wait :refer :all]
+            [clj-webdriver.options :refer :all]
+            [clj-webdriver.form-helpers :refer :all]
+            [clj-webdriver.cache :as cache]
+            [clj-webdriver.window :as win])
   (:import [clj_webdriver.driver.Driver]
            [org.openqa.selenium TimeoutException NoAlertPresentException]))
 
@@ -16,10 +19,10 @@
 ;;; Test Definitions ;;;
 ;;;                  ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;
-(defn test-browser-basics
+(defn browser-basics
   [driver]
-  (is (= clj_webdriver.driver.Driver (class driver)))
-  (is (= (base-url) (current-url driver)))
+  (is (instance? clj_webdriver.driver.Driver driver))
+  (is (= base-url (current-url driver)))
   (is (= "Ministache" (title driver)))
   (is (boolean (re-find #"(?i)html>" (page-source driver)))))
 
@@ -28,17 +31,17 @@
   (-> driver
       (find-element {:tag :a, :text "example form"})
       click)
-  (Thread/sleep 500) ;; race condition issue with OperaDriver (on my machine, at least)
-  (is (= (str (base-url) "example-form") (current-url driver)))
+  (wait-until driver (fn [d] (= (str base-url "example-form") (current-url d))))
+  (is (= (str base-url "example-form") (current-url driver)))
   (back driver)
-  (is (= (base-url) (current-url driver)))
+  (is (= base-url (current-url driver)))
   (forward driver)
-  (is (= (str (base-url) "example-form") (current-url driver))))
+  (is (= (str base-url "example-form") (current-url driver))))
 
 (defn to-should-open-given-url-in-browser
   [driver]
-  (to driver (str (base-url) "example-form"))
-  (is (= (str (base-url) "example-form") (current-url driver)))
+  (to driver (str base-url "example-form"))
+  (is (= (str base-url "example-form") (current-url driver)))
   (is (= "Ministache" (title driver))))
 
 (defn should-be-able-to-find-element-bys-using-low-level-by-wrappers
@@ -46,6 +49,7 @@
   (-> driver
       (find-element {:tag :a, :text "example form"})
       click)
+  (wait-until driver (fn [d] (immortal (find-element-by d (by-id "first_name")))))
   (is (= "first_name"
          (attribute (find-element-by driver (by-id "first_name")) :id)))
   (is (= "home"
@@ -70,14 +74,9 @@
          (attribute (find-element-by driver (by-attr-ends :option :value "_media")) :value)))
   (is (= "france"
          (attribute (find-element-by driver (by-has-attr :option :value)) :value)))
-  (to driver (base-url))
+  (to driver base-url)
   (is (= "first odd"
-         (attribute (find-element-by driver (by-class-name "first odd")) :class)))
-  ;; (is (= "http://clojure.blip.tv/file/4824610/"
-  ;;        (attribute (find-element-by (find-element driver {:tag :li, :text #"simple"}) (by-tag :a)) :href)))
-  ;; (is (= "http://clojure.blip.tv/file/4824610/"
-  ;;        (attribute (find-element-by (find-element driver {:tag :li, :text #"simple"}) {:tag :a}) :href)))
-  )
+         (attribute (find-element-by driver (by-class-name "first odd")) :class))))
 
 (defn find-element-should-support-basic-attr-val-map
   [driver]
@@ -96,6 +95,7 @@
   (-> driver
       (find-element {:tag :a, :text "example form"})
       click)
+  (wait-until driver (fn [d] (immortal (find-element d {:type "text"}))))
   (is (= "first_name"
          (attribute (find-element driver {:type "text"}) "id")))
   (is (= "first_name"
@@ -163,6 +163,7 @@
       click)
   ;; Just check to make sure this page still has the element we expect,
   ;; since it's an external site
+  (wait-until driver (fn [d] (immortal (find-element d {:id "draggable"}))))
   (is (-> driver
           (find-element {:id "draggable"})
           present?))
@@ -183,6 +184,7 @@
       click)
   ;; Just check to make sure this page still has the element we expect,
   ;; since it's an external site
+  (wait-until driver (fn [d] (immortal (find-element d {:id "draggable"}))))
   (is (-> driver
           (find-element {:id "draggable"})
           present?))
@@ -202,6 +204,7 @@
 (defn should-be-able-to-determine-if-elements-intersect-each-other
   [driver]
   (click (find-element driver {:tag :a, :text "example form"}))
+  (wait-until driver (fn [d] (immortal (find-element d {:id "first_name"}))))
   (is (intersects? (find-element driver {:id "first_name"})
                    (find-element driver {:id "personal-info-wrapper"})))
   (is (not
@@ -255,9 +258,9 @@
                                                    (find-element driver {:id "pages-table"})
                                                    1)))))))
 
-(defn test-form-elements
+(defn form-elements
   [driver]
-  (to driver (str (base-url) "example-form"))
+  (to driver (str base-url "example-form"))
   ;; Clear element
   ;; (-> driver
   ;;     (find-element [{:tag :form, :id "example_form"}, {:tag :input, :name #"last_"}])
@@ -332,7 +335,7 @@
 
 (defn select-element-functions-should-behave-as-expected
   [driver]
-  (to driver (str (base-url) "example-form"))
+  (to driver (str base-url "example-form"))
   (let [select-el (find-element driver {:tag "select", :id "countries"})]
     (is (= 4
            (count (all-options select-el))))
@@ -433,7 +436,7 @@
 
 (defn quick-fill-should-accept-special-seq-and-perform-batch-actions-on-form
   [driver]
-  (to driver (str (base-url) "example-form"))
+  (to driver (str base-url "example-form"))
   (quick-fill driver
               [{"first_name" clear}
                {"first_name" "Richard"}
@@ -456,7 +459,7 @@
 
 (defn quick-fill-submit-should-always-return-nil
   [driver]
-  (to driver (str (base-url) "example-form"))
+  (to driver (str base-url "example-form"))
   (is (nil?
        (quick-fill-submit driver
                           [{"first_name" clear}
@@ -477,25 +480,27 @@
   (-> driver
       (find-element {:tag :a, :text "is amazing!"})
       click)
+  (wait-until driver (fn [d] (immortal (= "Ministache" (:title (window d))))))
   (is (= "Ministache"
          (:title (window driver))))
   (is (= 2
          (count (windows driver))))
   (switch-to-window driver (second (windows driver)))
-  (is (= (str (base-url) "clojure")
+  (is (= (str base-url "clojure")
          (:url (window driver))))
   (switch-to-other-window driver)
-  (is (= (base-url)
+  (is (= base-url
          (:url (window driver))))
   (-> driver
-      (switch-to-window (find-window driver {:url (str (base-url) "clojure")})))
+      (switch-to-window (find-window driver {:url (str base-url "clojure")})))
   (close driver)
-  (is (= (base-url)
+  (is (= base-url
          (:url (window driver)))))
 
-(defn test-alert-dialog-handling
+(defn alert-dialog-handling
   [driver]
   (click (find-element driver {:text "example form"}))
+  (wait-until driver (fn [d] (immortal (find-element d {:tag :button}))))
   (let [act (fn [] (click (find-element driver {:tag :button})))]
     (act)
     (is (alert-obj driver) "No alert dialog could be located")
@@ -540,7 +545,7 @@
 ;; This behavior is so inconsistent, I'm almost inclined to take it out
 ;; of clj-webdriver entirely.
 ;;
-;; (defn test-frames-by-index
+;; (defn frames-by-index
 ;;   [driver]
 ;;   (to driver "http://selenium.googlecode.com/svn/trunk/docs/api/java/index.html")
 ;;   (is (= (count (find-elements driver {:tag :frame})) 3))
@@ -556,8 +561,9 @@
 ;;   (is (exclusive-between (count (find-elements driver {:tag :a}))
 ;;                          30 50)))
 
-(defn test-frames-by-element
+(defn frames-by-element
   [driver]
+  ;; TODO Implement page with frames
   (to driver "http://selenium.googlecode.com/svn/trunk/docs/api/java/index.html")
   (is (= (count (find-elements driver {:tag :frame})) 3))
   (switch-to-frame driver (find-element driver {:name "packageListFrame"}))
@@ -574,13 +580,13 @@
 
 ;; Not sure how we'll test that flash in fact flashes,
 ;; but at least this exercises the function call.
-(defn test-flash-helper
+(defn flash-helper
   [driver]
   (-> driver
       (find-element {:tag :a, :text "Moustache"})
       flash))
 
-(defn test-screenshot
+(defn take-screenshot
   [driver]
   (is (string? (get-screenshot driver :base64)))
   (is (> (count (get-screenshot driver :bytes)) 0))
@@ -592,7 +598,7 @@
 ;;; Fixture fn's ;;;
 (defn reset-driver
   [driver]
-  (to driver (base-url)))
+  (to driver base-url))
 
 (defn seed-driver-cache
   [driver]
@@ -603,50 +609,46 @@
 ;;; RUN ACTUAL TESTS HERE ;;;
 ;;;                       ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(def common-tests [test-browser-basics
-                   back-forward-should-traverse-browser-history
-                   to-should-open-given-url-in-browser
-                   should-be-able-to-find-element-bys-using-low-level-by-wrappers
-                   find-element-should-support-basic-attr-val-map
-                   find-element-should-support-hierarchical-querying
-                   hierarchical-querying-should-not-support-css-or-xpath-attrs
-                   exists-should-return-truthy-falsey-and-should-not-throw-an-exception
-                   visible-should-return-truthy-falsey-when-visible
-                   present-should-return-truthy-falsey-when-exists-and-visible
-                   drag-and-drop-by-pixels-should-work
-                   drag-and-drop-on-elements-should-work
-                   should-be-able-to-determine-if-elements-intersect-each-other
-                   generated-xpath-should-wrap-strings-in-double-quotes
-                   xpath-function-should-return-string-xpath-of-element
-                   html-function-should-return-string-html-of-element
-                   find-table-cell-should-find-cell-with-coords
-                   find-table-row-should-find-all-cells-for-row
-                   test-form-elements
-                   select-element-functions-should-behave-as-expected
-                   quick-fill-should-accept-special-seq-and-perform-batch-actions-on-form
-                   quick-fill-submit-should-always-return-nil
-                   should-be-able-to-toggle-between-open-windows
-                   wait-until-should-wait-for-condition
-                   wait-until-should-throw-on-timeout
-                   wait-until-should-allow-timeout-argument
-                   implicit-wait-should-cause-find-to-wait
-                   ;; test-frames-by-index
-                   test-frames-by-element
-                   test-flash-helper
-                   test-screenshot])
+(def common-tests [#'browser-basics
+                   #'back-forward-should-traverse-browser-history
+                   #'to-should-open-given-url-in-browser
+                   #'should-be-able-to-find-element-bys-using-low-level-by-wrappers
+                   #'find-element-should-support-basic-attr-val-map
+                   #'find-element-should-support-hierarchical-querying
+                   #'hierarchical-querying-should-not-support-css-or-xpath-attrs
+                   #'exists-should-return-truthy-falsey-and-should-not-throw-an-exception
+                   #'visible-should-return-truthy-falsey-when-visible
+                   #'present-should-return-truthy-falsey-when-exists-and-visible
+                   #'drag-and-drop-by-pixels-should-work
+                   #'drag-and-drop-on-elements-should-work
+                   #'should-be-able-to-determine-if-elements-intersect-each-other
+                   #'generated-xpath-should-wrap-strings-in-double-quotes
+                   #'xpath-function-should-return-string-xpath-of-element
+                   #'html-function-should-return-string-html-of-element
+                   #'find-table-cell-should-find-cell-with-coords
+                   #'find-table-row-should-find-all-cells-for-row
+                   #'form-elements
+                   #'select-element-functions-should-behave-as-expected
+                   #'quick-fill-should-accept-special-seq-and-perform-batch-actions-on-form
+                   #'quick-fill-submit-should-always-return-nil
+                   #'should-be-able-to-toggle-between-open-windows
+                   #'wait-until-should-wait-for-condition
+                   #'wait-until-should-throw-on-timeout
+                   #'wait-until-should-allow-timeout-argument
+                   #'implicit-wait-should-cause-find-to-wait
+                   #'frames-by-element
+                   #'flash-helper
+                   #'take-screenshot])
 
-(def alert-tests [test-alert-dialog-handling])
+(defmacro defcommontests
+  "This can be run from within another namespace to have this suite defined and run there. This gives a separate deftest for each test, which makes it much easier to understand what broke, and run individual tests within those namespaces more easily."
+  [prefix driver]
+  (let [test-names (mapv #(symbol (str prefix (:name (meta %)))) common-tests)
+        ts (mapv (fn [v n]
+                   `(deftest ~n
+                      (~v ~driver)))
+                 common-tests test-names)]
+    `(do
+       ~@ts)))
 
-(defn run-common-tests
-  [driver]
-  (doseq [common-test (concat common-tests alert-tests)]
-    (reset-driver driver)
-    (seed-driver-cache driver)
-    (common-test driver)))
-
-(defn run-phantomjs-tests
-  [driver]
-  (doseq [common-test common-tests]
-    (reset-driver driver)
-    (seed-driver-cache driver)
-    (common-test driver)))
+(def alert-tests [#'alert-dialog-handling])

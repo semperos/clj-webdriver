@@ -20,7 +20,7 @@ fi
 
 ################################################################################
 
-WEBDRIVER_SERVER_JAR=/opt/selenium-server-standalone.jar
+WEBDRIVER_SERVER_JAR=$HOME/opt/selenium-server-standalone.jar
 # API default is 4444, so for testing we'll use 3333
 WEBDRIVER_HUB_PARAMS="-role hub -port 3333"
 WEBDRIVER_HUB_PIDFILE="/tmp/webdriver_hub.pid"
@@ -37,11 +37,12 @@ case "$1" in
             echo "${FAIL_MSG} Selenium-WebDriver Grid2 hub already running with PID $(cat $WEBDRIVER_HUB_PIDFILE). Run 'grid-hub stop' or 'grid-hub restart'."
             exit 1
         else
-            START_HUB_CMD="java -jar ${WEBDRIVER_SERVER_JAR} ${WEBDRIVER_HUB_PARAMS}"
+            START_HUB_CMD="java -Djava.util.logging.config.file=test/logging.properties -jar ${WEBDRIVER_SERVER_JAR} ${WEBDRIVER_HUB_PARAMS}"
             $START_HUB_CMD &
             PID=$!
             echo $PID > "${WEBDRIVER_HUB_PIDFILE}"
             echo "${SUCCESS_MSG} Selenium-WebDriver Grid2 hub started successfully."
+            echo "To see full log output, remove the java.util.logging.config.file parameter from script/grid-hub"
         fi
         ;;
     stop)

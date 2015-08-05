@@ -1,15 +1,14 @@
-(ns clj-webdriver.test.firefox
-  (:use clojure.test
-        [clj-webdriver.core :only [new-driver start current-url find-element find-elements quit get-screenshot with-browser attribute to]]
-        [clj-webdriver.driver :only [driver?]]
-        [clj-webdriver.cache :only [get-cache]]
-        [clj-webdriver.test.common :only [run-common-tests]]
-        [clj-webdriver.test.util :only [start-server]]
-        [clj-webdriver.test.config :only [base-url]])
-  (:require [clj-webdriver.cache :as cache]
-            [clj-webdriver.firefox :as ff]
+(ns clj-webdriver.firefox-test
+  (:require [clojure.test :refer :all]
+            [clj-webdriver.core :refer [new-driver start current-url find-element find-elements quit get-screenshot with-browser attribute to]]
+            [clj-webdriver.driver :refer [driver?]]
+            [clj-webdriver.cache :refer [get-cache]]
+            [clj-webdriver.test.common :as c]
             [clojure.java.io :as io]
-            [clojure.tools.logging :as log]))
+            [clojure.tools.logging :as log]
+            [clj-webdriver.cache :as cache]
+            [clj-webdriver.firefox :as ff]
+            [clj-webdriver.test.helpers :refer [base-url start-system! stop-system!]]))
 
 ;; Driver definitions
 (def firefox-driver (atom nil))
@@ -17,44 +16,38 @@
 (def firefox-driver-no-cache (atom nil))
 
 ;; Fixtures
-(defn start-browser-fixture
+(defn restart-browser
   [f]
-  (reset! firefox-driver
-          (new-driver {:browser :firefox
-                       :cache-spec {:strategy :basic,
-                                    :args [{}],
-                                    :include [{:css "ol#pages"}
-                                              {:tag :a, :class "external"}]}}))
-  (reset! firefox-driver-no-cache
-          (new-driver {:browser :firefox}))
+  (when-not @firefox-driver
+    (reset! firefox-driver
+            (new-driver {:browser :firefox
+                         :cache-spec {:strategy :basic,
+                                      :args [{}],
+                                      :include [{:css "ol#pages"}
+                                                {:tag :a, :class "external"}]}})))
+  (to @firefox-driver base-url)
+  (when-not @firefox-driver-no-cache
+    (reset! firefox-driver-no-cache
+            (new-driver {:browser :firefox})))
+  (to @firefox-driver-no-cache base-url)
   (f))
 
-(defn reset-browser-fixture
-  [f]
-  (to @firefox-driver (base-url))
-  (to @firefox-driver-no-cache (base-url))
-  (f))
-
-(defn quit-browser-fixture
+(defn quit-browser
   [f]
   (f)
   (quit @firefox-driver)
   (quit @firefox-driver-no-cache))
 
-(defn seed-driver-cache-fixture
+(defn seed-driver-cache
   [f]
   (cache/seed @firefox-driver {:url (current-url @firefox-driver)})
   (f))
 
-(use-fixtures :once start-server start-browser-fixture quit-browser-fixture)
-(use-fixtures :each reset-browser-fixture seed-driver-cache-fixture)
+(use-fixtures :once start-system! stop-system! quit-browser)
+(use-fixtures :each restart-browser seed-driver-cache)
 
-;; RUN TESTS HERE
-(deftest test-common-features-for-firefox
-  (doseq [driver [@firefox-driver
-                  @firefox-driver-no-cache]]
-    (run-common-tests driver)))
-
+(c/defcommontests "test-cache-" @firefox-driver)
+(c/defcommontests "test-" @firefox-driver-no-cache)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;                            ;;;
@@ -99,7 +92,7 @@
                         :cache-spec {:strategy :basic,
                                      :args [{}],
                                      :exclude [ {:css "ol#pages"} ]}}
-                       (base-url))]
+                       base-url)]
     (is (not (cache/cacheable? temp-dr {:css "ol#pages"})))
     (find-elements temp-dr {:css "ol#pages"})
     (is (empty? (dissoc @(get-in temp-dr [:cache-spec :cache]) :url)))
@@ -110,7 +103,7 @@
 (deftest firefox-should-support-custom-profiles
   (is (with-browser [tmp-dr (start {:browser :firefox
                                     :profile (ff/new-profile)}
-                                   (base-url))]
+                                   base-url)]
         (log/info "[x] Starting Firefox with custom profile.")
         (driver? tmp-dr))))
 
@@ -118,6 +111,6 @@
 ;;   (is (with-browser [tmp-dr (start {:browser :firefox
 ;;                                     :profile (doto (ff/new-profile)
 ;;                                                (ff/enable-extension :firebug))}
-;;                                    (base-url))]
+;;                                    base-url)]
 ;;         (log/info "[x] Starting Firefox with extensions.")
 ;;         (driver? tmp-dr))))

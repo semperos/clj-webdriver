@@ -1,7 +1,6 @@
-(ns ^{:doc "Isn't it time we started testing `clj-webdriver.util` ?"}
-  clj-webdriver.test.util-test
-  (:use clojure.test
-        clj-webdriver.util))
+(ns clj-webdriver.util-test
+  (:require [clojure.test :refer :all]
+            [clj-webdriver.util :refer :all]))
 
 ;; Functions to test:
 ;;
@@ -44,12 +43,6 @@
 (deftest test-elim-linebreaks
   (is (re-matches #"\s+" (elim-breaks "\n\r\n")))
   (is (re-matches #"foo bar\s+" (elim-breaks "foo bar\r\n"))))
-
-(deftest test-read-config
-  (let [conf (read-config "resources/properties.clj")]
-    (is (map? conf))
-    (is (contains? conf :this-file))
-    (is (>= (count conf) 2))))
 
 (deftest test-dashes-to-camel-case
   (let [f dashes-to-camel-case]
@@ -140,7 +133,7 @@
    ;; IE specific
    ;;
    ;; WebDriver
-   "ignoreProtectedModeSettings" "initialBrowserUrl" 
+   "ignoreProtectedModeSettings" "initialBrowserUrl"
    "useLegacyInternalServer" "elementScrollBehavior"
    ;; RC
    "mode" "killProcessesByName" "honorSystemProxy" "ensureCleanSession"
@@ -161,65 +154,7 @@
    "webdriver.log.driver" "webdriver.log.file" "webdriver_enable_native_events"
    "webdriver.load.strategy" "webdriver_firefox_port"])
 
-(def desired-capabilities-clj
-  [;; Browser selection
-   :browser-name :version :platform
-   ;; Read-only capabilities
-   :takes-screenshot :handles-alerts :css-selectors-enabled
-   ;; Read-write capabilities
-   :javascript-enabled :database-enabled :location-context-enabled
-   :application-cache-enabled :browser-connection-enabled :web-storage-enabled
-   :accept-ssl-certs :rotatable :native-events :proxy :unexpected-alert-behaviour
-   ;; RemoteWebDriver specific
-   :webdriver.remote.sessionid :webdriver.remote.quiet-exceptions
-   ;; Grid-specific
-   :path :selenium-protocol :max-instances :environment
-   ;; Selenium RC (1.0) only
-   :proxy_pac :command-line-flags :executable-path :timeout-in-seconds
-   :only-proxy-selenium-traffic :avoid-proxy :proxy-everything :proxy-required
-   :browser-side-log :options-set :single-window :dont-inject-regex
-   :user-JS-injection :user-extensions
-   ;; Selenese-backed-WebDriver specific
-   :selenium.server.url
-   ;; Browser-specific Capabilities
-   ;;
-   ;; Opera specific
-   :opera.binary :opera.guess_binary_path :opera.no_restart :opera.product
-   :opera.no_quit :opera.autostart :opera.display :opera.idle :opera.profile
-   :opera.launcher :opera.port :opera.host :opera.arguments
-   :opera.logging.file :opera.logging.level
-   ;; Chrome specific
-   :chrome.chromedriver-version :chrome.binary :chrome.switches :chrome.extensions
-   ;; Firefox specific
-   ;;
-   ;; WebDriver
-   :firefox_profile :logging-prefs :firefox_binary
-   ;; RC
-   :mode :capture-network-traffic :add-custom-request-headers :trust-all-SSL-certificates
-   :change-max-connections :firefox-profile-template :profile
-   ;; IE specific
-   ;;
-   ;; WebDriver
-   :ignore-protected-mode-settings :initial-browser-url 
-   :use-legacy-internal-server :element-scroll-behavior
-   ;; RC
-   :mode :kill-processes-by-name :honor-system-proxy :ensure-clean-session
-   ;; Safari specific
-   ;;
-   ;; WebDriver
-   :safari.clean-session
-   ;; RC
-   :mode :honor-system-proxy :ensure-clean-session
-   ;; Object structures
-   ;;
-   ;; Proxy JSON Object
-   :proxy-type :proxy-autoconfig-url :ftp-proxy :http-proxy :ssl-proxy
-   ;; LoggingPreferences JSON Object
-   :driver
-   ;; FirefoxProfile settings
-   :webdriver_accept_untrusted_certs :webdriver_assume_untrusted_issuer
-   :webdriver.log.driver :webdriver.log.file :webdriver_enable_native_events
-   :webdriver.load.strategy :webdriver_firefox_port])
+(def desired-capabilities-clj (mapv keyword desired-capabilities))
 
 (deftest test-desired-capabilities-java-clojure-java
   (let [caps-map (apply hash-map

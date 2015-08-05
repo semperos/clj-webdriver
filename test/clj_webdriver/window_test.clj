@@ -1,33 +1,27 @@
-(ns clj-webdriver.test.window
-  (:use [clojure.test]
-        [clj-webdriver.core :only [new-driver title current-url to quit]]
-        [clj-webdriver.test.config :only [base-url]]
-        clj-webdriver.window))
-
-;; This part of the test suite is system-specific
-;; and probably will not pass on your machine.
+(ns clj-webdriver.window-test
+  "This namespace exercises Window manipulation code, but does not currently sport assertions. Attempts to do so over the years have resulted in non-deterministic test results. A fresh stab will be taken."
+  (:require [clojure.test :refer :all]
+            [clj-webdriver.window :refer :all]
+            [clj-webdriver.core :refer [new-driver title current-url to quit]]
+            [clj-webdriver.test.helpers :refer :all]))
 
 (def driver (atom nil))
 
 ;; Fixtures
-(defn start-browser-fixture
+(defn restart-browser
   [f]
-  (reset! driver
-          (new-driver {:browser :firefox}))
+  (when-not @driver
+    (reset! driver (new-driver {:browser :firefox})))
+  (to @driver base-url)
   (f))
 
-(defn reset-browser-fixture
-  [f]
-  (to @driver (base-url))
-  (f))
-
-(defn quit-browser-fixture
+(defn quit-browser
   [f]
   (f)
   (quit @driver))
 
-(use-fixtures :once start-browser-fixture quit-browser-fixture)
-(use-fixtures :each reset-browser-fixture)
+(use-fixtures :once start-system! stop-system! quit-browser)
+(use-fixtures :each restart-browser)
 
 (defn test-window-size
   [this]

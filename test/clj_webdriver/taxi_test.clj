@@ -1,65 +1,51 @@
-(ns clj-webdriver.test.taxi
-  (:use clojure.test
-        clj-webdriver.taxi
-        [clj-webdriver.driver :only [init-driver]]
-        [clj-webdriver.test.config :only [base-url]]
-        [clj-webdriver.test.util :only [deftest-template-param
-                                        start-server exclusive-between thrown?
-                                        chromium-preferred?]]
-        [clojure.string :only [lower-case]])
-  (:require [clj-webdriver.core :as core]
-            [clj-webdriver.test.example-app.core :as web-app])
-  (:import [org.openqa.selenium TimeoutException NoAlertPresentException]
-           org.openqa.selenium.remote.DesiredCapabilities
-           org.openqa.selenium.chrome.ChromeDriver))
+(ns clj-webdriver.taxi-test
+  (:require [clojure.test :refer :all]
+            [clj-webdriver.taxi :refer :all]
+            [clj-webdriver.core :as core]
+            [clj-webdriver.test.example-app :as web-app]
+            [clj-webdriver.driver :refer [init-driver]]
+            [clj-webdriver.test.helpers :refer :all]
+            [clojure.string :refer [lower-case]])
+  (:import [org.openqa.selenium TimeoutException NoAlertPresentException]))
 
-(defn start-browser-fixture
+(defn restart-browser
   [f]
-  (if (chromium-preferred?)
-    (set-driver!
-     (init-driver
-      (ChromeDriver. (doto (DesiredCapabilities/chrome)
-                       (.setCapability "chrome.binary"
-                                       "/usr/lib/chromium-browser/chromium-browser")))))
-    (set-driver! (new-driver {:browser :chrome})))
+  (when-not (bound? #'*driver*)
+   (set-driver! (new-driver {:browser :firefox})))
+  (to base-url)
   (f))
 
-(defn reset-browser-fixture
-  [f]
-  (to (base-url))
-  (f))
-
-(defn quit-browser-fixture
+(defn quit-browser
   [f]
   (f)
   (quit))
 
-(use-fixtures :once start-server start-browser-fixture quit-browser-fixture)
-(use-fixtures :each reset-browser-fixture)
+(use-fixtures :once start-system! stop-system! quit-browser)
+(use-fixtures :each restart-browser)
 
 ;; RUN TESTS HERE
 (deftest test-browser-basics
-  (is (= (class *driver*) clj_webdriver.driver.Driver))
-  (is (= (current-url) (base-url)))
+  (is (instance? clj_webdriver.driver.Driver *driver*))
+  (is (= (current-url) base-url))
   (is (= (title) "Ministache"))
   (is (re-find #"(?i)html>" (page-source))))
 
 (deftest back-forward-should-traverse-browser-history
   (click (find-element {:tag :a, :text "example form"}))
-  (is (= (current-url) (str (base-url) "example-form")))
+  (is (= (current-url) (str base-url "example-form")))
   (back)
-  (is (= (current-url) (base-url)))
+  (is (= (current-url) base-url))
   (forward)
-  (is (= (current-url) (str (base-url) "example-form")))
+  (is (= (current-url) (str base-url "example-form")))
   (click (find-element {:tag :a, :text "clojure"}))
   (back 2)
-  (is (= (current-url) (str (base-url))))
+  (is (= (current-url) (str base-url)))
   (forward 2)
-  (is (= (current-url) (str (base-url) "clojure"))))
+  (is (= (current-url) (str base-url "clojure"))))
 
 (deftest to-should-open-given-url-in-browser
-  (to (str (base-url) "example-form"))
-  (is (= (current-url) (str (base-url) "example-form")))
+  (to (str base-url "example-form"))
+  (is (= (current-url) (str base-url "example-form")))
   (is (= (title) "Ministache")))
 
 (deftest test-cookie-handling
@@ -111,7 +97,7 @@
   (is (= (count (find-elements-under "#footer" {:tag :a})) 5))
   (is (= (count (find-elements-under "div#content" {:css "a[class*='exter']"})) 2)))
 
-(deftest text-exists-visible-present
+(deftest test-exists-visible-present
   (is (exists? "a"))
   (is (not (exists? "area")))
   (is (exists? "a[href='#pages']"))
@@ -163,7 +149,7 @@
   (is (re-find #"href=\"https://github\.com/cgrand/moustache\"" (html "a.external"))))
 
 (deftest test-table-finding
-  (is (= (current-url) (base-url)))
+  (is (= (current-url) base-url))
   (is (exists? "#pages-table"))
   (is (= (lower-case (tag (find-table-cell "#pages-table" [0 0]))) "th"))
   (is (= (lower-case (tag (find-table-cell "#pages-table" [0 1]))) "th"))
@@ -171,7 +157,7 @@
   (is (= (lower-case (tag (find-table-cell "#pages-table" [1 1]))) "td"))
   (is (= (count (find-table-row "#pages-table" 0)) 2))
   (is (= (lower-case (tag (first (find-table-row (element "#pages-table") 0)))) "th"))
-  (is (= (lower-case (tag (first (find-table-row (element"#pages-table") 1)))) "td")))
+  (is (= (lower-case (tag (first (find-table-row (element "#pages-table") 1)))) "td")))
 
 (deftest form-elements
   (click (find-element {:tag :a :text, "example form"}))
@@ -295,12 +281,12 @@
   (is (= (:title (window)) "Ministache"))
   (is (= (count (windows)) 2))
   (switch-to-window (second (windows)))
-  (is (= (:url (window)) (str (base-url) "clojure")))
+  (is (= (:url (window)) (str base-url "clojure")))
   (switch-to-other-window)
-  (is (= (:url (window)) (base-url)))
-  (switch-to-window (find-window {:url (str (base-url) "clojure")}))
+  (is (= (:url (window)) base-url))
+  (switch-to-window (find-window {:url (str base-url "clojure")}))
   (close)
-  (is (= (:url (window)) (base-url))))
+  (is (= (:url (window)) base-url)))
 
 (deftest test-waiting-until
   (is (= (title) "Ministache"))
@@ -364,7 +350,8 @@
   (is (= (text "//a[text()='example form']") "example form"))
   (back) ;; starting page
   (is (= (attribute "//*[text()='Moustache']" :href) "https://github.com/cgrand/moustache"))
-  (is (exists? (find-element {:text "File's Name"}))))
+  (is (exists? (find-element {:text "File's Name"})))
+  (set-finder! css-finder))
 
 (deftest test-alert-dialog-handling
   (click (find-element {:tag :a, :text "example form"}))

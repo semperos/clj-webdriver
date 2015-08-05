@@ -284,11 +284,6 @@
                     (str "Source: " src ", "))
          "Object: "                  q ">") w)))
 
-(defn read-config
-  [f]
-  (with-open [r (io/reader f)]
-    (read (PushbackReader. r))))
-
 (defn dashes-to-camel-case
   "A simple conversion of `-x` to `X` for the given string."
   [s]
