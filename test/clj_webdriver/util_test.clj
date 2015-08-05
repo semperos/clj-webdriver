@@ -44,12 +44,6 @@
   (is (re-matches #"\s+" (elim-breaks "\n\r\n")))
   (is (re-matches #"foo bar\s+" (elim-breaks "foo bar\r\n"))))
 
-(deftest test-read-config
-  (let [conf (read-config "resources/properties-example.clj")]
-    (is (map? conf))
-    (is (contains? conf :this-file))
-    (is (>= (count conf) 2))))
-
 (deftest test-dashes-to-camel-case
   (let [f dashes-to-camel-case]
     (is (= (f "foo-bar-baz") "fooBarBaz"))
