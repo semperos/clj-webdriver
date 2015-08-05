@@ -36,7 +36,6 @@
                                                org.seleniumhq.selenium/selenium-server
                                                org.seleniumhq.selenium/selenium-remote-driver]]]}
              :1.6 {:dependencies [[org.clojure/clojure "1.6.0"]]}}
-  :aot [#"clj-webdriver\.ext\.*"]
   :scm {:url "git@github.com:semperos/clj-webdriver.git"}
   :pom-addition [:developers [:developer [:name "Daniel Gregoire"]]]
   :test-selectors {:default (complement (some-fn :manual-setup :saucelabs))
