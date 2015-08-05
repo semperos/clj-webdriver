@@ -10,6 +10,7 @@
                  [clj-http "2.0.0"]
                  [cheshire "5.5.0"]
                  [org.mortbay.jetty/jetty "6.1.25"]]
+  :deploy-repositories [["clojars" {:creds :gpg}]]
   :profiles {:dev {:dependencies [[org.clojure/clojure "1.7.0"]
                                   [org.clojure/tools.reader "0.10.0-alpha3"]
                                   [org.slf4j/slf4j-log4j12 "1.7.5"]
