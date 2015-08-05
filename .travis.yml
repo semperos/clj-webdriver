@@ -1,9 +1,8 @@
-script: "./script/test-ci"
 language: clojure
-lein: lein2
+script: lein with-profile dev:+1.6 test
 jdk:
+  - oraclejdk8
   - oraclejdk7
-  - openjdk6
 branches:
   only:
     - master
