@@ -10,12 +10,17 @@
 
 (defn restart-browser
   [f]
-  (set-driver! (new-driver {:browser :firefox}))
+  (when-not (bound? #'*driver*)
+   (set-driver! (new-driver {:browser :firefox})))
   (to base-url)
+  (f))
+
+(defn quit-browser
+  [f]
   (f)
   (quit))
 
-(use-fixtures :once start-system! stop-system!)
+(use-fixtures :once start-system! stop-system! quit-browser)
 (use-fixtures :each restart-browser)
 
 ;; RUN TESTS HERE
