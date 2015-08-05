@@ -9,7 +9,7 @@
                  [clj-http "2.0.0"]
                  [cheshire "5.5.0"]
                  [org.mortbay.jetty/jetty "6.1.25"]]
-  :profiles {:dev {:dependencies [[org.clojure/clojure "1.6.0"]
+  :profiles {:dev {:dependencies [[org.clojure/clojure "1.7.0"]
                                   [org.clojure/tools.reader "0.10.0-alpha3"]
                                   [org.slf4j/slf4j-log4j12 "1.7.5"]
                                   [com.stuartsierra/component "0.2.3"]
@@ -24,7 +24,8 @@
                                   [com.codeborne/phantomjsdriver "1.2.1"
                                    :exclusion [org.seleniumhq.selenium/selenium-java
                                                org.seleniumhq.selenium/selenium-server
-                                               org.seleniumhq.selenium/selenium-remote-driver]]]}}
+                                               org.seleniumhq.selenium/selenium-remote-driver]]]}
+             :1.6 {:dependencies [[org.clojure/clojure "1.6.0"]]}}
   :aot [#"clj-webdriver\.ext\.*"]
   :scm {:url "git@github.com:semperos/clj-webdriver.git"}
   :pom-addition [:developers [:developer [:name "Daniel Gregoire"]]]

@@ -8,6 +8,8 @@
   (:import java.io.File
            [org.apache.log4j PropertyConfigurator]))
 
+(log/info "Clojure version is" *clojure-version*)
+
 (let [prop-file (io/file "test/log4j.properties")]
   (when (.exists prop-file)
     (PropertyConfigurator/configure (.getPath prop-file))))
