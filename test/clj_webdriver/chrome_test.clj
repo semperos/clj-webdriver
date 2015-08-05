@@ -9,7 +9,7 @@
            org.openqa.selenium.chrome.ChromeDriver))
 
 ;; Driver definitions
-(log/debug "WARNING: The Chrome driver requires a separate download. See the Selenium-WebDriver wiki for more information if Chrome fails to start.")
+(log/debug "The Chrome driver requires a separate download. See the Selenium-WebDriver wiki for more information if Chrome fails to start.")
 (def chrome-driver (atom nil))
 
 ;; Fixtures
