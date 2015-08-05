@@ -28,6 +28,7 @@
   :aot [#"clj-webdriver\.ext\.*"]
   :scm {:url "git@github.com:semperos/clj-webdriver.git"}
   :pom-addition [:developers [:developer [:name "Daniel Gregoire"]]]
-  :test-selectors {:default (complement (some-fn :manual-setup))
+  :test-selectors {:default (complement (some-fn :manual-setup :saucelabs))
                    :manual-setup :manual-setup
+                   :saucelabs :saucelabs
                    :all (fn [m] true)})
