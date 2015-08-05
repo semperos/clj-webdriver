@@ -9,11 +9,11 @@
            org.openqa.selenium.Platform
            org.openqa.selenium.remote.DesiredCapabilities))
 
-;; Catch myself
-(when (.startsWith base-url "http://127.0.0.1")
-  (throw (ex-info "You can't run Saucelabs test on localhost. Add 'TEST_BASE_URL=http://vast-brushlands-4998.herokuapp.com/' before calling 'lein test'."
-                  {:base-url base-url
-                   :expected-url "http://vast-brushlands-4998.herokuapp.com/"})))
+(defn warn-localhost []
+ (when (.startsWith base-url "http://127.0.0.1")
+   (throw (ex-info "You can't run Saucelabs test on localhost. Add 'TEST_BASE_URL=http://vast-brushlands-4998.herokuapp.com/' before calling 'lein test'."
+                   {:base-url base-url
+                    :expected-url "http://vast-brushlands-4998.herokuapp.com/"}))))
 
 (def server (atom nil))
 (def driver (atom nil))
@@ -21,6 +21,7 @@
 (defn restart-session
   [f]
   (when (not @server)
+    (warn-localhost)
     (let [{:keys [host port]} (:saucelabs system)
           this-server (init-remote-server {:host host
                                            :port port
