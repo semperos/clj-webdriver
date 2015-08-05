@@ -75,8 +75,18 @@
     (merge {:web (WebServerComponent. test-port)}
            configuration-map))))
 
-;; You'll need test/settings.edn this to run the test suite.
-(def system (test-system (edn/read-string (slurp (io/as-file "test/settings.edn")))))
+;; For things like Saucelabs credentials
+(defn test-config []
+  (let [contents (try
+                   (slurp (io/as-file "test/settings.edn"))
+                   (catch Throwable _
+                     (log/warn "No test/settings.edn file found.")
+                     nil))]
+    (if (seq contents)
+      (edn/read-string contents)
+      (log/warn "The test/settings.edn file has no contents."))))
+
+(def system (test-system (test-config)))
 
 (defn start-system! [f]
   (alter-var-root #'system component/start)
