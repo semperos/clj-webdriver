@@ -19,6 +19,7 @@
                   ["change" "version" "leiningen.release/bump-version"]
                   ["vcs" "commit"]
                   ["vcs" "push"]]
+  :jar-exclusions [#".*\.html" #"^public/"]
   :profiles {:dev {:dependencies [[org.clojure/clojure "1.7.0"]
                                   [org.clojure/tools.reader "0.10.0-alpha3"]
                                   [org.slf4j/slf4j-log4j12 "1.7.5"]
