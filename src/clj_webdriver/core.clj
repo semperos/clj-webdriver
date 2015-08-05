@@ -23,21 +23,20 @@
             [clojure.java.io :as io]
             [clojure.string :as string]
             [clojure.tools.logging :as log])
-  (:import [clj_webdriver.driver Driver]
-           [clj_webdriver.element Element]
+  (:import java.lang.reflect.Constructor
            [org.openqa.selenium By WebDriver WebElement
                                 OutputType NoSuchElementException Keys]
-           [org.openqa.selenium.firefox FirefoxDriver]
-           [org.openqa.selenium.ie InternetExplorerDriver]
-           [org.openqa.selenium.chrome ChromeDriver]
-           [org.openqa.selenium.phantomjs PhantomJSDriver PhantomJSDriverService]
-           [org.openqa.selenium.htmlunit HtmlUnitDriver]
-           [org.openqa.selenium.support.ui Select]
+           org.openqa.selenium.firefox.FirefoxDriver
+           org.openqa.selenium.ie.InternetExplorerDriver
+           org.openqa.selenium.chrome.ChromeDriver
+           org.openqa.selenium.htmlunit.HtmlUnitDriver
+           org.openqa.selenium.support.ui.Select
            [org.openqa.selenium.interactions Actions CompositeAction]
-           [org.openqa.selenium Capabilities]
-           [org.openqa.selenium.remote DesiredCapabilities]
-           [java.util Date]
-           [java.io File]))
+           org.openqa.selenium.Capabilities
+           org.openqa.selenium.remote.DesiredCapabilities
+           clj_webdriver.driver.Driver
+           clj_webdriver.element.Element
+))
 
 ;; ## Protocols for clj-webdriver API ##
 
@@ -177,9 +176,13 @@
    :internet-explorer InternetExplorerDriver
    :chrome ChromeDriver
    :chromium ChromeDriver
-   :phantomjs PhantomJSDriver
-   ;; :opera OperaDriver
    :htmlunit HtmlUnitDriver})
+
+(def phantomjs-enabled?
+  (try
+    (import '[org.openqa.selenium.phantomjs PhantomJSDriver PhantomJSDriverService])
+    true
+    (catch Throwable _ false)))
 
 (defmulti new-webdriver
   "Return a Selenium-WebDriver WebDriver instance, with particularities of each browser supported."
@@ -198,18 +201,26 @@
 
 (defmethod new-webdriver :phantomjs
   [{:keys [javascript-enabled? phantomjs-executable takes-screenshot?] :as browser-spec}]
-  (let [caps (DesiredCapabilities.)]
-    ;; Default is true
-    (when-not javascript-enabled?
-      (.setJavascriptEnabled caps false))
-    (when takes-screenshot?
-      (.setCapability caps "takesScreenshot" true))
-    ;; Seems to be able to find it if on PATH by default, like Chrome's driver
-    (when phantomjs-executable
-      (.setCapability caps
-                      PhantomJSDriverService/PHANTOMJS_EXECUTABLE_PATH_PROPERTY
-                      phantomjs-executable))
-    (PhantomJSDriver. caps)))
+  (if-not phantomjs-enabled?
+    (throw (RuntimeException. "You do not have the PhantomJS JAR's on the classpath. Please add com.codeborne/phantomjsdriver version 1.2.1 with exclusions for org.seleniumhq.selenium/selenium-java and any other org.seleniumhq.selenium JAR's your code relies on."))
+    (let [caps (DesiredCapabilities.)
+          klass (Class/forName "org.openqa.selenium.phantomjs.PhantomJSDriver")
+          ;; Second constructor takes single argument of Capabilities
+          phantomjs-driver-ctor (aget (.getDeclaredConstructors klass) 1)]
+      ;; Default is true
+      (when-not javascript-enabled?
+        (.setJavascriptEnabled caps false))
+      (when takes-screenshot?
+        (.setCapability caps "takesScreenshot" true))
+      ;; Seems to be able to find it if on PATH by default, like Chrome's driver
+      (when phantomjs-executable
+        (let [klass (Class/forName "org.openqa.selenium.phantomjs.PhantomJSDriverService")
+              field (.getField klass "PHANTOMJS_EXECUTABLE_PATH_PROPERTY")]
+          (.setCapability caps
+                          (.get field klass)
+                          phantomjs-executable)))
+      (.newInstance phantomjs-driver-ctor (into-array java.lang.Object [caps]))
+)))
 
 (defn new-driver
   "Start a new Driver instance. The `browser-spec` can include `:browser`, `:profile`, and `:cache-spec` keys.
@@ -222,8 +233,9 @@
                                                     profile nil
                                                     cache-spec {}}} browser-spec]
 
-       (init-driver {:webdriver (new-webdriver {:browser browser
-                                                :profile profile})
+       (init-driver {:webdriver (new-webdriver (merge {:browser browser
+                                                       :profile profile}
+                                                      browser-spec))
                      :cache-spec cache-spec}))))
 
 ;; Chrome binary, common location of Chromium on Linux
