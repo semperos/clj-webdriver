@@ -83,31 +83,25 @@ If you want to fix a bug in the **current release**, please pull against the app
 
 ## Running Tests ##
 
-Follow these steps from the root of this project to run clj-webdriver's tests locally:
-
-```bash
-cp resources/properties-example.clj resources/properties.clj
-
-# Now edit that `properties.clj` file according to your local setup
-
-lein compile
-
-./script/test all
-```
-
-Note that you can run subsets of the test suite with the `script/test` script as follows:
+To run the default suite:
 
 ```
-Usage: test {all|core|firefox|remote|saucelabs|taxi|window}
+lein test
 ```
 
-The `core` option runs tests against the core API's using Firefox and Chrome. The `remote` option runs tests for Grid and remote server/driver handling. The `taxi` option tests just the Taxi API. The `all` option runs through each of the other options once.
+To run the test suite for an existing hub/node setup:
 
-*Note:* If you just want to run the example app that clj-webdriver uses for its testing purposes, you can find the app [on Heroku](http://vast-brushlands-4998.herokuapp.com) or can run it locally as follows:
+```
+./script/grid-hub start
+./script/grid-node start
+lein test :manual-setup
+```
 
- * Open a terminal and run `lein repl` or `lein swank` at the root of this project
- * Evaluate `(use 'clj-webdriver.test.example-app.core 'ring.adapter.jetty)`
- * Evaluate `(defonce my-server (run-jetty #'routes {:port 5744, :join? false}))`, making sure to adjust the `test-port` in `test/clj_webdriver/test/core.clj` to whatever you use here.
+To run the test suite for Saucelabs, first visit the [test app on Heroku](http://vast-brushlands-4998.herokuapp.com) to make sure it's "awake" and then run:
+
+```
+lein test :saucelabs
+```
 
 ## Acknowledgements ##
 
