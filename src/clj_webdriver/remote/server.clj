@@ -4,12 +4,12 @@
         [clj-webdriver.driver :only [init-driver]]
         [clj-webdriver.core :only [get-url]])
   (:require [clj-webdriver.util :as util])
-  (:import clj_webdriver.ext.remote.RemoteWebDriverExt
-           [org.mortbay.jetty Connector Server]
+  (:import [org.mortbay.jetty Connector Server]
            org.mortbay.jetty.nio.SelectChannelConnector
            org.mortbay.jetty.security.SslSocketConnector
            org.mortbay.jetty.webapp.WebAppContext
            javax.servlet.Servlet
+           org.openqa.selenium.remote.RemoteWebDriver
            org.openqa.selenium.remote.server.DriverServlet
            [org.openqa.selenium.remote
             DesiredCapabilities
@@ -34,7 +34,7 @@
     (util/call-method DesiredCapabilities browser nil nil)))
 
 (defn new-remote-webdriver*
-  "Internal: wire up the `RemoteWebDriverExt` object correctly with a command executor and capabilities."
+  "Internal: wire up the `RemoteWebDriver` object correctly with a command executor and capabilities."
   ([remote-server browser-spec] (new-remote-webdriver* remote-server
                                                        browser-spec
                                                        {}))
@@ -42,7 +42,7 @@
      (let [http-cmd-exec (HttpCommandExecutor. (as-url (address remote-server)))
            {:keys [browser]} browser-spec
            desired-caps (desired-capabilities browser capabilities)
-           remote-webdriver (RemoteWebDriverExt. http-cmd-exec desired-caps)]
+           remote-webdriver (RemoteWebDriver. http-cmd-exec desired-caps)]
        [remote-webdriver, desired-caps])))
 
 (defrecord RemoteServer [connection-params webdriver-server]
