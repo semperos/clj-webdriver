@@ -1,4 +1,4 @@
-(ns clj-webdriver.remote-existing-test
+(ns ^:manual-setup clj-webdriver.remote-existing-test
   "Tests for RemoteWebDriver server and client (driver) code using manually-started Grid hub"
   (:require [clojure.test :refer :all]
         [clj-webdriver.core :refer [quit to]]
