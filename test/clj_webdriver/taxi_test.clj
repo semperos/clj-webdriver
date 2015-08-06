@@ -349,6 +349,7 @@
   (is (= (text "//a[text()='home']") "home"))
   (is (= (text "//a[text()='example form']") "example form"))
   (back) ;; starting page
+  (wait-until (immortal (find-element {:xpath "//*[text()='Moustache']"})))
   (is (= (attribute "//*[text()='Moustache']" :href) "https://github.com/cgrand/moustache"))
   (is (exists? (find-element {:text "File's Name"})))
   (set-finder! css-finder))
