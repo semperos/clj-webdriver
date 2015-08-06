@@ -85,6 +85,16 @@ To run the test suite for Saucelabs, first visit the [test app on Heroku](http:/
 lein test :saucelabs
 ```
 
+## Release ##
+
+There's a Ruby script at `script/release`. It was written using version 2.2.2, no promises that it works with any other.
+
+```
+./script/release --release-version 8.8.8 --new-version 9.0.0-SNAPSHOT
+```
+
+The `--release-version` can be `-r` and the `--new-version` can be `-n`. Further, the new version must end with `-SNAPSHOT`.
+
 ## Acknowledgements ##
 
 Credits to [mikitebeka/webdriver-clj](https://github.com/mikitebeka/webdriver-clj) for the initial code for this project and many of the low-level wrappers around the Selenium-WebDriver API.
