@@ -1,0 +1,179 @@
+#!/usr/bin/env ruby
+
+#
+# I want more control over version setting.
+#
+
+require 'fileutils'
+require 'optparse'
+
+#
+# Returns true if version string is a SNAPSHOT
+#
+def is_snapshot?(version)
+  version.end_with? '-SNAPSHOT'
+end
+
+#
+# Ensure release and new dev versions in place,
+# and that new dev version is a SNAPSHOT
+#
+def validate_args(options)
+  unless options[:release_version]
+    abort "You must supply a -r/--release-version argument."
+  end
+  unless options[:new_version]
+    abort "You must supply a -n/--new-version argument."
+  end
+  unless is_snapshot? options[:new_version]
+    abort "New versions must end in '-SNAPSHOT'."
+  end
+end
+
+#
+# Create a backup file when mv'ing
+#
+def safe_mv (from, to)
+  to_bak = to + '_bak'
+  FileUtils.mv to, to_bak
+  FileUtils.mv from, to
+  FileUtils.rm [to_bak]
+end
+
+#
+# Change official version in project.clj
+#
+def change_project_clj(version)
+  file = 'project.clj'
+  tmp_file = file + '_new'
+  line_num = 0
+  File.open(tmp_file, 'w') do |out_file|
+    File.open(file, 'r').each do |line|
+      if line_num == 0
+        out_file.print "(defproject clj-webdriver \"#{version}\"\n"
+      else
+        out_file.print line
+      end
+      line_num += 1
+    end
+  end
+  safe_mv tmp_file, file
+end
+
+#
+# Change project version in README if not SNAPSHOT
+#
+def change_readme(version)
+  unless is_snapshot? version
+    file = 'README.md'
+    tmp_file = file + '_new'
+    File.open(tmp_file, 'w') do |out_file|
+      File.open(file, 'r').each do |line|
+        if line.start_with? '[clj-webdriver "'
+          out_file.print "[clj-webdriver \"#{version}\"]\n"
+        else
+          out_file.print line
+        end
+      end
+    end
+    safe_mv tmp_file, file
+  end
+end
+
+#
+# Change all files that contain the version
+#
+def change_project_version(version)
+  change_project_clj version
+  change_readme version
+end
+
+#
+# Returns false if repo is dirty (staged on index or not)
+#
+def git_committed?
+  system('git diff --quiet') and system('git diff --cached --quiet')
+end
+
+#
+# Abort if repo has uncommitted changes
+#
+def assert_clean_repo
+  unless git_committed?
+    abort "Please commit all local changes before attempting to release."
+  end
+end
+
+#
+# Commits changes that update the version
+#
+def git_commit(version)
+  fail_msg = "Failed to commit changes after changing project version to #{version}"
+  if is_snapshot? version
+    unless system("git commit -am \"Start on version #{version}\"")
+      abort fail_msg
+    end
+  else
+    unless system("git commit -am \"Release version #{version}\"")
+      abort fail_msg
+    end
+  end
+end
+
+#
+# Create tag for release version using 'v0.0.0' format
+#
+def git_tag(version)
+  tag = 'v' + version
+  unless system("git tag #{tag}")
+    abort "Failed to create new tag #{tag}"
+  end
+end
+
+#
+# Push changes to remote. Expects branch to be tracking.
+#
+def git_push
+  unless system('git push')
+    abort "Failed to push local changes to remote repository."
+  end
+  unless system('git push --tags')
+    abort "Failed to push tags to remote repository."
+  end
+end
+
+#
+# Performs `lein deploy`, which expects the project.clj to
+# have deploy repositories set up correctly.
+#
+def lein_deploy
+  unless system('lein deploy')
+    abort "Failed to deploy project with Leiningen."
+  end
+end
+
+###############
+# Entry-Point #
+###############
+
+def main
+  options = {}
+  OptionParser.new do |opt|
+    opt.on('-r', '--release-version RELEASE_VERSION', 'Version to use for releasing clj-webdriver') { |o| options[:release_version] = o }
+    opt.on('-n', '--new-version NEW_VERSION', 'Version to use as next development version after release') { |o| options[:new_version] = o }
+  end.parse!
+  validate_args options
+  release_version = options[:release_version]
+  new_version = options[:new_version]
+
+  assert_clean_repo
+  change_project_version release_version
+  git_commit release_version
+  git_tag release_version
+  lein_deploy
+  change_project_version new_version
+  git_commit new_version
+  git_push
+end
+
+main()
