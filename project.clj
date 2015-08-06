@@ -27,7 +27,13 @@
                                   [com.codeborne/phantomjsdriver "1.2.1"
                                    :exclusion [org.seleniumhq.selenium/selenium-java
                                                org.seleniumhq.selenium/selenium-server
-                                               org.seleniumhq.selenium/selenium-remote-driver]]]}
+                                               org.seleniumhq.selenium/selenium-remote-driver]]]
+                   :plugins [[codox "0.8.13"]]
+                   :aliases {"api-docs" ["doc"]}
+                   :codox {:output-dir "api-docs"
+                           :src-dir-uri "https://github.com/semperos/clj-webdriver/blob/master/"
+                           :src-linenum-anchor-prefix "L"
+                           :defaults {:doc/format :markdown}}}
              :1.6 {:dependencies [[org.clojure/clojure "1.6.0"]]}}
   :scm {:url "git@github.com:semperos/clj-webdriver.git"}
   :pom-addition [:developers [:developer [:name "Daniel Gregoire"]]]

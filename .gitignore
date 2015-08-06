@@ -4,7 +4,6 @@ pom.xml.asc
 lib
 classes
 outline*.html
-docs
 .lein*
 /results.txt
 *.properties
@@ -12,14 +11,13 @@ docs
 /wiki
 test-output.txt
 chromedriver.log
-/autodoc
-/doc
 *.tar.gz
 /target/
 /test.log
-/resources/properties.clj
 .vagrant
 *.log
 
 .nrepl-port
 test/settings.edn
+
+/api-docs

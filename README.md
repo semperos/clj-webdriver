@@ -12,6 +12,12 @@ This is a Clojure library for driving a web browser using Selenium-WebDriver as 
  * [Google Group](https://groups.google.com/forum/#!forum/clj-webdriver)
  * [Issue Queue](https://github.com/semperos/clj-webdriver/issues)
 
+To generate up-to-date API documentation, you can run:
+
+```bash
+lein api-docs && open api-docs/index.html
+```
+
 **External Resources**
 
  * [Selenium-WebDriver API (Javadoc)](http://selenium.googlecode.com/svn/trunk/docs/api/java/index.html)
