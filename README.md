@@ -13,6 +13,7 @@ This is a Clojure library for driving a web browser using Selenium-WebDriver as 
  * [Project Wiki](https://github.com/semperos/clj-webdriver/wiki)
  * [Google Group](https://groups.google.com/forum/#!forum/clj-webdriver)
  * [Issue Queue](https://github.com/semperos/clj-webdriver/issues)
+ * [Travis CI](https://travis-ci.org/semperos/clj-webdriver) [![Build Status](https://travis-ci.org/semperos/clj-webdriver.svg?branch=master)](https://travis-ci.org/semperos/clj-webdriver)
 
 To generate up-to-date API documentation, you can run:
 
