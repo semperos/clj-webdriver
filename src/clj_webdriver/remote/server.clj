@@ -85,8 +85,8 @@
 
   (new-remote-driver
     [remote-server browser-spec]
-    (let [{:keys [browser profile capabilities cache-spec]
-           :or {browser :firefox cache-spec {}}} browser-spec
+    (let [{:keys [browser profile capabilities]
+           :or {browser :firefox}} browser-spec
            ;; WebDriver object, DesiredCapabilities object based on capabilities map passed in
            [webdriver desired-caps] (new-remote-webdriver* remote-server
                                                            {:browser browser
@@ -103,8 +103,7 @@
                     :capabilities {:desired desired-capabilities
                                    :desired-obj desired-caps
                                    :actual capabilities
-                                   :actual-obj caps}
-                    :cache-spec cache-spec})))
+                                   :actual-obj caps}})))
 
   (start-remote-driver
     [remote-server browser-spec url]

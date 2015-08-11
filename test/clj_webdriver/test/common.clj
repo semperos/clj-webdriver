@@ -9,7 +9,6 @@
             [clj-webdriver.wait :refer :all]
             [clj-webdriver.options :refer :all]
             [clj-webdriver.form-helpers :refer :all]
-            [clj-webdriver.cache :as cache]
             [clj-webdriver.window :as win])
   (:import [clj_webdriver.driver.Driver]
            [org.openqa.selenium TimeoutException NoAlertPresentException]))
@@ -599,10 +598,6 @@
 (defn reset-driver
   [driver]
   (to driver base-url))
-
-(defn seed-driver-cache
-  [driver]
-  (cache/seed driver {:url (current-url driver), {:query [:foo]} "bar"}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;                       ;;;

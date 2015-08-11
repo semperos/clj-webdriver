@@ -46,11 +46,7 @@
    ;;
    ;; Full example
    ;;
-   (set-driver! {:browser :firefox
-                 :cache-spec {:strategy :basic,
-                              :args [{}],
-                              :include [ (fn [element] (= (attribute element :class) \"external\"))
-                                         {:css \"ol#pages\"}]}
+   (set-driver! {:browser :firefox})
 
    ;;
    ;; Use existing Driver record
