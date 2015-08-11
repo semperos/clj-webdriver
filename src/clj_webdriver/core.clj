@@ -206,7 +206,12 @@
     (let [caps (DesiredCapabilities.)
           klass (Class/forName "org.openqa.selenium.phantomjs.PhantomJSDriver")
           ;; Second constructor takes single argument of Capabilities
-          phantomjs-driver-ctor (aget (.getDeclaredConstructors klass) 1)]
+          ctors (into [] (.getDeclaredConstructors klass))
+          ctor-sig (fn [ctor]
+                     (let [param-types (.getParameterTypes ctor)]
+                       (and (= (count param-types) 1)
+                            (= Capabilities (aget param-types 0)))))
+          phantomjs-driver-ctor (first (filterv ctor-sig ctors))]
       ;; Default is true
       (when-not javascript-enabled?
         (.setJavascriptEnabled caps false))
