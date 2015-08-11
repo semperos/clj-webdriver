@@ -209,7 +209,7 @@
           ctors (into [] (.getDeclaredConstructors klass))
           ctor-sig (fn [ctor]
                      (let [param-types (.getParameterTypes ctor)]
-                       (and (= (count param-types) 1)
+                       (and (= (alength param-types) 1)
                             (= Capabilities (aget param-types 0)))))
           phantomjs-driver-ctor (first (filterv ctor-sig ctors))]
       ;; Default is true
