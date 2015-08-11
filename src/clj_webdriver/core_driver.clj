@@ -18,7 +18,6 @@
   IDriver
   (back [driver]
     (.back (.navigate (:webdriver driver)))
-    (cache/seed driver)
     driver)
 
   (close [driver]
@@ -35,23 +34,18 @@
            :else
            (do                     ; otherwise, switch back one window
              (.close (:webdriver driver))
-             (switch-to-window driver (nth handles (dec idx)))))
-          (cache/seed driver {}))
-        (do
-          (.close (:webdriver driver))
-          (cache/seed driver {})))))
+             (switch-to-window driver (nth handles (dec idx))))))
+        (.close (:webdriver driver)))))
 
   (current-url [driver]
     (.getCurrentUrl (:webdriver driver)))
 
   (forward [driver]
     (.forward (.navigate (:webdriver driver)))
-    (cache/seed driver)
     driver)
 
   (get-url [driver url]
     (.get (:webdriver driver) url)
-    (cache/seed driver)
     driver)
 
   (get-screenshot
@@ -77,12 +71,10 @@
     (.getPageSource (:webdriver driver)))
 
   (quit [driver]
-    (.quit (:webdriver driver))
-    (cache/seed driver {}))
+    (.quit (:webdriver driver)))
 
   (refresh [driver]
     (.refresh (.navigate (:webdriver driver)))
-    (cache/seed driver)
     driver)
 
   (title [driver]
@@ -90,7 +82,6 @@
 
   (to [driver url]
     (.to (.navigate (:webdriver driver)) url)
-    (cache/seed driver)
     driver)
 
 
@@ -266,41 +257,11 @@
 
   (find-elements
     ([driver attr-val]
-       (if (cache/cache-enabled? driver)
-         ;; Deal with caching
-         (if (cache/in-cache? driver attr-val)
-           ;; Return from cache
-           (cache/retrieve driver attr-val)
-           ;; Find, then store, then return
-           (let [els (find-elements* driver attr-val)]
-             (if (and (not (nil? els))
-                      (exists? (first els))
-                      (cache/cacheable? driver attr-val))
-               (do
-                 (cache/insert driver attr-val els)
-                 els)
-               els)))
-         ;; No caching logic
-         (find-elements* driver attr-val))))
+     (find-elements* driver attr-val)))
 
   (find-element
     ([driver attr-val]
-       (if (cache/cache-enabled? driver)
-         ;; Deal with cache logic
-         (if (cache/in-cache? driver attr-val)
-           ;; Return from cache
-           (first (cache/retrieve driver attr-val))
-           ;; Find, then store, then return
-           (let [el (find-element* driver attr-val)]
-             (if (and (not (nil? el))
-                      (exists? el)
-                      (cache/cacheable? driver attr-val))
-               (do
-                 (cache/insert driver attr-val el)
-                 el)
-               el)))
-         ;; No cache logic
-         (find-element* driver attr-val))))
+     (find-element* driver attr-val)))
 
   IActions
 

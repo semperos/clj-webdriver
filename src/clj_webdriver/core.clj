@@ -16,7 +16,6 @@
   (:use [clj-webdriver driver element util options cookie]
         [clojure.walk :only [keywordize-keys]])
   (:require [clj-webdriver.js.browserbot :as browserbot-js]
-            [clj-webdriver.cache :as cache]
             [clj-webdriver.firefox :as ff]
             [clj-webdriver.window :as win]
             clj-webdriver.driver
@@ -228,20 +227,16 @@
 )))
 
 (defn new-driver
-  "Start a new Driver instance. The `browser-spec` can include `:browser`, `:profile`, and `:cache-spec` keys.
+  "Start a new Driver instance. The `browser-spec` can include `:browser`, and `:profile` keys.
 
    The `:browser` can be one of `:firefox`, `:ie`, `:chrome`, `:phantomjs` or `:htmlunit`.
-   The `:profile` should be an instance of FirefoxProfile you wish to use.
-   The `:cache-spec` can contain `:strategy`, `:args`, `:include` and/or `:exclude keys. See documentation on caching for more details."
+   The `:profile` should be an instance of FirefoxProfile you wish to use."
   ([browser-spec]
-     (let [{:keys [browser profile cache-spec] :or {browser :firefox
-                                                    profile nil
-                                                    cache-spec {}}} browser-spec]
-
-       (init-driver {:webdriver (new-webdriver (merge {:browser browser
-                                                       :profile profile}
-                                                      browser-spec))
-                     :cache-spec cache-spec}))))
+   (let [{:keys [browser profile] :or {browser :firefox
+                                       profile nil}} browser-spec]
+     (init-driver {:webdriver (new-webdriver (merge {:browser browser
+                                                     :profile profile}
+                                                    browser-spec))}))))
 
 ;; Chrome binary, common location of Chromium on Linux
 (comment

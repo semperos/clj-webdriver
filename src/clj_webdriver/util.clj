@@ -2,7 +2,6 @@
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [clojure.walk :as walk]
-            [clj-webdriver.cache :as cache]
             clj-webdriver.driver)
   (:import clj_webdriver.driver.Driver
            [org.openqa.selenium WebDriver WebElement NoSuchElementException]
@@ -231,11 +230,7 @@
           (pr-on m w))
       (.write w " "))))
 
-;; We check the cache at this point, so that interactive REPL dev
-;; isn't interrupted at every page load with exceptions due to
-;; missing WebElement's from the WebDriver's default cache
 (defmethod print-method clj_webdriver.driver.Driver [r, ^Writer w]
-  (cache/check-status r)
   (print-meta r w)
   (.write w "#")
   (.write w (.getName (class r)))

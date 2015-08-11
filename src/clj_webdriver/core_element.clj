@@ -40,7 +40,6 @@
 
   (click [element]
     (.click (:webelement element))
-    (cache/set-status :check)
     nil)
 
   (css-value [element property]
@@ -131,7 +130,6 @@
 
   (submit [element]
     (.submit (:webelement element))
-    (cache/set-status :flush)
     nil)
 
   (clear [element]
