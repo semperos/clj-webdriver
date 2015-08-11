@@ -1,6 +1,8 @@
 # Clojure API for Selenium-WebDriver #
 
-This is a Clojure library for driving a web browser using Selenium-WebDriver as the backend. For more comprehensive documentation on all of clj-webdriver's features, read the [Github wiki](https://github.com/semperos/clj-webdriver/wiki). You can generate documentation locally with `lein doc` (API docs) or `lein marg` (annotated source).
+**You must add the Selenium-WebDriver JAR's you need explicitly in your project's dependencies.** This library _does not_ ship with runtime dependencies on any version of Selenium-WebDriver.
+
+This is a Clojure library for driving a web browser using Selenium-WebDriver as the backend. For more comprehensive documentation on all of clj-webdriver's features, read the [Github wiki](https://github.com/semperos/clj-webdriver/wiki). You can generate documentation locally with `lein doc` (API docs).
 
 ```
 [clj-webdriver "0.7.1"]
