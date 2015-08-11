@@ -23,3 +23,10 @@ chromedriver.log
 
 .nrepl-port
 test/settings.edn
+
+/api-docs
+
+# Intellij IDEA
+/.idea
+*.iml
+
