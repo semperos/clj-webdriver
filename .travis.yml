@@ -9,6 +9,7 @@ sudo: false
 branches:
   only:
     - master
+    - 0.7.x
 before_install:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
