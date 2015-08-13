@@ -226,13 +226,6 @@
       (.newInstance phantomjs-driver-ctor (into-array java.lang.Object [caps]))
 )))
 
-(defn start
-  "Shortcut to instantiate a driver, navigate to a URL, and return the driver for further use"
-  ([browser-spec url]
-     (let [driver (new-driver browser-spec)]
-       (get-url driver url)
-       driver)))
-
 ;; Borrowed from core Clojure
 (defmacro with-driver
   "bindings => [name init ...]
