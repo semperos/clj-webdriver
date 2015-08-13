@@ -226,27 +226,6 @@
       (.newInstance phantomjs-driver-ctor (into-array java.lang.Object [caps]))
 )))
 
-(defn new-driver
-  "Start a new Driver instance. The `browser-spec` can include `:browser`, and `:profile` keys.
-
-   The `:browser` can be one of `:firefox`, `:ie`, `:chrome`, `:phantomjs` or `:htmlunit`.
-   The `:profile` should be an instance of FirefoxProfile you wish to use."
-  ([browser-spec]
-   (let [{:keys [browser profile] :or {browser :firefox
-                                       profile nil}} browser-spec]
-     (init-driver {:webdriver (new-webdriver (merge {:browser browser
-                                                     :profile profile}
-                                                    browser-spec))}))))
-
-;; Chrome binary, common location of Chromium on Linux
-(comment
-  (do
-    (import 'org.openqa.selenium.remote.DesiredCapabilities)
-    (let [cap (DesiredCapabilities/chrome)]
-      (.setCapability cap "chrome.binary" "/usr/lib/chromium-browser/chromium-browser")
-      (init-driver (ChromeDriver. cap))))
-)
-
 (defn start
   "Shortcut to instantiate a driver, navigate to a URL, and return the driver for further use"
   ([browser-spec url]
