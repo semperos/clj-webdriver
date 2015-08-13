@@ -227,12 +227,8 @@
 )))
 
 ;; Borrowed from core Clojure
-(defmacro with-driver
-  "bindings => [name init ...]
-
-  Evaluates body in a try expression with names bound to the values
-  of the inits, and a finally clause that calls (.close name) on each
-  name in reverse order."
+(defmacro with-webdriver
+  "Given a binding to WebDriver object, make that binding available in `body` and ensure `quit` is called on it at the end."
   [bindings & body]
   (assert-args
      (vector? bindings) "a vector for its binding"
@@ -246,18 +242,6 @@
                                   (quit ~(bindings 0)))))
     :else (throw (IllegalArgumentException.
                    "with-driver only allows Symbols in bindings"))))
-
-;; alias for with-driver
-(defmacro with-browser
-  "Alias for with-driver
-
-  bindings => [name init ...]
-
-  Evaluates body in a try expression with names bound to the values
-  of the inits, and a finally clause that calls (.close name) on each
-  name in reverse order."
-  [& args]
-  `(with-driver ~@args))
 
 ;; These are used in the implementation of higher-level window functions
 (defn window-handle*
