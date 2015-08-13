@@ -88,7 +88,7 @@
   (is (= (count (elements "a[class*='exter'][href*='github']")) 2)))
 
 (deftest test-querying-under-elements
-  (is (= (text (find-element-under "div#content" (core/by-css "a.external"))) "Moustache"))
+  (is (= (text (find-element-under "div#content" (core/by-css-selector "a.external"))) "Moustache"))
   (is (= (text (find-element-under "div#content" {:css "a.external"})) "Moustache"))
   (is (= (text (find-element-under "div#content" {:tag :a, :class "external"})) "Moustache"))
   (is (= (text (find-element-under "div#content" {:css "a[class*='exter']"})) "Moustache"))

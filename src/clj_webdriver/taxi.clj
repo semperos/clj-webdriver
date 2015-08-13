@@ -91,7 +91,7 @@
                   (if (element-like? q)
                     q
                     (case (first (keys q))
-                      :css   (core/find-elements-by *driver* (by-css (first (values q))))
+                      :css   (core/find-elements-by *driver* (by-css-selector (first (values q))))
                       :xpath (core/find-elements-by *driver* (by-xpath (first (values q))))))))
 
    ;;

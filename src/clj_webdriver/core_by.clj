@@ -36,21 +36,20 @@
   [expr]
   (By/xpath expr))
 
-(defn by-css
+(defn by-css-selector
   "Used when finding elements. Returns `By/cssSelector` of `expr`"
   [expr]
   (By/cssSelector expr))
 
-(def by-css-selector by-css)
-
 (defn by-query
-  "Given a map with either an `:xpath` or `:css` key, return the respective by-* function (`by-xpath` or `by-css`) using the value for that key."
+  "Given a map with either an `:xpath` or `:css` key, return the respective by-* function (`by-xpath` or `by-css-selector`) using the value for that key."
   [{:keys [xpath css] :as m}]
   (cond
     xpath (by-xpath (:xpath m))
-    css (by-css (:css m))
+    css (by-css-selector (:css m))
     :else (throw (IllegalArgumentException. "You must provide either an `:xpath` or `:css` entry."))))
 
+;; TODO Review behavior of By/className (accepts only one or query?)
 (defn by-class-name
   "Used when finding elements. Returns `By/className` of `expr`"
   [expr]
@@ -58,7 +57,7 @@
     (if (re-find #"\s" expr)
       (let [classes (string/split expr #"\s+")
             class-query (string/join "." classes)]
-        (by-css (str "*." class-query)))
+        (by-css-selector (str "*." class-query)))
       (By/className (name expr)))))
 
 ;; Inspired by the `attr=`, `attr-contains` in Christophe Grand's enlive
@@ -68,23 +67,23 @@
                 `(by-attr= :div :class \"content\")`"
   ([attr value] (by-attr= :* attr value)) ; default to * any tag
   ([tag attr value]
-     (cond
-         (= :class attr)  (if (re-find #"\s" value)
-                            (let [classes (string/split value #"\s+")
-                                  class-query (string/join "." classes)]
-                              (by-css (str (name tag) class-query)))
-                            (by-class-name value))
-         (= :id attr)     (by-id value)
-         (= :name attr)   (by-name value)
-         (= :tag attr)    (by-tag value)
-         (= :text attr)   (if (= tag :a)
-                            (by-link-text value)
-                            (by-xpath (str "//"
-                                           (name tag)
-                                           "[text()"
-                                           "=\"" value "\"]")))
-         :else   (by-css (str (name tag)
-                              "[" (name attr) "='" value "']")))))
+   (cond
+     (= :class attr)  (if (re-find #"\s" value)
+                        (let [classes (string/split value #"\s+")
+                              class-query (string/join "." classes)]
+                          (by-css-selector (str (name tag) class-query)))
+                        (by-class-name value))
+     (= :id attr)     (by-id value)
+     (= :name attr)   (by-name value)
+     (= :tag attr)    (by-tag value)
+     (= :text attr)   (if (= tag :a)
+                        (by-link-text value)
+                        (by-xpath (str "//"
+                                       (name tag)
+                                       "[text()"
+                                       "=\"" value "\"]")))
+     :else   (by-css-selector (str (name tag)
+                                   "[" (name attr) "='" value "']")))))
 
 (defn by-attr-contains
   "Match if `value` is contained in the value of `attr`. You can optionally specify the tag.
@@ -92,26 +91,26 @@
                 `(by-attr-contains :ul :class \"tags\")`"
   ([attr value] (by-attr-contains :* attr value)) ; default to * any tag
   ([tag attr value]
-     (by-css (str (name tag)
-                  "[" (name attr) "*='" value "']"))))
+   (by-css-selector (str (name tag)
+                         "[" (name attr) "*='" value "']"))))
 
 (defn by-attr-starts
   "Match if `value` is at the beginning of the value of `attr`. You can optionally specify the tag."
   ([attr value] (by-attr-starts :* attr value))
   ([tag attr value]
-     (by-css (str (name tag)
-                  "[" (name attr) "^='" value "']"))))
+   (by-css-selector (str (name tag)
+                         "[" (name attr) "^='" value "']"))))
 
 (defn by-attr-ends
   "Match if `value` is at the end of the value of `attr`. You can optionally specify the tag."
   ([attr value] (by-attr-ends :* attr value))
   ([tag attr value]
-     (by-css (str (name tag)
-                  "[" (name attr) "$='" value "']"))))
+   (by-css-selector (str (name tag)
+                         "[" (name attr) "$='" value "']"))))
 
 (defn by-has-attr
   "Match if the element has the attribute `attr`, regardless of its value. You can optionally specify the tag."
   ([attr] (by-has-attr :* attr))
   ([tag attr]
-     (by-css (str (name tag)
-                  "[" (name attr) "]"))))
+   (by-css-selector (str (name tag)
+                         "[" (name attr) "]"))))
