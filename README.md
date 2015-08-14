@@ -1,11 +1,15 @@
 # Clojure API for Selenium-WebDriver #
 
-**You must add the Selenium-WebDriver JAR's you need explicitly in your project's dependencies.** This library _does not_ ship with runtime dependencies on any version of Selenium-WebDriver.
+This is a Clojure library for driving a web browser using Selenium-WebDriver.
 
-This is a Clojure library for driving a web browser using Selenium-WebDriver as the backend. For more comprehensive documentation on all of clj-webdriver's features, read the [Github wiki](https://github.com/semperos/clj-webdriver/wiki). You can generate documentation locally with `lein doc` (API docs).
+You **must** add the Selenium-WebDriver JAR's you need explicitly in your project's dependencies. This library _does not_ ship with runtime dependencies on any version of Selenium-WebDriver to allow compatibility with Selenium-WebDriver's upstream releases.
+
+Please see the [Wiki](https://github.com/semperos/clj-webdriver/wiki) for prose documentation or generate API docs using `lein doc` inside this project.
+
+**Latest stable coordinates:**
 
 ```
-[clj-webdriver "0.7.1"]
+[clj-webdriver "0.7.2"]
 ```
 
 **clj-webdriver Resources**
@@ -14,12 +18,6 @@ This is a Clojure library for driving a web browser using Selenium-WebDriver as 
  * [Google Group](https://groups.google.com/forum/#!forum/clj-webdriver)
  * [Issue Queue](https://github.com/semperos/clj-webdriver/issues)
  * [Travis CI](https://travis-ci.org/semperos/clj-webdriver) [![Build Status](https://travis-ci.org/semperos/clj-webdriver.svg?branch=master)](https://travis-ci.org/semperos/clj-webdriver)
-
-To generate up-to-date API documentation, you can run:
-
-```bash
-lein api-docs && open api-docs/index.html
-```
 
 **External Resources**
 
@@ -70,7 +68,7 @@ For reference documentation, run `lein doc` at the root of this repo. For annota
 
 The `master` branch of clj-webdriver houses code intended for the next **minor-version release.** If you want to propose new features for the next release, you're welcome to fork, make a topic branch and issue a pull request against the `master` branch.
 
-If you want to fix a bug in the **current release**, please pull against the appropriate branch for the current minor version, **0.6.x**.
+If you want to fix a bug in the **current release**, please pull against the appropriate branch for the current minor version, **0.7.x**.
 
 ## Running Tests ##
 
