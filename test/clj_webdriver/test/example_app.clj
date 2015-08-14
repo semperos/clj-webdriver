@@ -28,7 +28,7 @@
 (defn static-resource
   [req]
   (when-let [path (:uri req)]
-    (when (.startsWith path "/public")
+    (when (.startsWith ^String  path "/public")
       (response (slurp (io/resource (subs path 1)))))))
 
 (def routes

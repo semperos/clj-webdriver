@@ -4,7 +4,7 @@
             [clojure.walk :as walk]
             clj-webdriver.driver)
   (:import clj_webdriver.driver.Driver
-           [org.openqa.selenium WebDriver WebElement NoSuchElementException]
+           [org.openqa.selenium Capabilities HasCapabilities WebDriver WebElement NoSuchElementException]
            [java.io PushbackReader Writer]))
 
 (declare build-query)
@@ -149,14 +149,6 @@
   [s]
   (str/replace s #"(\r|\n|\r\n)" "  "))
 
-;; borrowed from Clojure's 1.2 Contrib
-(defn call-method
-  [klass method-name params obj & args]
-  (-> klass (.getDeclaredMethod (name method-name)
-                                (into-array Class params))
-      (doto (.setAccessible true))
-      (.invoke obj (into-array Object args))))
-
 (defmacro when-attr
   "Special `when` macro for checking if an attribute isn't available or is an empty string"
   [obj & body]
@@ -237,8 +229,8 @@
   (print-map r pr-on w))
 
 (defmethod print-method WebDriver
-  [q w]
-  (let [caps (.getCapabilities q)]
+  [^WebDriver q w]
+  (let [^Capabilities caps (.getCapabilities ^HasCapabilities q)]
     (print-simple
      (str "#<" "Title: "            (.getTitle q) ", "
           "URL: "                   (first-n-chars (.getCurrentUrl q)) ", "
@@ -249,7 +241,7 @@
           "Object: "                q ">") w)))
 
 (defmethod print-method WebElement
-  [q w]
+  [^WebElement q w]
   (let [tag-name   (.getTagName q)
         text       (.getText q)
         id         (.getAttribute q "id")
@@ -282,7 +274,7 @@
 (defn dashes-to-camel-case
   "A simple conversion of `-x` to `X` for the given string."
   [s]
-  (reduce (fn [state item]
+  (reduce (fn [^String state ^String item]
              (.replaceAll state item
                           (str/upper-case (str (second item)))))
            s
@@ -291,7 +283,7 @@
 (defn camel-case-to-dashes
   "Convert Pascal-case to dashes. This takes into account edge cases like `fooJSBar` and `fooBarB`, where dashed versions will be `foo-jS-bar` and `foo-barB` respectively."
   [s]
-  (reduce (fn [state item]
+  (reduce (fn [^String state ^String item]
             ;; e.g.: state = trustAllSSLCertificates
             ;; item can be either "tA" or "lSSLC"
             (if (= (count item) 2)
@@ -303,7 +295,7 @@
                              (str (first item)
                                   "-"
                                   (str/lower-case (second item))
-                                  (.substring item 2 (dec (count item)))
+                                  (subs item 2 (dec (count item)))
                                   "-"
                                   (str/lower-case (last item))))))
           s

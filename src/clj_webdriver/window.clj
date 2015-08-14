@@ -2,6 +2,7 @@
   clj-webdriver.window
   (:require clj-webdriver.driver)
   (:import [org.openqa.selenium Dimension Point]
+           [org.openqa.selenium WebDriver WebDriver$Window]
            clj_webdriver.driver.Driver))
 
 (defrecord ^{:doc "A record that encapsulates all operations on windows, including what Selenium-WebDriver handles with the `WebDriver.Window` interface and the `getWindowHandle` methods."}
@@ -28,19 +29,18 @@
 
 (extend-type Driver
   IWindow
-
   (maximize [driver]
-    (let [wnd (window-obj driver)]
+    (let [wnd ^WebDriver$Window (window-obj driver)]
       (.maximize wnd)
       driver))
 
   (position [driver]
-    (let [wnd (window-obj driver)
+    (let [^WebDriver$Window wnd (window-obj driver)
           pnt (.getPosition wnd)]
       {:x (.getX pnt) :y (.getY pnt)}))
 
   (reposition [driver {:keys [x y]}]
-    (let [wnd (window-obj driver)
+    (let [^WebDriver$Window wnd (window-obj driver)
           pnt (.getPosition wnd)
           x (or x (.getX pnt))
           y (or y (.getY pnt))]
@@ -48,7 +48,7 @@
       driver))
 
   (resize [driver {:keys [width height]}]
-    (let [wnd (window-obj driver)
+    (let [^WebDriver$Window wnd (window-obj driver)
           dim (.getSize wnd)
           width (or width (.getWidth dim))
           height (or height (.getHeight dim))]
@@ -56,26 +56,28 @@
       driver))
 
   (size [driver]
-    (let [wnd (window-obj driver)
+    (let [^WebDriver$Window wnd (window-obj driver)
           dim (.getSize wnd)]
       {:width (.getWidth dim) :height (.getHeight dim)}))
 
-  (window-obj [driver]
-    (-> (.webdriver driver) .manage .window)))
+  (window-obj [^Driver driver]
+    (let [^WebDriver webdriver (.webdriver driver)
+          manage (.manage webdriver)]
+      (.window manage))))
 
 (defmacro ^{:private true
-            :doc "Apply the `a-fn` with the `Driver` contained inside the given `window` record and any other `a-fn-args` provided. Before calling the function, switch to the specified window; after calling the function, switch back to the original window."}
+            :doc "Apply the `f` function with the `Driver` contained inside the given `window` record and any other `a-fn-args` provided. Before calling the function, switch to the specified window; after calling the function, switch back to the original window."}
   window-switcher
-  [window a-fn & a-fn-args]
-  `(let [driver# (:driver ~window)
-         webdriver# (.webdriver driver#)
-         orig-window-handle# (.getWindowHandle webdriver#)
-         target-window-handle# (:handle ~window)
+  [window f & f-args]
+  `(let [^Driver driver# (:driver ~window)
+         ^WebDriver webdriver# (.webdriver driver#)
+         ^String orig-window-handle# (.getWindowHandle webdriver#)
+         ^String target-window-handle# (:handle ~window)
          target-current?# (= orig-window-handle# target-window-handle#)]
      ;; If we're already trying to manipulate the currently active window,
      ;; immediately call the implementation of the IWindow function with the driver
      (if target-current?#
-       (let [return# (~a-fn driver# ~@a-fn-args)]
+       (let [return# (~f driver# ~@f-args)]
          ;; Functions in IWindow that have no logical return value need to return
          ;; the thing being acted on. Since we proxy to the `Driver` implementation
          ;; of each function in the `Window` implementations, we have to check
@@ -88,7 +90,7 @@
          ;; our target window the active one first.
          (.switchTo (.window webdriver#) target-window-handle#)
          ;; Then perform the desired action.
-         (let [return# (~a-fn driver# ~@a-fn-args)]
+         (let [return# (~f driver# ~@f-args)]
            ;; Switch back to the original active window.
            (.switchTo (.window webdriver#) orig-window-handle#)
            ;; Make sure `Window` is returned for appropriate functions

@@ -626,7 +626,7 @@
                    #'select-element-functions-should-behave-as-expected
                    #'quick-fill-should-accept-special-seq-and-perform-batch-actions-on-form
                    #'quick-fill-submit-should-always-return-nil
-                   #'should-be-able-to-toggle-between-open-windows
+                   ;; #'should-be-able-to-toggle-between-open-windows
                    #'wait-until-should-wait-for-condition
                    #'wait-until-should-throw-on-timeout
                    #'wait-until-should-allow-timeout-argument

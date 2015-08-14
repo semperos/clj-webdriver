@@ -21,13 +21,16 @@
             [clojure.java.io :as io]
             [clojure.string :as string]
             [clojure.tools.logging :as log])
-  (:import java.lang.reflect.Constructor
+  (:import [java.lang.reflect Constructor Field]
            [org.openqa.selenium By WebDriver WebElement
-                                OutputType NoSuchElementException Keys]
-           org.openqa.selenium.firefox.FirefoxDriver
+            OutputType NoSuchElementException Keys
+            TakesScreenshot]
+           [org.openqa.selenium.firefox FirefoxDriver FirefoxProfile]
            org.openqa.selenium.ie.InternetExplorerDriver
            org.openqa.selenium.chrome.ChromeDriver
            org.openqa.selenium.htmlunit.HtmlUnitDriver
+           org.openqa.selenium.remote.RemoteWebDriver
+           org.openqa.selenium.internal.WrapsDriver
            org.openqa.selenium.support.ui.Select
            [org.openqa.selenium.interactions Actions CompositeAction]
            org.openqa.selenium.Capabilities
@@ -98,7 +101,6 @@
   (html [element] "Retrieve the outer HTML of an element")
   (intersects? [element-a element-b] "Return true if `element-a` intersects with `element-b`. This mirrors the Selenium-WebDriver API method, but see the `intersect?` function to compare an element against multiple other elements for intersection.")
   (location [element] "Given an element object, return its location as a map of its x/y coordinates")
-  (location-once-visible [element] "Given an element object, return its location on the screen once it is scrolled into view as a map of its x/y coordinates. The window will scroll as much as possible until the element hits the top of the page; thus even visible elements will be scrolled until they reach that point.")
   (present? [element] "Returns true if the element exists and is visible")
   (size [element] "Return the size of the given `element` as a map containing `:width` and `:height` values in pixels.")
   (tag [element] "Retrieve the name of the HTML tag of the given element object (returned as a keyword)")
@@ -186,11 +188,13 @@
 
 (defmethod new-webdriver* :default
   [{:keys [browser]}]
-  ;; Allow driver classes unknown to this library as a fallback
-  (.newInstance (or (browser webdriver-drivers) browser)))
+  (let [^Class klass (or (browser webdriver-drivers) browser)]
+    (.newInstance
+     (.getConstructor klass (into-array Class []))
+     (into-array Object []))))
 
 (defmethod new-webdriver* :firefox
-  [{:keys [browser profile]}]
+  [{:keys [browser ^FirefoxProfile profile]}]
   (if profile
     (FirefoxDriver. profile)
     (FirefoxDriver.)))
@@ -203,7 +207,7 @@
           klass (Class/forName "org.openqa.selenium.phantomjs.PhantomJSDriver")
           ;; Second constructor takes single argument of Capabilities
           ctors (into [] (.getDeclaredConstructors klass))
-          ctor-sig (fn [ctor]
+          ctor-sig (fn [^Constructor ctor]
                      (let [param-types (.getParameterTypes ctor)]
                        (and (= (alength param-types) 1)
                             (= Capabilities (aget param-types 0)))))
@@ -217,10 +221,10 @@
       (when phantomjs-executable
         (let [klass (Class/forName "org.openqa.selenium.phantomjs.PhantomJSDriverService")
               field (.getField klass "PHANTOMJS_EXECUTABLE_PATH_PROPERTY")]
-          (.setCapability caps
-                          (.get field klass)
-                          phantomjs-executable)))
-      (.newInstance phantomjs-driver-ctor (into-array java.lang.Object [caps])))))
+          (.setCapability ^DesiredCapabilities caps
+                          ^String (.get field klass)
+                          ^String phantomjs-executable)))
+      (.newInstance ^Constructor phantomjs-driver-ctor (into-array java.lang.Object [caps])))))
 
 (defn new-driver
   "Create a new `Driver`"
@@ -244,16 +248,22 @@
     :else (throw (IllegalArgumentException.
                    "with-driver only allows symbols in bindings"))))
 
+(defn desired-capabilities
+  ([m] (desired-capabilities (DesiredCapabilities.) m))
+  ([^DesiredCapabilities capabilities m]
+   (doseq [[^String k v] (java-keys m)]
+     (.setCapability capabilities k v))))
+
 ;; These are used in the implementation of higher-level window functions
 (defn window-handle*
   "For WebDriver API compatibility: this simply wraps `.getWindowHandle`"
-  [driver]
-  (.getWindowHandle driver))
+  [^WebDriver webdriver]
+  (.getWindowHandle webdriver))
 
-(defn window-handles*
+(defn ^java.util.Set window-handles*
   "For WebDriver API compatibility: this simply wraps `.getWindowHandles`"
-  [driver]
-  (lazy-seq (.getWindowHandles driver)))
+  [^WebDriver webdriver]
+  (.getWindowHandles webdriver))
 
 (defn other-window-handles*
   "For consistency with other window handling functions, this starred version just returns the string-based ID's that WebDriver produces"
@@ -285,14 +295,14 @@
   (Keys/valueOf (.toUpperCase (name k))))
 
 ;; ## JavaScript Execution ##
-(defn execute-script
-  [driver js & js-args]
-  (.executeScript (.webdriver driver) js (to-array js-args)))
-
 (defn execute-script*
   "Version of execute-script that uses a WebDriver instance directly."
-  [driver js & js-args]
-  (.executeScript driver js (to-array js-args)))
+  [webdriver js & js-args]
+  (.executeScript ^RemoteWebDriver webdriver ^String js (into-array Object js-args)))
+
+(defn execute-script
+  [^Driver driver js & js-args]
+  (apply execute-script* (.webdriver driver) js js-args))
 
 (load "core_driver")
 

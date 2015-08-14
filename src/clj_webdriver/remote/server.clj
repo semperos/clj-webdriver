@@ -1,7 +1,7 @@
 (ns clj-webdriver.remote.server
   (:require [clojure.java.io :refer [as-url]]
             [clojure.tools.logging :as log]
-            [clj-webdriver.core :refer [get-url]]
+            [clj-webdriver.core :refer [desired-capabilities get-url]]
             clj-webdriver.driver
             [clj-webdriver.util :as util])
   (:import [org.mortbay.jetty Connector Server]

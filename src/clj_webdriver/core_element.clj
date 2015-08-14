@@ -7,7 +7,7 @@
 ;;  * ISelectElement
 (in-ns 'clj-webdriver.core)
 
-(defn rectangle
+(defn ^java.awt.Rectangle rectangle
   [webelement]
   (let [loc (location webelement)
         el-size (size webelement)]
@@ -58,7 +58,7 @@
           orig-colors (repeat original-color)
           change-colors (interleave (repeat "red") (repeat "blue"))]
       (doseq [flash-color (take 12 (interleave change-colors orig-colors))]
-        (execute-script* (.getWrappedDriver webelement)
+        (execute-script* (.getWrappedDriver ^WrapsDriver webelement)
                          (str "arguments[0].style.backgroundColor = '"
                               flash-color "'")
                          webelement)
@@ -67,20 +67,14 @@
 
   (focus [webelement]
     (execute-script*
-     (.getWrappedDriver webelement) "return arguments[0].focus()" webelement)
+     (.getWrappedDriver ^WrapsDriver webelement) "return arguments[0].focus()" webelement)
     webelement)
 
   (html [webelement]
-    (browserbot (.getWrappedDriver webelement) "getOuterHTML" webelement))
+    (browserbot (.getWrappedDriver ^WrapsDriver webelement) "getOuterHTML" webelement))
 
   (location [webelement]
     (let [loc (.getLocation webelement)
-          x   (.x loc)
-          y   (.y loc)]
-      {:x x, :y y}))
-
-  (location-once-visible [webelement]
-    (let [loc (.getLocationOnScreenOnceScrolledIntoView webelement)
           x   (.x loc)
           y   (.y loc)]
       {:x x, :y y}))
@@ -112,7 +106,7 @@
     (.isDisplayed webelement))
 
   (xpath [webelement]
-    (browserbot (.getWrappedDriver webelement) "getXPath" webelement []))
+    (browserbot (.getWrappedDriver ^WrapsDriver webelement) "getXPath" webelement []))
 
 
   IFormElement
@@ -278,8 +272,6 @@
   (html [n] (throw-nse))
 
   (location [n] (throw-nse))
-
-  (location-once-visible [n] (throw-nse))
 
   (present? [n] (throw-nse))
 

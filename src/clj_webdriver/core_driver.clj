@@ -17,35 +17,25 @@
   ;; Basic Functions
   IDriver
   (back [driver]
-    (.back (.navigate (.webdriver driver)))
+    (.back (.navigate ^WebDriver (.webdriver driver)))
     driver)
 
   (close [driver]
-    (let [handles (window-handles* (.webdriver driver))]
-      (if (> (count handles) 1) ; get back to a window that is open before proceeding
-        (let [this-handle (window-handle* (.webdriver driver))
-              idx (.indexOf handles this-handle)]
-          (cond
-           (zero? idx)
-           (do                       ; if first window, switch to next
-             (.close (.webdriver driver))
-             (switch-to-window driver (nth handles (inc idx))))
-
-           :else
-           (do                     ; otherwise, switch back one window
-             (.close (.webdriver driver))
-             (switch-to-window driver (nth handles (dec idx))))))
-        (.close (.webdriver driver)))))
+    (let [handles (into #{} (window-handles* (.webdriver driver)))]
+      (when (> (count handles) 1) ; get back to a window that is open before proceeding
+        (let [^String current-handle (window-handle* (.webdriver driver))]
+          (switch-to-window driver (first (disj handles current-handle)))))
+      (.close ^WebDriver (.webdriver driver))))
 
   (current-url [driver]
-    (.getCurrentUrl (.webdriver driver)))
+    (.getCurrentUrl ^WebDriver (.webdriver driver)))
 
   (forward [driver]
-    (.forward (.navigate (.webdriver driver)))
+    (.forward (.navigate ^WebDriver (.webdriver driver)))
     driver)
 
   (get-url [driver url]
-    (.get (.webdriver driver) url)
+    (.get ^WebDriver (.webdriver driver) url)
     driver)
 
   (get-screenshot
@@ -55,7 +45,7 @@
        {:pre [(or (= format :file)
                   (= format :base64)
                   (= format :bytes))]}
-       (let [wd (.webdriver driver)
+       (let [wd ^TakesScreenshot (.webdriver driver)
              output (case format
                       :file (.getScreenshotAs wd OutputType/FILE)
                       :base64 (.getScreenshotAs wd OutputType/BASE64)
@@ -68,20 +58,20 @@
            output))))
 
   (page-source [driver]
-    (.getPageSource (.webdriver driver)))
+    (.getPageSource ^WebDriver (.webdriver driver)))
 
   (quit [driver]
-    (.quit (.webdriver driver)))
+    (.quit ^WebDriver (.webdriver driver)))
 
   (refresh [driver]
-    (.refresh (.navigate (.webdriver driver)))
+    (.refresh (.navigate ^WebDriver (.webdriver driver)))
     driver)
 
   (title [driver]
-    (.getTitle (.webdriver driver)))
+    (.getTitle ^WebDriver (.webdriver driver)))
 
-  (to [driver url]
-    (.to (.navigate (.webdriver driver)) url)
+  (to [driver ^String url]
+    (.to (.navigate ^WebDriver (.webdriver driver)) url)
     driver)
 
 
@@ -90,13 +80,13 @@
   ;; TODO (possible): multiple arities; only driver, return current window handle; driver and query, return matching window handle
   (window [driver]
     (win/init-window (.webdriver driver)
-                     (.getWindowHandle (.webdriver driver))
+                     (.getWindowHandle ^WebDriver (.webdriver driver))
                      (title driver)
                      (current-url driver)))
 
   (windows [driver]
-    (let [current-handle (.getWindowHandle (.webdriver driver))
-          all-handles (lazy-seq (.getWindowHandles (.webdriver driver)))
+    (let [current-handle (.getWindowHandle ^WebDriver (.webdriver driver))
+          all-handles (lazy-seq (.getWindowHandles ^WebDriver (.webdriver driver)))
           handle-records (for [handle all-handles]
                            (let [b (switch-to-window driver handle)]
                              (win/init-window (.webdriver driver)
@@ -111,33 +101,29 @@
             (doall (windows driver))))
 
   (switch-to-frame [driver frame]
-    (.frame (.switchTo (.webdriver driver)) frame)
+    (cond
+      (string? frame) (.frame (.switchTo ^WebDriver (.webdriver driver)) ^String frame)
+      (number? frame) (.frame (.switchTo ^WebDriver (.webdriver driver)) ^int frame)
+      :else (.frame (.switchTo ^WebDriver (.webdriver driver)) ^WebElement frame))
     driver)
 
   (switch-to-window [driver window]
     (cond
      (string? window)
-     (do
-       (.window (.switchTo (.webdriver driver)) window)
-       driver)
+     (.window (.switchTo ^WebDriver (.webdriver driver)) window)
 
      (win/window? window)
-     (do
-       (.window (.switchTo (:driver window)) (:handle window))
-       driver)
+     (.window (.switchTo ^WebDriver (:driver window)) ^String (:handle window))
 
      (number? window)
-     (do
-       (switch-to-window driver (nth (windows driver) window))
-       driver)
+     (switch-to-window driver (nth (windows driver) window))
 
      (nil? window)
      (throw (RuntimeException. "No window can be found"))
 
      :else
-     (do
-       (.window (.switchTo (.webdriver driver)) window)
-       driver)))
+     (.window (.switchTo ^WebDriver (.webdriver driver)) window))
+    driver)
 
   (switch-to-other-window [driver]
     (if (not= (count (windows driver)) 2)
@@ -147,55 +133,58 @@
       (switch-to-window driver (first (other-windows driver)))))
 
   (switch-to-default [driver]
-    (.defaultContent (.switchTo (.webdriver driver))))
+    (.defaultContent (.switchTo ^WebDriver (.webdriver driver))))
 
   (switch-to-active [driver]
-    (.activeElement (.switchTo (.webdriver driver))))
+    (.activeElement (.switchTo ^WebDriver (.webdriver driver))))
 
 
   ;; Options Interface (cookies)
   IOptions
   (add-cookie [driver cookie-spec]
-    (.addCookie (.manage (.webdriver driver)) (:cookie (init-cookie cookie-spec)))
+    (.addCookie (.manage ^WebDriver (.webdriver driver)) (:cookie (init-cookie cookie-spec)))
     driver)
 
   (delete-cookie-named [driver cookie-name]
-    (.deleteCookieNamed (.manage (.webdriver driver)) cookie-name)
+    (.deleteCookieNamed (.manage ^WebDriver (.webdriver driver)) cookie-name)
     driver)
 
   (delete-cookie [driver cookie-spec]
-    (.deleteCookie (.manage (.webdriver driver)) (:cookie (init-cookie cookie-spec)))
+    (.deleteCookie (.manage ^WebDriver (.webdriver driver)) (:cookie (init-cookie cookie-spec)))
     driver)
 
   (delete-all-cookies [driver]
-    (.deleteAllCookies (.manage (.webdriver driver)))
+    (.deleteAllCookies (.manage ^WebDriver (.webdriver driver)))
     driver)
 
   (cookies [driver]
     (set (map #(init-cookie {:cookie %})
-                   (.getCookies (.manage (.webdriver driver))))))
+                   (.getCookies (.manage ^WebDriver (.webdriver driver))))))
 
   (cookie-named [driver cookie-name]
-    (let [cookie-obj (.getCookieNamed (.manage (.webdriver driver)) cookie-name)]
+    (let [cookie-obj (.getCookieNamed (.manage ^WebDriver (.webdriver driver)) cookie-name)]
       (init-cookie {:cookie cookie-obj})))
 
   ;; Alert dialogs
   IAlert
   (accept [driver]
-    (-> (.webdriver driver) .switchTo .alert .accept))
+    (.accept (.alert (.switchTo ^WebDriver (.webdriver driver)))))
 
   (alert-obj [driver]
-    (-> (.webdriver driver) .switchTo .alert))
+    (.alert (.switchTo ^WebDriver (.webdriver driver))))
 
   (alert-text [driver]
-    (-> (.webdriver driver) .switchTo .alert .getText))
+    (let [^WebDriver webdriver (.webdriver driver)
+          switch (.switchTo webdriver)
+          alert (.alert switch)]
+      (.getText alert)))
 
   ;; (authenticate-using [driver username password]
   ;;   (let [creds (UserAndPassword. username password)]
   ;;     (-> (.webdriver driver) .switchTo .alert (.authenticateUsing creds))))
 
   (dismiss [driver]
-    (-> (.webdriver driver) .switchTo .alert .dismiss))
+    (.dismiss (.alert (.switchTo ^WebDriver (.webdriver driver)))))
 
   ;; Find Functions
   IFind
@@ -203,13 +192,13 @@
     (let [by-value (if (map? by-value)
                      (by-query (build-query by-value))
                      by-value)]
-      (.findElement (.webdriver driver) by-value)))
+      (.findElement ^WebDriver (.webdriver driver) by-value)))
 
   (find-elements-by [driver by-value]
     (let [by-value (if (map? by-value)
                (by-query (build-query by-value))
                by-value)]
-      (.findElements (.webdriver driver) by-value)))
+      (.findElements ^WebDriver (.webdriver driver) by-value)))
 
   (find-windows [driver attr-val]
     (if (contains? attr-val :index)
@@ -261,18 +250,18 @@
 
   (click-and-hold
     ([driver]
-       (let [act (Actions. (.webdriver driver))]
+       (let [act (Actions. ^WebDriver (.webdriver driver))]
          (.perform (.clickAndHold act))))
     ([driver webelement]
-       (let [act (Actions. (.webdriver driver))]
+       (let [act (Actions. ^WebDriver (.webdriver driver))]
          (.perform (.clickAndHold act webelement)))))
 
   (double-click
     ([driver]
-       (let [act (Actions. (.webdriver driver))]
+       (let [act (Actions. ^WebDriver (.webdriver driver))]
          (.perform (.doubleClick act))))
     ([driver webelement]
-       (let [act (Actions. (.webdriver driver))]
+       (let [act (Actions. ^WebDriver (.webdriver driver))]
          (.perform (.doubleClick act webelement)))))
 
   (drag-and-drop
@@ -280,7 +269,7 @@
     (cond
      (nil? webelement-a) (throw-nse "The first element does not exist.")
      (nil? webelement-b) (throw-nse "The second element does not exist.")
-     :else (let [act (Actions. (.webdriver driver))]
+     :else (let [act (Actions. ^WebDriver (.webdriver driver))]
              (.perform (.dragAndDrop act
                                      webelement-a
                                      webelement-b)))))
@@ -289,46 +278,46 @@
     [driver webelement x-y-map]
     (if (nil? webelement)
       (throw-nse)
-      (let [act (Actions. (.webdriver driver))
+      (let [act (Actions. ^WebDriver (.webdriver driver))
             {:keys [x y] :or {x 0 y 0}} x-y-map]
         (.perform
          (.dragAndDropBy act webelement x y)))))
 
   (key-down
     ([driver k]
-       (let [act (Actions. (.webdriver driver))]
+       (let [act (Actions. ^WebDriver (.webdriver driver))]
          (.perform (.keyDown act (key-code k)))))
     ([driver webelement k]
-       (let [act (Actions. (.webdriver driver))]
+       (let [act (Actions. ^WebDriver (.webdriver driver))]
          (.perform (.keyDown act webelement (key-code k))))))
 
   (key-up
     ([driver k]
-       (let [act (Actions. (.webdriver driver))]
+       (let [act (Actions. ^WebDriver (.webdriver driver))]
          (.perform (.keyUp act (key-code k)))))
     ([driver webelement k]
-       (let [act (Actions. (.webdriver driver))]
+       (let [act (Actions. ^WebDriver (.webdriver driver))]
          (.perform (.keyUp act webelement (key-code k))))))
 
   (move-by-offset
     [driver x y]
-    (let [act (Actions. (.webdriver driver))]
+    (let [act (Actions. ^WebDriver (.webdriver driver))]
       (.perform (.moveByOffset act x y))))
 
   (move-to-element
     ([driver webelement]
-       (let [act (Actions. (.webdriver driver))]
+       (let [act (Actions. ^WebDriver (.webdriver driver))]
          (.perform (.moveToElement act webelement))))
     ([driver webelement x y]
-       (let [act (Actions. (.webdriver driver))]
+       (let [act (Actions. ^WebDriver (.webdriver driver))]
          (.perform (.moveToElement act webelement x y)))))
 
   (release
     ([driver]
-       (let [act (Actions. (.webdriver driver))]
+       (let [act (Actions. ^WebDriver (.webdriver driver))]
          (.release act)))
     ([driver element]
-       (let [act (Actions. (.webdriver driver))]
+       (let [act (Actions. ^WebDriver (.webdriver driver))]
          (.release act element)))))
 
 (extend-type org.openqa.selenium.interactions.Actions

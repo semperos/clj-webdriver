@@ -6,7 +6,8 @@
             [clj-webdriver.util :as util]
             [clj-webdriver.options :as options]
             [clj-webdriver.wait :as wait])
-  (:import clj_webdriver.driver.Driver))
+  (:import org.openqa.selenium.WebElement
+           clj_webdriver.driver.Driver))
 
 (declare css-finder)
 (def ^:dynamic *driver*)
@@ -74,7 +75,7 @@
    ;; you get the idea.)
    ;;
    (set-finder! (fn [q]
-                  (if (element-like? q)
+                  (if (instance? WebElement q)
                     q
                     (css-finder (str \"div#container \" q)))))
 
@@ -87,7 +88,7 @@
    ;; {:css \"query\"} or {:xpath \"query\"} instead of just a string.
    ;;
    (set-finder! (fn [q]
-                  (if (element-like? q)
+                  (if (instance? WebElement q)
                     q
                     (case (first (keys q))
                       :css   (core/find-elements-by *driver* (by-css-selector (first (values q))))
@@ -161,10 +162,9 @@
    This function is used internally by the Taxi API as `*finder*`. See the documentation for `set-finder!` for examples of extending this function or creating your own custom finder function."
   ([q] (css-finder *driver* q))
   ([driver q]
-     (cond
-       (element-like? q) q
-       (map? q)     (core/find-elements driver q)
-       :else        (core/find-elements driver {:css q}))))
+   (if (instance? WebElement q)
+     q
+     (core/find-elements driver {:css q}))))
 
 (set-finder! css-finder)
 
@@ -174,10 +174,9 @@
    This function is used internally by the Taxi API as `*finder*`. See the documentation for `set-finder!` for examples of extending this function or creating your own custom finder function."
   ([q] (xpath-finder *driver* q))
   ([driver q]
-     (cond
-       (element-like? q) q
-       (map? q)     (core/find-elements driver q)
-       :else        (core/find-elements driver {:xpath q}))))
+   (if (instance? WebElement q)
+     q
+     (core/find-elements driver {:xpath q}))))
 
 ;; Be able to get actual element/elements when needed
 (defn element
@@ -206,7 +205,7 @@
      submit)"
   ([q] (element *driver* q))
   ([driver q]
-     (if (element-like? q)
+     (if (instance? WebElement q)
        q
        (first (*finder-fn* driver q)))))
 
@@ -224,7 +223,7 @@
    (def target-elements (elements \"a\"))"
   ([q] (elements *driver* q))
   ([driver q]
-     (if (element-like? q)
+     (if (instance? WebElement q)
        (lazy-seq (list q))
        (*finder-fn* driver q))))
 
@@ -860,7 +859,7 @@
    (find-elements-under \"div#container\" (core/by-id \"foo\")"
   ([q-parent attr-val] (find-elements-under *driver* q-parent attr-val))
   ([driver q-parent attr-val]
-     (if (element-like? q-parent)
+     (if (instance? WebElement q-parent)
        (core/find-elements q-parent attr-val)
        (core/find-elements (element driver q-parent) attr-val))))
 
@@ -881,7 +880,7 @@
    (find-element-under \"div#container\" (core/by-id \"foo\")"
   ([q-parent attr-val] (find-element-under *driver* q-parent attr-val))
   ([driver q-parent attr-val]
-     (if (element-like? q-parent)
+     (if (instance? WebElement q-parent)
        (core/find-element q-parent attr-val)
        (core/find-element (element driver q-parent) attr-val))))
 
@@ -1029,17 +1028,6 @@
   ([q] (location *driver* q))
   ([driver q]
      (core/location (element driver q))))
-
-(defn location-once-visible
-  "Return a map of `:x` and `:y` coordinates for the first element found with query `q` once the page has been scrolled enough to be visible in the viewport.
-
-   Examples:
-   =========
-
-   (location-once-visible \"a#foo\") ;=> {:x 240, :y 300}"
-  ([q] (location-once-visible *driver* q))
-  ([driver q]
-     (core/location-once-visible (element driver q))))
 
 (defn present?
   "Return true if the first element found with query `q` both exists and is visible on the page.
