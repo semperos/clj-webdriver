@@ -111,10 +111,7 @@
             (doall (windows driver))))
 
   (switch-to-frame [driver frame]
-    (.frame (.switchTo (:webdriver driver))
-            (if (element? frame)
-              (:webelement frame)
-              frame))
+    (.frame (.switchTo (:webdriver driver)) frame)
     driver)
 
   (switch-to-window [driver window]
@@ -247,7 +244,7 @@
                                   (zero? row))
                            (str row-css " " "th")
                            (str row-css " " "td"))]
-      ;; Element, not Driver, version of protocol
+      ;; WebElement, not Driver, version of protocol
       (find-elements-by table (by-query {:css complete-css}))))
 
   ;; TODO: reconsider find-table-col with CSS support
@@ -269,54 +266,52 @@
     ([driver]
        (let [act (:actions driver)]
          (.perform (.clickAndHold act))))
-    ([driver element]
+    ([driver webelement]
        (let [act (:actions driver)]
-         (.perform (.clickAndHold act (:webelement element))))))
+         (.perform (.clickAndHold act webelement)))))
 
   (double-click
     ([driver]
        (let [act (:actions driver)]
          (.perform (.doubleClick act))))
-    ([driver element]
+    ([driver webelement]
        (let [act (:actions driver)]
-         (.perform (.doubleClick act (:webelement element))))))
+         (.perform (.doubleClick act webelement)))))
 
   (drag-and-drop
-    [driver element-a element-b]
+    [driver webelement-a webelement-b]
     (cond
-     (nil? element-a) (throw-nse "The first element does not exist.")
-     (nil? element-b) (throw-nse "The second element does not exist.")
+     (nil? webelement-a) (throw-nse "The first element does not exist.")
+     (nil? webelement-b) (throw-nse "The second element does not exist.")
      :else (let [act (:actions driver)]
              (.perform (.dragAndDrop act
-                                     (:webelement element-a)
-                                     (:webelement element-b))))))
+                                     webelement-a
+                                     webelement-b)))))
 
   (drag-and-drop-by
-    [driver element x-y-map]
-    (if (nil? element)
+    [driver webelement x-y-map]
+    (if (nil? webelement)
       (throw-nse)
       (let [act (:actions driver)
             {:keys [x y] :or {x 0 y 0}} x-y-map]
         (.perform
-         (.dragAndDropBy act
-                         (:webelement element)
-                         x y)))))
+         (.dragAndDropBy act webelement x y)))))
 
   (key-down
     ([driver k]
        (let [act (:actions driver)]
          (.perform (.keyDown act (key-code k)))))
-    ([driver element k]
+    ([driver webelement k]
        (let [act (:actions driver)]
-         (.perform (.keyDown act (:webelement element) (key-code k))))))
+         (.perform (.keyDown act webelement (key-code k))))))
 
   (key-up
     ([driver k]
        (let [act (:actions driver)]
          (.perform (.keyUp act (key-code k)))))
-    ([driver element k]
+    ([driver webelement k]
        (let [act (:actions driver)]
-         (.perform (.keyUp act (:webelement element) (key-code k))))))
+         (.perform (.keyUp act webelement (key-code k))))))
 
   (move-by-offset
     [driver x y]
@@ -324,12 +319,12 @@
       (.perform (.moveByOffset act x y))))
 
   (move-to-element
-    ([driver element]
+    ([driver webelement]
        (let [act (:actions driver)]
-         (.perform (.moveToElement act (:webelement element)))))
-    ([driver element x y]
+         (.perform (.moveToElement act webelement))))
+    ([driver webelement x y]
        (let [act (:actions driver)]
-         (.perform (.moveToElement act (:webelement element) x y)))))
+         (.perform (.moveToElement act webelement x y)))))
 
   (release
     ([driver]
@@ -346,39 +341,39 @@
   (click-and-hold
     ([act]
        (.clickAndHold act))
-    ([act element]
-       (.clickAndHold act (:webelement element))))
+    ([act webelement]
+       (.clickAndHold act webelement)))
 
   ;; TODO: test coverage
   (double-click
     ([act]
        (.doubleClick act))
-    ([act element]
-       (.doubleClick act (:webelement element))))
+    ([act webelement]
+       (.doubleClick act webelement)))
 
   ;; TODO: test coverage
   (drag-and-drop
-    [act element-a element-b]
-    (.dragAndDrop act (:webelement element-a) (:webelement element-b)))
+    [act webelement-a webelement-b]
+    (.dragAndDrop act webelement-a webelement-b))
 
   ;; TODO: test coverage
   (drag-and-drop-by
-    [act element x y]
-    (.dragAndDropBy act (:webelement element) x y))
+    [act webelement x y]
+    (.dragAndDropBy act webelement x y))
 
   ;; TODO: test coverage
   (key-down
     ([act k]
        (.keyDown act (key-code k)))
-    ([act element k]
-       (.keyDown act (:webelement element) (key-code k))))
+    ([act webelement k]
+       (.keyDown act webelement (key-code k))))
 
   ;; TODO: test coverage
   (key-up
     ([act k]
        (.keyUp act (key-code k)))
-    ([act element k]
-       (.keyUp act (:webelement element) (key-code k))))
+    ([act webelement k]
+       (.keyUp act webelement (key-code k))))
 
   ;; TODO: test coverage
   (move-by-offset
@@ -387,10 +382,10 @@
 
   ;; TODO: test coverage
   (move-to-element
-    ([act element]
-       (.moveToElement act (:webelement element)))
-    ([act element x y]
-       (.moveToElement act (:webelement element) x y)))
+    ([act webelement]
+       (.moveToElement act webelement))
+    ([act webelement x y]
+       (.moveToElement act webelement x y)))
 
   ;; TODO: test coverage
   (perform [act] (.perform act))
@@ -399,8 +394,8 @@
   (release
     ([act]
        (.release act))
-    ([act element]
-       (.release act (:webelement element)))))
+    ([act webelement]
+       (.release act webelement))))
 
 (extend-type CompositeAction
 

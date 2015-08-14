@@ -8,7 +8,7 @@
 (in-ns 'clj-webdriver.core)
 
 (defn rectangle
-  [element]
+  [webelement]
   (let [loc (location element)
         el-size (size element)]
     (java.awt.Rectangle. (:x loc)
@@ -16,11 +16,11 @@
                          (:width el-size)
                          (:height el-size))))
 
-(extend-type Element
+(extend-type WebElement
 
   ;; Element action basics
   IElement
-  (attribute [element attr]
+  (attribute [webelement attr]
     (if (= attr :text)
       (text element)
       (let [attr (name attr)
@@ -32,137 +32,137 @@
                            "nowrap", "open", "paused", "pubdate", "readonly", "required",
                            "reversed", "scoped", "seamless", "seeking", "selected", "spellcheck",
                            "truespeed", "willvalidate"]
-            webdriver-result (.getAttribute (:webelement element) (name attr))]
+            webdriver-result (.getAttribute webelement (name attr))]
         (if (some #{attr} boolean-attrs)
           (when (= webdriver-result "true")
             attr)
           webdriver-result))))
 
-  (click [element]
-    (.click (:webelement element))
+  (click [webelement]
+    (.click webelement)
     nil)
 
-  (css-value [element property]
-    (.getCssValue (:webelement element) property))
+  (css-value [webelement property]
+    (.getCssValue webelement property))
 
-  (displayed? [element]
-    (.isDisplayed (:webelement element)))
+  (displayed? [webelement]
+    (.isDisplayed webelement))
 
-  (exists? [element]
-    (not (nil? (:webelement element))))
+  (exists? [webelement]
+    (not (nil? webelement)))
 
-  (flash [element]
+  (flash [webelement]
     (let [original-color (if (css-value element "background-color")
                            (css-value element "background-color")
                            "transparent")
           orig-colors (repeat original-color)
           change-colors (interleave (repeat "red") (repeat "blue"))]
       (doseq [flash-color (take 12 (interleave change-colors orig-colors))]
-        (execute-script* (.getWrappedDriver (:webelement element))
+        (execute-script* (.getWrappedDriver webelement)
                          (str "arguments[0].style.backgroundColor = '"
                               flash-color "'")
-                         (:webelement element))
+                         webelement)
         (Thread/sleep 80)))
     element)
 
-  (focus [element]
+  (focus [webelement]
     (execute-script*
-     (.getWrappedDriver (:webelement element)) "return arguments[0].focus()" (:webelement element))
+     (.getWrappedDriver webelement) "return arguments[0].focus()" webelement)
     element)
 
-  (html [element]
-    (browserbot (.getWrappedDriver (:webelement element)) "getOuterHTML" (:webelement element)))
+  (html [webelement]
+    (browserbot (.getWrappedDriver webelement) "getOuterHTML" webelement))
 
-  (location [element]
-    (let [loc (.getLocation (:webelement element))
+  (location [webelement]
+    (let [loc (.getLocation webelement)
           x   (.x loc)
           y   (.y loc)]
       {:x x, :y y}))
 
-  (location-once-visible [element]
-    (let [loc (.getLocationOnScreenOnceScrolledIntoView (:webelement element))
+  (location-once-visible [webelement]
+    (let [loc (.getLocationOnScreenOnceScrolledIntoView webelement)
           x   (.x loc)
           y   (.y loc)]
       {:x x, :y y}))
 
-  (present? [element]
+  (present? [webelement]
     (and (exists? element) (visible? element)))
 
-  (size [element]
-    (let [size-obj (.getSize (:webelement element))
+  (size [webelement]
+    (let [size-obj (.getSize webelement)
           w (.width size-obj)
           h (.height size-obj)]
       {:width w, :height h}))
 
-  (intersects? [element-a element-b]
+  (intersects? [webelement-a element-b]
     (let [rect-a (rectangle element-a)
           rect-b (rectangle element-b)]
       (.intersects rect-a rect-b)))
 
-  (tag [element]
-    (.getTagName (:webelement element)))
+  (tag [webelement]
+    (.getTagName webelement))
 
-  (text [element]
-    (.getText (:webelement element)))
+  (text [webelement]
+    (.getText webelement))
 
-  (value [element]
-    (.getAttribute (:webelement element) "value"))
+  (value [webelement]
+    (.getAttribute webelement "value"))
 
-  (visible? [element]
-    (.isDisplayed (:webelement element)))
+  (visible? [webelement]
+    (.isDisplayed webelement))
 
-  (xpath [element]
-    (browserbot (.getWrappedDriver (:webelement element)) "getXPath" (:webelement element) []))
+  (xpath [webelement]
+    (browserbot (.getWrappedDriver webelement) "getXPath" webelement []))
 
 
   IFormElement
-  (deselect [element]
-    (if (.isSelected (:webelement element))
-      (toggle (:webelement element))
+  (deselect [webelement]
+    (if (.isSelected webelement)
+      (toggle webelement)
       element))
 
-  (enabled? [element]
-    (.isEnabled (:webelement element)))
+  (enabled? [webelement]
+    (.isEnabled webelement))
 
-  (input-text [element s]
-    (.sendKeys (:webelement element) (into-array CharSequence (list s)))
+  (input-text [webelement s]
+    (.sendKeys webelement (into-array CharSequence (list s)))
     element)
 
-  (submit [element]
-    (.submit (:webelement element))
+  (submit [webelement]
+    (.submit webelement)
     nil)
 
-  (clear [element]
-    (.clear (:webelement element))
+  (clear [webelement]
+    (.clear webelement)
     element)
 
-  (select [element]
-    (if-not (.isSelected (:webelement element))
-      (.click (:webelement element))
+  (select [webelement]
+    (if-not (.isSelected webelement)
+      (.click webelement)
       element))
 
-  (selected? [element]
-    (.isSelected (:webelement element)))
+  (selected? [webelement]
+    (.isSelected webelement))
 
-  (send-keys [element s]
-    (.sendKeys (:webelement element) (into-array CharSequence (list s)))
+  (send-keys [webelement s]
+    (.sendKeys webelement (into-array CharSequence (list s)))
     element)
 
-  (toggle [element]
-    (.click (:webelement element))
+  (toggle [webelement]
+    (.click webelement)
     element)
 
 
   ISelectElement
-  (all-options [element]
-    (let [select-list (Select. (:webelement element))]
+  (all-options [webelement]
+    (let [select-list (Select. webelement)]
       (lazy-seq (init-elements (.getOptions select-list)))))
 
-  (all-selected-options [element]
-    (let [select-list (Select. (:webelement element))]
+  (all-selected-options [webelement]
+    (let [select-list (Select. webelement)]
       (lazy-seq (init-elements (.getAllSelectedOptions select-list)))))
 
-  (deselect-option [element attr-val]
+  (deselect-option [webelement attr-val]
     {:pre [(or (= (first (keys attr-val)) :index)
                (= (first (keys attr-val)) :value)
                (= (first (keys attr-val)) :text))]}
@@ -171,7 +171,7 @@
       :value (deselect-by-value element (:value attr-val))
       :text  (deselect-by-text element (:text attr-val))))
 
-  (deselect-all [element]
+  (deselect-all [webelement]
     (let [cnt-range (->> (all-options element)
                          count
                          (range 0))]
@@ -179,31 +179,31 @@
         (deselect-by-index element idx))
       element))
 
-  (deselect-by-index [element idx]
-    (let [select-list (Select. (:webelement element))]
+  (deselect-by-index [webelement idx]
+    (let [select-list (Select. webelement)]
       (.deselectByIndex select-list idx)
       element))
 
-  (deselect-by-text [element text]
-    (let [select-list (Select. (:webelement element))]
+  (deselect-by-text [webelement text]
+    (let [select-list (Select. webelement)]
       (.deselectByVisibleText select-list text)
       element))
 
-  (deselect-by-value [element value]
-    (let [select-list (Select. (:webelement element))]
+  (deselect-by-value [webelement value]
+    (let [select-list (Select. webelement)]
       (.deselectByValue select-list value)
       element))
 
-  (first-selected-option [element]
-    (let [select-list (Select. (:webelement element))]
+  (first-selected-option [webelement]
+    (let [select-list (Select. webelement)]
       (init-element (.getFirstSelectedOption select-list))))
 
-  (multiple? [element]
+  (multiple? [webelement]
     (let [value (attribute element "multiple")]
       (or (= value "true")
           (= value "multiple"))))
 
-  (select-option [element attr-val]
+  (select-option [webelement attr-val]
     {:pre [(or (= (first (keys attr-val)) :index)
                (= (first (keys attr-val)) :value)
                (= (first (keys attr-val)) :text))]}
@@ -212,7 +212,7 @@
       :value (select-by-value element (:value attr-val))
       :text  (select-by-text element (:text attr-val))))
 
-  (select-all [element]
+  (select-all [webelement]
     (let [cnt-range (->> (all-options element)
                          count
                          (range 0))]
@@ -220,150 +220,42 @@
         (select-by-index element idx))
       element))
 
-  (select-by-index [element idx]
-    (let [select-list (Select. (:webelement element))]
+  (select-by-index [webelement idx]
+    (let [select-list (Select. webelement)]
       (.selectByIndex select-list idx)
       element))
 
-  (select-by-text [element text]
-    (let [select-list (Select. (:webelement element))]
+  (select-by-text [webelement text]
+    (let [select-list (Select. webelement)]
       (.selectByVisibleText select-list text)
       element))
 
-  (select-by-value [element value]
-    (let [select-list (Select. (:webelement element))]
+  (select-by-value [webelement value]
+    (let [select-list (Select. webelement)]
       (.selectByValue select-list value)
       element))
 
   IFind
-  (find-element-by [element by]
+  (find-element-by [webelement by]
     (let [by (if (map? by)
                (by-query (build-query by :local))
                by)]
-      (init-element (.findElement (:webelement element) by))))
+      (init-element (.findElement webelement by))))
 
-  (find-elements-by [element by]
+  (find-elements-by [webelement by]
     (let [by (if (map? by)
                (by-query (build-query by :local))
                by)
-          els (.findElements (:webelement element) by)]
+          els (.findElements webelement by)]
       (if (seq els)
         (map init-element els)
         (map init-element [nil]))))
 
-  (find-element [element by]
+  (find-element [webelement by]
     (find-element-by element by))
 
-  (find-elements [element by]
+  (find-elements [webelement by]
     (find-elements-by element by)))
-
-;;
-;; Extend the protocol to regular Clojure maps
-;;
-
-(extend-protocol IElement
-  clojure.lang.IPersistentMap
-
-  (attribute   [m attr] (attribute (map->Element m) attr))
-
-  (click       [m] (click (map->Element m)))
-
-  (css-value   [m property] (css-value (map->Element m) property))
-
-  (displayed?  [m] (displayed? (map->Element m)))
-
-  (exists?     [m] (exists? (map->Element m)))
-
-  (flash       [m] (flash (map->Element m)))
-
-  (focus [m] (focus (map->Element m)))
-
-  (html [m] (html (map->Element m)))
-
-  (location [m] (location (map->Element m)))
-
-  (location-once-visible [m] (location-once-visible (map->Element m)))
-
-  (present? [m] (present? (map->Element m)))
-
-  (size [m] (size (map->Element m)))
-
-  (rectangle [m] (rectangle (map->Element m)))
-
-  (intersects? [m-a m-b] (intersects? (map->Element m-a) (map->Element m-b)))
-
-  (tag [m] (tag (map->Element m)))
-
-  (text [m] (text (map->Element m)))
-
-  (value [m] (value (map->Element m)))
-
-  (visible? [m] (visible? (map->Element m)))
-
-  (xpath [m] (xpath (map->Element m))))
-
-(extend-protocol IFormElement
-  clojure.lang.IPersistentMap
-
-  (deselect [m] (deselect (map->Element m)))
-
-  (enabled? [m] (enabled? (map->Element m)))
-
-  (input-text [m s] (input-text (map->Element m) s))
-
-  (submit [m] (submit (map->Element m)))
-
-  (clear [m] (clear (map->Element m)))
-
-  (select [m] (select (map->Element m)))
-
-  (selected? [m] (selected? (map->Element m)))
-
-  (send-keys [m s] (send-keys (map->Element m) s))
-
-  (toggle [m] (toggle (map->Element m))))
-
-(extend-protocol ISelectElement
-  clojure.lang.IPersistentMap
-
-  (all-options [m] (all-options (map->Element m)))
-
-  (all-selected-options [m] (all-selected-options (map->Element m)))
-
-  (deselect-option [m attr-val] (deselect-option (map->Element m) attr-val))
-
-  (deselect-all [m] (deselect-all (map->Element m)))
-
-  (deselect-by-index [m idx] (deselect-by-index (map->Element m) idx))
-
-  (deselect-by-text [m text] (deselect-by-text (map->Element m) text))
-
-  (deselect-by-value [m value] (deselect-by-value (map->Element m) value))
-
-  (first-selected-option [m] (first-selected-option (map->Element m)))
-
-  (multiple? [m] (multiple? (map->Element m)))
-
-  (select-option [m attr-val] (select-option (map->Element m) attr-val))
-
-  (select-all [m] (select-all (map->Element m)))
-
-  (select-by-index [m idx] (select-by-index (map->Element m) idx))
-
-  (select-by-text [m text] (select-by-text (map->Element m) text))
-
-  (select-by-value [m value] (select-by-value (map->Element m) value)))
-
-(extend-protocol IFind
-  clojure.lang.IPersistentMap
-
-  (find-element-by [m by] (find-element-by (map->Element m) by))
-
-  (find-elements-by [m by] (find-elements-by (map->Element m) by))
-
-  (find-element [m by] (find-element (map->Element m) by))
-
-  (find-elements [m by] (find-elements (map->Element m) by)))
 
 ;;
 ;; Extend Element-related protocols to `nil`,
@@ -372,7 +264,6 @@
 
 (extend-protocol IElement
   nil
-
   (attribute   [n attr] (throw-nse))
 
   (click       [n] (throw-nse))
@@ -413,7 +304,6 @@
 
 (extend-protocol IFormElement
   nil
-
   (deselect [n] (throw-nse))
 
   (enabled? [n] (throw-nse))
@@ -434,7 +324,6 @@
 
 (extend-protocol ISelectElement
   nil
-
   (all-options [n] (throw-nse))
 
   (all-selected-options [n] (throw-nse))
@@ -465,7 +354,6 @@
 
 (extend-protocol IFind
   nil
-
   (find-element-by [n by] (throw-nse))
 
   (find-elements-by [n by] (throw-nse))

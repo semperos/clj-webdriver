@@ -6,8 +6,7 @@
             [clj-webdriver.window :as win]
             [clj-webdriver.util :as util]
             [clj-webdriver.options :as options]
-            [clj-webdriver.wait :as wait])
-  (:import clj_webdriver.element.Element))
+            [clj-webdriver.wait :as wait]))
 
 (declare css-finder)
 (def ^:dynamic *driver*)
@@ -56,7 +55,7 @@
   ([browser-spec url] (to (set-driver* browser-spec) url)))
 
 (defn set-finder!
-  "Set a default finder function, which will be used with all `q` parameters in functions that require an Element.
+  "Set a default finder function, which will be used with all `q` parameters in functions that require a WebElement.
 
    Examples:
    =========
@@ -157,7 +156,7 @@
         (quit)))))
 
 (defn css-finder
-  "Given a CSS query `q`, return a lazy seq of the elements found by calling `find-elements` with `by-css`. If `q` is an `Element`, it is returned unchanged.
+  "Given a CSS query `q`, return a lazy seq of the elements found by calling `find-elements` with `by-css`. If `q` is a `WebElement`, it is returned unchanged.
 
    This function is used internally by the Taxi API as `*finder*`. See the documentation for `set-finder!` for examples of extending this function or creating your own custom finder function."
   ([q] (css-finder *driver* q))
@@ -170,7 +169,7 @@
 (set-finder! css-finder)
 
 (defn xpath-finder
-  "Given a XPath query `q`, return a lazy seq of the elements found by calling `find-elements` with `by-xpath`. If `q` is an `Element`, it is returned unchanged.
+  "Given a XPath query `q`, return a lazy seq of the elements found by calling `find-elements` with `by-xpath`. If `q` is a `WebElement`, it is returned unchanged.
 
    This function is used internally by the Taxi API as `*finder*`. See the documentation for `set-finder!` for examples of extending this function or creating your own custom finder function."
   ([q] (xpath-finder *driver* q))
@@ -776,7 +775,7 @@
 
 ;; Need to explain difference between element and find-element fn's
 (defn find-elements
-  "Return `Element` records that match the given `attr-val`. Prefer the default behavior of `elements` when possible.
+  "Return `WebElement` objects that match the given `attr-val`. Prefer the default behavior of `elements` when possible.
 
    Whereas the `elements` function uses a query `q` with the default finder function, this function requires an `attr-val` parameter which is either a map or a vector of maps with special semantics for finding elements on the page.
 
@@ -809,7 +808,7 @@
      (core/find-elements driver attr-val)))
 
 (defn find-element
-  "Return first `Element` record that matches the given `attr-val`. Prefer the default behavior of `element` when possible.
+  "Return first `WebElement` record that matches the given `attr-val`. Prefer the default behavior of `element` when possible.
 
    Whereas the `element` function uses a query `q` with the default finder function, this function requires an `attr-val` parameter which is either a map or a vector of maps with special semantics for finding elements on the page.
 
@@ -842,9 +841,9 @@
      (core/find-element driver attr-val)))
 
 
-;; Element versions of find-element-by and find-elements-by
+;; WebElement versions of find-element-by and find-elements-by
 (defn find-elements-under
-  "Find the elements that are children of the element found with query `q-parent`, using the given `attr-val`. If `q-parent` is an `Element`, it will be used as-is. The `attr-val` can either be a find-element-style map of attributes and values, or a by-clause (`by-tag`, `by-class`, etc.)
+  "Find the elements that are children of the element found with query `q-parent`, using the given `attr-val`. If `q-parent` is a `WebElement`, it will be used as-is. The `attr-val` can either be a find-element-style map of attributes and values, or a by-clause (`by-tag`, `by-class`, etc.)
 
 
    Examples:
@@ -866,7 +865,7 @@
        (core/find-elements (element driver q-parent) attr-val))))
 
 (defn find-element-under
-  "Find the first element that is a child of the element found with query `q-parent`, using the given `attr-val`. If `q-parent` is an `Element`, it will be used as-is. The `attr-val` can either be a find-element-style map of attributes and values, or a by-clause (`by-tag`, `by-class`, etc.)
+  "Find the first element that is a child of the element found with query `q-parent`, using the given `attr-val`. If `q-parent` is an `WebElement`, it will be used as-is. The `attr-val` can either be a find-element-style map of attributes and values, or a by-clause (`by-tag`, `by-class`, etc.)
 
    Examples:
    =========
@@ -888,7 +887,7 @@
 
 
 
-;; ## Element functions ##
+;; ## WebElement functions ##
 ;;
 ;; Unlike their counterparts in core, you don't need to do a `(find-element ...)`
 ;; with these; just pass in a CSS query followed by other necessary parameters
@@ -896,7 +895,7 @@
 ;;
 ;; If a CSS query string is not passed in, it's assumed you're trying to use these
 ;; functions like their core counterparts, in which case each function will default
-;; back to core functionality (expecting that you're passing in an Element record)
+;; back to core functionality (expecting that you're passing in an WebElement object)
 
 (defn attribute
   "For the first element found with query `q`, return the value of the given `attribute`.
