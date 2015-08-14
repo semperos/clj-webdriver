@@ -1,9 +1,9 @@
 (ns clj-webdriver.remote.server
-  (:use [clojure.java.io :only [as-url]]
-        [clojure.tools.logging :as log]
-        [clj-webdriver.driver :only [init-driver]]
-        [clj-webdriver.core :only [get-url]])
-  (:require [clj-webdriver.util :as util])
+  (:require [clojure.java.io :refer [as-url]]
+            [clojure.tools.logging :as log]
+            [clj-webdriver.core :refer [get-url]]
+            clj-webdriver.driver
+            [clj-webdriver.util :as util])
   (:import [org.mortbay.jetty Connector Server]
            org.mortbay.jetty.nio.SelectChannelConnector
            org.mortbay.jetty.security.SslSocketConnector
@@ -13,15 +13,15 @@
            org.openqa.selenium.remote.server.DriverServlet
            [org.openqa.selenium.remote
             DesiredCapabilities
-            HttpCommandExecutor]))
+            HttpCommandExecutor]
+           clj_webdriver.driver.Driver))
 
 (defprotocol IRemoteServer
   "Functions for managing a RemoteServer instance."
   (start [server] "Start the server. Will try to run stop if a bind exception occurs.")
   (stop [server] "Stop the server")
   (address [server] "Get address of the server")
-  (new-remote-driver [server browser-spec] "Instantiate a new RemoteDriver record.")
-  (start-remote-driver [server browser-spec target-url] "Start a new RemoteDriver record and go to `target-url`."))
+  (new-remote-driver [server browser-spec] "Instantiate a new RemoteDriver record."))
 
 (defn- desired-capabilities
   "Build a DesiredCapabilities instance from `browser` and `capabilities`."
@@ -99,17 +99,7 @@
            ;; actual capabilities as Clojure map, since once capabilities are
            ;; assigned to a driver you can't do anything but read them
            capabilities (util/clojure-keys (into {} (.asMap caps)))]
-      (init-driver {:webdriver webdriver
-                    :capabilities {:desired desired-capabilities
-                                   :desired-obj desired-caps
-                                   :actual capabilities
-                                   :actual-obj caps}})))
-
-  (start-remote-driver
-    [remote-server browser-spec url]
-    (let [driver (new-remote-driver remote-server browser-spec)]
-      (get-url driver url)
-      driver)))
+      (Driver. webdriver nil))))
 
 (defn init-remote-server
   "Initialize a new RemoteServer record, optionally starting the

@@ -13,12 +13,11 @@
 ;; WebDriver API.
 ;;
 (ns clj-webdriver.core
-  (:use [clj-webdriver driver element util options cookie]
+  (:use [clj-webdriver driver util options cookie]
         [clojure.walk :only [keywordize-keys]])
   (:require [clj-webdriver.js.browserbot :as browserbot-js]
             [clj-webdriver.firefox :as ff]
             [clj-webdriver.window :as win]
-            clj-webdriver.driver
             [clojure.java.io :as io]
             [clojure.string :as string]
             [clojure.tools.logging :as log])
@@ -181,22 +180,22 @@
     true
     (catch Throwable _ false)))
 
-(defmulti new-webdriver
+(defmulti new-webdriver*
   "Return a Selenium-WebDriver WebDriver instance, with particularities of each browser supported."
   :browser)
 
-(defmethod new-webdriver :default
+(defmethod new-webdriver* :default
   [{:keys [browser]}]
   ;; Allow driver classes unknown to this library as a fallback
   (.newInstance (or (browser webdriver-drivers) browser)))
 
-(defmethod new-webdriver :firefox
+(defmethod new-webdriver* :firefox
   [{:keys [browser profile]}]
   (if profile
     (FirefoxDriver. profile)
     (FirefoxDriver.)))
 
-(defmethod new-webdriver :phantomjs
+(defmethod new-webdriver* :phantomjs
   [{:keys [javascript-enabled? phantomjs-executable takes-screenshot?] :as browser-spec}]
   (if-not phantomjs-enabled?
     (throw (RuntimeException. "You do not have the PhantomJS JAR's on the classpath. Please add com.codeborne/phantomjsdriver version 1.2.1 with exclusions for org.seleniumhq.selenium/selenium-java and any other org.seleniumhq.selenium JAR's your code relies on."))
@@ -221,12 +220,16 @@
           (.setCapability caps
                           (.get field klass)
                           phantomjs-executable)))
-      (.newInstance phantomjs-driver-ctor (into-array java.lang.Object [caps]))
-)))
+      (.newInstance phantomjs-driver-ctor (into-array java.lang.Object [caps])))))
+
+(defn new-driver
+  "Create a new `Driver`"
+  [browser-spec]
+  (Driver. (new-webdriver* browser-spec) nil))
 
 ;; Borrowed from core Clojure
-(defmacro with-webdriver
-  "Given a binding to WebDriver object, make that binding available in `body` and ensure `quit` is called on it at the end."
+(defmacro with-driver
+  "Given a binding to `Driver`, make that binding available in `body` and ensure `quit` is called on it at the end."
   [bindings & body]
   (assert-args
      (vector? bindings) "a vector for its binding"
@@ -239,7 +242,7 @@
                                 (finally
                                   (quit ~(bindings 0)))))
     :else (throw (IllegalArgumentException.
-                   "with-driver only allows Symbols in bindings"))))
+                   "with-driver only allows symbols in bindings"))))
 
 ;; These are used in the implementation of higher-level window functions
 (defn window-handle*
@@ -284,7 +287,7 @@
 ;; ## JavaScript Execution ##
 (defn execute-script
   [driver js & js-args]
-  (.executeScript (:webdriver driver) js (to-array js-args)))
+  (.executeScript (.webdriver driver) js (to-array js-args)))
 
 (defn execute-script*
   "Version of execute-script that uses a WebDriver instance directly."
@@ -299,14 +302,14 @@
 
    Unless you need to wait to execute your composite actions, you should prefer `->actions` to this macro."
   [driver & body]
-  `(let [acts# (doto (:actions ~driver)
+  `(let [acts# (doto (Actions. (.webdriver ~driver))
                  ~@body)]
      (.build acts#)))
 
 ;; TODO: test coverage
 (defmacro ->actions
   [driver & body]
-  `(let [act# (:actions ~driver)]
+  `(let [act# (Actions. (.webdriver ~driver))]
      (doto act#
        ~@body
        .perform)

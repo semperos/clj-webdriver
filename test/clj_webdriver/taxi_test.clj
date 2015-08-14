@@ -3,7 +3,6 @@
             [clj-webdriver.taxi :refer :all]
             [clj-webdriver.core :as core]
             [clj-webdriver.test.example-app :as web-app]
-            [clj-webdriver.driver :refer [init-driver]]
             [clj-webdriver.test.helpers :refer :all]
             [clojure.string :refer [lower-case]])
   (:import [org.openqa.selenium TimeoutException NoAlertPresentException]))

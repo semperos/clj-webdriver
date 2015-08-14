@@ -15,16 +15,16 @@
 (extend-type Driver
   IRemoteWebDriver
   (capabilities [driver]
-    (.getCapabilities (:webdriver driver)))
-  
+    (.getCapabilities (.webdriver driver)))
+
   (command-executor [driver]
-    (.getCommandExecutor (:webdriver driver)))
-  
+    (.getCommandExecutor (.webdriver driver)))
+
   (command-executor! [driver executor]
-    (.setCommandExecutor (:webdriver driver) executor))
-  
+    (.setCommandExecutor (.webdriver driver) executor))
+
   (session-id [driver]
-    (str (.getSessionId (:webdriver driver))))
-  
+    (str (.getSessionId (.webdriver driver))))
+
   (session-id! [driver new-id]
-    (.setSessionId (:webdriver driver) new-id)))
+    (.setSessionId (.webdriver driver) new-id)))

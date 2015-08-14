@@ -1,12 +1,13 @@
 (ns clj-webdriver.firefox-test
   (:require [clojure.test :refer :all]
-            [clj-webdriver.core :refer [new-driver start current-url find-element find-elements quit get-screenshot with-browser attribute to]]
-            [clj-webdriver.driver :refer [driver?]]
+            [clj-webdriver.core :refer [new-driver current-url find-element find-elements quit get-screenshot attribute to with-driver]]
+            clj-webdriver.driver
             [clj-webdriver.test.common :as c]
             [clojure.java.io :as io]
             [clojure.tools.logging :as log]
             [clj-webdriver.firefox :as ff]
-            [clj-webdriver.test.helpers :refer [base-url start-system! stop-system!]]))
+            [clj-webdriver.test.helpers :refer [base-url start-system! stop-system!]])
+  (:import clj_webdriver.driver.Driver))
 
 ;; Driver definitions
 (def firefox-driver (atom nil))
@@ -39,16 +40,7 @@
 ;; Firefox-specific Functionality
 
 (deftest firefox-should-support-custom-profiles
-  (is (with-browser [tmp-dr (start {:browser :firefox
-                                    :profile (ff/new-profile)}
-                                   base-url)]
+  (is (with-driver [tmp-dr (new-driver {:browser :firefox
+                                        :profile (ff/new-profile)})]
         (log/info "[x] Starting Firefox with custom profile.")
-        (driver? tmp-dr))))
-
-;; (deftest firefox-should-support-extensions
-;;   (is (with-browser [tmp-dr (start {:browser :firefox
-;;                                     :profile (doto (ff/new-profile)
-;;                                                (ff/enable-extension :firebug))}
-;;                                    base-url)]
-;;         (log/info "[x] Starting Firefox with extensions.")
-;;         (driver? tmp-dr))))
+        (instance? Driver tmp-dr))))

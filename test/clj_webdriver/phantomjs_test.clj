@@ -1,8 +1,7 @@
 (ns clj-webdriver.phantomjs-test
   (:require [clojure.tools.logging :as log]
             [clojure.test :refer :all]
-            [clj-webdriver.core :refer [start new-driver to quit]]
-            [clj-webdriver.driver :refer [init-driver]]
+            [clj-webdriver.core :refer [new-driver to quit]]
             [clj-webdriver.test.common :refer [defcommontests]]
             [clj-webdriver.test.helpers :refer [base-url start-system! stop-system!]])
   (:import org.openqa.selenium.remote.DesiredCapabilities))

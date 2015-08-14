@@ -91,6 +91,6 @@
   ;; TODO: better test would be to open two windows
   ;; and pass in the second one here.
   (common-window-tests (init-window @driver
-                                    (.getWindowHandle (:webdriver @driver))
+                                    (.getWindowHandle (.webdriver @driver))
                                     (title @driver)
                                     (current-url @driver))))

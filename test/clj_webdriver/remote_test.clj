@@ -1,5 +1,5 @@
-(ns ^{:doc "Tests for RemoteWebDriver server and client (driver) code"}
-  clj-webdriver.remote-test
+(ns clj-webdriver.remote-test
+  "Tests for RemoteWebDriver server and client (driver) code"
   (:require [clojure.test :refer :all]
             [clj-webdriver.core :refer [quit to]]
             [clj-webdriver.test.helpers :refer :all]

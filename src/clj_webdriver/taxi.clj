@@ -1,12 +1,12 @@
 ;; The faster way to use clj-webdriver: take a taxi
 (ns clj-webdriver.taxi
-  (:use [clj-webdriver.element :only [element-like?]]
-        [clj-webdriver.driver :only [driver?]])
   (:require [clj-webdriver.core :as core]
+            clj-webdriver.driver
             [clj-webdriver.window :as win]
             [clj-webdriver.util :as util]
             [clj-webdriver.options :as options]
-            [clj-webdriver.wait :as wait]))
+            [clj-webdriver.wait :as wait])
+  (:import clj_webdriver.driver.Driver))
 
 (declare css-finder)
 (def ^:dynamic *driver*)
@@ -20,7 +20,7 @@
 (defn- set-driver*
   "Given a `browser-spec`, instantiate a new Driver record and assign to `*driver*`."
   [browser-spec]
-  (let [new-driver (if (driver? browser-spec)
+  (let [new-driver (if (instance? Driver browser-spec)
                      browser-spec
                      (core/new-driver browser-spec))]
        (alter-var-root (var *driver*)
@@ -269,7 +269,7 @@
    ;;
    (back 2)"
   ([] (back *driver* 1))
-  ([driver-or-n] (if (driver? driver-or-n)
+  ([driver-or-n] (if (instance? Driver driver-or-n)
                    (back driver-or-n 1)
                    (back *driver* driver-or-n)))
   ([driver n]
@@ -314,7 +314,7 @@
    ;;
    (forward 2)"
   ([] (forward *driver* 1))
-  ([driver-or-n] (if (driver? driver-or-n)
+  ([driver-or-n] (if (instance? Driver driver-or-n)
                    (forward driver-or-n 1)
                    (forward *driver* driver-or-n)))
   ([driver n]
@@ -643,7 +643,7 @@
    ;;
    (execute-script \"var myElement = document.getElementById('elementId'); return myElement;\")"
   ([js] (execute-script *driver* js))
-  ([driver-or-js js-or-args] (if (driver? driver-or-js)
+  ([driver-or-js js-or-args] (if (instance? Driver driver-or-js)
                                (execute-script driver-or-js js-or-args [])
                                (execute-script *driver* driver-or-js js-or-args)))
   ([driver js js-args]

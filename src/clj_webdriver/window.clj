@@ -1,8 +1,8 @@
 (ns ^{:doc "Browser window and 'window handle' support"}
   clj-webdriver.window
-  (:require [clj-webdriver.driver :as driver])
+  (:require clj-webdriver.driver)
   (:import [org.openqa.selenium Dimension Point]
-           [clj_webdriver.driver Driver]))
+           clj_webdriver.driver.Driver))
 
 (defrecord ^{:doc "A record that encapsulates all operations on windows, including what Selenium-WebDriver handles with the `WebDriver.Window` interface and the `getWindowHandle` methods."}
     Window [driver handle title url])
@@ -61,14 +61,14 @@
       {:width (.getWidth dim) :height (.getHeight dim)}))
 
   (window-obj [driver]
-    (-> driver :webdriver .manage .window)))
+    (-> (.webdriver driver) .manage .window)))
 
 (defmacro ^{:private true
             :doc "Apply the `a-fn` with the `Driver` contained inside the given `window` record and any other `a-fn-args` provided. Before calling the function, switch to the specified window; after calling the function, switch back to the original window."}
   window-switcher
   [window a-fn & a-fn-args]
   `(let [driver# (:driver ~window)
-         webdriver# (:webdriver driver#)
+         webdriver# (.webdriver driver#)
          orig-window-handle# (.getWindowHandle webdriver#)
          target-window-handle# (:handle ~window)
          target-current?# (= orig-window-handle# target-window-handle#)]
@@ -80,7 +80,7 @@
          ;; the thing being acted on. Since we proxy to the `Driver` implementation
          ;; of each function in the `Window` implementations, we have to check
          ;; for a `Driver` return value and return `Window` instead.
-         (if (driver/driver? return#)
+         (if (instance? Driver return#)
            ~window
            return#))
        (do
@@ -93,7 +93,7 @@
            (.switchTo (.window webdriver#) orig-window-handle#)
            ;; Make sure `Window` is returned for appropriate functions
            ;; (see above comment)
-           (if (driver/driver? return#)
+           (if (instance? Driver return#)
              ~window
              return#))))))
 
@@ -106,13 +106,13 @@
   IWindow
   (maximize [window]
     (window-switcher window maximize))
-  
+
   (position [window]
     (window-switcher window position))
 
   (reposition [window coordinates-map]
     (window-switcher window reposition coordinates-map))
-  
+
   (resize [window dimensions-map]
     (window-switcher window resize dimensions-map))
 

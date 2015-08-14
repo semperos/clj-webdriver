@@ -3,7 +3,6 @@
             [clojure.tools.logging :as log]
             [clj-webdriver.test.helpers :refer :all]
             [clj-webdriver.core :refer [start new-driver to quit]]
-            [clj-webdriver.driver :refer [init-driver]]
             [clj-webdriver.test.common :as c])
   (:import org.openqa.selenium.remote.DesiredCapabilities
            org.openqa.selenium.chrome.ChromeDriver))
