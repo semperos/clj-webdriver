@@ -17,14 +17,13 @@
         [clojure.walk :only [keywordize-keys]])
   (:require [clj-webdriver.js.browserbot :as browserbot-js]
             [clj-webdriver.firefox :as ff]
-            [clj-webdriver.window :as win]
             [clojure.java.io :as io]
             [clojure.string :as string]
             [clojure.tools.logging :as log])
   (:import [java.lang.reflect Constructor Field]
            [org.openqa.selenium By WebDriver WebElement
-            OutputType NoSuchElementException Keys
-            TakesScreenshot]
+            WebDriver$Window OutputType NoSuchElementException
+            Keys TakesScreenshot]
            [org.openqa.selenium.firefox FirefoxDriver FirefoxProfile]
            org.openqa.selenium.ie.InternetExplorerDriver
            org.openqa.selenium.chrome.ChromeDriver
@@ -35,6 +34,7 @@
            [org.openqa.selenium.interactions Actions CompositeAction]
            org.openqa.selenium.Capabilities
            org.openqa.selenium.remote.DesiredCapabilities
+           [org.openqa.selenium Dimension Point]
            clj_webdriver.driver.Driver))
 
 ;; ## Protocols for clj-webdriver API ##
@@ -58,13 +58,21 @@
 (defprotocol ITargetLocator
   "Functions that deal with browser windows and frames"
   (window [driver] "Get the only (or first) window")
-  (windows [driver] "Retrieve a vector of `Window` records which can be used to switch to particular open windows")
-  (other-windows [driver] "Retrieve window handles for all windows except the current one")
+  (window-handles [driver] "Retrieve a vector of `Window` records which can be used to switch to particular open windows")
+  (other-window-handles [driver] "Retrieve window handles for all windows except the current one")
   (switch-to-frame [driver frame] "Switch focus to a particular HTML frame by supplying a `WebElement` or an integer for the nth frame on the page (zero-based index)")
   (switch-to-window [driver handle] "Switch focus to a particular open window")
   (switch-to-other-window [driver] "Given that two and only two browser windows are open, switch to the one not currently active")
   (switch-to-default [driver] "Switch focus to the first first frame of the page, or the main document if the page contains iframes")
   (switch-to-active [driver] "Switch to element that currently has focus, or to the body if this cannot be detected"))
+
+(defprotocol IWindow
+  "Functions to manage browser size and position."
+  (maximize [this] "Maximizes the current window to fit screen if it is not already maximized. Returns driver or window.")
+  (position [this] "Returns map of X Y coordinates ex. {:x 1 :y 3} relative to the upper left corner of screen.")
+  (reposition [this coordinates-map] "Excepts map of X Y coordinates ex. {:x 1 :y 3} repositioning current window relative to screen. Returns driver or window.")
+  (resize [this dimensions-map] "Resize the driver window with a map of width and height ex. {:width 480 :height 800}. Returns driver or window.")
+  (size [this] "Get size of current window. Returns a map of width and height ex. {:width 480 :height 800}"))
 
 ;; ### Alert Popups ###
 (defprotocol IAlert
@@ -80,8 +88,6 @@
   "Functions used to locate elements on a given page"
   (find-element-by [this by] "Retrieve the element object of an element described by `by`, optionally limited to elements beneath a parent element (depends on dispatch). Prefer `find-element` to this function unless you know what you're doing.")
   (find-elements-by [this by] "Retrieve a seq of element objects described by `by`, optionally limited to elements beneath a parent element (depends on dispatch). Prefer `find-elements` to this function unless you know what you're doing.")
-  (find-windows [driver attr-val] "Given a browser `driver` and a map of attributes, return the windows that match")
-  (find-window [driver attr-val] "Given a browser `driver` and a map of attributes, return the windows that match")
   (find-table-cell [driver table coordinates] "Given a `driver`, a `table` element, and a zero-based set of coordinates for row and column, return the table cell at those coordinates for the given table.")
   (find-table-row [driver table row-index] "Return all cells in the row of the given table element, `row-index` as a zero-based index of the target row.")
   (find-by-hierarchy [driver hierarchy-vector] "Given a Webdriver `driver` and a vector `hierarchy-vector`, return a lazy seq of the described elements in the hierarchy dictated by the order of elements in the `hierarchy-vector`.")
@@ -304,7 +310,14 @@
   [^Driver driver js & js-args]
   (apply execute-script* (.webdriver driver) js js-args))
 
+;; Needed by window and target locator implementations in core_driver and core_window
+(defn ^WebDriver$Window window*
+  "Return the underyling WebDriver$Window object for the `Driver`"
+  [driver]
+  (.window (.manage ^WebDriver (.webdriver driver))))
+
 (load "core_driver")
+(load "core_window")
 
 ;; TODO: test coverage
 (defmacro ->build-composite-action

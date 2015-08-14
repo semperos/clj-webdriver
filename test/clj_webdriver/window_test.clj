@@ -1,8 +1,7 @@
 (ns clj-webdriver.window-test
   "This namespace exercises Window manipulation code, but does not currently sport assertions. Attempts to do so over the years have resulted in non-deterministic test results. A fresh stab will be taken."
   (:require [clojure.test :refer :all]
-            [clj-webdriver.window :refer :all]
-            [clj-webdriver.core :refer [new-driver title current-url to quit]]
+            [clj-webdriver.core :refer :all]
             [clj-webdriver.test.helpers :refer :all]))
 
 (def driver (atom nil))
@@ -90,7 +89,4 @@
   (common-window-tests @driver)
   ;; TODO: better test would be to open two windows
   ;; and pass in the second one here.
-  (common-window-tests (init-window @driver
-                                    (.getWindowHandle (.webdriver @driver))
-                                    (title @driver)
-                                    (current-url @driver))))
+  (common-window-tests (window @driver)))

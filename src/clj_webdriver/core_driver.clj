@@ -79,26 +79,17 @@
   ITargetLocator
   ;; TODO (possible): multiple arities; only driver, return current window handle; driver and query, return matching window handle
   (window [driver]
-    (win/init-window (.webdriver driver)
-                     (.getWindowHandle ^WebDriver (.webdriver driver))
-                     (title driver)
-                     (current-url driver)))
+    (window* driver))
 
-  (windows [driver]
-    (let [current-handle (.getWindowHandle ^WebDriver (.webdriver driver))
-          all-handles (lazy-seq (.getWindowHandles ^WebDriver (.webdriver driver)))
-          handle-records (for [handle all-handles]
-                           (let [b (switch-to-window driver handle)]
-                             (win/init-window (.webdriver driver)
-                                              handle
-                                              (title b)
-                                              (current-url b))))]
-      (switch-to-window driver current-handle)
-      handle-records))
+  (window-handle [driver]
+    (.getWindowHandle ^WebDriver (.webdriver driver)))
 
-  (other-windows [driver]
-    (remove #(= (:handle %) (:handle (window driver)))
-            (doall (windows driver))))
+  (window-handles [driver]
+    (into #{} (.getWindowHandles ^WebDriver (.webdriver driver))))
+
+  (other-window-handles [driver]
+    (let [handles (window-handles driver)]
+      (disj handles (.getWindowHandle ^WebDriver (.webdriver driver)))))
 
   (switch-to-frame [driver frame]
     (cond
@@ -107,37 +98,21 @@
       :else (.frame (.switchTo ^WebDriver (.webdriver driver)) ^WebElement frame))
     driver)
 
-  (switch-to-window [driver window]
-    (cond
-     (string? window)
-     (.window (.switchTo ^WebDriver (.webdriver driver)) window)
-
-     (win/window? window)
-     (.window (.switchTo ^WebDriver (:driver window)) ^String (:handle window))
-
-     (number? window)
-     (switch-to-window driver (nth (windows driver) window))
-
-     (nil? window)
-     (throw (RuntimeException. "No window can be found"))
-
-     :else
-     (.window (.switchTo ^WebDriver (.webdriver driver)) window))
+  (switch-to-window [driver window-handle]
+    (.window (.switchTo ^WebDriver (.webdriver driver)) window)
     driver)
 
   (switch-to-other-window [driver]
-    (if (not= (count (windows driver)) 2)
-      (throw (RuntimeException.
-              (str "You may only use this function when two and only two "
-                   "browser windows are open.")))
-      (switch-to-window driver (first (other-windows driver)))))
+    (if (= (count (window-handles driver)) 2)
+      (switch-to-window driver (first (other-window-handles driver)))
+      (throw (ex-info "You may use this function iff two windows are open."
+                      {:window-handles (window-handles driver)}))))
 
   (switch-to-default [driver]
     (.defaultContent (.switchTo ^WebDriver (.webdriver driver))))
 
   (switch-to-active [driver]
     (.activeElement (.switchTo ^WebDriver (.webdriver driver))))
-
 
   ;; Options Interface (cookies)
   IOptions
@@ -199,17 +174,6 @@
                (by-query (build-query by-value))
                by-value)]
       (.findElements ^WebDriver (.webdriver driver) by-value)))
-
-  (find-windows [driver attr-val]
-    (if (contains? attr-val :index)
-      [(nth (windows driver) (:index attr-val))] ; vector for consistency below
-      (filter #(every? (fn [[k v]] (if (= java.util.regex.Pattern (class v))
-                                    (re-find v (k %))
-                                    (= (k %) v)))
-                       attr-val) (windows driver))))
-
-  (find-window [driver attr-val]
-    (first (find-windows driver attr-val)))
 
   (find-table-cell [driver table coords]
     (when (not= (count coords) 2)

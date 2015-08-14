@@ -8,8 +8,7 @@
             [clj-webdriver.util :refer :all]
             [clj-webdriver.wait :refer :all]
             [clj-webdriver.options :refer :all]
-            [clj-webdriver.form-helpers :refer :all]
-            [clj-webdriver.window :as win])
+            [clj-webdriver.form-helpers :refer :all])
   (:import [clj_webdriver.driver.Driver]
            [org.openqa.selenium TimeoutException NoAlertPresentException]))
 

@@ -2,7 +2,6 @@
 (ns clj-webdriver.taxi
   (:require [clj-webdriver.core :as core]
             clj-webdriver.driver
-            [clj-webdriver.window :as win]
             [clj-webdriver.util :as util]
             [clj-webdriver.options :as options]
             [clj-webdriver.wait :as wait])
@@ -692,57 +691,6 @@
   ([timeout] (implicit-wait *driver* timeout))
   ([driver timeout]
      (wait/implicit-wait driver timeout)))
-
-(defn find-windows
-  "Return all `Window` records that match the given `attr-val` map.
-
-   Attributes can be anything in a `Window` record (`:title` or `:url`) or you can pass an `:index` key and a number value to select a window by its open order.
-
-   Examples:
-   =========
-
-   ;;
-   ;; By name
-   ;;
-   (find-windows {:title \"Window Title\"})
-
-   ;;
-   ;; By URL
-   ;;
-   (find-windows {:url \"http://example.com/test-page\"})
-
-   ;;
-   ;; By index
-   ;;
-   (find-windows {:index 2})"
-  ([attr-val] (find-windows *driver* attr-val))
-  ([driver attr-val]
-     (core/find-windows driver attr-val)))
-
-(defn find-window
-  "Return the first `Window` record that matches the given `attr-val` map.
-
-   Attributes can be anything in a `Window` record (`:title` or `:url`) or you can pass an `:index` key and a number value to select a window by its open order.
-
-   Examples:
-   =========
-
-   ;;
-   ;; By name
-   ;;
-   (find-window {:title \"Window Title\"})
-
-   ;;
-   ;; By URL
-   ;;
-   (find-window {:url \"http://example.com/test-page\"})
-
-   ;;
-   ;; By index
-   ;;
-   (find-window {:index 2})"
-  ([attr-val] (find-window *driver* attr-val))
-  ([driver attr-val] (core/find-window driver attr-val)))
 
 (defn find-table-cell
   "Within the table found with query `table-q`, return the table cell at coordinates `coords`. The top-left cell has coordinates `[0 0]`.
