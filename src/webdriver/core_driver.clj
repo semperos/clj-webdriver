@@ -8,7 +8,7 @@
 ;;  * IAlert
 ;;  * IOptions
 ;;  * IFind
-(in-ns 'clj-webdriver.core)
+(in-ns 'webdriver.core)
 
 (declare find-element* find-elements*)
 

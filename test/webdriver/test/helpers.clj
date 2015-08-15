@@ -4,7 +4,7 @@
             [clojure.tools.reader.edn :as edn]
             [ring.adapter.jetty :refer [run-jetty]]
             [com.stuartsierra.component :as component]
-            [clj-webdriver.test.example-app :as web-app])
+            [webdriver.test.example-app :as web-app])
   (:import java.io.File
            [org.apache.log4j PropertyConfigurator]))
 

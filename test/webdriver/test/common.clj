@@ -3,13 +3,13 @@
   (:require [clojure.test :refer :all]
             [clojure.java.io :as io]
             [clojure.tools.logging :as log]
-            [clj-webdriver.test.helpers :refer :all]
-            [clj-webdriver.core :refer :all]
-            [clj-webdriver.util :refer :all]
-            [clj-webdriver.wait :refer :all]
-            [clj-webdriver.options :refer :all]
-            [clj-webdriver.form-helpers :refer :all])
-  (:import [clj_webdriver.driver.Driver]
+            [webdriver.test.helpers :refer :all]
+            [webdriver.core :refer :all]
+            [webdriver.util :refer :all]
+            [webdriver.wait :refer :all]
+            [webdriver.options :refer :all]
+            [webdriver.form-helpers :refer :all])
+  (:import [webdriver.driver.Driver]
            [org.openqa.selenium TimeoutException NoAlertPresentException]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;

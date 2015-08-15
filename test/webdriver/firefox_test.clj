@@ -1,13 +1,13 @@
 (ns webdriver.firefox-test
   (:require [clojure.test :refer :all]
-            [clj-webdriver.core :refer [new-driver current-url find-element find-elements quit get-screenshot attribute to with-driver]]
-            clj-webdriver.driver
-            [clj-webdriver.test.common :as c]
+            [webdriver.core :refer [new-driver current-url find-element find-elements quit get-screenshot attribute to with-driver]]
+            webdriver.driver
+            [webdriver.test.common :as c]
             [clojure.java.io :as io]
             [clojure.tools.logging :as log]
-            [clj-webdriver.firefox :as ff]
-            [clj-webdriver.test.helpers :refer [base-url start-system! stop-system!]])
-  (:import clj_webdriver.driver.Driver))
+            [webdriver.firefox :as ff]
+            [webdriver.test.helpers :refer [base-url start-system! stop-system!]])
+  (:import webdriver.driver.Driver))
 
 ;; Driver definitions
 (def firefox-driver (atom nil))

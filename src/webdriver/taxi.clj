@@ -1,21 +1,21 @@
 ;; The faster way to use clj-webdriver: take a taxi
-(ns clj-webdriver.taxi
-  (:require [clj-webdriver.core :as core]
-            clj-webdriver.driver
-            [clj-webdriver.util :as util]
-            [clj-webdriver.options :as options]
-            [clj-webdriver.wait :as wait])
+(ns webdriver.taxi
+  (:require [webdriver.core :as core]
+            webdriver.driver
+            [webdriver.util :as util]
+            [webdriver.options :as options]
+            [webdriver.wait :as wait])
   (:import org.openqa.selenium.WebElement
-           clj_webdriver.driver.Driver))
+           webdriver.driver.Driver))
 
 (declare css-finder)
 (def ^:dynamic *driver*)
 (def ^:dynamic *finder-fn* css-finder)
 
-(def ^{:doc (str "Alias of clj-webdriver.core/new-driver:\n"
-                 (:doc (meta #'clj-webdriver.core/new-driver)))
-       :arglists (:arglists (meta #'clj-webdriver.core/new-driver))}
-  new-driver clj-webdriver.core/new-driver)
+(def ^{:doc (str "Alias of webdriver.core/new-driver:\n"
+                 (:doc (meta #'webdriver.core/new-driver)))
+       :arglists (:arglists (meta #'webdriver.core/new-driver))}
+  new-driver webdriver.core/new-driver)
 
 (defn- set-driver*
   "Given a `browser-spec`, instantiate a new Driver record and assign to `*driver*`."
@@ -195,7 +195,7 @@
    ;; More useful example: composing actions on an element
    ;;
    ;; When threading actions together, it's more performant to thread an actual element,
-   ;; than to thread simply the query string. Threading the query string makes clj-webdriver
+   ;; than to thread simply the query string. Threading the query string makes webdriver
    ;; locate the same element multiple times, while threading an actual element only
    ;; requires one lookup.
    ;;
@@ -1402,7 +1402,7 @@
   ([driver] (core/accept driver)))
 
 (defn alert-obj
-  "Retrieve the underlying Java object used to identify an alert popup dialog. Exposed to allow you to use methods not yet exposed via clj-webdriver's API's."
+  "Retrieve the underlying Java object used to identify an alert popup dialog. Exposed to allow you to use methods not yet exposed via webdriver's API's."
   ([] (alert-obj *driver*))
   ([driver] (core/alert-obj driver)))
 

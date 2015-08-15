@@ -4,7 +4,7 @@
 ;; `ByFoo` classes that make up the Java API, with a few
 ;; notable exceptions that provide more flexible matching
 ;; (see the `by-attr*` functions at the bottom)
-(in-ns 'clj-webdriver.core)
+(in-ns 'webdriver.core)
 
 (defn by-id
   "Used when finding elements. Returns `By/id` of `expr`"

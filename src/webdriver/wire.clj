@@ -1,11 +1,11 @@
 ;; JsonWireProtocol work
-(ns clj-webdriver.wire
+(ns webdriver.wire
   (:use [cheshire.core :only [parse-string]]
         [clojure.walk :only [keywordize-keys]])
   (:require [clj-http.client :as client]
-            [clj-webdriver.remote.server :as rs]
+            [webdriver.remote.server :as rs]
             [clojure.string :as string])
-  (:import clj_webdriver.remote.server.RemoteServer))
+  (:import webdriver.remote.server.RemoteServer))
 
 (def default-wd-url "http://localhost:3001/wd/")
 
@@ -20,7 +20,7 @@
   (status [server]))
 
 (extend-type RemoteServer
-  
+
   IWire
   (execute [server commands]
     (let [commands (if-not (vector? commands)
@@ -43,6 +43,6 @@
   ;; that conforms to the JsonWireProtocol spec detailed here:
   ;; http://code.google.com/p/selenium/wiki/JsonWireProtocol
   (let [[server driver] (rs/new-remote-session)
-        session-id (clj-webdriver.remote-driver/session-id driver)
+        session-id (webdriver.remote-driver/session-id driver)
         url (execute server ["session" session-id "url"])]
-    (clj-webdriver.core/to driver "https://github.com")))
+    (webdriver.core/to driver "https://github.com")))

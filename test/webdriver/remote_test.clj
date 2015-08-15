@@ -1,10 +1,10 @@
 (ns webdriver.remote-test
   "Tests for RemoteWebDriver server and client (driver) code"
   (:require [clojure.test :refer :all]
-            [clj-webdriver.core :refer [quit to]]
-            [clj-webdriver.test.helpers :refer :all]
-            [clj-webdriver.test.common :refer [defcommontests]]
-            [clj-webdriver.remote.server :refer [new-remote-session stop]])
+            [webdriver.core :refer [quit to]]
+            [webdriver.test.helpers :refer :all]
+            [webdriver.test.common :refer [defcommontests]]
+            [webdriver.remote.server :refer [new-remote-session stop]])
   (:import [java.util.logging Level]))
 
 (def server (atom nil))

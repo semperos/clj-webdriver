@@ -1,9 +1,9 @@
 (ns webdriver.taxi-test
   (:require [clojure.test :refer :all]
-            [clj-webdriver.taxi :refer :all]
-            [clj-webdriver.core :as core]
-            [clj-webdriver.test.example-app :as web-app]
-            [clj-webdriver.test.helpers :refer :all]
+            [webdriver.taxi :refer :all]
+            [webdriver.core :as core]
+            [webdriver.test.example-app :as web-app]
+            [webdriver.test.helpers :refer :all]
             [clojure.string :refer [lower-case]])
   (:import [org.openqa.selenium TimeoutException NoAlertPresentException]))
 
@@ -310,7 +310,7 @@
   (is (= (attribute "#test" :id) "test")))
 
 ;; For some reason this test behaves differently than the one below
-;; and the one in clj-webdriver.test.common. Even the count of frame elements
+;; and the one in webdriver.test.common. Even the count of frame elements
 ;; is different at page start. Disabling for now, as this usage is not
 ;; as cross-browser compatible or reliable.
 ;;

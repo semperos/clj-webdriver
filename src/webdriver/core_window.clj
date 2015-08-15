@@ -1,4 +1,4 @@
-(in-ns 'clj-webdriver.core)
+(in-ns 'webdriver.core)
 
 (comment "Getting a Window for a WebDriver"
   (let [^WebDriver webdriver (.webdriver driver)

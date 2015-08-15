@@ -1,4 +1,4 @@
-(ns clj-webdriver.options)
+(ns webdriver.options)
 
 (defprotocol IOptions
   "Options interface, including cookie and timeout handling"
@@ -8,4 +8,3 @@
   (delete-all-cookies [driver] "Delete all cookies defined in the current session")
   (cookies [driver] "Retrieve a set of cookies defined in the current session")
   (cookie-named [driver cookie-name] "Retrieve a cookie object given its name"))
-

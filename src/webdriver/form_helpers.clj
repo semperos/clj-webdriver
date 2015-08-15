@@ -4,9 +4,9 @@
 ;; faster and more intuitive for "common" use-cases.
 ;;
 (ns webdriver.form-helpers
-  (:use [clj-webdriver.core :only [input-text find-elements]])
-  (:require clj-webdriver.driver)
-  (:import clj_webdriver.driver.Driver
+  (:use [webdriver.core :only [input-text find-elements]])
+  (:require webdriver.driver)
+  (:import webdriver.driver.Driver
            org.openqa.selenium.WebDriver))
 
 (defn- quick-fill*
@@ -43,7 +43,7 @@
        {{:class \"foobar\"} click}])")
   (quick-fill-submit
     [driver query-action-maps]
-    "Same as `quick-fill`, but expects that the final step in your sequence will submit the form, and therefore clj-webdriver will not return a value (since all page WebElement objects are lost in Selenium-WebDriver's cache after a new page loads)"))
+    "Same as `quick-fill`, but expects that the final step in your sequence will submit the form, and therefore webdriver will not return a value (since all page WebElement objects are lost in Selenium-WebDriver's cache after a new page loads)"))
 
 (extend-type Driver
   IFormHelper

@@ -1,9 +1,9 @@
-(ns clj-webdriver.util
+(ns webdriver.util
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [clojure.walk :as walk]
-            clj-webdriver.driver)
-  (:import clj_webdriver.driver.Driver
+            webdriver.driver)
+  (:import webdriver.driver.Driver
            [org.openqa.selenium Capabilities HasCapabilities WebDriver WebElement NoSuchElementException]
            [java.io PushbackReader Writer]))
 

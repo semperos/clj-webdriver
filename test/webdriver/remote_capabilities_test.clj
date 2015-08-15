@@ -1,10 +1,10 @@
 (ns webdriver.remote-capabilities-test
   "Tests for RemoteWebDriver server and client (driver) code"
   (:require [clojure.test :refer :all]
-            [clj-webdriver.core :refer [quit to]]
-            [clj-webdriver.test.helpers :refer [base-url start-system! stop-system!]]
-            [clj-webdriver.test.common :refer [defcommontests]]
-            [clj-webdriver.remote.server :refer [new-remote-session stop]])
+            [webdriver.core :refer [quit to]]
+            [webdriver.test.helpers :refer [base-url start-system! stop-system!]]
+            [webdriver.test.common :refer [defcommontests]]
+            [webdriver.remote.server :refer [new-remote-session stop]])
   (:import org.openqa.selenium.Platform
            org.openqa.selenium.remote.DesiredCapabilities))
 

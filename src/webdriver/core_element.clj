@@ -5,7 +5,7 @@
 ;;  * IElement
 ;;  * IFormElement
 ;;  * ISelectElement
-(in-ns 'clj-webdriver.core)
+(in-ns 'webdriver.core)
 
 (defn ^java.awt.Rectangle rectangle
   [webelement]

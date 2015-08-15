@@ -1,8 +1,8 @@
-(ns clj-webdriver.window-test
+(ns webdriver.window-test
   "This namespace exercises Window manipulation code, but does not currently sport assertions. Attempts to do so over the years have resulted in non-deterministic test results. A fresh stab will be taken."
   (:require [clojure.test :refer :all]
-            [clj-webdriver.core :refer :all]
-            [clj-webdriver.test.helpers :refer :all]))
+            [webdriver.core :refer :all]
+            [webdriver.test.helpers :refer :all]))
 
 (def driver (atom nil))
 

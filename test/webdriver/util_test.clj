@@ -1,6 +1,6 @@
-(ns clj-webdriver.util-test
+(ns webdriver.util-test
   (:require [clojure.test :refer :all]
-            [clj-webdriver.util :refer :all]))
+            [webdriver.util :refer :all]))
 
 ;; Functions to test:
 ;;

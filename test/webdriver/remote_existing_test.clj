@@ -1,10 +1,10 @@
 (ns ^:manual-setup webdriver.remote-existing-test
   "Tests for RemoteWebDriver server and client (driver) code using manually-started Grid hub"
   (:require [clojure.test :refer :all]
-        [clj-webdriver.core :refer [quit to]]
-        [clj-webdriver.test.helpers :refer [base-url start-system! stop-system!]]
-        [clj-webdriver.test.common :refer [defcommontests]]
-        [clj-webdriver.remote.server :refer [init-remote-server new-remote-driver stop]])
+        [webdriver.core :refer [quit to]]
+        [webdriver.test.helpers :refer [base-url start-system! stop-system!]]
+        [webdriver.test.common :refer [defcommontests]]
+        [webdriver.remote.server :refer [init-remote-server new-remote-driver stop]])
   (:import [java.util.logging Level]))
 
 (def drivers (atom nil))

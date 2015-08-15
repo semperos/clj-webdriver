@@ -13,10 +13,10 @@
 ;; WebDriver API.
 ;;
 (ns webdriver.core
-  (:use [clj-webdriver driver util options cookie]
+  (:use [webdriver driver util options cookie]
         [clojure.walk :only [keywordize-keys]])
-  (:require [clj-webdriver.js.browserbot :as browserbot-js]
-            [clj-webdriver.firefox :as ff]
+  (:require [webdriver.js.browserbot :as browserbot-js]
+            [webdriver.firefox :as ff]
             [clojure.java.io :as io]
             [clojure.string :as string]
             [clojure.tools.logging :as log])
@@ -37,7 +37,7 @@
            [org.openqa.selenium Dimension Point]
            clj_webdriver.driver.Driver))
 
-;; ## Protocols for clj-webdriver API ##
+;; ## Protocols for webdriver API ##
 
 ;; ### Driver/Browser Functions ###
 (defprotocol IDriver

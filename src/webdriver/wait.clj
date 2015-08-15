@@ -1,5 +1,5 @@
-(ns clj-webdriver.wait
-  (:require clj-webdriver.driver)
+(ns webdriver.wait
+  (:require webdriver.driver)
   (:import java.util.concurrent.TimeUnit
            org.openqa.selenium.WebDriver
            [org.openqa.selenium.support.ui ExpectedCondition WebDriverWait]

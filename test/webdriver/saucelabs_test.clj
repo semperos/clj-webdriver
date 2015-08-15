@@ -1,10 +1,10 @@
 (ns ^:saucelabs webdriver.saucelabs-test
   "Tests running on SauceLabs using 'Open Sauce' subscription"
   (:require [clojure.test :refer [deftest use-fixtures]]
-            [clj-webdriver.core :refer [quit to]]
-            [clj-webdriver.test.helpers :refer :all]
-            [clj-webdriver.test.common :refer [defcommontests]]
-            [clj-webdriver.remote.server :refer [init-remote-server new-remote-driver stop]])
+            [webdriver.core :refer [quit to]]
+            [webdriver.test.helpers :refer :all]
+            [webdriver.test.common :refer [defcommontests]]
+            [webdriver.remote.server :refer [init-remote-server new-remote-driver stop]])
   (:import [java.util.logging Level]
            org.openqa.selenium.Platform
            org.openqa.selenium.remote.DesiredCapabilities))

@@ -1,11 +1,11 @@
 ;; Tests for JsonWireProtocol (IWire) support
-(ns clj-webdriver.wire-test
+(ns webdriver.wire-test
   (:require [clojure.test :refer :all]
-            [clj-webdriver.core :refer [quit to]]
-            [clj-webdriver.test.helpers :refer :all]
-            [clj-webdriver.remote.server :refer [new-remote-session stop]]
-            [clj-webdriver.remote.driver :refer [session-id]]
-            [clj-webdriver.wire :refer [execute]]))
+            [webdriver.core :refer [quit to]]
+            [webdriver.test.helpers :refer :all]
+            [webdriver.remote.server :refer [new-remote-session stop]]
+            [webdriver.remote.driver :refer [session-id]]
+            [webdriver.wire :refer [execute]]))
 
 (def server (atom nil))
 (def driver (atom nil))
