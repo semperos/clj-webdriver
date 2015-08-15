@@ -92,6 +92,7 @@
       (disj handles (.getWindowHandle ^WebDriver (.webdriver driver)))))
 
   (switch-to-frame [driver frame]
+    ;; reflection warnings
     (cond
       (string? frame) (.frame (.switchTo ^WebDriver (.webdriver driver)) ^String frame)
       (number? frame) (.frame (.switchTo ^WebDriver (.webdriver driver)) ^int frame)

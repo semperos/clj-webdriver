@@ -13,13 +13,14 @@
 ;; WebDriver API.
 ;;
 (ns webdriver.core
-  (:use [webdriver driver util]
-        [clojure.walk :only [keywordize-keys]])
-  (:require [webdriver.js.browserbot :as browserbot-js]
-            [webdriver.firefox :as ff]
+  (:require [clojure.string :as string]
+            [clojure.walk :refer [keywordize-keys]]
             [clojure.java.io :as io]
-            [clojure.string :as string]
-            [clojure.tools.logging :as log])
+            [clojure.tools.logging :as log]
+            webdriver.driver
+            [webdriver.js.browserbot :as browserbot-js]
+            [webdriver.firefox :as ff]
+            [webdriver.util :refer :all])
   (:import [java.lang.reflect Constructor Field]
            [org.openqa.selenium By WebDriver WebElement
             WebDriver$Window OutputType NoSuchElementException

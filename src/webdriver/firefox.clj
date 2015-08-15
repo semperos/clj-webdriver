@@ -15,8 +15,13 @@
 (defn set-preferences
   "Given a `FirefoxProfile` object and a map of preferences, set the preferences for the profile."
   [^FirefoxProfile profile pref-map]
-  (doseq [[k v] pref-map]
-    (.setPreference profile (name k) v)))
+  (doseq [[k v] pref-map
+          :let [key (name k)]]
+    ;; reflection warnings
+    (cond
+      (string? v) (.setPreference profile key ^String v)
+      (instance? Boolean v) (.setPreference profile key ^Boolean v)
+      (number? v) (.setPreference profile key ^int v))))
 
 (defn accept-untrusted-certs
   "Set whether or not Firefox should accept untrusted certificates."
