@@ -270,23 +270,6 @@
    (doseq [[^String k v] (java-keys m)]
      (.setCapability capabilities k v))))
 
-;; These are used in the implementation of higher-level window functions
-(defn window-handle*
-  "For WebDriver API compatibility: this simply wraps `.getWindowHandle`"
-  [^WebDriver webdriver]
-  (.getWindowHandle webdriver))
-
-(defn ^java.util.Set window-handles*
-  "For WebDriver API compatibility: this simply wraps `.getWindowHandles`"
-  [^WebDriver webdriver]
-  (.getWindowHandles webdriver))
-
-(defn other-window-handles*
-  "For consistency with other window handling functions, this starred version just returns the string-based ID's that WebDriver produces"
-  [driver]
-  (remove #(= % (window-handle* driver))
-          (doall (window-handles* driver))))
-
 (load "core_by")
 
 ;; ##  Actions on WebElements ##

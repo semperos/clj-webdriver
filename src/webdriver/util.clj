@@ -3,9 +3,9 @@
             [clojure.java.io :as io]
             [clojure.walk :as walk]
             webdriver.driver)
-  (:import webdriver.driver.Driver
-           [org.openqa.selenium Capabilities HasCapabilities WebDriver WebElement NoSuchElementException]
-           [java.io PushbackReader Writer]))
+  (:import [java.io PushbackReader Writer]
+           [org.openqa.selenium Capabilities HasCapabilities
+            WebDriver WebElement NoSuchElementException]))
 
 (declare build-query)
 
@@ -221,12 +221,6 @@
           (pr-on (:tag m) w)
           (pr-on m w))
       (.write w " "))))
-
-(defmethod print-method webdriver.driver.Driver [r, ^Writer w]
-  (print-meta r w)
-  (.write w "#")
-  (.write w (.getName (class r)))
-  (print-map r pr-on w))
 
 (defmethod print-method WebDriver
   [^WebDriver q w]

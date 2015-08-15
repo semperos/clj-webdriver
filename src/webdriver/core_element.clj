@@ -37,8 +37,7 @@
           webdriver-result))))
 
   (click [webelement]
-    (.click webelement)
-    nil)
+    (.click webelement))
 
   (css-value [webelement property]
     (.getCssValue webelement property))
@@ -47,7 +46,7 @@
     (.isDisplayed webelement))
 
   (exists? [webelement]
-    (not (nil? webelement)))
+    webelement)
 
   (flash [webelement]
     (let [original-color (if (css-value webelement "background-color")
@@ -72,19 +71,15 @@
     (browserbot (.getWrappedDriver ^WrapsDriver webelement) "getOuterHTML" webelement))
 
   (location [webelement]
-    (let [loc (.getLocation webelement)
-          x   (.x loc)
-          y   (.y loc)]
-      {:x x, :y y}))
+    (let [loc (.getLocation webelement)]
+      {:x (.x loc), :y (.y loc)}))
 
   (present? [webelement]
     (and (exists? webelement) (visible? webelement)))
 
   (element-size [webelement]
-    (let [size-obj (.getSize webelement)
-          w (.width size-obj)
-          h (.height size-obj)]
-      {:width w, :height h}))
+    (let [size (.getSize webelement)]
+      {:width (.width size), :height (.height size)}))
 
   (intersects? [webelement-a webelement-b]
     (let [rect-a (rectangle webelement-a)
@@ -116,12 +111,11 @@
     (.isEnabled webelement))
 
   (input-text [webelement s]
-    (.sendKeys webelement (into-array CharSequence (list s)))
+    (.sendKeys webelement (into-array CharSequence [s]))
     webelement)
 
   (submit [webelement]
-    (.submit webelement)
-    nil)
+    (.submit webelement))
 
   (clear [webelement]
     (.clear webelement)
@@ -136,7 +130,7 @@
     (.isSelected webelement))
 
   (send-keys [webelement s]
-    (.sendKeys webelement (into-array CharSequence (list s)))
+    (.sendKeys webelement (into-array CharSequence [s]))
     webelement)
 
   (toggle [webelement]
@@ -146,11 +140,11 @@
   ISelectElement
   (all-options [webelement]
     (let [select-list (Select. webelement)]
-      (lazy-seq (.getOptions select-list))))
+      (.getOptions select-list)))
 
   (all-selected-options [webelement]
     (let [select-list (Select. webelement)]
-      (lazy-seq (.getAllSelectedOptions select-list))))
+      (.getAllSelectedOptions select-list)))
 
   (deselect-option [webelement attr-val]
     {:pre [(or (= (first (keys attr-val)) :index)
