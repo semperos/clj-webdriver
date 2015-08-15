@@ -213,18 +213,18 @@
 
   (click-and-hold
     ([driver]
-     (let [act (Actions. ^WebDriver (.webdriver driver))]
+     (let [act (new-actions driver)]
        (.perform (.clickAndHold act))))
     ([driver webelement]
-     (let [act (Actions. ^WebDriver (.webdriver driver))]
+     (let [act (new-actions driver)]
        (.perform (.clickAndHold act webelement)))))
 
   (double-click
     ([driver]
-     (let [act (Actions. ^WebDriver (.webdriver driver))]
+     (let [act (new-actions driver)]
        (.perform (.doubleClick act))))
     ([driver webelement]
-     (let [act (Actions. ^WebDriver (.webdriver driver))]
+     (let [act (new-actions driver)]
        (.perform (.doubleClick act webelement)))))
 
   (drag-and-drop
@@ -232,7 +232,7 @@
     (cond
       (nil? webelement-a) (throw-nse "The first element does not exist.")
       (nil? webelement-b) (throw-nse "The second element does not exist.")
-      :else (let [act (Actions. ^WebDriver (.webdriver driver))]
+      :else (let [act (new-actions driver)]
               (.perform (.dragAndDrop act
                                       webelement-a
                                       webelement-b)))))
@@ -241,46 +241,46 @@
     [driver webelement x-y-map]
     (if (nil? webelement)
       (throw-nse)
-      (let [act (Actions. ^WebDriver (.webdriver driver))
+      (let [act (new-actions driver)
             {:keys [x y] :or {x 0 y 0}} x-y-map]
         (.perform
          (.dragAndDropBy act webelement x y)))))
 
   (key-down
     ([driver k]
-     (let [act (Actions. ^WebDriver (.webdriver driver))]
+     (let [act (new-actions driver)]
        (.perform (.keyDown act (key-code k)))))
     ([driver webelement k]
-     (let [act (Actions. ^WebDriver (.webdriver driver))]
+     (let [act (new-actions driver)]
        (.perform (.keyDown act webelement (key-code k))))))
 
   (key-up
     ([driver k]
-     (let [act (Actions. ^WebDriver (.webdriver driver))]
+     (let [act (new-actions driver)]
        (.perform (.keyUp act (key-code k)))))
     ([driver webelement k]
-     (let [act (Actions. ^WebDriver (.webdriver driver))]
+     (let [act (new-actions driver)]
        (.perform (.keyUp act webelement (key-code k))))))
 
   (move-by-offset
     [driver x y]
-    (let [act (Actions. ^WebDriver (.webdriver driver))]
+    (let [act (new-actions driver)]
       (.perform (.moveByOffset act x y))))
 
   (move-to-element
     ([driver webelement]
-     (let [act (Actions. ^WebDriver (.webdriver driver))]
+     (let [act (new-actions driver)]
        (.perform (.moveToElement act webelement))))
     ([driver webelement x y]
-     (let [act (Actions. ^WebDriver (.webdriver driver))]
+     (let [act (new-actions driver)]
        (.perform (.moveToElement act webelement x y)))))
 
   (release
     ([driver]
-     (let [act (Actions. ^WebDriver (.webdriver driver))]
+     (let [act (new-actions driver)]
        (.release act)))
     ([driver element]
-     (let [act (Actions. ^WebDriver (.webdriver driver))]
+     (let [act (new-actions driver)]
        (.release act element)))))
 
 (extend-type Actions
