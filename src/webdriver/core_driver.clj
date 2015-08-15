@@ -42,20 +42,20 @@
     ([driver] (get-screenshot driver :file))
     ([driver format] (get-screenshot driver format nil))
     ([driver format destination]
-       {:pre [(or (= format :file)
-                  (= format :base64)
-                  (= format :bytes))]}
-       (let [wd ^TakesScreenshot (.webdriver driver)
-             output (case format
-                      :file (.getScreenshotAs wd OutputType/FILE)
-                      :base64 (.getScreenshotAs wd OutputType/BASE64)
-                      :bytes (.getScreenshotAs wd OutputType/BYTES))]
-         (if destination
-           (do
-             (io/copy output (io/file destination))
-             (log/info "Screenshot written to destination")
-             output)
-           output))))
+     {:pre [(or (= format :file)
+                (= format :base64)
+                (= format :bytes))]}
+     (let [wd ^TakesScreenshot (.webdriver driver)
+           output (case format
+                    :file (.getScreenshotAs wd OutputType/FILE)
+                    :base64 (.getScreenshotAs wd OutputType/BASE64)
+                    :bytes (.getScreenshotAs wd OutputType/BYTES))]
+       (if destination
+         (do
+           (io/copy output (io/file destination))
+           (log/info "Screenshot written to destination")
+           output)
+         output))))
 
   (page-source [driver]
     (.getPageSource ^WebDriver (.webdriver driver)))
@@ -170,8 +170,8 @@
 
   (find-elements-by [driver by-value]
     (let [by-value (if (map? by-value)
-               (by-query (build-query by-value))
-               by-value)]
+                     (by-query (build-query by-value))
+                     by-value)]
       (.findElements ^WebDriver (.webdriver driver) by-value)))
 
   (find-table-cell [driver table coords]
@@ -181,18 +181,18 @@
     (let [[row col] coords
           row-css (str "tr:nth-child(" (inc row) ")")
           col-css (if (and (find-element-by table (by-tag "th"))
-                             (zero? row))
-                      (str "th:nth-child(" (inc col) ")")
-                      (str "td:nth-child(" (inc col) ")"))
+                           (zero? row))
+                    (str "th:nth-child(" (inc col) ")")
+                    (str "td:nth-child(" (inc col) ")"))
           complete-css (str row-css " " col-css)]
       (find-element-by table (by-query {:css complete-css}))))
 
   (find-table-row [driver table row]
     (let [row-css (str  "tr:nth-child(" (inc row) ")")
           complete-css (if (and (find-element-by table (by-tag "th"))
-                                  (zero? row))
-                           (str row-css " " "th")
-                           (str row-css " " "td"))]
+                                (zero? row))
+                         (str row-css " " "th")
+                         (str row-css " " "td"))]
       ;; WebElement, not Driver, version of protocol
       (find-elements-by table (by-query {:css complete-css}))))
 
@@ -213,29 +213,29 @@
 
   (click-and-hold
     ([driver]
-       (let [act (Actions. ^WebDriver (.webdriver driver))]
-         (.perform (.clickAndHold act))))
+     (let [act (Actions. ^WebDriver (.webdriver driver))]
+       (.perform (.clickAndHold act))))
     ([driver webelement]
-       (let [act (Actions. ^WebDriver (.webdriver driver))]
-         (.perform (.clickAndHold act webelement)))))
+     (let [act (Actions. ^WebDriver (.webdriver driver))]
+       (.perform (.clickAndHold act webelement)))))
 
   (double-click
     ([driver]
-       (let [act (Actions. ^WebDriver (.webdriver driver))]
-         (.perform (.doubleClick act))))
+     (let [act (Actions. ^WebDriver (.webdriver driver))]
+       (.perform (.doubleClick act))))
     ([driver webelement]
-       (let [act (Actions. ^WebDriver (.webdriver driver))]
-         (.perform (.doubleClick act webelement)))))
+     (let [act (Actions. ^WebDriver (.webdriver driver))]
+       (.perform (.doubleClick act webelement)))))
 
   (drag-and-drop
     [driver webelement-a webelement-b]
     (cond
-     (nil? webelement-a) (throw-nse "The first element does not exist.")
-     (nil? webelement-b) (throw-nse "The second element does not exist.")
-     :else (let [act (Actions. ^WebDriver (.webdriver driver))]
-             (.perform (.dragAndDrop act
-                                     webelement-a
-                                     webelement-b)))))
+      (nil? webelement-a) (throw-nse "The first element does not exist.")
+      (nil? webelement-b) (throw-nse "The second element does not exist.")
+      :else (let [act (Actions. ^WebDriver (.webdriver driver))]
+              (.perform (.dragAndDrop act
+                                      webelement-a
+                                      webelement-b)))))
 
   (drag-and-drop-by
     [driver webelement x-y-map]
@@ -248,19 +248,19 @@
 
   (key-down
     ([driver k]
-       (let [act (Actions. ^WebDriver (.webdriver driver))]
-         (.perform (.keyDown act (key-code k)))))
+     (let [act (Actions. ^WebDriver (.webdriver driver))]
+       (.perform (.keyDown act (key-code k)))))
     ([driver webelement k]
-       (let [act (Actions. ^WebDriver (.webdriver driver))]
-         (.perform (.keyDown act webelement (key-code k))))))
+     (let [act (Actions. ^WebDriver (.webdriver driver))]
+       (.perform (.keyDown act webelement (key-code k))))))
 
   (key-up
     ([driver k]
-       (let [act (Actions. ^WebDriver (.webdriver driver))]
-         (.perform (.keyUp act (key-code k)))))
+     (let [act (Actions. ^WebDriver (.webdriver driver))]
+       (.perform (.keyUp act (key-code k)))))
     ([driver webelement k]
-       (let [act (Actions. ^WebDriver (.webdriver driver))]
-         (.perform (.keyUp act webelement (key-code k))))))
+     (let [act (Actions. ^WebDriver (.webdriver driver))]
+       (.perform (.keyUp act webelement (key-code k))))))
 
   (move-by-offset
     [driver x y]
@@ -269,36 +269,36 @@
 
   (move-to-element
     ([driver webelement]
-       (let [act (Actions. ^WebDriver (.webdriver driver))]
-         (.perform (.moveToElement act webelement))))
+     (let [act (Actions. ^WebDriver (.webdriver driver))]
+       (.perform (.moveToElement act webelement))))
     ([driver webelement x y]
-       (let [act (Actions. ^WebDriver (.webdriver driver))]
-         (.perform (.moveToElement act webelement x y)))))
+     (let [act (Actions. ^WebDriver (.webdriver driver))]
+       (.perform (.moveToElement act webelement x y)))))
 
   (release
     ([driver]
-       (let [act (Actions. ^WebDriver (.webdriver driver))]
-         (.release act)))
+     (let [act (Actions. ^WebDriver (.webdriver driver))]
+       (.release act)))
     ([driver element]
-       (let [act (Actions. ^WebDriver (.webdriver driver))]
-         (.release act element)))))
+     (let [act (Actions. ^WebDriver (.webdriver driver))]
+       (.release act element)))))
 
-(extend-type org.openqa.selenium.interactions.Actions
+(extend-type Actions
 
   IActions
   ;; TODO: test coverage
   (click-and-hold
     ([act]
-       (.clickAndHold act))
+     (.clickAndHold act))
     ([act webelement]
-       (.clickAndHold act webelement)))
+     (.clickAndHold act webelement)))
 
   ;; TODO: test coverage
   (double-click
     ([act]
-       (.doubleClick act))
+     (.doubleClick act))
     ([act webelement]
-       (.doubleClick act webelement)))
+     (.doubleClick act webelement)))
 
   ;; TODO: test coverage
   (drag-and-drop
@@ -313,16 +313,16 @@
   ;; TODO: test coverage
   (key-down
     ([act k]
-       (.keyDown act (key-code k)))
+     (.keyDown act (key-code k)))
     ([act webelement k]
-       (.keyDown act webelement (key-code k))))
+     (.keyDown act webelement (key-code k))))
 
   ;; TODO: test coverage
   (key-up
     ([act k]
-       (.keyUp act (key-code k)))
+     (.keyUp act (key-code k)))
     ([act webelement k]
-       (.keyUp act webelement (key-code k))))
+     (.keyUp act webelement (key-code k))))
 
   ;; TODO: test coverage
   (move-by-offset
@@ -332,9 +332,9 @@
   ;; TODO: test coverage
   (move-to-element
     ([act webelement]
-       (.moveToElement act webelement))
+     (.moveToElement act webelement))
     ([act webelement x y]
-       (.moveToElement act webelement x y)))
+     (.moveToElement act webelement x y)))
 
   ;; TODO: test coverage
   (perform [act] (.perform act))
@@ -342,9 +342,9 @@
   ;; TODO: test coverage
   (release
     ([act]
-       (.release act))
+     (.release act))
     ([act webelement]
-       (.release act webelement))))
+     (.release act webelement))))
 
 (extend-type CompositeAction
 
@@ -377,4 +377,4 @@
         ;; NoSuchElementException caught here to mimic Clojure behavior like
         ;; (get {:foo "bar"} :baz) since the page can be thought of as a kind of associative
         ;; data structure with unique selectors as keys and HTML elements as values
-        (lazy-seq nil)))))
+        nil))))

@@ -11,7 +11,7 @@
 
 (def script
   "
-var browserbot = {
+  var browserbot = {
   createEventObject : function(element, controlKeyDown, altKeyDown, shiftKeyDown, metaKeyDown) {
     var evt = element.ownerDocument.createEventObject();
         evt.shiftKey = shiftKeyDown;
@@ -86,5 +86,5 @@ var browserbot = {
       return count;
     }
 
-}
-")
+  }
+  ")

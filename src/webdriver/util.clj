@@ -23,12 +23,12 @@
   [attr-val]
   (clojure.string/join (for [[attr value] attr-val]
                          (cond
-                          (= :text attr) (str "[text()=\"" value "\"]")
-                          (= :index attr) (str "[" (inc value) "]") ; in clj-webdriver,
-                          :else (str "[@"                           ; all indices 0-based
-                                     (name attr)
-                                     "="
-                                     "'" (name value) "']")))))
+                           (= :text attr) (str "[text()=\"" value "\"]")
+                           (= :index attr) (str "[" (inc value) "]") ; in clj-webdriver,
+                           :else (str "[@"                           ; all indices 0-based
+                                      (name attr)
+                                      "="
+                                      "'" (name value) "']")))))
 
 (defn build-css-with-hierarchy
   "Given a vector of queries in hierarchical order, create a CSS query.
@@ -39,15 +39,15 @@
    " "
    (for [attr-val v-of-attr-vals]
      (cond
-      (or (contains? attr-val :css)
-          (contains? attr-val :xpath)) (throw (IllegalArgumentException. "Hierarhical queries do not support the use of :css or :xpath entries."))
-          (some #{(:tag attr-val)} [:radio
-                                    :checkbox
-                                    :textfield
-                                    :password
-                                    :filefield]) (throw (IllegalArgumentException. "Hierarchical queries do not support the use of \"meta\" tags such as :button*, :radio, :checkbox, :textfield, :password or :filefield. "))
+       (or (contains? attr-val :css)
+           (contains? attr-val :xpath)) (throw (IllegalArgumentException. "Hierarhical queries do not support the use of :css or :xpath entries."))
+           (some #{(:tag attr-val)} [:radio
+                                     :checkbox
+                                     :textfield
+                                     :password
+                                     :filefield]) (throw (IllegalArgumentException. "Hierarchical queries do not support the use of \"meta\" tags such as :button*, :radio, :checkbox, :textfield, :password or :filefield. "))
 
-                                    :else (:css (build-query attr-val :css))))))
+                                     :else (:css (build-query attr-val :css))))))
 
 (defn build-xpath-with-hierarchy
   "Given a vector of queries in hierarchical order, create XPath.
@@ -72,36 +72,36 @@
   ([attr-val] (build-query attr-val :xpath :global))
   ([attr-val output] (build-query attr-val output :global))
   ([attr-val output prefix]
-     (if-not (map? attr-val) ;; dispatch here for hierarhical queries
-       (if (= output :xpath)
-         (build-xpath-with-hierarchy attr-val)
-         (build-css-with-hierarchy attr-val))
-       (let [attr-val (remove-regex-entries attr-val)]
-         (cond
-           (contains? attr-val :xpath)      {:xpath (:xpath attr-val)}
-           (contains? attr-val :css)        {:css (:css attr-val)}
-           (= (:tag attr-val) :radio)       (build-query (assoc attr-val :tag :input :type "radio"))
-           (= (:tag attr-val) :checkbox)    (build-query (assoc attr-val :tag :input :type "checkbox"))
-           (= (:tag attr-val) :textfield)   (build-query (assoc attr-val :tag :input :type "text"))
-           (= (:tag attr-val) :password)    (build-query (assoc attr-val :tag :input :type "password"))
-           (= (:tag attr-val) :filefield)   (build-query (assoc attr-val :tag :input :type "filefield"))
-           :else (let [tag (if (nil? (:tag attr-val))
-                             :*
-                             (:tag attr-val))
-                       attr-val (dissoc attr-val :tag)
-                       prefix-legend {:local "."
-                                      :global ""}]
-                   (if (= output :xpath)
-                     (let [query-str (str (prefix-legend prefix) "//"
-                                          (name tag)
-                                          (when (seq attr-val)
-                                            (build-xpath-attrs attr-val)))]
-                       {:xpath query-str})
-                     ;; else, CSS
-                     (let [query-str (str (name tag)
-                                          (when (seq attr-val)
-                                            (build-css-attrs attr-val)))]
-                       {:css query-str}))))))))
+   (if-not (map? attr-val) ;; dispatch here for hierarhical queries
+     (if (= output :xpath)
+       (build-xpath-with-hierarchy attr-val)
+       (build-css-with-hierarchy attr-val))
+     (let [attr-val (remove-regex-entries attr-val)]
+       (cond
+         (contains? attr-val :xpath)      {:xpath (:xpath attr-val)}
+         (contains? attr-val :css)        {:css (:css attr-val)}
+         (= (:tag attr-val) :radio)       (build-query (assoc attr-val :tag :input :type "radio"))
+         (= (:tag attr-val) :checkbox)    (build-query (assoc attr-val :tag :input :type "checkbox"))
+         (= (:tag attr-val) :textfield)   (build-query (assoc attr-val :tag :input :type "text"))
+         (= (:tag attr-val) :password)    (build-query (assoc attr-val :tag :input :type "password"))
+         (= (:tag attr-val) :filefield)   (build-query (assoc attr-val :tag :input :type "filefield"))
+         :else (let [tag (if (nil? (:tag attr-val))
+                           :*
+                           (:tag attr-val))
+                     attr-val (dissoc attr-val :tag)
+                     prefix-legend {:local "."
+                                    :global ""}]
+                 (if (= output :xpath)
+                   (let [query-str (str (prefix-legend prefix) "//"
+                                        (name tag)
+                                        (when (seq attr-val)
+                                          (build-xpath-attrs attr-val)))]
+                     {:xpath query-str})
+                   ;; else, CSS
+                   (let [query-str (str (name tag)
+                                        (when (seq attr-val)
+                                          (build-css-attrs attr-val)))]
+                     {:css query-str}))))))))
 
 
 
@@ -138,11 +138,11 @@
   "Get first n characters of `s`, then add ellipsis"
   ([s] (first-n-chars s 60))
   ([s n]
-     (if (zero? n)
-       "..."
-       (str (re-find (re-pattern (str "(?s).{1," n "}")) s)
-            (when (> (count s) n)
-              "...")))))
+   (if (zero? n)
+     "..."
+     (str (re-find (re-pattern (str "(?s).{1," n "}")) s)
+          (when (> (count s) n)
+            "...")))))
 
 (defn elim-breaks
   "Eliminate line breaks; used for REPL printing"
@@ -160,10 +160,10 @@
   [& pairs]
   `(do (when-not ~(first pairs)
          (throw (IllegalArgumentException.
-                  (str (first ~'&form) " requires " ~(second pairs) " in " ~'*ns* ":" (:line (meta ~'&form))))))
-     ~(let [more (nnext pairs)]
-        (when more
-          (list* `assert-args more)))))
+                 (str (first ~'&form) " requires " ~(second pairs) " in " ~'*ns* ":" (:line (meta ~'&form))))))
+       ~(let [more (nnext pairs)]
+          (when more
+            (list* `assert-args more)))))
 
 ;; from Clojure's core.clj
 (defn pr-on
@@ -218,8 +218,8 @@
                    (and *print-meta* *print-readably*)))
       (.write w "^")
       (if (and (= (count m) 1) (:tag m))
-          (pr-on (:tag m) w)
-          (pr-on m w))
+        (pr-on (:tag m) w)
+        (pr-on m w))
       (.write w " "))))
 
 (defmethod print-method WebDriver
@@ -245,34 +245,34 @@
         href       (.getAttribute q "href")
         src        (.getAttribute q "src")
         obj        q]
-   (print-simple
-    (str "#<"
-         (when-attr tag-name
-                    (str "Tag: "    "<" tag-name ">" ", "))
-         (when-attr text
-                    (str "Text: "   (-> text elim-breaks first-n-chars) ", "))
-         (when-attr id
-                    (str "Id: "     id ", "))
-         (when-attr class-name
-                    (str "Class: "  class-name ", "))
-         (when-attr name-name
-                    (str "Name: "  name-name ", "))
-         (when-attr value
-                    (str "Value: "  (-> value elim-breaks first-n-chars) ", "))
-         (when-attr href
-                    (str "Href: "   href ", "))
-         (when-attr src
-                    (str "Source: " src ", "))
-         "Object: "                  q ">") w)))
+    (print-simple
+     (str "#<"
+          (when-attr tag-name
+                     (str "Tag: "    "<" tag-name ">" ", "))
+          (when-attr text
+                     (str "Text: "   (-> text elim-breaks first-n-chars) ", "))
+          (when-attr id
+                     (str "Id: "     id ", "))
+          (when-attr class-name
+                     (str "Class: "  class-name ", "))
+          (when-attr name-name
+                     (str "Name: "  name-name ", "))
+          (when-attr value
+                     (str "Value: "  (-> value elim-breaks first-n-chars) ", "))
+          (when-attr href
+                     (str "Href: "   href ", "))
+          (when-attr src
+                     (str "Source: " src ", "))
+          "Object: "                  q ">") w)))
 
 (defn dashes-to-camel-case
   "A simple conversion of `-x` to `X` for the given string."
   [s]
   (reduce (fn [^String state ^String item]
-             (.replaceAll state item
-                          (str/upper-case (str (second item)))))
-           s
-           (distinct (re-seq #"-[^-]" s))))
+            (.replaceAll state item
+                         (str/upper-case (str (second item)))))
+          s
+          (distinct (re-seq #"-[^-]" s))))
 
 (defn camel-case-to-dashes
   "Convert Pascal-case to dashes. This takes into account edge cases like `fooJSBar` and `fooBarB`, where dashed versions will be `foo-jS-bar` and `foo-barB` respectively."
@@ -315,4 +315,4 @@
 (defn throw-nse
   ([] (throw-nse ""))
   ([msg]
-     (throw (NoSuchElementException. (str msg "\n" "When an element cannot be found in clj-webdriver, nil is returned. You've just tried to perform an action on an element that returned as nil for the search query you used. Please verify the query used to locate this element; it is not on the current page.")))))
+   (throw (NoSuchElementException. (str msg "\n" "When an element cannot be found in clj-webdriver, nil is returned. You've just tried to perform an action on an element that returned as nil for the search query you used. Please verify the query used to locate this element; it is not on the current page.")))))

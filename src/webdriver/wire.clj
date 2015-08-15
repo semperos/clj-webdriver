@@ -24,8 +24,8 @@
   IWire
   (execute [server commands]
     (let [commands (if-not (vector? commands)
-                    (vector commands)
-                    commands)
+                     (vector commands)
+                     commands)
           resp (client/get (str (rs/address server)
                                 (string/join "/" commands)))
           body (parse-body resp)]

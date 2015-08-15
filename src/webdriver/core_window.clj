@@ -1,9 +1,9 @@
 (in-ns 'webdriver.core)
 
 (comment "Getting a Window for a WebDriver"
-  (let [^WebDriver webdriver (.webdriver driver)
-        manage (.manage webdriver)]
-    (.window manage)))
+         (let [^WebDriver webdriver (.webdriver driver)
+               manage (.manage webdriver)]
+           (.window manage)))
 
 (extend-protocol IWindow
   Driver

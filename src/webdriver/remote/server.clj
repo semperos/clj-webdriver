@@ -39,11 +39,11 @@
                                                        browser-spec
                                                        {}))
   ([remote-server browser-spec capabilities]
-     (let [http-cmd-exec (HttpCommandExecutor. (as-url (address remote-server)))
-           {:keys [browser]} browser-spec
-           desired-caps (desired-capabilities browser capabilities)
-           remote-webdriver (RemoteWebDriver. http-cmd-exec desired-caps)]
-       [remote-webdriver, desired-caps])))
+   (let [http-cmd-exec (HttpCommandExecutor. (as-url (address remote-server)))
+         {:keys [browser]} browser-spec
+         desired-caps (desired-capabilities browser capabilities)
+         remote-webdriver (RemoteWebDriver. http-cmd-exec desired-caps)]
+     [remote-webdriver, desired-caps])))
 
 (defrecord RemoteServer [connection-params webdriver-server]
   IRemoteServer
@@ -121,16 +121,16 @@
 (defn remote-server?
   [rs]
   (:existing rs)
-  ;(= (class rs) RemoteServer)
+                                        ;(= (class rs) RemoteServer)
   )
 
 (defn new-remote-session
   "Start up a server, start up a driver, return both in that
-order. Pass a final falsey arg to prevent the server from being
-started for you."
+  order. Pass a final falsey arg to prevent the server from being
+  started for you."
   ([] (new-remote-session {}))
   ([connection-params] (new-remote-session connection-params {:browser :firefox}))
   ([connection-params browser-spec]
-     (let [new-server (init-remote-server connection-params)
-           new-driver (new-remote-driver new-server browser-spec)]
-       [new-server new-driver])))
+   (let [new-server (init-remote-server connection-params)
+         new-driver (new-remote-driver new-server browser-spec)]
+     [new-server new-driver])))

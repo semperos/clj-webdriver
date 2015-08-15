@@ -12,20 +12,20 @@
 (defn- quick-fill*
   ([driver k v] (quick-fill* driver k v false))
   ([driver k v submit?]
-     ;; shortcuts:
-     ;; k as string => element's id attribute
-     ;; v as string => text to input
-     (let [query-map (if (string? k)
-                       {:id k}
-                       k)
-           action (if (string? v)
-                    #(input-text % v)
-                    v)
-           target-els (find-elements driver query-map)]
-       (if submit?
-         (doseq [el target-els]
-           (action el))
-         (apply action target-els)))))
+   ;; shortcuts:
+   ;; k as string => element's id attribute
+   ;; v as string => text to input
+   (let [query-map (if (string? k)
+                     {:id k}
+                     k)
+         action (if (string? v)
+                  #(input-text % v)
+                  v)
+         target-els (find-elements driver query-map)]
+     (if submit?
+       (doseq [el target-els]
+         (action el))
+       (apply action target-els)))))
 
 (defprotocol IFormHelper
   "Useful functions for dealing with HTML forms"

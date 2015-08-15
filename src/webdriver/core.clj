@@ -100,7 +100,7 @@
   (find-elements-by [this by] "Retrieve a seq of element objects described by `by`, optionally limited to elements beneath a parent element (depends on dispatch). Prefer `find-elements` to this function unless you know what you're doing.")
   (find-table-cell [driver table coordinates] "Given a `driver`, a `table` element, and a zero-based set of coordinates for row and column, return the table cell at those coordinates for the given table.")
   (find-table-row [driver table row-index] "Return all cells in the row of the given table element, `row-index` as a zero-based index of the target row.")
-  (find-by-hierarchy [driver hierarchy-vector] "Given a Webdriver `driver` and a vector `hierarchy-vector`, return a lazy seq of the described elements in the hierarchy dictated by the order of elements in the `hierarchy-vector`.")
+  (find-by-hierarchy [driver hierarchy-vector] "Given a Webdriver `driver` and a vector `hierarchy-vector`, return a sequence of the described elements in the hierarchy dictated by the order of elements in the `hierarchy-vector`.")
   (find-elements [this locator] "Find all elements that match the parameters supplied in the `attr-val` map. Also provides a shortcut to `find-by-hierarchy` if a vector is supplied instead of a map.")
   (find-element [this locator] "Call (first (find-elements args))"))
 
@@ -252,8 +252,8 @@
   "Given a binding to `Driver`, make that binding available in `body` and ensure `quit` is called on it at the end."
   [bindings & body]
   (assert-args
-     (vector? bindings) "a vector for its binding"
-     (even? (count bindings)) "an even number of forms in binding vector")
+   (vector? bindings) "a vector for its binding"
+   (even? (count bindings)) "an even number of forms in binding vector")
   (cond
     (zero? (count bindings)) `(do ~@body)
     (symbol? (bindings 0)) `(let ~(subvec bindings 0 2)
@@ -262,7 +262,7 @@
                                 (finally
                                   (quit ~(bindings 0)))))
     :else (throw (IllegalArgumentException.
-                   "with-driver only allows symbols in bindings"))))
+                  "with-driver only allows symbols in bindings"))))
 
 (defn desired-capabilities
   ([m] (desired-capabilities (DesiredCapabilities.) m))
