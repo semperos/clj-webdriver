@@ -72,7 +72,7 @@
   (position [this] "Returns map of X Y coordinates ex. {:x 1 :y 3} relative to the upper left corner of screen.")
   (reposition [this coordinates-map] "Excepts map of X Y coordinates ex. {:x 1 :y 3} repositioning current window relative to screen. Returns driver or window.")
   (resize [this dimensions-map] "Resize the driver window with a map of width and height ex. {:width 480 :height 800}. Returns driver or window.")
-  (size [this] "Get size of current window. Returns a map of width and height ex. {:width 480 :height 800}"))
+  (window-size [this] "Get size of current window. Returns a map of width and height ex. {:width 480 :height 800}"))
 
 ;; ### Alert Popups ###
 (defprotocol IAlert
@@ -108,7 +108,7 @@
   (intersects? [element-a element-b] "Return true if `element-a` intersects with `element-b`. This mirrors the Selenium-WebDriver API method, but see the `intersect?` function to compare an element against multiple other elements for intersection.")
   (location [element] "Given an element object, return its location as a map of its x/y coordinates")
   (present? [element] "Returns true if the element exists and is visible")
-  (size [element] "Return the size of the given `element` as a map containing `:width` and `:height` values in pixels.")
+  (element-size [element] "Return the size of the given `element` as a map containing `:width` and `:height` values in pixels.")
   (tag [element] "Retrieve the name of the HTML tag of the given element object (returned as a keyword)")
   (text [element] "Retrieve the content, or inner HTML, of a given element object")
   (value [element] "Retrieve the `value` attribute of the given element object")

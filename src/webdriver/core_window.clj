@@ -33,7 +33,7 @@
       (.setSize wnd (Dimension. width height))
       driver))
 
-  (size [driver]
+  (window-size [driver]
     (let [^WebDriver$Window wnd (window* driver)
           dim (.getSize wnd)]
       {:width (.getWidth dim) :height (.getHeight dim)}))
@@ -61,6 +61,6 @@
       (.setSize window (Dimension. width height))
       window))
 
-  (size [window]
+  (window-size [window]
     (let [dim (.getSize window)]
       {:width (.getWidth dim) :height (.getHeight dim)})))

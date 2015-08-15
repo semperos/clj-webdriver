@@ -10,15 +10,13 @@
 (defn ^java.awt.Rectangle rectangle
   [webelement]
   (let [loc (location webelement)
-        el-size (size webelement)]
+        el-size (element-size webelement)]
     (java.awt.Rectangle. (:x loc)
                          (:y loc)
                          (:width el-size)
                          (:height el-size))))
 
 (extend-type WebElement
-
-  ;; Element action basics
   IElement
   (attribute [webelement attr]
     (if (= attr :text)
@@ -82,7 +80,7 @@
   (present? [webelement]
     (and (exists? webelement) (visible? webelement)))
 
-  (size [webelement]
+  (element-size [webelement]
     (let [size-obj (.getSize webelement)
           w (.width size-obj)
           h (.height size-obj)]
@@ -107,7 +105,6 @@
 
   (xpath [webelement]
     (browserbot (.getWrappedDriver ^WrapsDriver webelement) "getXPath" webelement []))
-
 
   IFormElement
   (deselect [webelement]
@@ -145,7 +142,6 @@
   (toggle [webelement]
     (.click webelement)
     webelement)
-
 
   ISelectElement
   (all-options [webelement]
@@ -275,7 +271,7 @@
 
   (present? [n] (throw-nse))
 
-  (size [n] (throw-nse))
+  (element-size [n] (throw-nse))
 
   (rectangle [n] (throw-nse))
 

@@ -471,29 +471,27 @@
 
 (defn should-be-able-to-toggle-between-open-windows
   [driver]
-  (is (= 1
-         (count (windows driver))))
-  (is (= "Ministache"
-         (:title (window driver))))
-  (-> driver
-      (find-element {:tag :a, :text "is amazing!"})
-      click)
-  (wait-until driver (fn [d] (immortal (= "Ministache" (:title (window d))))))
-  (is (= "Ministache"
-         (:title (window driver))))
-  (is (= 2
-         (count (windows driver))))
-  (switch-to-window driver (second (windows driver)))
-  (is (= (str base-url "clojure")
-         (:url (window driver))))
-  (switch-to-other-window driver)
-  (is (= base-url
-         (:url (window driver))))
-  (-> driver
-      (switch-to-window (find-window driver {:url (str base-url "clojure")})))
-  (close driver)
-  (is (= base-url
-         (:url (window driver)))))
+  (let [window-1 (window driver)]
+    (is (= (count (window-handles driver))
+           1))
+    (-> driver
+        (find-element {:tag :a, :text "is amazing!"})
+        click)
+    (wait-until driver (fn [d] (immortal (= "Ministache" (title d)))))
+    (let [window-2 (window driver)]
+      (is (not= window-1 window-2))
+      (is (= (title driver)
+             "Ministache"))
+      (is (= (count (window-handles driver))
+             2))
+      (switch-to-window driver window-1)
+      (is (= (str base-url "clojure")
+             (current-url driver)))
+      (switch-to-other-window driver)
+      (is (= base-url (current-url driver)))
+      (switch-to-other-window driver)
+      (close driver)
+      (= base-url (current-url driver)))))
 
 (defn alert-dialog-handling
   [driver]

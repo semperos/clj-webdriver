@@ -21,9 +21,9 @@
     driver)
 
   (close [driver]
-    (let [handles (into #{} (window-handles* (.webdriver driver)))]
+    (let [handles (into #{} (.getWindowHandles ^WebDriver (.webdriver driver)))]
       (when (> (count handles) 1) ; get back to a window that is open before proceeding
-        (let [^String current-handle (window-handle* (.webdriver driver))]
+        (let [current-handle (.getWindowHandle ^WebDriver (.webdriver driver))]
           (switch-to-window driver (first (disj handles current-handle)))))
       (.close ^WebDriver (.webdriver driver))))
 
