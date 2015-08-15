@@ -222,7 +222,7 @@
           (pr-on m w))
       (.write w " "))))
 
-(defmethod print-method clj_webdriver.driver.Driver [r, ^Writer w]
+(defmethod print-method webdriver.driver.Driver [r, ^Writer w]
   (print-meta r w)
   (.write w "#")
   (.write w (.getName (class r)))

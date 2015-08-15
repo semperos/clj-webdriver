@@ -3,7 +3,7 @@
   (:import [org.openqa.selenium.remote
             DesiredCapabilities
             RemoteWebDriver]
-           clj_webdriver.driver.Driver))
+           webdriver.driver.Driver))
 
 (defprotocol IRemoteWebDriver
   "RemoteWebDriver-specific functionality"

@@ -19,7 +19,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 (defn browser-basics
   [driver]
-  (is (instance? clj_webdriver.driver.Driver driver))
+  (is (instance? webdriver.driver.Driver driver))
   (is (= base-url (current-url driver)))
   (is (= "Ministache" (title driver)))
   (is (boolean (re-find #"(?i)html>" (page-source driver)))))

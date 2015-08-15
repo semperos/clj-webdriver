@@ -3,7 +3,7 @@
   (:import java.util.concurrent.TimeUnit
            org.openqa.selenium.WebDriver
            [org.openqa.selenium.support.ui ExpectedCondition WebDriverWait]
-           clj_webdriver.driver.Driver))
+           webdriver.driver.Driver))
 
 ;; ## Wait Functionality ##
 (defprotocol IWait

@@ -24,7 +24,7 @@
 
 ;; RUN TESTS HERE
 (deftest test-browser-basics
-  (is (instance? clj_webdriver.driver.Driver *driver*))
+  (is (instance? webdriver.driver.Driver *driver*))
   (is (= (current-url) base-url))
   (is (= (title) "Ministache"))
   (is (re-find #"(?i)html>" (page-source))))

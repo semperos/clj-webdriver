@@ -35,7 +35,7 @@
            org.openqa.selenium.Capabilities
            org.openqa.selenium.remote.DesiredCapabilities
            [org.openqa.selenium Dimension Point]
-           clj_webdriver.driver.Driver))
+           webdriver.driver.Driver))
 
 ;; ## Protocols for webdriver API ##
 
