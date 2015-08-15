@@ -323,7 +323,7 @@
 ;; Needed by window and target locator implementations in core_driver and core_window
 (defn ^WebDriver$Window window*
   "Return the underyling WebDriver$Window object for the `Driver`"
-  [driver]
+  [^Driver driver]
   (.window (.manage ^WebDriver (.webdriver driver))))
 
 (load "core_driver")
