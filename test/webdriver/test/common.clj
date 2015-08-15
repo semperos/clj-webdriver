@@ -1,5 +1,5 @@
 ;; Namespace with implementations of test cases
-(ns clj-webdriver.test.common
+(ns webdriver.test.common
   (:require [clojure.test :refer :all]
             [clojure.java.io :as io]
             [clojure.tools.logging :as log]

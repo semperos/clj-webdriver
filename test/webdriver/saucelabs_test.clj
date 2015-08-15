@@ -1,4 +1,4 @@
-(ns ^:saucelabs clj-webdriver.saucelabs-test
+(ns ^:saucelabs webdriver.saucelabs-test
   "Tests running on SauceLabs using 'Open Sauce' subscription"
   (:require [clojure.test :refer [deftest use-fixtures]]
             [clj-webdriver.core :refer [quit to]]

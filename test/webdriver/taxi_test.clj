@@ -1,4 +1,4 @@
-(ns clj-webdriver.taxi-test
+(ns webdriver.taxi-test
   (:require [clojure.test :refer :all]
             [clj-webdriver.taxi :refer :all]
             [clj-webdriver.core :as core]

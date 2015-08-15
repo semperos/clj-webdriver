@@ -1,4 +1,4 @@
-(ns clj-webdriver.firefox-test
+(ns webdriver.firefox-test
   (:require [clojure.test :refer :all]
             [clj-webdriver.core :refer [new-driver current-url find-element find-elements quit get-screenshot attribute to with-driver]]
             clj-webdriver.driver

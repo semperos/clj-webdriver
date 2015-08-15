@@ -1,4 +1,4 @@
-(ns clj-webdriver.remote-test
+(ns webdriver.remote-test
   "Tests for RemoteWebDriver server and client (driver) code"
   (:require [clojure.test :refer :all]
             [clj-webdriver.core :refer [quit to]]

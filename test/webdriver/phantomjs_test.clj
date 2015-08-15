@@ -1,4 +1,4 @@
-(ns clj-webdriver.phantomjs-test
+(ns webdriver.phantomjs-test
   (:require [clojure.tools.logging :as log]
             [clojure.test :refer :all]
             [clj-webdriver.core :refer [new-driver to quit]]

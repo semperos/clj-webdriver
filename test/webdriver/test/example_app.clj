@@ -1,4 +1,4 @@
-(ns clj-webdriver.test.example-app
+(ns webdriver.test.example-app
   (:require [clojure.java.io :as io]
             [net.cgrand.moustache :refer [app]]
             [net.cgrand.enlive-html :refer [content defsnippet deftemplate any-node]]

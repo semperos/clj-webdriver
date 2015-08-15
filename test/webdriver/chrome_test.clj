@@ -1,4 +1,4 @@
-(ns ^:chrome clj-webdriver.chrome-test
+(ns ^:chrome webdriver.chrome-test
   (:require [clojure.test :refer :all]
             [clojure.tools.logging :as log]
             [clj-webdriver.test.helpers :refer :all]

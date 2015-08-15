@@ -1,4 +1,4 @@
-(ns clj-webdriver.test.helpers
+(ns webdriver.test.helpers
   (:require [clojure.java.io :as io]
             [clojure.tools.logging :as log]
             [clojure.tools.reader.edn :as edn]
