@@ -12,7 +12,7 @@
 ;; point for this project and many of the low-level wrappers around the
 ;; WebDriver API.
 ;;
-(ns clj-webdriver.core
+(ns webdriver.core
   (:use [clj-webdriver driver util options cookie]
         [clojure.walk :only [keywordize-keys]])
   (:require [clj-webdriver.js.browserbot :as browserbot-js]

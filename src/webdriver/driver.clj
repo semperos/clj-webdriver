@@ -1,4 +1,4 @@
-(ns clj-webdriver.driver
+(ns webdriver.driver
   (:require [clojure.core.protocols :as p])
   (:import java.util.Iterator
            org.openqa.selenium.interactions.Actions))

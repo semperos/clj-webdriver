@@ -1,4 +1,4 @@
-(ns clj-webdriver.firefox
+(ns webdriver.firefox
   (:require [clojure.java.io :as io])
   (:import org.openqa.selenium.firefox.FirefoxProfile))
 

@@ -7,7 +7,7 @@
 ;; borrowed it from injectableSelenium.js within Selenium-WebDriver's
 ;; own codebase. The `getXpath` function was borrowed from
 ;; http://208.91.135.51/posts/show/3754
-(ns clj-webdriver.js.browserbot)
+(ns webdriver.js.browserbot)
 
 (def script
   "
@@ -74,7 +74,7 @@ var browserbot = {
         if (idx > 1) xname += \"[\" + idx + \"]\";
         path = \"/\" + xname + path;
       }
-      return path;	
+      return path;
     },
 
     getElementIdx: function(elt) {

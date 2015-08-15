@@ -1,4 +1,4 @@
-(ns clj-webdriver.cookie)
+(ns webdriver.cookie)
 
 (defrecord Cookie [cookie name value path expiry domain secure?])
 
@@ -39,4 +39,3 @@
                                                            :expiry expiry
                                                            :secure? secure?})]
     (Cookie. cookie-obj name value path expiry domain secure?)))
-

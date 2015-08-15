@@ -3,7 +3,7 @@
 ;; The functions in this namespace are designed to make working with HTML forms
 ;; faster and more intuitive for "common" use-cases.
 ;;
-(ns clj-webdriver.form-helpers
+(ns webdriver.form-helpers
   (:use [clj-webdriver.core :only [input-text find-elements]])
   (:require clj-webdriver.driver)
   (:import clj_webdriver.driver.Driver
@@ -52,7 +52,7 @@
     (doseq [entries query-action-maps
             [k v] entries]
       (quick-fill* driver k v)))
-  
+
   (quick-fill-submit
     [driver query-action-maps]
     (doseq [entries query-action-maps
