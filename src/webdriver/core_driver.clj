@@ -116,16 +116,16 @@
 
   ;; Options Interface (cookies)
   IOptions
-  (add-cookie [driver cookie-spec]
-    (.addCookie (.manage ^WebDriver (.webdriver driver)) (:cookie (init-cookie cookie-spec)))
+  (add-cookie [driver cookie]
+    (.addCookie (.manage ^WebDriver (.webdriver driver)) cookie)
     driver)
 
   (delete-cookie-named [driver cookie-name]
     (.deleteCookieNamed (.manage ^WebDriver (.webdriver driver)) cookie-name)
     driver)
 
-  (delete-cookie [driver cookie-spec]
-    (.deleteCookie (.manage ^WebDriver (.webdriver driver)) (:cookie (init-cookie cookie-spec)))
+  (delete-cookie [driver cookie]
+    (.deleteCookie (.manage ^WebDriver (.webdriver driver)) cookie)
     driver)
 
   (delete-all-cookies [driver]
@@ -133,12 +133,10 @@
     driver)
 
   (cookies [driver]
-    (set (map #(init-cookie {:cookie %})
-                   (.getCookies (.manage ^WebDriver (.webdriver driver))))))
+    (into #{} (.getCookies (.manage ^WebDriver (.webdriver driver)))))
 
   (cookie-named [driver cookie-name]
-    (let [cookie-obj (.getCookieNamed (.manage ^WebDriver (.webdriver driver)) cookie-name)]
-      (init-cookie {:cookie cookie-obj})))
+    (.getCookieNamed (.manage ^WebDriver (.webdriver driver)) cookie-name))
 
   ;; Alert dialogs
   IAlert

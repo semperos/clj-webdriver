@@ -7,7 +7,6 @@
             [webdriver.core :refer :all]
             [webdriver.util :refer :all]
             [webdriver.wait :refer :all]
-            [webdriver.options :refer :all]
             [webdriver.form-helpers :refer :all])
   (:import [webdriver.driver.Driver]
            [org.openqa.selenium TimeoutException NoAlertPresentException]))

@@ -13,7 +13,7 @@
 ;; WebDriver API.
 ;;
 (ns webdriver.core
-  (:use [webdriver driver util options cookie]
+  (:use [webdriver driver util]
         [clojure.walk :only [keywordize-keys]])
   (:require [webdriver.js.browserbot :as browserbot-js]
             [webdriver.firefox :as ff]
@@ -73,6 +73,15 @@
   (reposition [this coordinates-map] "Excepts map of X Y coordinates ex. {:x 1 :y 3} repositioning current window relative to screen. Returns driver or window.")
   (resize [this dimensions-map] "Resize the driver window with a map of width and height ex. {:width 480 :height 800}. Returns driver or window.")
   (window-size [this] "Get size of current window. Returns a map of width and height ex. {:width 480 :height 800}"))
+
+(defprotocol IOptions
+  "Options interface, including cookie and timeout handling"
+  (add-cookie [driver cookie] "Add a new cookie to the browser session")
+  (delete-cookie-named [driver cookie-name] "Delete a cookie given its name")
+  (delete-cookie [driver cookie] "Delete a cookie given a cookie instance")
+  (delete-all-cookies [driver] "Delete all cookies defined in the current session")
+  (cookies [driver] "Retrieve a set of cookies defined in the current session")
+  (cookie-named [driver cookie-name] "Retrieve a cookie object given its name"))
 
 ;; ### Alert Popups ###
 (defprotocol IAlert

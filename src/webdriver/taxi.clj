@@ -3,7 +3,6 @@
   (:require [webdriver.core :as core]
             webdriver.driver
             [webdriver.util :as util]
-            [webdriver.options :as options]
             [webdriver.wait :as wait])
   (:import org.openqa.selenium.WebElement
            webdriver.driver.Driver))
@@ -553,7 +552,7 @@
                 :expiry (java.util.Date.), :secure? false}) "
   ([cookie-spec] (add-cookie *driver* cookie-spec))
   ([driver cookie-spec]
-     (options/add-cookie driver cookie-spec)))
+     (add-cookie driver cookie-spec)))
 
 (defn delete-cookie
   "Provided the name of a cookie or a Cookie record itself, delete it from the browser session.
@@ -573,8 +572,8 @@
   ([name-or-obj] (delete-cookie *driver* name-or-obj))
   ([driver name-or-obj]
      (if (string? name-or-obj)
-       (options/delete-cookie-named driver name-or-obj)
-       (options/delete-cookie driver name-or-obj))))
+       (delete-cookie-named driver name-or-obj)
+       (delete-cookie driver name-or-obj))))
 
 (defn delete-all-cookies
   "Delete all cookies from the browser session.
@@ -585,7 +584,7 @@
    (delete-all-cookies)"
   ([] (delete-all-cookies *driver*))
   ([driver]
-     (options/delete-all-cookies driver)))
+     (delete-all-cookies driver)))
 
 (defn cookies
   "Return a seq of all cookies in the browser session. Items are `Cookie` records, which themselves contain a `:cookie` field with the original Java objects.
@@ -596,7 +595,7 @@
    (cookies)"
   ([] (cookies *driver*))
   ([driver]
-     (options/cookies driver)))
+     (cookies driver)))
 
 (defn cookie
   "Return the cookie with name `cookie-name`. Returns a `Cookie` record which contains a `:cookie` field with the original Java object.
@@ -607,7 +606,7 @@
    (cookie \"foo\")"
   ([cookie-name] (cookie *driver* cookie-name))
   ([driver cookie-name]
-     (options/cookie-named driver cookie-name)))
+     (cookie-named driver cookie-name)))
 
 (defn execute-script
   "Execute the JavaScript code `js` with arguments `js-args` which must be passed in as a vector (for arity reasons).
