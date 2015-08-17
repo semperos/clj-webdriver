@@ -309,6 +309,11 @@
   [^Driver driver]
   (.window (.manage ^WebDriver (.webdriver driver))))
 
+(defn ^Actions new-actions
+  "Create a new Actions object given a `Driver`"
+  [^Driver d]
+  (Actions. ^WebDriver (.webdriver d)))
+
 (load "core_driver")
 (load "core_window")
 (load "core_actions")

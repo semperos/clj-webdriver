@@ -4,11 +4,6 @@
 ;; Functions for Actions Class ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn ^Actions new-actions
-  "Create a new Actions object given a `Driver`"
-  [^Driver d]
-  (Actions. ^WebDriver (.webdriver d)))
-
 ;; TODO: test coverage
 (defmacro ->build-composite-action
   "Create a composite chain of actions, then call `.build()`. This does **not** execute the actions; it simply sets up an 'action chain' which can later by executed using `.perform()`.

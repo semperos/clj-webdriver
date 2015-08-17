@@ -355,22 +355,18 @@
   (first (find-elements driver attr-val)))
 
 (defn find-elements* [driver attr-val]
-  (when-not (and (or
-                  (map? attr-val)
-                  (vector? attr-val))
-                 (empty? attr-val))
+  (when (seq attr-val)
     (try
       (cond
         ;; Accept by-clauses
-        (not (or (vector? attr-val)
-                 (map? attr-val)))
+        (instance? By attr-val)
         (find-elements-by driver attr-val)
 
         ;; Accept vectors for hierarchical queries
         (vector? attr-val)
         (find-by-hierarchy driver attr-val)
 
-        ;; Build XPath dynamically
+        ;; Build CSS/XPath dynamically
         :else
         (find-elements-by driver (by-query (build-query attr-val))))
       (catch org.openqa.selenium.NoSuchElementException e
