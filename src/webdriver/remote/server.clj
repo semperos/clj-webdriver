@@ -2,7 +2,6 @@
   (:require [clojure.java.io :refer [as-url]]
             [clojure.tools.logging :as log]
             [webdriver.core :refer [desired-capabilities get-url]]
-            webdriver.driver
             [webdriver.util :as util])
   (:import [org.mortbay.jetty Connector Server]
            org.mortbay.jetty.nio.SelectChannelConnector
@@ -13,8 +12,7 @@
            org.openqa.selenium.remote.server.DriverServlet
            [org.openqa.selenium.remote
             DesiredCapabilities
-            HttpCommandExecutor]
-           webdriver.driver.Driver))
+            HttpCommandExecutor]))
 
 (defprotocol IRemoteServer
   "Functions for managing a RemoteServer instance."

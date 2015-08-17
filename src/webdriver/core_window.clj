@@ -1,40 +1,39 @@
 (in-ns 'webdriver.core)
 
 (comment "Getting a Window for a WebDriver"
-         (let [^WebDriver webdriver (.webdriver driver)
-               manage (.manage webdriver)]
+         (let [manage (.manage wd)]
            (.window manage)))
 
 (extend-protocol IWindow
-  Driver
-  (maximize [driver]
-    (let [wnd (window* driver)]
+  WebDriver
+  (maximize [wd]
+    (let [wnd (window* wd)]
       (.maximize wnd)
-      driver))
+      wd))
 
-  (position [driver]
-    (let [wnd (window* driver)
+  (position [wd]
+    (let [wnd (window* wd)
           pnt (.getPosition wnd)]
       {:x (.getX pnt) :y (.getY pnt)}))
 
-  (reposition [driver {:keys [x y]}]
-    (let [wnd (window* driver)
+  (reposition [wd {:keys [x y]}]
+    (let [wnd (window* wd)
           pnt (.getPosition wnd)
           x (or x (.getX pnt))
           y (or y (.getY pnt))]
       (.setPosition wnd (Point. x y))
-      driver))
+      wd))
 
-  (resize [driver {:keys [width height]}]
-    (let [^WebDriver$Window wnd (window* driver)
+  (resize [wd {:keys [width height]}]
+    (let [^WebDriver$Window wnd (window* wd)
           dim (.getSize wnd)
           width (or width (.getWidth dim))
           height (or height (.getHeight dim))]
       (.setSize wnd (Dimension. width height))
-      driver))
+      wd))
 
-  (window-size [driver]
-    (let [^WebDriver$Window wnd (window* driver)
+  (window-size [wd]
+    (let [^WebDriver$Window wnd (window* wd)
           dim (.getSize wnd)]
       {:width (.getWidth dim) :height (.getHeight dim)}))
 

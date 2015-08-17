@@ -10,7 +10,7 @@
 (defn restart-browser
   [f]
   (when-not @driver
-    (reset! driver (new-driver {:browser :firefox})))
+    (reset! driver (new-webdriver {:browser :firefox})))
   (to @driver base-url)
   (f))
 

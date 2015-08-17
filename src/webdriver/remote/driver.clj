@@ -1,9 +1,7 @@
 (ns webdriver.remote.driver
-  (:require webdriver.driver)
   (:import [org.openqa.selenium.remote
             DesiredCapabilities
-            RemoteWebDriver]
-           webdriver.driver.Driver))
+            RemoteWebDriver]))
 
 (defprotocol IRemoteWebDriver
   "RemoteWebDriver-specific functionality"

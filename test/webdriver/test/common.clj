@@ -8,8 +8,7 @@
             [webdriver.util :refer :all]
             [webdriver.wait :refer :all]
             [webdriver.form-helpers :refer :all])
-  (:import [webdriver.driver.Driver]
-           [org.openqa.selenium TimeoutException NoAlertPresentException]))
+  (:import [org.openqa.selenium TimeoutException NoAlertPresentException WebDriver]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;                  ;;;
@@ -18,7 +17,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 (defn browser-basics
   [driver]
-  (is (instance? webdriver.driver.Driver driver))
+  (is (instance? WebDriver driver))
   (is (= base-url (current-url driver)))
   (is (= "Ministache" (title driver)))
   (is (boolean (re-find #"(?i)html>" (page-source driver)))))

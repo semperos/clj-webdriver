@@ -17,7 +17,6 @@
             [clojure.walk :refer [keywordize-keys]]
             [clojure.java.io :as io]
             [clojure.tools.logging :as log]
-            webdriver.driver
             [webdriver.js.browserbot :as browserbot-js]
             [webdriver.firefox :as ff]
             [webdriver.util :refer :all])
@@ -35,12 +34,11 @@
            [org.openqa.selenium.interactions Actions CompositeAction]
            org.openqa.selenium.Capabilities
            org.openqa.selenium.remote.DesiredCapabilities
-           [org.openqa.selenium Dimension Point]
-           webdriver.driver.Driver))
+           [org.openqa.selenium Dimension Point]))
 
 ;; ## Protocols for webdriver API ##
 
-;; ### Driver/Browser Functions ###
+;; ### WebDriver Functions ###
 (defprotocol IDriver
   "Basics of driver handling"
   (back [driver] "Go back to the previous page in \"browsing history\"")
@@ -182,7 +180,7 @@
     [this element] "Release the left mouse button, either at the current mouse position or in the middle of the given `element`."))
 
 
-;; ## Starting Driver/Browser ##
+;; ## Starting Browser ##
 (def ^{:doc "Map of keywords to available WebDriver classes."}
   webdriver-drivers
   {:firefox FirefoxDriver
@@ -198,24 +196,24 @@
     true
     (catch Throwable _ false)))
 
-(defmulti new-webdriver*
+(defmulti new-webdriver
   "Return a Selenium-WebDriver WebDriver instance, with particularities of each browser supported."
   :browser)
 
-(defmethod new-webdriver* :default
+(defmethod new-webdriver :default
   [{:keys [browser]}]
   (let [^Class klass (or (browser webdriver-drivers) browser)]
     (.newInstance
      (.getConstructor klass (into-array Class []))
      (into-array Object []))))
 
-(defmethod new-webdriver* :firefox
+(defmethod new-webdriver :firefox
   [{:keys [browser ^FirefoxProfile profile]}]
   (if profile
     (FirefoxDriver. profile)
     (FirefoxDriver.)))
 
-(defmethod new-webdriver* :phantomjs
+(defmethod new-webdriver :phantomjs
   [{:keys [javascript-enabled? phantomjs-executable takes-screenshot?] :as browser-spec}]
   (if-not phantomjs-enabled?
     (throw (RuntimeException. "You do not have the PhantomJS JAR's on the classpath. Please add com.codeborne/phantomjsdriver version 1.2.1 with exclusions for org.seleniumhq.selenium/selenium-java and any other org.seleniumhq.selenium JAR's your code relies on."))
@@ -242,14 +240,9 @@
                           ^String phantomjs-executable)))
       (.newInstance ^Constructor phantomjs-driver-ctor (into-array java.lang.Object [caps])))))
 
-(defn new-driver
-  "Create a new `Driver`"
-  [browser-spec]
-  (Driver. (new-webdriver* browser-spec) nil))
-
 ;; Borrowed from core Clojure
 (defmacro with-driver
-  "Given a binding to `Driver`, make that binding available in `body` and ensure `quit` is called on it at the end."
+  "Given a binding to `WebDriver`, make that binding available in `body` and ensure `quit` is called on it at the end."
   [bindings & body]
   (assert-args
    (vector? bindings) "a vector for its binding"
@@ -300,19 +293,19 @@
   (.executeScript ^RemoteWebDriver webdriver ^String js (into-array Object js-args)))
 
 (defn execute-script
-  [^Driver driver js & js-args]
-  (apply execute-script* (.webdriver driver) js js-args))
+  [^WebDriver wd js & js-args]
+  (apply execute-script* wd js js-args))
 
 ;; Needed by window and target locator implementations in core_driver and core_window
 (defn ^WebDriver$Window window*
-  "Return the underyling WebDriver$Window object for the `Driver`"
-  [^Driver driver]
-  (.window (.manage ^WebDriver (.webdriver driver))))
+  "Return the underyling `WebDriver$Window` object for the `WebDriver`"
+  [^WebDriver wd]
+  (.window (.manage wd)))
 
 (defn ^Actions new-actions
-  "Create a new Actions object given a `Driver`"
-  [^Driver d]
-  (Actions. ^WebDriver (.webdriver d)))
+  "Create a new Actions object given a `WebDriver`"
+  [^WebDriver wd]
+  (Actions. wd))
 
 (load "core_driver")
 (load "core_window")
