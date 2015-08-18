@@ -125,7 +125,7 @@
     wd)
 
   (switch-to-window [wd window-handle]
-    (.window (.switchTo wd) window)
+    (.window (.switchTo wd) window-handle)
     wd)
 
   (switch-to-other-window [wd]

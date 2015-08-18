@@ -1,9 +1,5 @@
-;; ## Form Helpers ##
-;;
-;; The functions in this namespace are designed to make working with HTML forms
-;; faster and more intuitive for "common" use-cases.
-;;
-(ns webdriver.form-helpers
+(ns webdriver.form
+  "Utilities for filling out HTML forms."
   (:use [webdriver.core :only [input-text find-elements]])
   (:import org.openqa.selenium.WebDriver))
 

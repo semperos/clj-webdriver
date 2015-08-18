@@ -7,7 +7,7 @@
             [webdriver.test.helpers :refer :all]
             [webdriver.core :refer :all]
             [webdriver.util :refer :all]
-            [webdriver.form-helpers :refer :all])
+            [webdriver.form :refer :all])
   (:import [org.openqa.selenium TimeoutException NoAlertPresentException WebDriver]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
@@ -164,10 +164,10 @@
           (find-element {:id "draggable"})
           present?))
   (let [el-to-drag (find-element driver {:id "draggable"})
-        {o-x :x o-y :y} (location el-to-drag)
+        {o-x :x o-y :y} (location-in-viewport el-to-drag)
         {n-x :x n-y :y} (do
                           (drag-and-drop-by driver el-to-drag {:x 20 :y 20})
-                          (location el-to-drag))
+                          (location-in-viewport el-to-drag))
         x-diff (Math/abs (- n-x o-x))
         y-diff (Math/abs (- n-y o-y))]
     (is (= x-diff 20))
@@ -189,10 +189,10 @@
           present?))
   (let [draggable (find-element driver {:id "draggable"})
         droppable (find-element driver {:id "droppable"})
-        {o-x :x o-y :y} (location draggable)
+        {o-x :x o-y :y} (location-in-viewport draggable)
         {n-x :x n-y :y} (do
                           (drag-and-drop driver draggable droppable)
-                          (location draggable))]
+                          (location-in-viewport draggable))]
     (is (or (not= o-x n-x)
             (not= o-y n-y)))
     (is (re-find #"ui-state-highlight" (attribute droppable :class)))))
@@ -469,19 +469,20 @@
 
 (defn should-be-able-to-toggle-between-open-windows
   [driver]
-  (let [window-1 (window driver)]
+  (let [window-1 (window-handle driver)]
     (is (= (count (window-handles driver))
            1))
     (-> driver
         (find-element {:tag :a, :text "is amazing!"})
         click)
     (wait-until driver (fn [d] (immortal (= "Ministache" (title d)))))
-    (let [window-2 (window driver)]
+    (let [window-2 (window-handle driver)]
+      (println "Handles!!" (window-handles driver))
+      (is (= (count (window-handles driver))
+             2))
       (is (not= window-1 window-2))
       (is (= (title driver)
              "Ministache"))
-      (is (= (count (window-handles driver))
-             2))
       (switch-to-window driver window-1)
       (is (= (str *base-url* "clojure")
              (current-url driver)))
@@ -621,7 +622,7 @@
                    #'select-element-functions-should-behave-as-expected
                    #'quick-fill-should-accept-special-seq-and-perform-batch-actions-on-form
                    #'quick-fill-submit-should-always-return-nil
-                   ;; #'should-be-able-to-toggle-between-open-windows
+                   #'should-be-able-to-toggle-between-open-windows
                    #'wait-until-should-wait-for-condition
                    #'wait-until-should-throw-on-timeout
                    #'wait-until-should-allow-timeout-argument

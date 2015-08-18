@@ -29,7 +29,7 @@
            org.openqa.selenium.htmlunit.HtmlUnitDriver
            org.openqa.selenium.ie.InternetExplorerDriver
            [org.openqa.selenium.interactions Actions CompositeAction]
-           org.openqa.selenium.internal.WrapsDriver
+           [org.openqa.selenium.internal Locatable WrapsDriver]
            [org.openqa.selenium.remote DesiredCapabilities RemoteWebDriver]
            [org.openqa.selenium.support.ui ExpectedCondition Select WebDriverWait]))
 
@@ -53,7 +53,8 @@
 ;; ### Windows and Frames ###
 (defprotocol ITargetLocator
   "Functions that deal with browser windows and frames"
-  (window [driver] "Get the only (or first) window")
+  (window [driver] "Get the only (or first) window object. This is different from the string window handles that most of Selenium-WebDriver's API expects.")
+  (window-handle [driver] "Retrieve this driver's window handle (defaults to only or active window).")
   (window-handles [driver] "Retrieve a vector of `Window` records which can be used to switch to particular open windows")
   (other-window-handles [driver] "Retrieve window handles for all windows except the current one")
   (switch-to-frame [driver frame] "Switch focus to a particular HTML frame by supplying a `WebElement` or an integer for the nth frame on the page (zero-based index)")
@@ -119,7 +120,8 @@
   (focus [element] "Apply focus to the given element")
   (html [element] "Retrieve the outer HTML of an element")
   (intersects? [element-a element-b] "Return true if `element-a` intersects with `element-b`. This mirrors the Selenium-WebDriver API method, but see the `intersect?` function to compare an element against multiple other elements for intersection.")
-  (location [element] "Given an element object, return its location as a map of its x/y coordinates")
+  (location-on-page [element] "Given an element object, return its absolute location as a map of its x/y coordinates with the top-left of the page as origin.")
+  (location-in-viewport [element] "Given an element object, return its relative location as a map of its x/y coordinates based on where the element is in the viewport, or once it has been scrolled into view.")
   (present? [element] "Returns true if the element exists and is visible")
   (element-size [element] "Return the size of the given `element` as a map containing `:width` and `:height` values in pixels.")
   (tag [element] "Retrieve the name of the HTML tag of the given element object (returned as a keyword)")

@@ -20,7 +20,7 @@
 
 (defn ^java.awt.Rectangle rectangle
   [webelement]
-  (let [loc (location webelement)
+  (let [loc (location-on-page webelement)
         el-size (element-size webelement)]
     (java.awt.Rectangle. (:x loc)
                          (:y loc)
@@ -81,8 +81,12 @@
   (html [webelement]
     (browserbot (.getWrappedDriver ^WrapsDriver webelement) "getOuterHTML" webelement))
 
-  (location [webelement]
-    (let [loc (.getLocation webelement)]
+  (location-on-page [webelement]
+    (let [loc (.onPage (.getCoordinates ^Locatable webelement))]
+      {:x (.x loc), :y (.y loc)}))
+
+  (location-in-viewport [webelement]
+    (let [loc (.inViewPort (.getCoordinates ^Locatable webelement))]
       {:x (.x loc), :y (.y loc)}))
 
   (present? [webelement]
@@ -272,7 +276,9 @@
 
   (html [n] (throw-nse))
 
-  (location [n] (throw-nse))
+  (location-on-page [n] (throw-nse))
+
+  (location-in-viewport [n] (throw-nse))
 
   (present? [n] (throw-nse))
 
