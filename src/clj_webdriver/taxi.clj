@@ -24,10 +24,10 @@
   (let [new-driver (if (driver? browser-spec)
                      browser-spec
                      (core/new-driver browser-spec))]
-       (alter-var-root (var *driver*)
-                       (constantly new-driver)
-                       (when (thread-bound? (var *driver*))
-                         (set! *driver* new-driver)))))
+    (alter-var-root (var *driver*)
+                    (constantly new-driver)
+                    (when (thread-bound? (var *driver*))
+                      (set! *driver* new-driver)))))
 
 (declare to)
 (defn set-driver!
@@ -126,10 +126,10 @@
        submit))"
   [browser-spec & body]
   `(binding [*driver* (core/new-driver ~browser-spec)]
-    (try
-      ~@body
-      (finally
-        (quit)))))
+     (try
+       ~@body
+       (finally
+         (quit)))))
 
 (defmacro with-driver-fn
   "Given a `browser-spec` to start a browser and a `finder-fn` to use as a finding function, execute the forms in `body`, then call `quit` on the browser.
@@ -151,10 +151,10 @@
   [browser-spec finder-fn & body]
   `(binding [*driver* (core/new-driver ~browser-spec)
              *finder-fn* ~finder-fn]
-    (try
-      ~@body
-      (finally
-        (quit)))))
+     (try
+       ~@body
+       (finally
+         (quit)))))
 
 (defn css-finder
   "Given a CSS query `q`, return a lazy seq of the elements found by calling `find-elements` with `by-css`. If `q` is an `Element`, it is returned unchanged.
@@ -163,9 +163,9 @@
   ([q] (css-finder *driver* q))
   ([driver q]
      (cond
-       (element-like? q) q
-       (map? q)     (core/find-elements driver q)
-       :else        (core/find-elements driver {:css q}))))
+      (element-like? q) q
+      (map? q)     (core/find-elements driver q)
+      :else        (core/find-elements driver {:css q}))))
 
 (set-finder! css-finder)
 
@@ -176,9 +176,9 @@
   ([q] (xpath-finder *driver* q))
   ([driver q]
      (cond
-       (element-like? q) q
-       (map? q)     (core/find-elements driver q)
-       :else        (core/find-elements driver {:xpath q}))))
+      (element-like? q) q
+      (map? q)     (core/find-elements driver q)
+      :else        (core/find-elements driver {:xpath q}))))
 
 ;; Be able to get actual element/elements when needed
 (defn element
@@ -1440,9 +1440,9 @@
    (quick-fill {\"#first_name\" \"Rich\"}
                {\"a.foo\" click})"
   [& query-action-maps]
-  (flatten (map (fn [a-map]
-                  (let [[k v] (first a-map)] (quick-fill* k v)))
-                query-action-maps)))
+  (doall (flatten (map (fn [a-map]
+                         (let [[k v] (first a-map)] (quick-fill* k v)))
+                       query-action-maps))))
 
 (defn quick-fill-submit
   "A utility for filling out multiple fields in a form in one go. Always returns nil instead of the affected elements, since on submit all of the elements will be void.
