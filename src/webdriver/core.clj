@@ -226,8 +226,9 @@
           ;; Second constructor takes single argument of Capabilities
           ctors (into [] (.getDeclaredConstructors klass))
           ctor-sig (fn [^Constructor ctor]
-                     (= (into-array Class [Capabilities])
-                        (.getParameterTypes ctor)))
+                     (let [param-types (.getParameterTypes ctor)]
+                         (and (= (alength param-types) 1)
+                              (= Capabilities (aget param-types 0)))))
           phantomjs-driver-ctor (first (filterv ctor-sig ctors))]
       ;; Seems to be able to find it if on PATH by default, like Chrome's driver
       (when phantomjs-executable
