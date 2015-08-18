@@ -3,7 +3,7 @@
 ;; WARNING: Any functions based on JavaScript execution
 ;; have no guaranteed behavior across browsers.
 ;;
-;; This bit of JavaScript was borred from Watir-WebDriver, which
+;; This bit of JavaScript was borrowed from Watir-WebDriver, which
 ;; borrowed it from injectableSelenium.js within Selenium-WebDriver's
 ;; own codebase. The `getXpath` function was borrowed from
 ;; http://208.91.135.51/posts/show/3754
