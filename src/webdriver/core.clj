@@ -20,21 +20,18 @@
             [webdriver.js.browserbot :as browserbot-js]
             [webdriver.firefox :as ff]
             [webdriver.util :refer :all])
-  (:import [java.lang.reflect Constructor Field]
-           [org.openqa.selenium By WebDriver WebElement
-            WebDriver$Window OutputType NoSuchElementException
-            Keys TakesScreenshot]
-           [org.openqa.selenium.firefox FirefoxDriver FirefoxProfile]
-           org.openqa.selenium.ie.InternetExplorerDriver
+  (:import
+           [java.lang.reflect Constructor Field]
+           java.util.concurrent.TimeUnit
+           [org.openqa.selenium By Capabilities Dimension Keys NoSuchElementException OutputType Point TakesScreenshot WebDriver WebElement WebDriver$Window]
            org.openqa.selenium.chrome.ChromeDriver
+           [org.openqa.selenium.firefox FirefoxDriver FirefoxProfile]
            org.openqa.selenium.htmlunit.HtmlUnitDriver
-           org.openqa.selenium.remote.RemoteWebDriver
-           org.openqa.selenium.internal.WrapsDriver
-           org.openqa.selenium.support.ui.Select
+           org.openqa.selenium.ie.InternetExplorerDriver
            [org.openqa.selenium.interactions Actions CompositeAction]
-           org.openqa.selenium.Capabilities
-           org.openqa.selenium.remote.DesiredCapabilities
-           [org.openqa.selenium Dimension Point]))
+           org.openqa.selenium.internal.WrapsDriver
+           [org.openqa.selenium.remote DesiredCapabilities RemoteWebDriver]
+           [org.openqa.selenium.support.ui ExpectedCondition Select WebDriverWait]))
 
 ;; ## Protocols for webdriver API ##
 
@@ -64,6 +61,14 @@
   (switch-to-other-window [driver] "Given that two and only two browser windows are open, switch to the one not currently active")
   (switch-to-default [driver] "Switch focus to the first first frame of the page, or the main document if the page contains iframes")
   (switch-to-active [driver] "Switch to element that currently has focus, or to the body if this cannot be detected"))
+
+(defprotocol IWait
+  "Implicit and explicit waiting"
+  (implicit-wait [wd timeout] "Specify the amount of time the WebDriver should wait when searching for an element if it is not immediately present. This setting holds for the lifetime of the driver across all requests. Units in milliseconds.")
+  (wait-until
+    [wd pred]
+    [wd pred timeout]
+    [wd pred timeout interval] "Set an explicit wait time `timeout` for a particular condition `pred`. Optionally set an `interval` for testing the given predicate. All units in milliseconds"))
 
 (defprotocol IWindow
   "Functions to manage browser size and position."
@@ -179,7 +184,6 @@
     [this]
     [this element] "Release the left mouse button, either at the current mouse position or in the middle of the given `element`."))
 
-
 ;; ## Starting Browser ##
 (def ^{:doc "Map of keywords to available WebDriver classes."}
   webdriver-drivers
@@ -264,49 +268,8 @@
      (.setCapability capabilities k v))))
 
 (load "core_by")
-
-;; ##  Actions on WebElements ##
-(declare execute-script)
-(declare execute-script*)
-(defn- browserbot
-  [driver fn-name & arguments]
-  (let [script (str browserbot-js/script
-                    "return browserbot."
-                    fn-name
-                    ".apply(browserbot, arguments)")
-        execute-js-fn (partial execute-script* driver script)]
-    (apply execute-js-fn arguments)))
-
-;; Implementations of the above IElement and IFormElement protocols
 (load "core_element")
-
-;; Key codes for non-representable keys
-(defn key-code
-  "Representations of pressable keys that aren't text. These are stored in the Unicode PUA (Private Use Area) code points, 0xE000-0xF8FF. Refer to http://www.google.com.au/search?&q=unicode+pua&btnG=Search"
-  [k]
-  (Keys/valueOf (.toUpperCase (name k))))
-
-;; ## JavaScript Execution ##
-(defn execute-script*
-  "Version of execute-script that uses a WebDriver instance directly."
-  [webdriver js & js-args]
-  (.executeScript ^RemoteWebDriver webdriver ^String js (into-array Object js-args)))
-
-(defn execute-script
-  [^WebDriver wd js & js-args]
-  (apply execute-script* wd js js-args))
-
-;; Needed by window and target locator implementations in core_driver and core_window
-(defn ^WebDriver$Window window*
-  "Return the underyling `WebDriver$Window` object for the `WebDriver`"
-  [^WebDriver wd]
-  (.window (.manage wd)))
-
-(defn ^Actions new-actions
-  "Create a new Actions object given a `WebDriver`"
-  [^WebDriver wd]
-  (Actions. wd))
-
+(load "core_wait")
 (load "core_driver")
 (load "core_window")
 (load "core_actions")

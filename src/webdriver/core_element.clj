@@ -7,6 +7,17 @@
 ;;  * ISelectElement
 (in-ns 'webdriver.core)
 
+(declare execute-script)
+(declare execute-script*)
+(defn- browserbot
+  [driver fn-name & arguments]
+  (let [script (str browserbot-js/script
+                    "return browserbot."
+                    fn-name
+                    ".apply(browserbot, arguments)")
+        execute-js-fn (partial execute-script* driver script)]
+    (apply execute-js-fn arguments)))
+
 (defn ^java.awt.Rectangle rectangle
   [webelement]
   (let [loc (location webelement)

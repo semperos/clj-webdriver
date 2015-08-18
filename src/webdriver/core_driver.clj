@@ -10,6 +10,32 @@
 ;;  * IFind
 (in-ns 'webdriver.core)
 
+(defn ^Actions new-actions
+  "Create a new Actions object given a `WebDriver`"
+  [^WebDriver wd]
+  (Actions. wd))
+
+;; Needed by window and target locator implementations in core_driver and core_window
+(defn ^WebDriver$Window window*
+  "Return the underyling `WebDriver$Window` object for the `WebDriver`"
+  [^WebDriver wd]
+  (.window (.manage wd)))
+
+(defn key-code
+  "Representations of pressable keys that aren't text. These are stored in the Unicode PUA (Private Use Area) code points, 0xE000-0xF8FF. Refer to http://www.google.com.au/search?&q=unicode+pua&btnG=Search"
+  [k]
+  (Keys/valueOf (.toUpperCase (name k))))
+
+;; ## JavaScript Execution ##
+(defn execute-script*
+  "Version of execute-script that uses a WebDriver instance directly."
+  [^RemoteWebDriver webdriver js & js-args]
+  (.executeScript webdriver ^String js (into-array Object js-args)))
+
+(defn execute-script
+  [^WebDriver wd js & js-args]
+  (apply execute-script* wd js js-args))
+
 (declare find-element* find-elements*)
 
 (extend-type WebDriver
