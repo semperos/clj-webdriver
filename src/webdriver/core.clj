@@ -218,7 +218,7 @@
     (FirefoxDriver.)))
 
 (defmethod new-webdriver :phantomjs
-  [{:keys [javascript-enabled? phantomjs-executable takes-screenshot?] :as browser-spec}]
+  [{:keys [phantomjs-executable] :as browser-spec}]
   (if-not phantomjs-enabled?
     (throw (RuntimeException. "You do not have the PhantomJS JAR's on the classpath. Please add com.codeborne/phantomjsdriver version 1.2.1 with exclusions for org.seleniumhq.selenium/selenium-java and any other org.seleniumhq.selenium JAR's your code relies on."))
     (let [caps (DesiredCapabilities.)
@@ -226,15 +226,9 @@
           ;; Second constructor takes single argument of Capabilities
           ctors (into [] (.getDeclaredConstructors klass))
           ctor-sig (fn [^Constructor ctor]
-                     (let [param-types (.getParameterTypes ctor)]
-                       (and (= (alength param-types) 1)
-                            (= Capabilities (aget param-types 0)))))
+                     (= (into-array Class [Capabilities])
+                        (.getParameterTypes ctor)))
           phantomjs-driver-ctor (first (filterv ctor-sig ctors))]
-      ;; Default is true
-      (when-not javascript-enabled?
-        (.setJavascriptEnabled caps false))
-      (when takes-screenshot?
-        (.setCapability caps "takesScreenshot" true))
       ;; Seems to be able to find it if on PATH by default, like Chrome's driver
       (when phantomjs-executable
         (let [klass (Class/forName "org.openqa.selenium.phantomjs.PhantomJSDriverService")
@@ -243,6 +237,12 @@
                           ^String (.get field klass)
                           ^String phantomjs-executable)))
       (.newInstance ^Constructor phantomjs-driver-ctor (into-array java.lang.Object [caps])))))
+
+(defn desired-capabilities
+  ([m] (desired-capabilities (DesiredCapabilities.) m))
+  ([^DesiredCapabilities capabilities m]
+   (doseq [[^String k v] (java-keys m)]
+     (.setCapability capabilities k v))))
 
 ;; Borrowed from core Clojure
 (defmacro with-driver
@@ -260,12 +260,6 @@
                                   (quit ~(bindings 0)))))
     :else (throw (IllegalArgumentException.
                   "with-driver only allows symbols in bindings"))))
-
-(defn desired-capabilities
-  ([m] (desired-capabilities (DesiredCapabilities.) m))
-  ([^DesiredCapabilities capabilities m]
-   (doseq [[^String k v] (java-keys m)]
-     (.setCapability capabilities k v))))
 
 (load "core_by")
 (load "core_element")
