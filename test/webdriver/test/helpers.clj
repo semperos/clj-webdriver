@@ -16,19 +16,8 @@
 
 (def ^:const test-port 5744)
 
-(def base-url (get (System/getenv) "TEST_BASE_URL" (str "http://127.0.0.1:" test-port "/")))
-
-;; System checks
-(defn chromium-installed?
-  []
-  (.exists (File. "/usr/lib/chromium-browser/chromium-browser")))
-
-(defn chromium-preferred?
-  "If a Chromium installation can be detected and the `WEBDRIVER_USE_CHROMIUM` environment variable is defined, return true."
-  []
-  (log/info "Chromium installation detected. Using Chromium instead of Chrome.")
-  (and (chromium-installed?)
-       (get (System/getenv) "WEBDRIVER_USE_CHROMIUM")))
+(def ^:dynamic *base-url* (str "http://127.0.0.1:" test-port "/"))
+(def heroku-url "http://vast-brushlands-4998.herokuapp.com/")
 
 ;; Utilities
 (defmacro thrown?

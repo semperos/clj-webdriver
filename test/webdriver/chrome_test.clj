@@ -17,7 +17,7 @@
   (when-not @chrome-driver
     (reset! chrome-driver
             (new-webdriver {:browser :chrome})))
-  (to @chrome-driver base-url)
+  (to @chrome-driver *base-url*)
   (f))
 
 (defn quit-browser

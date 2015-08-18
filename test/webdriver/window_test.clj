@@ -11,7 +11,7 @@
   [f]
   (when-not @driver
     (reset! driver (new-webdriver {:browser :firefox})))
-  (to @driver base-url)
+  (to @driver *base-url*)
   (f))
 
 (defn quit-browser
@@ -27,22 +27,22 @@
   (let [small {:width 500 :height 400}
         large {:width 1024 :height 800}]
     (resize this small)
-    ;; (is (= (size this) small))
+    ;; (is (= (window-size this) small))
     (resize this large)
-    ;; (is (= (size this) large))
+    ;; (is (= (window-size this) large))
     ))
 
 (defn test-window-resize-with-one-dimension
   [this]
-  (let [orig-size (size this)
+  (let [orig-size (window-size this)
         small {:height 400}
         large {:width 1024}]
     (resize this small)
-    ;; (is (= (:width (size this)) (:width orig-size)))
+    ;; (is (= (:width (window-size this)) (:width orig-size)))
     (resize this orig-size)
-    ;; (is (= (size this) orig-size))
+    ;; (is (= (window-size this) orig-size))
     (resize this large)
-    ;; (is (= (:height (size this)) (:height orig-size)))
+    ;; (is (= (:height (window-size this)) (:height orig-size)))
     ))
 
 (defn test-window-position
@@ -70,8 +70,8 @@
 
 (defn test-window-maximizing
   [this]
-  (let [orig-size (size (resize this {:width 300 :height 300}))
-        max-size (size (maximize this))]
+  (let [orig-size (window-size (resize this {:width 300 :height 300}))
+        max-size (window-size (maximize this))]
     ;; (is (> (:width max-size) (:width orig-size)))
     ;; (is (> (:height max-size) (:height orig-size)))
     ))

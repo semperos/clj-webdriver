@@ -5,7 +5,7 @@
             [clojure.java.io :as io]
             [clojure.tools.logging :as log]
             [webdriver.firefox :as ff]
-            [webdriver.test.helpers :refer [base-url start-system! stop-system!]])
+            [webdriver.test.helpers :refer [*base-url* start-system! stop-system!]])
   (:import org.openqa.selenium.WebDriver))
 
 ;; Driver definitions
@@ -17,7 +17,7 @@
   (when-not @firefox-driver
     (reset! firefox-driver
             (new-webdriver {:browser :firefox})))
-  (to @firefox-driver base-url)
+  (to @firefox-driver *base-url*)
   (f))
 
 (defn quit-browser

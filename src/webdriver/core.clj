@@ -239,12 +239,6 @@
                           ^String phantomjs-executable)))
       (.newInstance ^Constructor phantomjs-driver-ctor (into-array java.lang.Object [caps])))))
 
-(defn desired-capabilities
-  ([m] (desired-capabilities (DesiredCapabilities.) m))
-  ([^DesiredCapabilities capabilities m]
-   (doseq [[^String k v] (java-keys m)]
-     (.setCapability capabilities k v))))
-
 ;; Borrowed from core Clojure
 (defmacro with-driver
   "Given a binding to `WebDriver`, make that binding available in `body` and ensure `quit` is called on it at the end."

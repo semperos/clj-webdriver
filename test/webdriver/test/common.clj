@@ -1,6 +1,7 @@
 ;; Namespace with implementations of test cases
 (ns webdriver.test.common
   (:require [clojure.test :refer :all]
+            [clojure.string :refer [lower-case]]
             [clojure.java.io :as io]
             [clojure.tools.logging :as log]
             [webdriver.test.helpers :refer :all]
@@ -17,7 +18,7 @@
 (defn browser-basics
   [driver]
   (is (instance? WebDriver driver))
-  (is (= base-url (current-url driver)))
+  (is (= *base-url* (current-url driver)))
   (is (= "Ministache" (title driver)))
   (is (boolean (re-find #"(?i)html>" (page-source driver)))))
 
@@ -26,17 +27,17 @@
   (-> driver
       (find-element {:tag :a, :text "example form"})
       click)
-  (wait-until driver (fn [d] (= (str base-url "example-form") (current-url d))))
-  (is (= (str base-url "example-form") (current-url driver)))
+  (wait-until driver (fn [d] (= (str *base-url* "example-form") (current-url d))))
+  (is (= (str *base-url* "example-form") (current-url driver)))
   (back driver)
-  (is (= base-url (current-url driver)))
+  (is (= *base-url* (current-url driver)))
   (forward driver)
-  (is (= (str base-url "example-form") (current-url driver))))
+  (is (= (str *base-url* "example-form") (current-url driver))))
 
 (defn to-should-open-given-url-in-browser
   [driver]
-  (to driver (str base-url "example-form"))
-  (is (= (str base-url "example-form") (current-url driver)))
+  (to driver (str *base-url* "example-form"))
+  (is (= (str *base-url* "example-form") (current-url driver)))
   (is (= "Ministache" (title driver))))
 
 (defn should-be-able-to-find-element-bys-using-low-level-by-wrappers
@@ -69,7 +70,7 @@
          (attribute (find-element-by driver (by-attr-ends :option :value "_media")) :value)))
   (is (= "france"
          (attribute (find-element-by driver (by-has-attr :option :value)) :value)))
-  (to driver base-url)
+  (to driver *base-url*)
   (is (= "first odd"
          (attribute (find-element-by driver (by-class-name "first odd")) :class))))
 
@@ -222,21 +223,21 @@
 (defn find-table-cell-should-find-cell-with-coords
   [driver]
   (is (= "th"
-         (.toLowerCase (tag (find-table-cell driver
-                                             (find-element driver {:id "pages-table"})
-                                             [0 0])))))
+         (lower-case (tag (find-table-cell driver
+                                           (find-element driver {:id "pages-table"})
+                                           [0 0])))))
   (is (= "th"
-         (.toLowerCase (tag (find-table-cell driver
-                                             (find-element driver {:id "pages-table"})
-                                             [0 1])))))
+         (lower-case (tag (find-table-cell driver
+                                           (find-element driver {:id "pages-table"})
+                                           [0 1])))))
   (is (= "td"
-         (.toLowerCase (tag (find-table-cell driver
-                                             (find-element driver {:id "pages-table"})
-                                             [1 0])))))
+         (lower-case (tag (find-table-cell driver
+                                           (find-element driver {:id "pages-table"})
+                                           [1 0])))))
   (is (= "td"
-         (.toLowerCase (tag (find-table-cell driver
-                                             (find-element driver {:id "pages-table"})
-                                             [1 1]))))))
+         (lower-case (tag (find-table-cell driver
+                                           (find-element driver {:id "pages-table"})
+                                           [1 1]))))))
 
 (defn find-table-row-should-find-all-cells-for-row
   [driver]
@@ -245,17 +246,17 @@
                                 (find-element driver {:id "pages-table"})
                                 0))))
   (is (= "th"
-         (.toLowerCase (tag (first (find-table-row driver
+         (lower-case (tag (first (find-table-row driver
                                                    (find-element driver {:id "pages-table"})
                                                    0))))))
   (is (= "td"
-         (.toLowerCase (tag (first (find-table-row driver
+         (lower-case (tag (first (find-table-row driver
                                                    (find-element driver {:id "pages-table"})
                                                    1)))))))
 
 (defn form-elements
   [driver]
-  (to driver (str base-url "example-form"))
+  (to driver (str *base-url* "example-form"))
   ;; Clear element
   ;; (-> driver
   ;;     (find-element [{:tag :form, :id "example_form"}, {:tag :input, :name #"last_"}])
@@ -330,7 +331,7 @@
 
 (defn select-element-functions-should-behave-as-expected
   [driver]
-  (to driver (str base-url "example-form"))
+  (to driver (str *base-url* "example-form"))
   (let [select-el (find-element driver {:tag "select", :id "countries"})]
     (is (= 4
            (count (all-options select-el))))
@@ -431,7 +432,7 @@
 
 (defn quick-fill-should-accept-special-seq-and-perform-batch-actions-on-form
   [driver]
-  (to driver (str base-url "example-form"))
+  (to driver (str *base-url* "example-form"))
   (quick-fill driver
               [{"first_name" clear}
                {"first_name" "Richard"}
@@ -454,7 +455,7 @@
 
 (defn quick-fill-submit-should-always-return-nil
   [driver]
-  (to driver (str base-url "example-form"))
+  (to driver (str *base-url* "example-form"))
   (is (nil?
        (quick-fill-submit driver
                           [{"first_name" clear}
@@ -482,13 +483,13 @@
       (is (= (count (window-handles driver))
              2))
       (switch-to-window driver window-1)
-      (is (= (str base-url "clojure")
+      (is (= (str *base-url* "clojure")
              (current-url driver)))
       (switch-to-other-window driver)
-      (is (= base-url (current-url driver)))
+      (is (= *base-url* (current-url driver)))
       (switch-to-other-window driver)
       (close driver)
-      (= base-url (current-url driver)))))
+      (= *base-url* (current-url driver)))))
 
 (defn alert-dialog-handling
   [driver]
@@ -591,7 +592,7 @@
 ;;; Fixture fn's ;;;
 (defn reset-driver
   [driver]
-  (to driver base-url))
+  (to driver *base-url*))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;                       ;;;
@@ -629,15 +630,21 @@
                    #'flash-helper
                    #'take-screenshot])
 
+(defn defcommontests*
+  ([prefix driver] (defcommontests* prefix webdriver.test.helpers/*base-url* driver))
+  ([prefix url driver]
+   (let [test-names (mapv #(symbol (str prefix (:name (meta %)))) common-tests)
+         ts (mapv (fn [v n]
+                    `(deftest ~n
+                       (binding [webdriver.test.helpers/*base-url* ~url]
+                         (~v ~driver))))
+                  common-tests test-names)]
+     `(do
+        ~@ts))))
+
 (defmacro defcommontests
   "This can be run from within another namespace to have this suite defined and run there. This gives a separate deftest for each test, which makes it much easier to understand what broke, and run individual tests within those namespaces more easily."
-  [prefix driver]
-  (let [test-names (mapv #(symbol (str prefix (:name (meta %)))) common-tests)
-        ts (mapv (fn [v n]
-                   `(deftest ~n
-                      (~v ~driver)))
-                 common-tests test-names)]
-    `(do
-       ~@ts)))
+  [& args]
+  (apply defcommontests* args))
 
 (def alert-tests [#'alert-dialog-handling])
