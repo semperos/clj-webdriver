@@ -476,20 +476,20 @@
         (find-element {:tag :a, :text "is amazing!"})
         click)
     (wait-until driver (fn [d] (immortal (= "Ministache" (title d)))))
-    (let [window-2 (window-handle driver)]
-      (println "Handles!!" (window-handles driver))
+    (let [window-2 (first (disj (window-handles driver) window-1))]
       (is (= (count (window-handles driver))
              2))
       (is (not= window-1 window-2))
       (is (= (title driver)
              "Ministache"))
-      (switch-to-window driver window-1)
+      (switch-to-window driver window-2)
       (is (= (str *base-url* "clojure")
              (current-url driver)))
       (switch-to-other-window driver)
       (is (= *base-url* (current-url driver)))
       (switch-to-other-window driver)
       (close driver)
+      (switch-to-window driver (first (window-handles driver)))
       (= *base-url* (current-url driver)))))
 
 (defn alert-dialog-handling
