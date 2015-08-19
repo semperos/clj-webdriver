@@ -1,10 +1,9 @@
-(ns ^:chrome clj-webdriver.chrome-test
+(ns ^:chrome webdriver.chrome-test
   (:require [clojure.test :refer :all]
             [clojure.tools.logging :as log]
-            [clj-webdriver.test.helpers :refer :all]
-            [clj-webdriver.core :refer [start new-driver to quit]]
-            [clj-webdriver.driver :refer [init-driver]]
-            [clj-webdriver.test.common :as c])
+            [webdriver.test.helpers :refer :all]
+            [webdriver.core :refer [new-webdriver to quit]]
+            [webdriver.test.common :as c])
   (:import org.openqa.selenium.remote.DesiredCapabilities
            org.openqa.selenium.chrome.ChromeDriver))
 
@@ -17,8 +16,8 @@
   [f]
   (when-not @chrome-driver
     (reset! chrome-driver
-            (new-driver {:browser :chrome})))
-  (to @chrome-driver base-url)
+            (new-webdriver {:browser :chrome})))
+  (to @chrome-driver *base-url*)
   (f))
 
 (defn quit-browser

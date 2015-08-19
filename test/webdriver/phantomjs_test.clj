@@ -1,10 +1,9 @@
-(ns clj-webdriver.phantomjs-test
+(ns webdriver.phantomjs-test
   (:require [clojure.tools.logging :as log]
             [clojure.test :refer :all]
-            [clj-webdriver.core :refer [start new-driver to quit]]
-            [clj-webdriver.driver :refer [init-driver]]
-            [clj-webdriver.test.common :refer [defcommontests]]
-            [clj-webdriver.test.helpers :refer [base-url start-system! stop-system!]])
+            [webdriver.core :refer [new-webdriver to quit]]
+            [webdriver.test.common :refer [defcommontests]]
+            [webdriver.test.helpers :refer [*base-url* start-system! stop-system!]])
   (:import org.openqa.selenium.remote.DesiredCapabilities))
 
 (log/debug "The PhantomJS driver requires a separate download. See https://github.com/detro/ghostdriver for more information if PhantomJS fails to start.")
@@ -15,8 +14,8 @@
   [f]
   (when-not @phantomjs-driver
     (reset! phantomjs-driver
-            (new-driver {:browser :phantomjs})))
-  (to @phantomjs-driver base-url)
+            (new-webdriver {:browser :phantomjs})))
+  (to @phantomjs-driver *base-url*)
   (f))
 
 (defn quit-browser

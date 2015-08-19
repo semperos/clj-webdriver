@@ -12,34 +12,30 @@
 ;; point for this project and many of the low-level wrappers around the
 ;; WebDriver API.
 ;;
-(ns clj-webdriver.core
-  (:use [clj-webdriver driver element util options cookie]
-        [clojure.walk :only [keywordize-keys]])
-  (:require [clj-webdriver.js.browserbot :as browserbot-js]
-            [clj-webdriver.firefox :as ff]
-            [clj-webdriver.window :as win]
-            clj-webdriver.driver
+(ns webdriver.core
+  (:require [clojure.string :as string]
+            [clojure.walk :refer [keywordize-keys]]
             [clojure.java.io :as io]
-            [clojure.string :as string]
-            [clojure.tools.logging :as log])
-  (:import java.lang.reflect.Constructor
-           [org.openqa.selenium By WebDriver WebElement
-                                OutputType NoSuchElementException Keys]
-           org.openqa.selenium.firefox.FirefoxDriver
-           org.openqa.selenium.ie.InternetExplorerDriver
+            [clojure.tools.logging :as log]
+            [webdriver.js.browserbot :as browserbot-js]
+            [webdriver.firefox :as ff]
+            [webdriver.util :refer :all])
+  (:import
+           [java.lang.reflect Constructor Field]
+           java.util.concurrent.TimeUnit
+           [org.openqa.selenium By Capabilities Dimension Keys NoSuchElementException OutputType Point TakesScreenshot WebDriver WebElement WebDriver$Window]
            org.openqa.selenium.chrome.ChromeDriver
+           [org.openqa.selenium.firefox FirefoxDriver FirefoxProfile]
            org.openqa.selenium.htmlunit.HtmlUnitDriver
-           org.openqa.selenium.support.ui.Select
+           org.openqa.selenium.ie.InternetExplorerDriver
            [org.openqa.selenium.interactions Actions CompositeAction]
-           org.openqa.selenium.Capabilities
-           org.openqa.selenium.remote.DesiredCapabilities
-           clj_webdriver.driver.Driver
-           clj_webdriver.element.Element
-))
+           [org.openqa.selenium.internal Locatable WrapsDriver]
+           [org.openqa.selenium.remote DesiredCapabilities RemoteWebDriver]
+           [org.openqa.selenium.support.ui ExpectedCondition Select WebDriverWait]))
 
-;; ## Protocols for clj-webdriver API ##
+;; ## Protocols for webdriver API ##
 
-;; ### Driver/Browser Functions ###
+;; ### WebDriver Functions ###
 (defprotocol IDriver
   "Basics of driver handling"
   (back [driver] "Go back to the previous page in \"browsing history\"")
@@ -57,14 +53,40 @@
 ;; ### Windows and Frames ###
 (defprotocol ITargetLocator
   "Functions that deal with browser windows and frames"
-  (window [driver] "Get the only (or first) window")
-  (windows [driver] "Retrieve a vector of `Window` records which can be used to switch to particular open windows")
-  (other-windows [driver] "Retrieve window handles for all windows except the current one")
-  (switch-to-frame [driver frame] "Switch focus to a particular HTML frame by supplying an `Element` or an integer for the nth frame on the page (zero-based index)")
+  (window [driver] "Get the only (or first) window object. This is different from the string window handles that most of Selenium-WebDriver's API expects.")
+  (window-handle [driver] "Retrieve this driver's window handle (defaults to only or active window).")
+  (window-handles [driver] "Retrieve a vector of `Window` records which can be used to switch to particular open windows")
+  (other-window-handles [driver] "Retrieve window handles for all windows except the current one")
+  (switch-to-frame [driver frame] "Switch focus to a particular HTML frame by supplying a `WebElement` or an integer for the nth frame on the page (zero-based index)")
   (switch-to-window [driver handle] "Switch focus to a particular open window")
   (switch-to-other-window [driver] "Given that two and only two browser windows are open, switch to the one not currently active")
   (switch-to-default [driver] "Switch focus to the first first frame of the page, or the main document if the page contains iframes")
   (switch-to-active [driver] "Switch to element that currently has focus, or to the body if this cannot be detected"))
+
+(defprotocol IWait
+  "Implicit and explicit waiting"
+  (implicit-wait [wd timeout] "Specify the amount of time the WebDriver should wait when searching for an element if it is not immediately present. This setting holds for the lifetime of the driver across all requests. Units in milliseconds.")
+  (wait-until
+    [wd pred]
+    [wd pred timeout]
+    [wd pred timeout interval] "Set an explicit wait time `timeout` for a particular condition `pred`. Optionally set an `interval` for testing the given predicate. All units in milliseconds"))
+
+(defprotocol IWindow
+  "Functions to manage browser size and position."
+  (maximize [this] "Maximizes the current window to fit screen if it is not already maximized. Returns driver or window.")
+  (position [this] "Returns map of X Y coordinates ex. {:x 1 :y 3} relative to the upper left corner of screen.")
+  (reposition [this coordinates-map] "Excepts map of X Y coordinates ex. {:x 1 :y 3} repositioning current window relative to screen. Returns driver or window.")
+  (resize [this dimensions-map] "Resize the driver window with a map of width and height ex. {:width 480 :height 800}. Returns driver or window.")
+  (window-size [this] "Get size of current window. Returns a map of width and height ex. {:width 480 :height 800}"))
+
+(defprotocol IOptions
+  "Options interface, including cookie and timeout handling"
+  (add-cookie [driver cookie] "Add a new cookie to the browser session")
+  (delete-cookie-named [driver cookie-name] "Delete a cookie given its name")
+  (delete-cookie [driver cookie] "Delete a cookie given a cookie instance")
+  (delete-all-cookies [driver] "Delete all cookies defined in the current session")
+  (cookies [driver] "Retrieve a set of cookies defined in the current session")
+  (cookie-named [driver cookie-name] "Retrieve a cookie object given its name"))
 
 ;; ### Alert Popups ###
 (defprotocol IAlert
@@ -80,11 +102,9 @@
   "Functions used to locate elements on a given page"
   (find-element-by [this by] "Retrieve the element object of an element described by `by`, optionally limited to elements beneath a parent element (depends on dispatch). Prefer `find-element` to this function unless you know what you're doing.")
   (find-elements-by [this by] "Retrieve a seq of element objects described by `by`, optionally limited to elements beneath a parent element (depends on dispatch). Prefer `find-elements` to this function unless you know what you're doing.")
-  (find-windows [driver attr-val] "Given a browser `driver` and a map of attributes, return the windows that match")
-  (find-window [driver attr-val] "Given a browser `driver` and a map of attributes, return the windows that match")
   (find-table-cell [driver table coordinates] "Given a `driver`, a `table` element, and a zero-based set of coordinates for row and column, return the table cell at those coordinates for the given table.")
   (find-table-row [driver table row-index] "Return all cells in the row of the given table element, `row-index` as a zero-based index of the target row.")
-  (find-by-hierarchy [driver hierarchy-vector] "Given a Webdriver `driver` and a vector `hierarchy-vector`, return a lazy seq of the described elements in the hierarchy dictated by the order of elements in the `hierarchy-vector`.")
+  (find-by-hierarchy [driver hierarchy-vector] "Given a Webdriver `driver` and a vector `hierarchy-vector`, return a sequence of the described elements in the hierarchy dictated by the order of elements in the `hierarchy-vector`.")
   (find-elements [this locator] "Find all elements that match the parameters supplied in the `attr-val` map. Also provides a shortcut to `find-by-hierarchy` if a vector is supplied instead of a map.")
   (find-element [this locator] "Call (first (find-elements args))"))
 
@@ -100,10 +120,10 @@
   (focus [element] "Apply focus to the given element")
   (html [element] "Retrieve the outer HTML of an element")
   (intersects? [element-a element-b] "Return true if `element-a` intersects with `element-b`. This mirrors the Selenium-WebDriver API method, but see the `intersect?` function to compare an element against multiple other elements for intersection.")
-  (location [element] "Given an element object, return its location as a map of its x/y coordinates")
-  (location-once-visible [element] "Given an element object, return its location on the screen once it is scrolled into view as a map of its x/y coordinates. The window will scroll as much as possible until the element hits the top of the page; thus even visible elements will be scrolled until they reach that point.")
+  (location-on-page [element] "Given an element object, return its absolute location as a map of its x/y coordinates with the top-left of the page as origin.")
+  (location-in-viewport [element] "Given an element object, return its relative location as a map of its x/y coordinates based on where the element is in the viewport, or once it has been scrolled into view.")
   (present? [element] "Returns true if the element exists and is visible")
-  (size [element] "Return the size of the given `element` as a map containing `:width` and `:height` values in pixels.")
+  (element-size [element] "Return the size of the given `element` as a map containing `:width` and `:height` values in pixels.")
   (tag [element] "Retrieve the name of the HTML tag of the given element object (returned as a keyword)")
   (text [element] "Retrieve the content, or inner HTML, of a given element object")
   (value [element] "Retrieve the `value` attribute of the given element object")
@@ -166,8 +186,7 @@
     [this]
     [this element] "Release the left mouse button, either at the current mouse position or in the middle of the given `element`."))
 
-
-;; ## Starting Driver/Browser ##
+;; ## Starting Browser ##
 (def ^{:doc "Map of keywords to available WebDriver classes."}
   webdriver-drivers
   {:firefox FirefoxDriver
@@ -189,82 +208,46 @@
 
 (defmethod new-webdriver :default
   [{:keys [browser]}]
-  ;; Allow driver classes unknown to this library as a fallback
-  (.newInstance (or (browser webdriver-drivers) browser)))
+  (let [^Class klass (or (browser webdriver-drivers) browser)]
+    (.newInstance
+     (.getConstructor klass (into-array Class []))
+     (into-array Object []))))
 
 (defmethod new-webdriver :firefox
-  [{:keys [browser profile]}]
+  [{:keys [browser ^FirefoxProfile profile]}]
   (if profile
     (FirefoxDriver. profile)
     (FirefoxDriver.)))
 
 (defmethod new-webdriver :phantomjs
-  [{:keys [javascript-enabled? phantomjs-executable takes-screenshot?] :as browser-spec}]
+  [{:keys [phantomjs-executable] :as browser-spec}]
   (if-not phantomjs-enabled?
     (throw (RuntimeException. "You do not have the PhantomJS JAR's on the classpath. Please add com.codeborne/phantomjsdriver version 1.2.1 with exclusions for org.seleniumhq.selenium/selenium-java and any other org.seleniumhq.selenium JAR's your code relies on."))
     (let [caps (DesiredCapabilities.)
           klass (Class/forName "org.openqa.selenium.phantomjs.PhantomJSDriver")
           ;; Second constructor takes single argument of Capabilities
           ctors (into [] (.getDeclaredConstructors klass))
-          ctor-sig (fn [ctor]
+          ctor-sig (fn [^Constructor ctor]
                      (let [param-types (.getParameterTypes ctor)]
-                       (and (= (alength param-types) 1)
-                            (= Capabilities (aget param-types 0)))))
+                         (and (= (alength param-types) 1)
+                              (= Capabilities (aget param-types 0)))))
           phantomjs-driver-ctor (first (filterv ctor-sig ctors))]
-      ;; Default is true
-      (when-not javascript-enabled?
-        (.setJavascriptEnabled caps false))
-      (when takes-screenshot?
-        (.setCapability caps "takesScreenshot" true))
       ;; Seems to be able to find it if on PATH by default, like Chrome's driver
       (when phantomjs-executable
         (let [klass (Class/forName "org.openqa.selenium.phantomjs.PhantomJSDriverService")
               field (.getField klass "PHANTOMJS_EXECUTABLE_PATH_PROPERTY")]
-          (.setCapability caps
-                          (.get field klass)
-                          phantomjs-executable)))
-      (.newInstance phantomjs-driver-ctor (into-array java.lang.Object [caps]))
-)))
-
-(defn new-driver
-  "Start a new Driver instance. The `browser-spec` can include `:browser`, and `:profile` keys.
-
-   The `:browser` can be one of `:firefox`, `:ie`, `:chrome`, `:phantomjs` or `:htmlunit`.
-   The `:profile` should be an instance of FirefoxProfile you wish to use."
-  ([browser-spec]
-   (let [{:keys [browser profile] :or {browser :firefox
-                                       profile nil}} browser-spec]
-     (init-driver {:webdriver (new-webdriver (merge {:browser browser
-                                                     :profile profile}
-                                                    browser-spec))}))))
-
-;; Chrome binary, common location of Chromium on Linux
-(comment
-  (do
-    (import 'org.openqa.selenium.remote.DesiredCapabilities)
-    (let [cap (DesiredCapabilities/chrome)]
-      (.setCapability cap "chrome.binary" "/usr/lib/chromium-browser/chromium-browser")
-      (init-driver (ChromeDriver. cap))))
-)
-
-(defn start
-  "Shortcut to instantiate a driver, navigate to a URL, and return the driver for further use"
-  ([browser-spec url]
-     (let [driver (new-driver browser-spec)]
-       (get-url driver url)
-       driver)))
+          (.setCapability ^DesiredCapabilities caps
+                          ^String (.get field klass)
+                          ^String phantomjs-executable)))
+      (.newInstance ^Constructor phantomjs-driver-ctor (into-array java.lang.Object [caps])))))
 
 ;; Borrowed from core Clojure
 (defmacro with-driver
-  "bindings => [name init ...]
-
-  Evaluates body in a try expression with names bound to the values
-  of the inits, and a finally clause that calls (.close name) on each
-  name in reverse order."
+  "Given a binding to `WebDriver`, make that binding available in `body` and ensure `quit` is called on it at the end."
   [bindings & body]
   (assert-args
-     (vector? bindings) "a vector for its binding"
-     (even? (count bindings)) "an even number of forms in binding vector")
+   (vector? bindings) "a vector for its binding"
+   (even? (count bindings)) "an even number of forms in binding vector")
   (cond
     (zero? (count bindings)) `(do ~@body)
     (symbol? (bindings 0)) `(let ~(subvec bindings 0 2)
@@ -273,93 +256,11 @@
                                 (finally
                                   (quit ~(bindings 0)))))
     :else (throw (IllegalArgumentException.
-                   "with-driver only allows Symbols in bindings"))))
-
-;; alias for with-driver
-(defmacro with-browser
-  "Alias for with-driver
-
-  bindings => [name init ...]
-
-  Evaluates body in a try expression with names bound to the values
-  of the inits, and a finally clause that calls (.close name) on each
-  name in reverse order."
-  [& args]
-  `(with-driver ~@args))
-
-;; These are used in the implementation of higher-level window functions
-(defn window-handle*
-  "For WebDriver API compatibility: this simply wraps `.getWindowHandle`"
-  [driver]
-  (.getWindowHandle driver))
-
-(defn window-handles*
-  "For WebDriver API compatibility: this simply wraps `.getWindowHandles`"
-  [driver]
-  (lazy-seq (.getWindowHandles driver)))
-
-(defn other-window-handles*
-  "For consistency with other window handling functions, this starred version just returns the string-based ID's that WebDriver produces"
-  [driver]
-  (remove #(= % (window-handle* driver))
-          (doall (window-handles* driver))))
+                  "with-driver only allows symbols in bindings"))))
 
 (load "core_by")
-
-;; ##  Actions on WebElements ##
-(declare execute-script)
-(declare execute-script*)
-(defn- browserbot
-  [driver fn-name & arguments]
-  (let [script (str browserbot-js/script
-                    "return browserbot."
-                    fn-name
-                    ".apply(browserbot, arguments)")
-        execute-js-fn (partial execute-script* driver script)]
-    (apply execute-js-fn arguments)))
-
-;; Implementations of the above IElement and IFormElement protocols
 (load "core_element")
-
-;; Key codes for non-representable keys
-(defn key-code
-  "Representations of pressable keys that aren't text. These are stored in the Unicode PUA (Private Use Area) code points, 0xE000-0xF8FF. Refer to http://www.google.com.au/search?&q=unicode+pua&btnG=Search"
-  [k]
-  (Keys/valueOf (.toUpperCase (name k))))
-
-;; ## JavaScript Execution ##
-(defn execute-script
-  [driver js & js-args]
-  (.executeScript (:webdriver driver) js (to-array js-args)))
-
-(defn execute-script*
-  "Version of execute-script that uses a WebDriver instance directly."
-  [driver js & js-args]
-  (.executeScript driver js (to-array js-args)))
-
+(load "core_wait")
 (load "core_driver")
-
-;; TODO: test coverage
-(defmacro ->build-composite-action
-  "Create a composite chain of actions, then call `.build()`. This does **not** execute the actions; it simply sets up an 'action chain' which can later by executed using `.perform()`.
-
-   Unless you need to wait to execute your composite actions, you should prefer `->actions` to this macro."
-  [driver & body]
-  `(let [acts# (doto (:actions ~driver)
-                 ~@body)]
-     (.build acts#)))
-
-;; TODO: test coverage
-(defmacro ->actions
-  [driver & body]
-  `(let [act# (:actions ~driver)]
-     (doto act#
-       ~@body
-       .perform)
-     ~driver))
-
-;; e.g.
-;; Action dragAndDrop = builder.clickAndHold(someElement)
-;;       .moveToElement(otherElement)
-;;       .release(otherElement)
-;;       .build()
+(load "core_window")
+(load "core_actions")

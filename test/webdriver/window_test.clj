@@ -1,9 +1,8 @@
-(ns clj-webdriver.window-test
+(ns webdriver.window-test
   "This namespace exercises Window manipulation code, but does not currently sport assertions. Attempts to do so over the years have resulted in non-deterministic test results. A fresh stab will be taken."
   (:require [clojure.test :refer :all]
-            [clj-webdriver.window :refer :all]
-            [clj-webdriver.core :refer [new-driver title current-url to quit]]
-            [clj-webdriver.test.helpers :refer :all]))
+            [webdriver.core :refer :all]
+            [webdriver.test.helpers :refer :all]))
 
 (def driver (atom nil))
 
@@ -11,8 +10,8 @@
 (defn restart-browser
   [f]
   (when-not @driver
-    (reset! driver (new-driver {:browser :firefox})))
-  (to @driver base-url)
+    (reset! driver (new-webdriver {:browser :firefox})))
+  (to @driver *base-url*)
   (f))
 
 (defn quit-browser
@@ -28,22 +27,22 @@
   (let [small {:width 500 :height 400}
         large {:width 1024 :height 800}]
     (resize this small)
-    ;; (is (= (size this) small))
+    ;; (is (= (window-size this) small))
     (resize this large)
-    ;; (is (= (size this) large))
+    ;; (is (= (window-size this) large))
     ))
 
 (defn test-window-resize-with-one-dimension
   [this]
-  (let [orig-size (size this)
+  (let [orig-size (window-size this)
         small {:height 400}
         large {:width 1024}]
     (resize this small)
-    ;; (is (= (:width (size this)) (:width orig-size)))
+    ;; (is (= (:width (window-size this)) (:width orig-size)))
     (resize this orig-size)
-    ;; (is (= (size this) orig-size))
+    ;; (is (= (window-size this) orig-size))
     (resize this large)
-    ;; (is (= (:height (size this)) (:height orig-size)))
+    ;; (is (= (:height (window-size this)) (:height orig-size)))
     ))
 
 (defn test-window-position
@@ -71,8 +70,8 @@
 
 (defn test-window-maximizing
   [this]
-  (let [orig-size (size (resize this {:width 300 :height 300}))
-        max-size (size (maximize this))]
+  (let [orig-size (window-size (resize this {:width 300 :height 300}))
+        max-size (window-size (maximize this))]
     ;; (is (> (:width max-size) (:width orig-size)))
     ;; (is (> (:height max-size) (:height orig-size)))
     ))
@@ -90,7 +89,4 @@
   (common-window-tests @driver)
   ;; TODO: better test would be to open two windows
   ;; and pass in the second one here.
-  (common-window-tests (init-window @driver
-                                    (.getWindowHandle (:webdriver @driver))
-                                    (title @driver)
-                                    (current-url @driver))))
+  (common-window-tests (window @driver)))

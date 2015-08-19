@@ -27,43 +27,6 @@ Please see the [Wiki](https://github.com/semperos/clj-webdriver/wiki) for prose 
 
 **Please join the Google group if you use this library.** I regularly post announcements about upcoming releases, and although I ensure all tests are passing and try to maintain good test coverage before releases, user testing is invaluable. Thank you!
 
-## Usage ##
-
-### Quickstart ###
-
-Here's a complete example of how to log into Github, using the high-level Taxi API:
-
-```clj
-(use 'clj-webdriver.taxi)
-
-;; Start up a browser
-(set-driver! {:browser :firefox} "https://github.com")
-
-(click "a[href*='login']")
-
-(input-text "#login_field" "your-username")
-(input-text "#password" "your-password")
-
-(submit "#password")
-(quit)
-```
-
-Forms can be filled out en masse using the `quick-fill-submit` function:
-
-```clj
-(quick-fill-submit {"#login_field" "your-username"}
-                   {"#password" "your-password"}
-                   {"#password" submit})
-```
-
-Please note that the high-level Taxi API is only available in the 0.6.0 release series.
-
-## Documentation ##
-
-For API documentation on the high-level Taxi API (shown above), please [see its wiki page](https://github.com/semperos/clj-webdriver/wiki/Introduction%3A-Taxi).
-
-For reference documentation, run `lein doc` at the root of this repo. For annotated source documentation, run `lein marg`.
-
 ## Contributing ##
 
 The `master` branch of clj-webdriver houses code intended for the next **minor-version release.** If you want to propose new features for the next release, you're welcome to fork, make a topic branch and issue a pull request against the `master` branch.

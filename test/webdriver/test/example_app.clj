@@ -1,4 +1,4 @@
-(ns clj-webdriver.test.example-app
+(ns webdriver.test.example-app
   (:require [clojure.java.io :as io]
             [net.cgrand.moustache :refer [app]]
             [net.cgrand.enlive-html :refer [content defsnippet deftemplate any-node]]
@@ -28,7 +28,7 @@
 (defn static-resource
   [req]
   (when-let [path (:uri req)]
-    (when (.startsWith path "/public")
+    (when (.startsWith ^String  path "/public")
       (response (slurp (io/resource (subs path 1)))))))
 
 (def routes
