@@ -5,7 +5,8 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :min-lein-version "2.0.0"
   :global-vars {*warn-on-reflection* true}
-  :dependencies [[org.clojure/tools.logging "0.2.3"]
+  :dependencies [[org.clojure/algo.monads "0.1.5"]
+                 [org.clojure/tools.logging "0.2.3"]
                  [clj-http "2.0.0"]
                  [cheshire "5.5.0"]
                  [org.mortbay.jetty/jetty "6.1.25"]]
