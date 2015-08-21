@@ -189,6 +189,22 @@ Example:
    :class (.getAttribute element "class")
    :id (.getAttribute element "id")})
 
+(defn parse-selector
+  "Given a string selector for an element, determine if it's XPath or CSS and return a map that `webdriver.core/find-element` will accept."
+  [^String selector]
+  (if (.startsWith selector "/")
+    {:xpath selector}
+    {:css selector}))
+
+(defn ensure-element
+  "Make it possible to pass in a WebElement or a selector that `webdriver.core/find-element` can find."
+  [{:keys [webdriver]} element]
+  (cond
+    (instance? WebElement element) element
+    (map? element) (wd/find-element webdriver element)
+    (string? element) (wd/find-element webdriver (parse-selector element))
+    :else (wd/find-element webdriver element)))
+
 (defn to
   [url]
   (fn [{:keys [webdriver] :as driver}]
@@ -214,7 +230,8 @@ Example:
 
 (defn click [element]
   (fn [driver]
-    (let [value :void
+    (let [element (ensure-element driver element)
+          value :void
           driver (history driver #'click [(->element element)])]
       (wd/click element)
       [value driver])))
@@ -222,7 +239,8 @@ Example:
 
 (defn send-keys [element text]
   (fn [driver]
-    (let [value :void
+    (let [element (ensure-element driver element)
+          value :void
           driver (history driver #'send-keys [(->element element) text])]
       (wd/send-keys element text)
       [value driver])))
@@ -265,4 +283,16 @@ Example:
                :url-b url-b})
         [result final-driver] (test d)]
     [result final-driver])
+
+  ;; String selectors instead of explicit find-element calls
+  (let [test (drive
+              (to "https://github.com")
+              url-a <- (current-url)
+              (click "//a[text()='Sign in']")
+              url-b <- (current-url)
+              (send-keys "input#login_field" "MR.GITHUB")
+              (send-keys "input#password" "WHO KNOWS?")
+              {:url-a url-a
+               :url-b url-b})]
+  (test d))
   )
