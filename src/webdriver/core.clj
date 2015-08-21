@@ -48,7 +48,7 @@
   (quit [driver] "Destroy this browser instance")
   (refresh [driver] "Refresh the current page")
   (title [driver] "Retrieve the title of the current page as defined in the `head` tag")
-  (to [driver url] "Navigate to a particular URL. Arg `url` can be either String or java.net.URL. Equivalent to the `get` function, provided here for compatibility with WebDriver API."))
+  (to [driver url] "Navigate to a particular URL. Arg `url` can be either String or java.net.URL. Equivalent to the `get-url` function, provided here for compatibility with WebDriver API."))
 
 ;; ### Windows and Frames ###
 (defprotocol ITargetLocator
