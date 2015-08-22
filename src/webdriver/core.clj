@@ -220,7 +220,7 @@
     (FirefoxDriver.)))
 
 (defmethod new-webdriver :phantomjs
-  [{:keys [phantomjs-executable] :as browser-spec}]
+  [{:keys [phantomjs-executable phantomjs-cli-args] :as browser-spec}]
   (if-not phantomjs-enabled?
     (throw (RuntimeException. "You do not have the PhantomJS JAR's on the classpath. Please add com.codeborne/phantomjsdriver version 1.2.1 with exclusions for org.seleniumhq.selenium/selenium-java and any other org.seleniumhq.selenium JAR's your code relies on."))
     (let [caps (DesiredCapabilities.)
@@ -239,6 +239,10 @@
           (.setCapability ^DesiredCapabilities caps
                           ^String (.get field klass)
                           ^String phantomjs-executable)))
+      (when phantomjs-cli-args
+        (.setCapability ^DesiredCapabilities caps
+                        "phantomjs.cli.args"
+                        (into-array String phantomjs-cli-args)))
       (.newInstance ^Constructor phantomjs-driver-ctor (into-array java.lang.Object [caps])))))
 
 ;; Borrowed from core Clojure
