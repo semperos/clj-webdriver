@@ -2,7 +2,8 @@
   "This namespace exercises Window manipulation code, but does not currently sport assertions. Attempts to do so over the years have resulted in non-deterministic test results. A fresh stab will be taken."
   (:require [clojure.test :refer :all]
             [webdriver.core :refer :all]
-            [webdriver.test.helpers :refer :all]))
+            [webdriver.test.helpers :refer :all])
+  (:import org.openqa.selenium.firefox.FirefoxDriver))
 
 (def driver (atom nil))
 
@@ -10,7 +11,7 @@
 (defn restart-browser
   [f]
   (when-not @driver
-    (reset! driver (new-webdriver {:browser :firefox})))
+    (reset! driver (FirefoxDriver.)))
   (to @driver *base-url*)
   (f))
 

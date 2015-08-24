@@ -1,12 +1,13 @@
 (ns webdriver.firefox-test
   (:require [clojure.test :refer :all]
-            [webdriver.core :refer [new-webdriver current-url find-element find-elements quit get-screenshot attribute to with-driver]]
+            [webdriver.core :refer [current-url find-element find-elements quit get-screenshot attribute to with-driver]]
             [webdriver.test.common :as c]
             [clojure.java.io :as io]
             [clojure.tools.logging :as log]
             [webdriver.firefox :as ff]
             [webdriver.test.helpers :refer [*base-url* start-system! stop-system!]])
-  (:import org.openqa.selenium.WebDriver))
+  (:import org.openqa.selenium.WebDriver
+           org.openqa.selenium.firefox.FirefoxDriver))
 
 ;; Driver definitions
 (def firefox-driver (atom nil))
@@ -16,7 +17,7 @@
   [f]
   (when-not @firefox-driver
     (reset! firefox-driver
-            (new-webdriver {:browser :firefox})))
+            (FirefoxDriver.)))
   (to @firefox-driver *base-url*)
   (f))
 
@@ -39,7 +40,6 @@
 ;; Firefox-specific Functionality
 
 (deftest firefox-should-support-custom-profiles
-  (is (with-driver [tmp-dr (new-webdriver {:browser :firefox
-                                           :profile (ff/new-profile)})]
+  (is (with-driver [tmp-dr (FirefoxDriver. (ff/new-profile))]
         (log/info "[x] Starting Firefox with custom profile.")
         (instance? WebDriver tmp-dr))))
