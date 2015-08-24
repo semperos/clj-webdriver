@@ -375,24 +375,27 @@
   IActions
   (perform [comp-act] (.perform comp-act)))
 
-(defn find-element* [wd attr-val]
-  (first (find-elements wd attr-val)))
+(defn find-element* [wd selector]
+  (first (find-elements wd selector)))
 
-(defn find-elements* [wd attr-val]
-  (when (seq attr-val)
+(defn find-elements* [wd selector]
+  (when (seq selector)
     (try
       (cond
-        ;; Accept by-clauses
-        (instance? By attr-val)
-        (find-elements-by wd attr-val)
+        ;; Identity
+        (instance? WebElement selector)
+        selector
 
-        ;; Accept vectors for hierarchical queries
-        (vector? attr-val)
-        (find-by-hierarchy wd attr-val)
+        (instance? By selector)
+        (find-elements-by wd selector)
+
+        ;; Hierarchical queries
+        (vector? selector)
+        (find-by-hierarchy wd selector)
 
         ;; Build CSS/XPath dynamically
         :else
-        (find-elements-by wd (by-query (build-query attr-val))))
+        (find-elements-by wd (by-query (build-query selector))))
       (catch org.openqa.selenium.NoSuchElementException e
         ;; NoSuchElementException caught here to mimic Clojure behavior like
         ;; (get {:foo "bar"} :baz) since the page can be thought of as a kind of associative
