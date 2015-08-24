@@ -102,8 +102,6 @@
                                           (build-css-attrs attr-val)))]
                      {:css query-str}))))))))
 
-
-
 (defn contains-regex?
   "Checks if the values of a map contain a regex"
   [m]
