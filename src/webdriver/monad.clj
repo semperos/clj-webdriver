@@ -9,13 +9,40 @@
             [clojure.string :refer [join]]
             [webdriver.core :as wd])
   (:import clojure.lang.ExceptionInfo
-           [org.openqa.selenium WebDriver WebElement]
-           org.openqa.selenium.firefox.FirefoxDriver))
+           [org.openqa.selenium WebDriver WebElement]))
+
+(defn ensure-webdriver
+  "Accept either a map with `:webdriver` or assume the thing is a WebDriver."
+  [driver]
+  (if (instance? WebDriver driver)
+    driver
+    (:webdriver driver)))
+
+(declare wait-element)
+(defn ensure-element
+  "Make it possible to pass in a WebElement or a selector that `webdriver.core/find-element` can find."
+  [{:keys [webdriver] :as driver} selector]
+  (cond
+    (instance? WebElement selector) selector
+    (:wait? driver) (wait-element driver selector)
+    ;; TODO these raw wd/find-element calls likely need to be in the wait-until function
+    :else (wd/find-element webdriver selector)))
 
 (defn driver
-  ([^WebDriver webdriver] (driver webdriver true))
-  ([^WebDriver webdriver record-history?]
-   (cond-> {:webdriver webdriver}
+  "This is the base state for the WebDriver monads. It includes an entry for the underlying WebDriver object that does the heavy lifting, as well as configuration options for various features inside the monad."
+  ([^WebDriver webdriver] (driver webdriver nil))
+  ([^WebDriver webdriver {:keys [record-history?
+                                 wait?
+                                 wait-pred
+                                 wait-timeout
+                                 wait-interval]
+                          :or [record-history? true
+                               wait? false
+                               wait-pred (fn [driver element] (wd/find-element (ensure-webdriver driver) element))
+                               wait-timeout wd/wait-timeout
+                               wait-interval wd/wait-interval]
+                          :as opts}]
+   (cond-> (assoc opts :webdriver webdriver)
      record-history? (assoc :history []))))
 
 (defmulti format-arg :type)
@@ -167,6 +194,11 @@ Example:
         expr (return-expr steps)]
     `(domonad ~name ~do-steps ~expr)))
 
+(defmacro drive-with
+  "Like `drive` but expects the starting value upfront."
+  [value & steps]
+  `((drive ~@steps) ~value))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Monadic WebDriver API ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -189,53 +221,133 @@ Example:
    :class (.getAttribute element "class")
    :id (.getAttribute element "id")})
 
-(defn parse-selector
-  "Given a string selector for an element, determine if it's XPath or CSS and return a map that `webdriver.core/find-element` will accept."
-  [^String selector]
-  (if (.startsWith selector "/")
-    {:xpath selector}
-    {:css selector}))
+;; TODO Determine if predicate should accept "driver" or WebDriver
+(defn wait-element
+  "Implicitly wait for an element before moving on. Uses Selenium-WebDrivers _explicit_ waiting functionality, but is designed to be configured globally (implicitly) for the driver being used."
+  [{:keys [webdriver wait-pred wait-timeout wait-interval] :as driver} selector]
+  (wd/wait-until webdriver
+                 (fn [_]
+                   (wait-pred driver selector))
+                 wait-timeout
+                 wait-interval))
 
-(defn ensure-element
-  "Make it possible to pass in a WebElement or a selector that `webdriver.core/find-element` can find."
-  [{:keys [webdriver]} element]
-  (cond
-    (instance? WebElement element) element
-    (map? element) (wd/find-element webdriver element)
-    (string? element) (wd/find-element webdriver (parse-selector element))
-    :else (wd/find-element webdriver element)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Essentially three types of WebDriver functions: ;;
+;;                                                 ;;
+;;  1. Driver action for side effects              ;;
+;;  2. Driver action for primitive value           ;;
+;;  3. Driver action for WebElement                ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn copy-docs
+  [var-name]
+  (let [var-here (resolve var-name)
+        var-there (ns-resolve 'webdriver.core var-name)]
+    (alter-meta! var-here assoc :doc (:doc (meta var-there)))))
+
+(defn wait-until
+  "Set an explicit wait time `timeout` for a particular condition `pred`. Optionally set an `interval` for testing the given predicate. All units in milliseconds."
+  ([m-pred] (wait-until m-pred wd/wait-timeout))
+  ([m-pred timeout] (wait-until m-pred timeout wd/wait-interval))
+  ([m-pred timeout interval]
+   (fn [driver]
+     (let [webdriver (ensure-webdriver driver)
+           value :void
+           driver (history driver #'wait-until [pred timeout interval])]
+       ;; (wait-until (fn [_driver_] (find-element "//a[text()='Sign in']")))
+       ;; Two choices:
+       ;;  * I provide monadic equivalents for common predicates like =, >, <, etc.
+       ;;  * I make the user provide additional argument: one raw predicate, one monadic expression
+       (wd/wait-until webdriver
+                      (fn wrapped-predicate [this-driver]
+                        ((m-pred))
+                        ;; (= (current-url) "https://github.com/login")
+                        pred) timeout interval)
+       [value driver]))))
+
+(defn back
+  ([driver] (wd/back (ensure-webdriver driver)))
+  ([]
+   (fn [driver]
+     (let [webdriver (ensure-webdriver driver)
+           value :void
+           driver (history driver #'back)]
+       (wd/back webdriver)
+       [value driver]))))
+(copy-docs 'back)
+
+(defn forward
+  ([driver] (wd/forward (ensure-webdriver driver)))
+  ([]
+   (fn [driver]
+     (let [webdriver (ensure-webdriver driver)
+           value :void
+           driver (history driver #'forward)]
+       (wd/forward webdriver)
+       [value driver]))))
+(copy-docs 'forward)
 
 (defn to
-  [url]
-  (fn [{:keys [webdriver] :as driver}]
-    (let [value :void
-          driver (history driver #'to [url])]
-      (wd/to webdriver url)
-      [value driver])))
-(alter-meta! #'to assoc :doc (:doc (meta #'webdriver.core/to)))
+  ([driver url] (wd/to (ensure-webdriver driver) url))
+  ([url]
+   (fn [driver]
+     (let [webdriver (ensure-webdriver driver)
+           value :void
+           driver (history driver #'to [url])]
+       (wd/to webdriver url)
+       [value driver]))))
+(copy-docs 'to)
 
-(defn current-url []
-  (fn [{:keys [webdriver] :as driver}]
-    (let [value (wd/current-url webdriver)
-          driver (history driver #'current-url)]
-      [value driver])))
-(alter-meta! #'current-url assoc :doc (:doc (meta #'webdriver.core/current-url)))
+(defn current-url
+  ([driver] (wd/current-url (ensure-webdriver driver)))
+  ([]
+   (fn [driver]
+     (let [webdriver (ensure-webdriver driver)
+           value (wd/current-url webdriver)
+           driver (history driver #'current-url)]
+       [value driver]))))
+(copy-docs 'current-url)
 
-(defn find-element [selector]
-  (fn [{:keys [webdriver] :as driver}]
-    (let [value (wd/find-element webdriver selector)
-          driver (history driver #'find-element [selector])]
-      [value driver])))
-(alter-meta! #'find-element assoc :doc (:doc (meta #'webdriver.core/find-element)))
+(defn page-source
+  ([driver] (wd/page-source (ensure-webdriver driver)))
+  ([]
+   (fn [driver]
+     (let [webdriver (ensure-webdriver driver)
+           value (wd/page-source webdriver)
+           driver (history driver #'page-source)]
+       [value driver]))))
+(copy-docs 'page-source)
 
-(defn click [element]
+(defn title
+  ([driver] (wd/title (ensure-webdriver driver)))
+  ([]
+   (fn [driver]
+     (let [webdriver (ensure-webdriver driver)
+           value (wd/title webdriver)
+           driver (history driver #'title)]
+       [value driver]))))
+(copy-docs 'title)
+
+(defn find-element
+  ([driver selector] (wd/find-element (ensure-webdriver driver) selector))
+  ([selector]
+   (fn [driver]
+     (let [webdriver (ensure-webdriver driver)
+           value (wd/find-element webdriver selector)
+           driver (history driver #'find-element [selector])]
+       [value driver]))))
+(copy-docs 'find-element)
+
+;; TODO Figure out non-monadic element-only functions
+(defn click
+  [element]
   (fn [driver]
     (let [element (ensure-element driver element)
           value :void
           driver (history driver #'click [(->element element)])]
       (wd/click element)
       [value driver])))
-(alter-meta! #'click assoc :doc (:doc (meta #'webdriver.core/click)))
+(copy-docs 'click)
 
 (defn send-keys [element text]
   (fn [driver]
@@ -244,12 +356,15 @@ Example:
           driver (history driver #'send-keys [(->element element) text])]
       (wd/send-keys element text)
       [value driver])))
-(alter-meta! #'send-keys assoc :doc (:doc (meta #'webdriver.core/send-keys)))
+(copy-docs 'send-keys)
 
 
 ;; Usage
 (comment
+  (import 'org.openqa.selenium.firefox.FirefoxDriver)
+  ;; Create driver (map of WebDriver and history)
   (def d (driver (FirefoxDriver.)))
+
   ;; Using `domonad`
   (let [test (domonad webdriver-error-m
                       [_ (to "https://github.com")
@@ -280,9 +395,8 @@ Example:
               ;; Can optionally use `(return <form>)`
               ;; or even `return <form>` as in Haskell
               {:url-a url-a
-               :url-b url-b})
-        [result final-driver] (test d)]
-    [result final-driver])
+               :url-b url-b})]
+    (test d))
 
   ;; String selectors instead of explicit find-element calls
   (let [test (drive
