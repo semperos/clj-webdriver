@@ -170,6 +170,12 @@
       (second expr)
       expr)))
 
+(defmacro identity-map
+  "Given symbols, return a map keyed with keywords of those names and values of the values they're bound to. Targeted at final \"return\" of a monadic computation in which multiple things bound during the computation need to be returned."
+  [& syms]
+  (let [pairs (mapv #(vector (keyword %1) %1) syms)]
+    `(into {} ~pairs)))
+
 (defmacro drive-in
   "No, not a movie theater. Drive the browser within the given monad. Uses `domonad` under the covers."
   [name & steps]
@@ -236,7 +242,16 @@ Example:
 ;;  3. Driver action for WebElement                ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defmacro defalias
+  "Alias a var from one namespace here, copying both :doc and :arglists metadata."
+  [alias source]
+  `(do
+     (def ~alias ~source)
+     (alter-meta! (var ~alias)
+                  merge (select-keys (meta (var ~source)) [:doc :arglists]))))
+
 (defn copy-docs
+  "Copy doc metadata from a var in webdriver.core to the same one in this ns."
   [var-name]
   (let [var-here (resolve var-name)
         var-there (ns-resolve 'webdriver.core var-name)]
@@ -345,6 +360,16 @@ Example:
        [value driver]))))
 (copy-docs 'find-element)
 
+(defn find-element-by
+  ([driver by-selector] (wd/find-element-by (ensure-webdriver driver) by-selector))
+  ([by-selector]
+   (fn [driver]
+     (let [webdriver (ensure-webdriver driver)
+           value (wd/find-element-by webdriver by-selector)
+           driver (history driver #'find-element-by [by-selector])]
+       [value driver]))))
+(copy-docs 'find-element-by)
+
 ;; TODO Figure out non-monadic element-only functions
 (defn click
   [element]
@@ -365,6 +390,42 @@ Example:
       [value driver])))
 (copy-docs 'send-keys)
 
+(defn attribute
+  [element attr]
+  (fn [driver]
+    (let [element (ensure-element driver element)
+          value (wd/attribute element attr)
+          driver (history driver #'attribute [(->element element) attr])]
+      [value driver])))
+(copy-docs 'attribute)
+
+(defn text
+  [element]
+  (fn [driver]
+    (let [element (ensure-element driver element)
+          value (wd/text element)
+          driver (history driver #'text [(->element element)])]
+      [value driver])))
+(copy-docs 'text)
+
+;;;;;;;;;;;;;
+;; Aliases ;;
+;;;;;;;;;;;;;
+
+(defalias by-attr-contains wd/by-attr-contains)
+(defalias by-attr-ends wd/by-attr-ends)
+(defalias by-attr-starts wd/by-attr-starts)
+(defalias by-attr= wd/by-attr=)
+(defalias by-class-name wd/by-class-name)
+(defalias by-css-selector wd/by-css-selector)
+(defalias by-has-attr wd/by-has-attr)
+(defalias by-id wd/by-id)
+(defalias by-link-text wd/by-link-text)
+(defalias by-name wd/by-name)
+(defalias by-partial-link-text wd/by-partial-link-text)
+(defalias by-query wd/by-query)
+(defalias by-tag wd/by-tag)
+(defalias by-xpath wd/by-xpath)
 
 ;; Usage
 (comment
