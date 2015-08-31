@@ -1,4 +1,4 @@
-(ns ^:manual-setup webdriver.monad-test
+(ns webdriver.monad-test
   (:require [clojure.test :refer :all]
             [webdriver.monad :refer :all]
             [webdriver.test.helpers :refer :all]
@@ -12,7 +12,9 @@
   [f]
   (when-not @driv
     (reset! driv (driver (FirefoxDriver.))))
-  (drive-with @driv (to *base-url*))
+  ((drive
+    (to *base-url*)
+    :done) @driv)
   (f))
 
 (defn quit-browser
@@ -40,12 +42,10 @@
 
 (deftest back-forward-should-traverse-browser-history
   (let [test (drive (click "//a[text()='example form']")
-                    ;; TODO Again raises question of monadic or not...
-                    (wait-until (fn [d]
-                                  (= (drive-with d
-                                                 u <- (current-url)
-                                                 u)
-                                     (str *base-url* "example-form"))))
+                    (wait-until (drive
+                                 url <- (current-url)
+                                 (return
+                                  (= url (str *base-url* "example-form")))))
                     url-form <- (current-url)
                     (back)
                     url-orig <- (current-url)
@@ -54,7 +54,8 @@
                     {:url-form url-form
                      :url-orig url-orig
                      :url-form2 url-form2})]
-    (is (= {:url-form (str *base-url* "example-form")
-            :url-orig *base-url*
-            :url-form2 (str *base-url* "example-form")}
-           (first (test @driv))))))
+    (let [result (test @driv)]
+      (is (= {:url-form (str *base-url* "example-form")
+              :url-orig *base-url*
+              :url-form2 (str *base-url* "example-form")}
+             (first result))))))
