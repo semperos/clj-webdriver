@@ -69,7 +69,7 @@
   [idx item]
   (let [num (inc idx)
         action (:name (meta (:action item)))]
-    (str " " num ". Called " action
+    (str " " num ". Called `" action "`"
          (when-let [args (:args item)]
            (str " with " (format-args (:args item)))))))
 
