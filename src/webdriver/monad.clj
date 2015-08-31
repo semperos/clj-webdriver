@@ -242,25 +242,35 @@ Example:
         var-there (ns-resolve 'webdriver.core var-name)]
     (alter-meta! var-here assoc :doc (:doc (meta var-there)))))
 
+(defn satisfied?
+  "Returns a function that webdriver.core/wait-until will accept as its predicate. The `action` is a monadic expression, which is a function that takes a starting monadic value and performs the computation. If `throws-exception?` is truthy, the underlying action is wrapped in a try/catch that returns `nil` if an exception is raised."
+  [driver action throws-exception?]
+  (fn [driver]
+    (let [[result _] (if throws-exception?
+                       (try
+                         (action driver)
+                         (catch Throwable _ nil))
+                       (action driver))]
+      (when result
+        (not (instance? Throwable result))))))
+
 (defn wait-until
   "Set an explicit wait time `timeout` for a particular condition `pred`. Optionally set an `interval` for testing the given predicate. All units in milliseconds."
-  ([m-pred] (wait-until m-pred wd/wait-timeout))
-  ([m-pred timeout] (wait-until m-pred timeout wd/wait-interval))
-  ([m-pred timeout interval]
+  ([action] (wait-until action nil))
+  ([action {:keys [wait-timeout
+                   wait-interval
+                   wait-throws?]
+            :or {wait-timeout wd/wait-timeout
+                 wait-interval wd/wait-interval
+                 wait-throws? true}}]
    (fn [driver]
      (let [webdriver (ensure-webdriver driver)
-           value :void
-           driver (history driver #'wait-until [pred timeout interval])]
-       ;; (wait-until (fn [_driver_] (find-element "//a[text()='Sign in']")))
-       ;; Two choices:
-       ;;  * I provide monadic equivalents for common predicates like =, >, <, etc.
-       ;;  * I make the user provide additional argument: one raw predicate, one monadic expression
+           driver (history driver #'wait-until [action])]
        (wd/wait-until webdriver
-                      (fn wrapped-predicate [this-driver]
-                        ((m-pred))
-                        ;; (= (current-url) "https://github.com/login")
-                        pred) timeout interval)
-       [value driver]))))
+                      (satisfied? driver action wait-throws?)
+                      wait-timeout
+                      wait-interval)
+       [:void driver]))))
 
 (defn back
   ([driver] (wd/back (ensure-webdriver driver)))
