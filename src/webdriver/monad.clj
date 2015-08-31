@@ -30,17 +30,19 @@
 
 (defn driver
   "This is the base state for the WebDriver monads. It includes an entry for the underlying WebDriver object that does the heavy lifting, as well as configuration options for various features inside the monad."
-  ([^WebDriver webdriver] (driver webdriver nil))
+  ([^WebDriver webdriver] (driver webdriver {}))
   ([^WebDriver webdriver {:keys [record-history?
                                  wait?
                                  wait-pred
                                  wait-timeout
-                                 wait-interval]
-                          :or [record-history? true
+                                 wait-interval
+                                 wait-throws?]
+                          :or {record-history? true
                                wait? false
                                wait-pred (fn [driver element] (wd/find-element (ensure-webdriver driver) element))
                                wait-timeout wd/wait-timeout
-                               wait-interval wd/wait-interval]
+                               wait-interval wd/wait-interval
+                               wait-throws? true}
                           :as opts}]
    (cond-> (assoc opts :webdriver webdriver)
      record-history? (assoc :history []))))
