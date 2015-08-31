@@ -196,11 +196,6 @@ Example:
         expr (return-expr steps)]
     `(domonad ~name ~do-steps ~expr)))
 
-(defmacro drive-with
-  "Like `drive` but expects the starting value upfront."
-  [value & steps]
-  `((drive ~@steps) ~value))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Monadic WebDriver API ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
