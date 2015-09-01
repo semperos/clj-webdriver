@@ -116,16 +116,6 @@
   (is (thrown? IllegalArgumentException
                (find-element driver [{:tag :div, :id "content", :xpath "//div[@id='content']"}, {:tag :a, :class "external"}]))))
 
-(defn exists-should-return-truthy-falsey-and-should-not-throw-an-exception
-  [driver]
-  (is (-> driver
-          (find-element {:tag :a})
-          exists?))
-  (is (not
-       (-> driver
-           (find-element {:tag :area})
-           exists?))))
-
 (defn visible-should-return-truthy-falsey-when-visible
   [driver]
   (is (-> driver

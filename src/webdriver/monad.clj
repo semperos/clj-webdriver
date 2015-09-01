@@ -437,7 +437,10 @@
        [value driver]))))
 (copy-docs 'find-elements)
 
-;; TODO Figure out non-monadic element-only functions
+;;;;;;;;;;;;;;
+;; Elements ;;
+;;;;;;;;;;;;;;
+
 (defn click
   [element]
   (fn [driver]
@@ -474,6 +477,15 @@
           driver (history driver #'text [(->element element)])]
       [value driver])))
 (copy-docs 'text)
+
+(defn visible?
+  [element]
+  (fn [driver]
+    (let [element (ensure-element driver element)
+          value (wd/visible? element)
+          driver (history driver #'visible? [(->element element)])]
+      [value driver])))
+(copy-docs 'visible?)
 
 ;;;;;;;;;;;;;
 ;; Aliases ;;

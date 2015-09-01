@@ -166,3 +166,11 @@
               el <- (find-element [{:tag :div, :id "content", :xpath "//div[@id='content']"}, {:tag :a, :class "external"}])
               el)]
     (is (instance? IllegalArgumentException (first (test @driv))))))
+
+(defdrive test-visible? pass?
+  (is (visible? {:tag :a, :text "Moustache"}))
+  vis? <- (visible? {:tag :a, :href "#pages"})
+  (is (not vis?))
+  (is (visible? {:tag :a, :text "Moustache"}))
+  vis2? <- (visible? {:tag :a, :href "#pages"})
+  (is (not vis?)))
