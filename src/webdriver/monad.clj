@@ -6,6 +6,8 @@
                                          maybe-m
                                          monad-transformer
                                          state-m with-monad]]
+            [clojure.test :as test]
+            [clojure.template :as temp]
             [clojure.string :refer [join]]
             [webdriver.core :as wd])
   (:import clojure.lang.ExceptionInfo
@@ -52,11 +54,11 @@
 (defmethod format-arg WebElement
   [element]
   (str "WebElement<"
-   (pr-str
-    (cond-> (:tag element)
-      (:id element) (str "#" (:id element))
-      (:class element) (str "." (:class element))))
-   ">"))
+       (pr-str
+        (cond-> (:tag element)
+          (seq (:id element)) (str "#" (:id element))
+          (seq (:class element)) (str "." (:class element))))
+       ">"))
 
 (defmethod format-arg :default
   [arg] (pr-str arg))
@@ -111,29 +113,39 @@
   "The simple WebDriver stateful monad extended with maybe semantics."
   (maybe-t webdriver-m))
 
+(def webdriver-test-m
+  "Simple WebDriver stateful monad extended with maybe semantics for test failures, represented by :test-failure. This API's `is` form produces `:test-failure` on test failure."
+  (maybe-t webdriver-m :test-failure))
+
 (defmonad webdriver-error-m
-   "The simple WebDriver stateful monad extended with error-handling semantics."
-   [m-result (fn m-result-state [v]
-               (fn [driver] [v driver]))
-    ;; Since this is the state monad, `mv` is the function
-    ;; which accepts a state (named `driver` here) and returns
-    ;; a monadic value.
-    m-bind (fn m-bind-state [mv f]
-             (fn [driver]
-               (let [results (try (mv driver)
-                                  (catch Throwable e
-                                    (handle-webdriver-error e mv driver)))]
-                 (if (instance? ExceptionInfo results)
-                   [results driver]
-                   ((f (first results)) (second results))))))])
+  "The simple WebDriver stateful monad extended with error-handling semantics."
+  [m-result (fn m-result-state [v]
+              (fn [driver] [v driver]))
+   ;; Since this is the state monad, `mv` is the function
+   ;; which accepts a state (named `driver` here) and returns
+   ;; a monadic value.
+   m-bind (fn m-bind-state [mv f]
+            (fn [driver]
+              (let [results (try (mv driver)
+                                 (catch Throwable e
+                                   (handle-webdriver-error e mv driver)))]
+                (if (instance? ExceptionInfo results)
+                  [results driver]
+                  ((f (first results)) (second results))))))])
 
 (def webdriver-maybe-error-m
   "The stateful WebDriver monad extended with maybe and error-handling semantics."
   (maybe-t webdriver-error-m))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Generic Monad Utilities ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(def webdriver-test-error-m
+  "The stateful WebDriver monad extended with test and error-handling semantics."
+  (maybe-t webdriver-error-m :test-failure))
+
+(def default-monad #'webdriver-test-error-m)
+
+;;;;;;;;;;;;;;;;;;;;;
+;; Monad Utilities ;;
+;;;;;;;;;;;;;;;;;;;;;
 
 (defn steps-as-bindings
   "Receives a collection of Clojure forms as `steps`. Statements are standalone, but expressions with bindings are written `a-name <- monadic-application`. This function transforms this collection into a vector of bindings that `domonad` will accept as its steps."
@@ -184,27 +196,63 @@
     `(domonad ~name ~do-steps ~expr)))
 
 (defmacro drive
-  "Default `drive-in` usage with `webdriver-error-m` monad. Uses `domonad` under the covers.
+  "Uses `drive-in` with default (recommended) monad which is `default-monad`.
 
-Example:
+  Example:
 
-```
-(let [test (drive (to \"http://example.com\")
+  ```
+  (let [test (drive (to \"http://example.com\")
                   button <- (find-element {:css \"#login\"})
                   (click button)
                   (current-url))]
   (test my-driver))
-```
- "
+  ```
+  "
   [& steps]
-  (let [name 'webdriver-error-m
+  (let [name (:name (meta default-monad))
         do-steps (steps-as-bindings (butlast steps))
         expr (return-expr steps)]
     `(domonad ~name ~do-steps ~expr)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Monadic WebDriver API ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;
+;; Test API ;;
+;;;;;;;;;;;;;;
+
+(defmacro is-m
+  ([form]
+   `(fn [driver#]
+      (if-let [result# (test/is ~form)]
+        [result# driver#]
+        [:test-failure (assoc driver#
+                              :test-form
+                              '~form)])))
+  ([form msg]
+   `(fn [driver#]
+      (if-let [result# (test/is ~form ~msg)]
+        [result# driver#]
+        [:test-failure (assoc driver#
+                              :test-form
+                              '~form)]))))
+
+(defmacro are-m
+  "Like `clojure.test/are` but returns a monadic value."
+  [argv expr & args]
+  (if (or
+       ;; (are [] true) is meaningless but ok
+       (and (empty? argv) (empty? args))
+       ;; Catch wrong number of args
+       (and (pos? (count argv))
+            (pos? (count args))
+            (zero? (mod (count args) (count argv)))))
+    `(fn [driver#]
+       (if-let [result# (temp/do-template ~argv (test/is ~expr) ~@args)]
+         [result# driver#]
+         [:test-failure driver#]))
+    (throw (IllegalArgumentException. "The number of args doesn't match are's argv."))))
+
+;;;;;;;;;;;;;;;;;;;
+;; WebDriver API ;;
+;;;;;;;;;;;;;;;;;;;
 
 (defn history
   "If history is enabled in the driver state, append a map with `action` and `args` to it."
@@ -476,5 +524,5 @@ Example:
               (send-keys "input#password" "WHO KNOWS?")
               {:url-a url-a
                :url-b url-b})]
-  (test d))
+    (test d))
   )

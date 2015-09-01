@@ -25,11 +25,20 @@
 (use-fixtures :once start-system! stop-system! quit-browser)
 (use-fixtures :each restart-browser)
 
+(defmacro pass?
+  "Final check on test passing, based on conventional use of monadic computations in this test suite."
+  [test]
+  `(let [[result# driver#] (~test @driv)]
+     (when (instance? Throwable result#)
+       (print (format-history (:history driver#))))
+     (is (= :pass result#))))
+
 (deftest browser-basics
-  (let [test (drive current-url <- (current-url)
-                    title <- (title)
-                    page-source <- (page-source)
-                    (identity-map current-url title page-source))
+  (let [test (drive
+              current-url <- (current-url)
+              title <- (title)
+              page-source <- (page-source)
+              (identity-map current-url title page-source))
         [results driver] (test @driv)]
     (is (map? driver))
     (is (instance? WebDriver (:webdriver driver)))
@@ -45,28 +54,28 @@
                                  (return
                                   (= url (str *base-url* "example-form")))))
                     url-form <- (current-url)
+                    (is-m (= (str *base-url* "example-form") url-form))
                     (back)
                     url-orig <- (current-url)
+                    (is-m (= *base-url* url-orig))
                     (forward)
                     url-form2 <- (current-url)
-                    (identity-map url-form url-orig url-form2))]
-    (let [result (test @driv)]
-      (is (= {:url-form (str *base-url* "example-form")
-              :url-orig *base-url*
-              :url-form2 (str *base-url* "example-form")}
-             (first result))))))
+                    (is-m (= (str *base-url* "example-form") url-form2))
+                    :pass)]
+    (pass? test)))
 
-(deftest to-should-open-given-url-in-browser
+(deftest test-to
   (let [test (drive
               (to (str *base-url* "example-form"))
               url <- (current-url)
               title <- (title)
               [url title])
+        ;; Example of simply pulling out values
         [[url title]] (test @driv)]
     (is (= (str *base-url* "example-form") url))
     (is (= "Ministache" title))))
 
-(deftest should-be-able-to-find-element-bys-using-low-level-by-wrappers
+(deftest test-find-by-and-attributes
   ;; Get to example form page
   ((drive
     (click {:tag :a, :text "example form"})
@@ -75,14 +84,14 @@
                  el))
     :done) @driv)
   ;; Exercise both `attribute` and different `by-*` types
-  (let [first-name (drive
-                    id <- (attribute (by-name "first_name") :id)
-                    name <- (attribute (by-id "first_name") :name)
-                    (identity-map id name))
-        [results] (first-name @driv)]
-    ;; TODO Bad test if both values are same.
-    (is (= "first_name" (:id results)))
-    (is (= "first_name" (:name results))))
+  ;; TODO Bad test if both values are same.
+  (let [test (drive
+              id <- (attribute (by-name "first_name") :id)
+              (is-m (= "first_name" id))
+              name <- (attribute (by-id "first_name") :name)
+              (is-m (= "first_name" name))
+              :pass)]
+    (pass? test))
   (let [home (drive
               link-text-full <- (text (by-link-text "home"))
               link-text-xpath <- (text (by-xpath "//a[text()='home']"))
@@ -93,17 +102,29 @@
         [results] (home @driv)]
     (= (take 5 (repeat "home"))
        results)))
-;; example-form-text <- (text (by-partial-link-text "example"))
-;;   (is (= "example form"
-;;          (text (find-element-by driver (by-partial-link-text "example")))))
-;;   (is (= "social_media"
-;;          (attribute (find-element-by driver (by-attr-contains :option :value "cial_")) :value)))
-;;   (is (= "social_media"
-;;          (attribute (find-element-by driver (by-attr-starts :option :value "social_")) :value)))
-;;   (is (= "social_media"
-;;          (attribute (find-element-by driver (by-attr-ends :option :value "_media")) :value)))
-;;   (is (= "france"
-;;          (attribute (find-element-by driver (by-has-attr :option :value)) :value)))
-;;   (to driver *base-url*)
-;;   (is (= "first odd"
-;;          (attribute (find-element-by driver (by-class-name "first odd")) :class)))
+
+(deftest test-find-by-and-attributes-part-2
+  ((drive
+    (click {:tag :a, :text "example form"})
+    (wait-until (drive
+                 el <- (find-element-by (by-id "first_name"))
+                 el))
+    :done) @driv)
+  (let [test (drive
+              partial-text <- (text (by-partial-link-text "example"))
+              by-contains <- (attribute (by-attr-contains :option :value "cial_")
+                                        :value)
+              by-starts <- (attribute (by-attr-starts :option :value "social_")
+                                      :value)
+              by-ends <- (attribute (by-attr-ends :option :value "_media") :value)
+              by-has <- (attribute (by-has-attr :option :value) :value)
+              by-class <- (attribute (by-class-name "first odd") :class)
+              (are-m [x y] (= x y)
+                     partial-text "example form"
+                     by-contains "social_media"
+                     by-starts "social_media"
+                     by-ends "social_media"
+                     by-has "france"
+                     by-class "first odd")
+              :pass)]
+    (pass? test)))
