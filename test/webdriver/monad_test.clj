@@ -156,3 +156,13 @@
   (is (= "home" text-home))
   els <- (find-elements [{:tag :*, :id "footer"}, {:tag :a}])
   (is (= 5 (count els))))
+
+(t/deftest test-hierarchical-prohibits-queries
+  (let [test (drive
+              el <- (find-element [{:tag :div, :id "content", :css "div#content"}, {:tag :a, :class "external"}])
+              el)]
+    (is (instance? IllegalArgumentException (first (test @driv)))))
+  (let [test (drive
+              el <- (find-element [{:tag :div, :id "content", :xpath "//div[@id='content']"}, {:tag :a, :class "external"}])
+              el)]
+    (is (instance? IllegalArgumentException (first (test @driv))))))
