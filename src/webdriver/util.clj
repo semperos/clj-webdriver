@@ -6,6 +6,21 @@
            [org.openqa.selenium Capabilities HasCapabilities
             WebDriver WebElement NoSuchElementException]))
 
+(defmacro defalias
+  "Alias a var from one namespace here, copying both :doc and :arglists metadata."
+  [alias source]
+  `(do
+     (def ~alias ~source)
+     (alter-meta! (var ~alias)
+                  merge (select-keys (meta (var ~source)) [:doc :arglists]))))
+
+(defn copy-docs
+  "Copy doc metadata from a var in webdriver.core to the same one in this ns."
+  [var-name]
+  (let [var-here (resolve var-name)
+        var-there (ns-resolve 'webdriver.core var-name)]
+    (alter-meta! var-here assoc :doc (:doc (meta var-there)))))
+
 (declare build-query)
 
 (defn build-css-attrs

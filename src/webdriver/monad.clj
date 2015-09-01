@@ -9,7 +9,8 @@
             [clojure.test :as test]
             [clojure.template :as temp]
             [clojure.string :refer [join]]
-            [webdriver.core :as wd])
+            [webdriver.core :as wd]
+            [webdriver.util :refer [copy-docs defalias]])
   (:import clojure.lang.ExceptionInfo
            [org.openqa.selenium WebDriver WebElement]))
 
@@ -147,6 +148,11 @@
 ;; Monad Utilities ;;
 ;;;;;;;;;;;;;;;;;;;;;
 
+(defn monad? [x]
+  (and (map? x)
+       (contains? x :m-bind)
+       (contains? x :m-result)))
+
 (defn steps-as-bindings
   "Receives a collection of Clojure forms as `steps`. Statements are standalone, but expressions with bindings are written `a-name <- monadic-application`. This function transforms this collection into a vector of bindings that `domonad` will accept as its steps."
   [steps]
@@ -189,14 +195,14 @@
     `(into {} ~pairs)))
 
 (defmacro drive-in
-  "No, not a movie theater. Drive the browser within the given monad. Uses `domonad` under the covers."
+  "Perform `steps` in the given monad, using Haskell \"do\" syntax."
   [name & steps]
   (let [do-steps (steps-as-bindings (butlast steps))
         expr (return-expr steps)]
     `(domonad ~name ~do-steps ~expr)))
 
 (defmacro drive
-  "Uses `drive-in` with default (recommended) monad which is `default-monad`.
+  "Uses `drive-in` with default (recommended) monad of `webdriver.monad/default-monad`.
 
   Example:
 
@@ -214,11 +220,29 @@
         expr (return-expr steps)]
     `(domonad ~name ~do-steps ~expr)))
 
+(defmacro defdrive
+  "A `deftest` executed via `drive`. A `pass-fn` must be provided which takes the monadic computation (function) as argument and, ostensibly, supplies it with its needed starting state."
+  [name pass-fn & body]
+  `(t/deftest ~name
+     (let [test# (drive
+                  ~@body
+                  :pass)]
+       (~pass-fn test#))))
+
+(defmacro defdrive-in
+  "Same as `defdrive` but allows specifying a specific monad in which to perform the computation."
+  [name monad pass-fn & body]
+  `(t/deftest ~name
+     (let [test# (drive-in ~monad
+                  ~@body
+                  :pass)]
+       (~pass-fn test#))))
+
 ;;;;;;;;;;;;;;
 ;; Test API ;;
 ;;;;;;;;;;;;;;
 
-(defmacro is-m
+(defmacro is
   ([form]
    `(fn [driver#]
       (if-let [result# (test/is ~form)]
@@ -234,7 +258,7 @@
                               :test-form
                               '~form)]))))
 
-(defmacro are-m
+(defmacro are
   "Like `clojure.test/are` but returns a monadic value."
   [argv expr & args]
   (if (or
@@ -289,21 +313,6 @@
 ;;  2. Driver action for primitive value           ;;
 ;;  3. Driver action for WebElement                ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defmacro defalias
-  "Alias a var from one namespace here, copying both :doc and :arglists metadata."
-  [alias source]
-  `(do
-     (def ~alias ~source)
-     (alter-meta! (var ~alias)
-                  merge (select-keys (meta (var ~source)) [:doc :arglists]))))
-
-(defn copy-docs
-  "Copy doc metadata from a var in webdriver.core to the same one in this ns."
-  [var-name]
-  (let [var-here (resolve var-name)
-        var-there (ns-resolve 'webdriver.core var-name)]
-    (alter-meta! var-here assoc :doc (:doc (meta var-there)))))
 
 (defn satisfied?
   "Returns a function that webdriver.core/wait-until will accept as its predicate. The `action` is a monadic expression, which is a function that takes a starting monadic value and performs the computation. If `throws-exception?` is truthy, the underlying action is wrapped in a try/catch that returns `nil` if an exception is raised."
@@ -417,6 +426,16 @@
            driver (history driver #'find-element-by [by-selector])]
        [value driver]))))
 (copy-docs 'find-element-by)
+
+(defn find-elements
+  ([driver selector] (wd/find-elements (ensure-webdriver driver) selector))
+  ([selector]
+   (fn [driver]
+     (let [webdriver (ensure-webdriver driver)
+           value (wd/find-elements webdriver selector)
+           driver (history driver #'find-elements [selector])]
+       [value driver]))))
+(copy-docs 'find-elements)
 
 ;; TODO Figure out non-monadic element-only functions
 (defn click
