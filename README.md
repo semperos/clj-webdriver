@@ -8,6 +8,8 @@ Please see the [Wiki](https://github.com/semperos/clj-webdriver/wiki) for prose 
 
 **Latest stable coordinates:**
 
+[![Clojars Project](http://clojars.org/clj-webdriver/latest-version.svg)](http://clojars.org/clj-webdriver)
+
 ```
 [clj-webdriver "0.7.2"]
 ```
