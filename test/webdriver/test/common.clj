@@ -603,7 +603,6 @@
                    #'find-element-should-support-basic-attr-val-map
                    #'find-element-should-support-hierarchical-querying
                    #'hierarchical-querying-should-not-support-css-or-xpath-attrs
-                   #'exists-should-return-truthy-falsey-and-should-not-throw-an-exception
                    #'visible-should-return-truthy-falsey-when-visible
                    #'present-should-return-truthy-falsey-when-exists-and-visible
                    #'drag-and-drop-by-pixels-should-work

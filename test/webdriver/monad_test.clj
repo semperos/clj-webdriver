@@ -170,12 +170,9 @@
 (defdrive test-visible? pass?
   (is (visible? {:tag :a, :text "Moustache"}))
   vis? <- (visible? {:tag :a, :href "#pages"})
-  (is (not vis?))
-  (is (visible? {:tag :a, :text "Moustache"}))
-  vis2? <- (visible? {:tag :a, :href "#pages"})
   (is (not vis?)))
 
 (defdrive test-present? pass?
   (is (present? {:tag :a, :text "Moustache"}))
-  el <- (find-element {:tag :a, :href "#pages"})
-  (is (not (present? el))))
+  pres? <- (present? {:tag :a, :href "#pages"})
+  (is (not pres?)))

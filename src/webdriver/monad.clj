@@ -494,7 +494,7 @@
           value (wd/present? element)
           driver (history driver #'present? [(->element element)])]
       [value driver])))
-(copy-docs 'visible?)
+(copy-docs 'present?)
 
 ;;;;;;;;;;;;;
 ;; Aliases ;;
