@@ -26,6 +26,7 @@
   "Make it possible to pass in a WebElement or a selector that `webdriver.core/find-element` can find."
   [{:keys [webdriver] :as driver} selector]
   (cond
+    (nil? selector) nil
     (instance? WebElement selector) selector
     (:wait? driver) (wait-element driver selector)
     ;; TODO these raw wd/find-element calls likely need to be in the wait-until function
