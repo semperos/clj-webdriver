@@ -61,31 +61,10 @@ def change_project_clj(version)
 end
 
 #
-# Change project version in README if not SNAPSHOT
-#
-def change_readme(version)
-  unless is_snapshot? version
-    file = 'README.md'
-    tmp_file = file + '_new'
-    File.open(tmp_file, 'w') do |out_file|
-      File.open(file, 'r').each do |line|
-        if line.start_with? '[clj-webdriver "'
-          out_file.print "[clj-webdriver \"#{version}\"]\n"
-        else
-          out_file.print line
-        end
-      end
-    end
-    safe_mv tmp_file, file
-  end
-end
-
-#
 # Change all files that contain the version
 #
 def change_project_version(version)
   change_project_clj version
-  change_readme version
 end
 
 #
