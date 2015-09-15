@@ -157,31 +157,36 @@
 (defn steps-as-bindings
   "Receives a collection of Clojure forms as `steps`. Statements are standalone, but expressions with bindings are written `a-name <- monadic-application`. This function transforms this collection into a vector of bindings that `domonad` will accept as its steps."
   [steps]
-  ;; Support optional Haskell-style `return` for result expression
-  (loop [steps (if (= (last steps) 'return) (butlast steps) steps)
-         bindings []]
-    (if-not (seq steps)
-      ;; Return where last thing handled was a `<-` binding
-      bindings
-      (if (= (count steps) 2)
-        ;; Return where last things handled are statements
-        (conj bindings
-              (gensym "step") (first steps)
-              (gensym "step") (second steps))
-        (if (= (count steps) 1)
-          ;; Return where last thing handled is a statement
-          (conj bindings (gensym "step") (first steps))
-          ;; Handle either single statement or Haskell-style `name <- value` syntax
-          (if (= (nth steps 1) '<-)
-            ;; Binding
-            (recur (drop 3 steps)
-                   (conj bindings (nth steps 0) (nth steps 2)))
-            ;; Statement
-            (recur (rest steps)
-                   (conj bindings (gensym "step") (first steps)))))))))
+  ;; Support `domonad` vector of bindings
+  (if (vector? (first steps))
+    (first steps)
+    ;; Support optional Haskell-style `return` for result expression.
+    ;; Actual value is accounted for by `return-expr` function
+    ;; when parsing the `drive` macro's arguments.
+    (loop [steps (if (= (last steps) 'return) (butlast steps) steps)
+           bindings []]
+      (if-not (seq steps)
+        ;; Return where last thing handled was a `<-` binding
+        bindings
+        (if (= (count steps) 2)
+          ;; Return where last things handled are statements
+          (conj bindings
+                (gensym "step") (first steps)
+                (gensym "step") (second steps))
+          (if (= (count steps) 1)
+            ;; Return where last thing handled is a statement
+            (conj bindings (gensym "step") (first steps))
+            ;; Handle either single statement or Haskell-style `name <- value` syntax
+            (if (= (nth steps 1) '<-)
+              ;; Binding
+              (recur (drop 3 steps)
+                     (conj bindings (nth steps 0) (nth steps 2)))
+              ;; Statement
+              (recur (rest steps)
+                     (conj bindings (gensym "step") (first steps))))))))))
 
 (defn return-expr
-  "Given a sequence of steps, return the \"return\" expression of the monadic computation. This is either a simple last value or a list of `(return <value>)`."
+  "Given a sequence of steps, return the \"return\" expression of the monadic computation. This is either a simple last value or a list of `(return <value>)`. The `steps-as-bindings` helper function ignores a final `return` symbol to support the end-user writing this return expression in a Haskell style using `return` as a \"reserved\" symbol."
   [steps]
   (let [expr (last steps)]
     (if (and (list? expr)
@@ -195,28 +200,58 @@
   (let [pairs (mapv #(vector (keyword %1) %1) syms)]
     `(into {} ~pairs)))
 
-(defmacro drive-in
-  "Perform `steps` in the given monad, using Haskell \"do\" syntax."
-  [name & steps]
-  (let [do-steps (steps-as-bindings (butlast steps))
-        expr (return-expr steps)]
-    `(domonad ~name ~do-steps ~expr)))
-
 (defmacro drive
-  "Uses `drive-in` with default (recommended) monad of `webdriver.monad/default-monad`.
+  "Drives the browser within a monad.
 
-  Example:
+  If the first argument is a symbol, it is assumed to be a specific monad to use. Otherwise the default `webdriver.monad/default-monad` is used.
 
+  If the next argument (or first, if no symbol is provided) is a vector, it is considered to be a vector of bindings to be used in `domonad` fashion, i.e., the bindings are performed using the monadic functions. A final form is expected after the vector of bindings which is the \"return\" value for the whole computation and has access to any of the preceding bindings, just as in `domonad`. This return value should be a single expression which is _not_ a monadic computation.
+
+  If a vector is not found in this position, then `drive` assumes Haskell-style \"do\" notation is being used, in which actions are performed without binding by default, but a binding can be acquired by using the left arrow, e.g. `my-class <- (attribute my-element :class)`. The final expression is the return value of the whole computation and is _not_ a monadic computation; for this you may either use either a simple expression value, `return <expression>` or `(return <expression>)` to suit your style.
+
+  The two syntaxes are functionally equivalent. The Haskell-style \"do\" syntax makes it more concise to write tests for which there are many side-effecting actions with few values being bound to symbols along the way; conversely, the `domonad` syntax makes it more concise when you need to bind many values.
+
+  Examples:
+
+  Haskell-style \"do\" syntax with `<-` binding:
   ```
-  (let [test (drive (to \"http://example.com\")
-                  button <- (find-element {:css \"#login\"})
-                  (click button)
-                  (current-url))]
-  (test my-driver))
+  (let [test (drive
+               (to \"https://github.com\")
+               button <- (find-element {:text \"Sign in\"})
+               (click button)
+               url <- (current-url)
+               url)]
+    (test my-driver))
+  ```
+
+  `domonad`-style vector of bindings:
+  ```
+  (let [test (drive
+               [_ (to \"https://github.com\")
+                button (find-element {:text \"Sign in\"})
+                _ (click button)
+                url (current-url)]
+               url)]
+    (test d))
+  ```
+
+  With a custom monad specified:
+  ```
+  (let [test (drive webdriver-maybe-m
+               (to \"https://github.com\")
+               button <- (find-element {:text \"Sign in\"})
+               (click button)
+               url <- (current-url)
+               url)]
+    (test my-driver))
   ```
   "
   [& steps]
-  (let [name (:name (meta default-monad))
+  (let [custom-monad? (symbol? (first steps))
+        name (if custom-monad?
+               (first steps)
+               (:name (meta default-monad)))
+        steps (if custom-monad? (rest steps) steps)
         do-steps (steps-as-bindings (butlast steps))
         expr (return-expr steps)]
     `(domonad ~name ~do-steps ~expr)))
