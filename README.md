@@ -10,10 +10,6 @@ Please see the [Wiki](https://github.com/semperos/clj-webdriver/wiki) for prose 
 
 [![Clojars Project](http://clojars.org/clj-webdriver/latest-version.svg)](http://clojars.org/clj-webdriver)
 
-```
-[clj-webdriver "0.7.2"]
-```
-
 **clj-webdriver Resources**
 
  * [Project Wiki](https://github.com/semperos/clj-webdriver/wiki)
