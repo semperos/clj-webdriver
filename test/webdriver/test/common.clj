@@ -581,14 +581,16 @@
       (find-element {:tag :a, :text "Moustache"})
       flash))
 
+(def screenshot-file (str (System/getProperty "java.io.tmpdir")
+                          "screenshot_test.png"))
 (defn take-screenshot
   [driver]
   (is (string? (get-screenshot driver :base64)))
   (is (> (count (get-screenshot driver :bytes)) 0))
   (is (= (class (get-screenshot driver :file)) java.io.File))
-  (is (= (class (get-screenshot driver :file "/tmp/screenshot_test.png")) java.io.File))
+  (is (= (class (get-screenshot driver :file screenshot-file)) java.io.File))
   ;; the following will throw an exception if deletion fails, hence our test
-  (io/delete-file "/tmp/screenshot_test.png"))
+  (io/delete-file screenshot-file))
 
 ;;; Fixture fn's ;;;
 (defn reset-driver
