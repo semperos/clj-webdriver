@@ -128,8 +128,9 @@
    ;; a monadic value.
    m-bind (fn m-bind-state [mv f]
             (fn [driver]
-              (let [results (try (mv driver)
+              (let [results (try (println "ACTION!") (mv driver)
                                  (catch Throwable e
+                                   (println "BADDD?" e)
                                    (handle-webdriver-error e mv driver)))]
                 (if (instance? ExceptionInfo results)
                   [results driver]
@@ -149,10 +150,13 @@
 ;; Monad Utilities ;;
 ;;;;;;;;;;;;;;;;;;;;;
 
-(defn monad? [x]
-  (and (map? x)
-       (contains? x :m-bind)
-       (contains? x :m-result)))
+;; Print utilities that work with the state monad
+(defn pr-m [x] (fn [state] (pr x) [:void state]))
+(defn prn-m [x] (fn [state] (prn x) [:void state]))
+(defn pr-str-m [x] (fn [state] [(pr-str x) state]))
+(defn prn-str-m [x] (fn [state] [(prn-str x) state]))
+(defn print-m [& xs] (fn [state] (apply print xs) [:void state]))
+(defn println-m [& xs] (fn [state] (apply print xs) [:void state]))
 
 (defn steps-as-bindings
   "Receives a collection of Clojure forms as `steps`. Statements are standalone, but expressions with bindings are written `a-name <- monadic-application`. This function transforms this collection into a vector of bindings that `domonad` will accept as its steps."
@@ -199,6 +203,19 @@
   [& syms]
   (let [pairs (mapv #(vector (keyword %1) %1) syms)]
     `(into {} ~pairs)))
+
+(defn monad-specified?
+  "Analyze the steps of the `drive` macro to determine if a monad is being specified.
+
+  At a DSL level, this is true in the following cases:
+  (drive my-monad [...bindings...] ...)
+  (drive my-monad (action) ...)
+  (drive my-monad x <- (action) ...)"
+  [steps]
+  (when (symbol? (first steps))
+    (or (vector? (second steps))
+        (list? (second steps))
+        (= '<- (second (rest steps))))))
 
 (defmacro drive
   "Drives the browser within a monad.
@@ -247,11 +264,11 @@
   ```
   "
   [& steps]
-  (let [custom-monad? (symbol? (first steps))
-        name (if custom-monad?
+  (let [monad-specified? (monad-specified? steps)
+        name (if monad-specified?
                (first steps)
                (:name (meta default-monad)))
-        steps (if custom-monad? (rest steps) steps)
+        steps (if monad-specified? (rest steps) steps)
         do-steps (steps-as-bindings (butlast steps))
         expr (return-expr steps)]
     `(domonad ~name ~do-steps ~expr)))
@@ -261,17 +278,7 @@
   [name pass-fn & body]
   `(t/deftest ~name
      (let [test# (drive
-                  ~@body
-                  :pass)]
-       (~pass-fn test#))))
-
-(defmacro defdrive-in
-  "Same as `defdrive` but allows specifying a specific monad in which to perform the computation."
-  [name monad pass-fn & body]
-  `(t/deftest ~name
-     (let [test# (drive-in ~monad
-                  ~@body
-                  :pass)]
+                  ~@body)]
        (~pass-fn test#))))
 
 ;;;;;;;;;;;;;;
@@ -279,23 +286,28 @@
 ;;;;;;;;;;;;;;
 
 (defmacro is
+  "A version of `clojure.test/is` that works within the webdriver monad(s). Returns a value of `:webdriver.monad/test-failure` if a test fails.
+
+  NOTE: This macro still uses `clojure.test/is` under the covers. You'll get default testing reporting output in addition to the monadic qualities of this macro's return value."
   ([form]
    `(fn [driver#]
       (if-let [result# (test/is ~form)]
         [result# driver#]
-        [:test-failure (assoc driver#
+        [::test-failure (assoc driver#
                               :test-form
                               '~form)])))
   ([form msg]
    `(fn [driver#]
       (if-let [result# (test/is ~form ~msg)]
         [result# driver#]
-        [:test-failure (assoc driver#
-                              :test-form
-                              '~form)]))))
+        [::test-failure (assoc driver#
+                               :test-form
+                               '~form)]))))
 
 (defmacro are
-  "Like `clojure.test/are` but returns a monadic value."
+  "A version of `clojure.test/are` that works within the webdriver monad(s). Returns a value of `:webdriver.monad/test-failure` if a test fails.
+
+  NOTE: This macro uses clojure.test's facilities under the covers. You'll get default testing reporting output in addition to the monadic qualities of this macro's return value."
   [argv expr & args]
   (if (or
        ;; (are [] true) is meaningless but ok
@@ -531,6 +543,14 @@
           driver (history driver #'present? [(->element element)])]
       [value driver])))
 (copy-docs 'present?)
+
+(defn exists?
+  [element]
+  (fn [driver]
+    (let [element (ensure-element driver element)
+          value (wd/exists? element)
+          driver (history driver #'exists? [(->element element)])]
+      [value driver])))
 
 ;;;;;;;;;;;;;
 ;; Aliases ;;
