@@ -8,7 +8,8 @@
             [webdriver.core :refer :all]
             [webdriver.util :refer :all]
             [webdriver.form :refer :all])
-  (:import [org.openqa.selenium TimeoutException NoAlertPresentException WebDriver]))
+  (:import java.io.File
+           [org.openqa.selenium TimeoutException NoAlertPresentException WebDriver]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;                  ;;;
@@ -581,8 +582,11 @@
       (find-element {:tag :a, :text "Moustache"})
       flash))
 
-(def screenshot-file (str (System/getProperty "java.io.tmpdir")
-                          "screenshot_test.png"))
+(def tmpdir (let [td (System/getProperty "java.io.tmpdir")]
+              (if (.endsWith td File/separator)
+                td
+                (str td File/separator))))
+(def screenshot-file (str tmpdir "screenshot_test.png"))
 (defn take-screenshot
   [driver]
   (is (string? (get-screenshot driver :base64)))
