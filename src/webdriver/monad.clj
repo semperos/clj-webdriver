@@ -128,34 +128,45 @@
    ;; a monadic value.
    m-bind (fn m-bind-state [mv f]
             (fn [driver]
-              (let [results (try (println "ACTION!") (mv driver)
+              (let [results (try
+                              (mv driver)
                                  (catch Throwable e
-                                   (println "BADDD?" e)
                                    (handle-webdriver-error e mv driver)))]
                 (if (instance? ExceptionInfo results)
                   [results driver]
-                  ((f (first results)) (second results))))))])
+                  (let [g (f (first results))
+                        next-results (try
+                                       (g (second results))
+                                       (catch Throwable e
+                                         (handle-webdriver-error e g (second results))))]
+                    (if (instance? ExceptionInfo next-results)
+                      [next-results (second results)]
+                      next-results))))))])
+(alter-meta! #'webdriver-error-m assoc ::catch true)
 
-(def webdriver-maybe-error-m
+(def ^::catch webdriver-maybe-error-m
   "The stateful WebDriver monad extended with maybe and error-handling semantics."
   (maybe-t webdriver-error-m))
 
-(def webdriver-test-error-m
+(def ^::catch webdriver-test-error-m
   "The stateful WebDriver monad extended with test and error-handling semantics."
   (maybe-t webdriver-error-m :test-failure))
 
 (def default-monad #'webdriver-test-error-m)
+(alter-meta! #'default-monad
+             merge
+             (select-keys (meta #'webdriver-test-error-m) [:doc ::catch]))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ;; Monad Utilities ;;
 ;;;;;;;;;;;;;;;;;;;;;
 
 ;; Print utilities that work with the state monad
-(defn pr-m [x] (fn [state] (pr x) [:void state]))
-(defn prn-m [x] (fn [state] (prn x) [:void state]))
-(defn pr-str-m [x] (fn [state] [(pr-str x) state]))
+(defn pr-m      [x] (fn [state] (pr x) [:void state]))
+(defn prn-m     [x] (fn [state] (prn x) [:void state]))
+(defn pr-str-m  [x] (fn [state] [(pr-str x) state]))
 (defn prn-str-m [x] (fn [state] [(prn-str x) state]))
-(defn print-m [& xs] (fn [state] (apply print xs) [:void state]))
+(defn print-m   [& xs] (fn [state] (apply print xs) [:void state]))
 (defn println-m [& xs] (fn [state] (apply print xs) [:void state]))
 
 (defn steps-as-bindings
@@ -272,14 +283,6 @@
         do-steps (steps-as-bindings (butlast steps))
         expr (return-expr steps)]
     `(domonad ~name ~do-steps ~expr)))
-
-(defmacro defdrive
-  "A `deftest` executed via `drive`. A `pass-fn` must be provided which takes the monadic computation (function) as argument and, ostensibly, supplies it with its needed starting state."
-  [name pass-fn & body]
-  `(t/deftest ~name
-     (let [test# (drive
-                  ~@body)]
-       (~pass-fn test#))))
 
 ;;;;;;;;;;;;;;
 ;; Test API ;;
