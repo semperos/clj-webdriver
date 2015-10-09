@@ -282,7 +282,13 @@
         steps (if monad-specified? (rest steps) steps)
         do-steps (steps-as-bindings (butlast steps))
         expr (return-expr steps)]
-    `(domonad ~name ~do-steps ~expr)))
+    `(domonad ~name
+              ;; By putting an initial binding here,
+              ;; m-bind becomes the sole place to handle
+              ;; things like exceptions.
+              [identity# (fn [driver#] [:identity driver#])
+               ~@do-steps]
+              ~expr)))
 
 ;;;;;;;;;;;;;;
 ;; Test API ;;

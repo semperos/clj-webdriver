@@ -152,11 +152,11 @@
   (let [test (drive
               el <- (find-element [{:tag :div, :id "content", :css "div#content"}, {:tag :a, :class "external"}])
               el)]
-    (t/is (instance? IllegalArgumentException (first (test @driv)))))
+    (t/is (instance? IllegalArgumentException (.getCause (first (test @driv))))))
   (let [test (drive
               el <- (find-element [{:tag :div, :id "content", :xpath "//div[@id='content']"}, {:tag :a, :class "external"}])
               el)]
-    (t/is (instance? IllegalArgumentException (first (test @driv))))))
+    (t/is (instance? IllegalArgumentException (.getCause (first (test @driv)))))))
 
 (def test-visible?
   (drive
