@@ -96,7 +96,7 @@
               (str msg " The last few steps in your test were:\n"
                    (format-history history))
               msg)
-        msg (str "\nLast attempted action: " monadic-value)]
+        msg (str msg "\nLast attempted action: " monadic-value)]
     (ex-info msg
              (cond-> {:webdriver driver
                       :attempted-action monadic-value}
