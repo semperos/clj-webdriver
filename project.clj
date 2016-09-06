@@ -24,9 +24,9 @@
                                   [org.seleniumhq.selenium/selenium-java "2.47.0"]
                                   [org.seleniumhq.selenium/selenium-remote-driver "2.47.1"]
                                   [com.codeborne/phantomjsdriver "1.2.1"
-                                   :exclusion [org.seleniumhq.selenium/selenium-java
-                                               org.seleniumhq.selenium/selenium-server
-                                               org.seleniumhq.selenium/selenium-remote-driver]]]
+                                   :exclusions [org.seleniumhq.selenium/selenium-java
+                                                org.seleniumhq.selenium/selenium-server
+                                                org.seleniumhq.selenium/selenium-remote-driver]]]
                    :plugins [[codox "0.8.13"]]
                    :aliases {"api-docs" ["doc"]}
                    :codox {:output-dir "api-docs"
