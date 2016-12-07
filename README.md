@@ -1,4 +1,4 @@
-# Clojure API for Selenium-WebDriver #
+# [UNMAINTAINED] Clojure API for Selenium-WebDriver #
 
 This is a Clojure library for driving a web browser using Selenium-WebDriver.
 
