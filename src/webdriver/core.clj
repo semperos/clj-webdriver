@@ -220,7 +220,7 @@
     (FirefoxDriver.)))
 
 (defmethod new-webdriver :phantomjs
-  [{:keys [phantomjs-executable] :as browser-spec}]
+  [{:keys [phantomjs-executable phantomjs-cli-args] :as browser-spec}]
   (if-not phantomjs-enabled?
     (throw (RuntimeException. "You do not have the PhantomJS JAR's on the classpath. Please add com.codeborne/phantomjsdriver version 1.2.1 with exclusions for org.seleniumhq.selenium/selenium-java and any other org.seleniumhq.selenium JAR's your code relies on."))
     (let [caps (DesiredCapabilities.)
@@ -234,11 +234,13 @@
           phantomjs-driver-ctor (first (filterv ctor-sig ctors))]
       ;; Seems to be able to find it if on PATH by default, like Chrome's driver
       (when phantomjs-executable
-        (let [klass (Class/forName "org.openqa.selenium.phantomjs.PhantomJSDriverService")
-              field (.getField klass "PHANTOMJS_EXECUTABLE_PATH_PROPERTY")]
-          (.setCapability ^DesiredCapabilities caps
-                          ^String (.get field klass)
-                          ^String phantomjs-executable)))
+        (.setCapability ^DesiredCapabilities caps
+                        ^String PhantomJSDriverService/PHANTOMJS_EXECUTABLE_PATH_PROPERTY
+                        ^String phantomjs-executable))
+      (when phantomjs-cli-args
+        (.setCapability ^DesiredCapabilities caps
+                        ^String PhantomJSDriverService/PHANTOMJS_CLI_ARGS
+                        (into-array String phantomjs-cli-args)))
       (.newInstance ^Constructor phantomjs-driver-ctor (into-array java.lang.Object [caps])))))
 
 ;; Borrowed from core Clojure
